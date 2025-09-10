@@ -1,6 +1,8 @@
 import path from "path";
 import pathConfig from "./pathConfigs.js";
 import { getLlama, LlamaModel, LlamaEmbeddingContext } from 'node-llama-cpp';
+import { getDatabase } from "../database/sqlite.js";
+import { getLanceFilesTable } from "../database/lanceDb.js";
 
 // 全局变量存储模型实例
 let llamaModel: LlamaModel | null = null;
@@ -56,6 +58,51 @@ export const vectorizeText = async (text: string): Promise<number[]> => {
         console.error(`文本向量化失败: ${msg}`);
     }
 };
+
+
+/**
+ * 向量化所有文件
+ */
+export const vectorFiles = async (): Promise<void> => {
+    // 1. 从SQLite获取未向量化的文件
+    const db = getDatabase()
+    const unvectorizedFiles = db.prepare(
+        'SELECT path, md5 FROM files WHERE vectorized = 0'
+    ).all() as Array<{ path: string, md5: string }>;
+
+    console.log(`发现 ${unvectorizedFiles.length} 个未向量化文件`);
+
+    // 2. 连接向量数据库
+    const filesTbale = await getLanceFilesTable()
+
+    // 3. 批量处理向量化
+    const updateStmt = db.prepare('UPDATE files SET vectorized = 1 WHERE path = ?');
+
+    for (const file of unvectorizedFiles) {
+        try {
+            const fileName = path.basename(file.path);
+            // 向量化文件路径
+            const vector = await vectorizeText(fileName);
+
+            if (vector.length > 0) {
+                // 插入向量数据库
+                await filesTbale.add([{
+                    vector: vector,
+                    name: fileName,        // 文件名作为元数据
+                    filePath: file.path,   // 完整路径作为元数据
+                    md5: file.md5
+                }]);
+
+                // 标记为已向量化
+                updateStmt.run(file.path);
+            }
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : '向量化失败';
+            console.error(`文件向量化失败 ${file.path}: ${msg}`);
+        }
+    }
+
+}
 
 
 /**

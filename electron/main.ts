@@ -158,7 +158,7 @@ app.whenReady().then(() => {
   // 初始化数据库
   initializeDatabase();
   // 初始化向量数据库
-  initLanceDB();
+  // initLanceDB();
 });
 
 app.on('window-all-closed', () => {

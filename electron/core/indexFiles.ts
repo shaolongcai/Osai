@@ -5,6 +5,7 @@ import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
+import { vectorFiles } from './vectorization.js';
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
@@ -16,20 +17,6 @@ const ALLOWED_EXTENSIONS = new Set([
     '.doc', '.docx', '.txt', '.xlsx', '.xls', '.pdf'
 ]);
 
-// 获取元数据
-function getFileMetadata(filePath: string) {
-    const stats = fs.statSync(filePath);
-    const parsedPath = path.parse(filePath);
-    return {
-        name: parsedPath.name,           // 文件名（不含扩展名）
-        ext: parsedPath.ext,             // 扩展名
-        fullPath: filePath,              // 完整路径
-        size: stats.size,                // 文件大小（字节）
-        createTime: stats.birthtime,     // 创建时间
-        modifyTime: stats.mtime,         // 修改时间
-        accessTime: stats.atime,         // 访问时间
-    };
-}
 
 /**
  * 递归地在一个目录中查找具有允许扩展名的文件。
@@ -55,8 +42,7 @@ export function findFiles(dir: string): string[] {
 
                     if (ALLOWED_EXTENSIONS.has(ext)) {
                         //获取元数据
-                        const metadata = getFileMetadata(filePath);
-                        console.log('元数据', metadata)
+                        // const metadata = getFileMetadata(filePath);
                         results.push(filePath);
                     }
                 }
@@ -83,6 +69,7 @@ function getDrives(): string[] {
         const drives = output.split('\r\n')
             .map(line => line.trim())
             .filter(line => /^[A-Z]:$/.test(line));
+        console.log('发现的驱动器列表', drives)
         return drives;
     } catch (error) {
         console.error("无法获取驱动器列表:", error);
@@ -122,7 +109,8 @@ const deleteExtraFiles = async (allFiles: string[]) => {
  */
 export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string, data: any) => void): Promise<string[]> {
     const startTime = Date.now();
-    const drives = getDrives();
+    // const drives = getDrives();
+    const drives = ['D:'] // 测试用
     console.log(`使用 Worker 线程开始并行索引 ${drives.length} 个驱动器...`);
 
     // 已完成索引盘数
@@ -191,9 +179,36 @@ export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string,
         // 删除多余的数据库记录
         await deleteExtraFiles(allFiles);
 
+        // 对所有图片文件，都使用vl应用读取摘要
+
+        // 对所有文件进行向量化,暂时不需要
+        // const startVectorTime = Date.now();
+        // await vectorFiles()
+        // const endVectorTime = Date.now();
+        // console.log(`所有文件向量化完成。耗时: ${endVectorTime - startVectorTime} 毫秒`);
+
         return allFiles;
     } catch (error) {
         console.error("一个或多个 Worker 索引任务失败。", error);
         return []; // 发生严重错误时返回空数组
+    }
+}
+
+
+/**
+ * 索引图片应用
+ */
+export async function indexImageFiles() {
+
+    const db = getDatabase()
+    // 使用ext字段查询图片文件（ext字段存储的是带点的扩展名）
+    const files = db.prepare(
+        'SELECT path FROM files WHERE ext IN (\'.jpg\', \'.png\', \'.jpeg\')'
+    ).all() as Array<{ path: string }>;
+
+    // 调用大模型，摘要图片
+    for (const file of files) {
+        const filePath = file.path;
+        const summary = await summarizeImage(filePath);
     }
 }

@@ -45,6 +45,8 @@ class LanceDBManager {
                 const schema = new arrow.Schema([
                     new arrow.Field('vector', new arrow.FixedSizeList(vectorDim, new arrow.Field("name", new arrow.Float32(), true),)),
                     new arrow.Field('name', new arrow.Utf8()),
+                    new arrow.Field('filePath', new arrow.Utf8()),
+                    new arrow.Field('md5', new arrow.Utf8()),
                 ]);
 
                 try {

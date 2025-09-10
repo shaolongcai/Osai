@@ -46,7 +46,8 @@ export function initializeDatabase(): Database.Database {
               ext TEXT NOT NULL,
               size INTEGER,
               created_at DATETIME,
-              modified_at DATETIME
+              modified_at DATETIME,
+              vectorized INTEGER DEFAULT 0
             );
             CREATE UNIQUE INDEX IF NOT EXISTS idx_files_md5 ON files (md5);
             CREATE UNIQUE INDEX IF NOT EXISTS idx_files_path ON files (path);
