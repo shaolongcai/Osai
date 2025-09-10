@@ -41,9 +41,11 @@
   "license": "none",
   "private": true,
   "dependencies": {
+    "@lancedb/lancedb": "^0.22.0",
     "better-sqlite3": "^12.2.0",
     "dayjs": "^1.11.18",
-    "electron-squirrel-startup": "^1.0.1"
+    "electron-squirrel-startup": "^1.0.1",
+    "node-llama-cpp": "^3.13.0"
   },
   "build": {
     "electronDownload": {
@@ -59,7 +61,9 @@
       "packagerConfig": {
         "name": "ai-search",
         "executableName": "ai-search",
-        "asar": true,
+        "asar": {
+          "unpack": "**/node_modules/@lancedb/**"
+        },
         "extraResource": [],
         "ignore": [
           "^/frontend/(?!dist($|/))",

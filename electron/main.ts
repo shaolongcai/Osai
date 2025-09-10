@@ -8,6 +8,7 @@ import os from 'os';
 import { fileURLToPath } from 'url';
 import { getFilesCount, initializeDatabase } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
+import { initLanceDB } from './database/lanceDb.js';
 // import logger from './logger.js';
 
 // ES 模块中的 __dirname 和 __filename 替代方案
@@ -54,9 +55,6 @@ function createWindow() {
       mainWindow.show();
     }
   });
-
-  // 初始化API
-  initializeFileApi(mainWindow);
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -155,6 +153,12 @@ app.whenReady().then(() => {
   createWindow();
   // 初始化数据库
   initializeDatabase()
+  // 初始化API
+  initializeFileApi(mainWindow);
+  // 初始化数据库
+  initializeDatabase();
+  // 初始化向量数据库
+  initLanceDB();
 });
 
 app.on('window-all-closed', () => {

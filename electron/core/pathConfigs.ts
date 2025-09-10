@@ -18,6 +18,7 @@ interface PathsConfig {
     models: string;
     cache: string;
     database: string;
+    resources: string;
     temp: string;
 }
 
@@ -44,7 +45,7 @@ class PathConfig {
         // 基础目录配置
         this.baseAppDir = app.isPackaged ? 'oogway' : 'oogway-test'; //sqlit 访问不了带.的前缀的文件夹
         this.appDataPath = path.join(this.userHome, this.baseAppDir);
-        this.resources = app && app.isPackaged ? process.resourcesPath : path.join(__dirname, 'resources'),   // 资源文件（打包后）
+        this.resources = app && app.isPackaged ? process.resourcesPath : path.join(__dirname, '../../electron/', 'resources'),   // 资源文件
             this.paths = null;
 
         // 初始化所有路径
@@ -57,6 +58,9 @@ class PathConfig {
             // 主目录
             userHome: this.userHome,
             appData: this.appDataPath,
+
+            // 资源文件
+            resources: this.resources,
 
             // 日志目录
             logs: path.join(this.appDataPath, 'logs'),
