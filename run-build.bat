@@ -74,7 +74,7 @@ echo.
 
 call cd ..
 call npm run make
-call npm run package
+@REM call npm run package
 if %errorlevel% neq 0 (
     echo [ERROR] Electron Forge make failed
     pause
@@ -104,10 +104,7 @@ if exist "out" (
 echo [INFO] Build process completed!
 echo.
 echo IMPORTANT NOTES:
-echo 1. The built application does NOT include Python or AI models
-echo 2. Users will need to install dependencies through the app's UI
-echo 3. PyTorch GPU version will be downloaded automatically
-echo 4. HuggingFace models will be downloaded on first use
+echo 已完成打包，安装包位于 out 目录
 echo.
 
 endlocal

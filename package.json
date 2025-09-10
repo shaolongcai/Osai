@@ -1,6 +1,6 @@
 {
   "productName": "ai-search",
-  "homepage": "./",
+  "homepage": ".",
   "type": "module",
   "devDependencies": {
     "@electron-forge/cli": "^7.9.0",
@@ -57,8 +57,8 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "name": "Oogway",
-        "executableName": "Oogway",
+        "name": "ai-search",
+        "executableName": "ai-search",
         "asar": true,
         "extraResource": [],
         "ignore": [
@@ -78,7 +78,13 @@
           }
         }
       ],
-      "publishers": []
+      "publishers": [],
+      "plugins": [
+        {
+          "name": "@electron-forge/plugin-auto-unpack-natives",
+          "config": {}
+        }
+      ]
     }
   }
 }

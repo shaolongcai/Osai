@@ -3,8 +3,8 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
     packagerConfig: {
-          name: 'Oogway',
-    executableName: 'Oogway', // 固定可执行文件名，不包含版本号
+        name: 'Oogway',
+        executableName: 'Oogway', // 固定可执行文件名，不包含版本号
         asar: true,
     },
     rebuildConfig: {},

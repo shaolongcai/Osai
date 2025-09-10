@@ -34,7 +34,7 @@ function createWindow() {
       sandbox: true,
       preload: path.join(__dirname, 'preload.js')
     },
-    icon: path.join(__dirname, 'assets', 'icon.png'), // 可选：应用图标
+    // icon: path.join(__dirname, 'assets', 'icon.png'), // 可选：应用图标
     show: false, // 初始不显示，等待准备完成
     autoHideMenuBar: true,
     // frame: false,
