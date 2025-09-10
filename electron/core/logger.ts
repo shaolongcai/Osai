@@ -1,0 +1,105 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import pathConfig from './pathConfigs';
+
+/**
+ * 日志管理器类
+ * 功能：提供统一的日志记录功能，支持文件输出和控制台输出
+ * 📌 打包时，请编译为js
+ */
+class Logger {
+    private logPath: string;
+    private logDir: string;
+
+    constructor() {
+        this.logPath = this.getLogPath();
+        this.logDir = path.dirname(this.logPath);
+        this.ensureLogDirectory();
+
+        // 等待构造完再记录
+        this.log(`Logger 初始化完成,路径：${this.logDir}`, 'INFO');
+    }
+
+    /**
+     * 获取日志文件路径
+     * 日志文件名格式：YYYY-MM-DD.log
+     */
+    private getLogPath(): string {
+        const today = new Date();
+        const dateStr = today.toISOString().split('T')[0]; // 格式：YYYY-MM-DD
+        const logFileName = `${dateStr}.log`;
+        const logsPath: string = pathConfig.get('logs');
+        return path.join(logsPath, logFileName);
+    }
+
+    /**
+     * 确保日志目录存在
+     */
+    private ensureLogDirectory(): void {
+        if (!fs.existsSync(this.logDir)) {
+            fs.mkdirSync(this.logDir, { recursive: true });
+        }
+    }
+
+    /**
+     * 记录日志
+     * @param message 日志消息
+     * @param level 日志级别（可选）
+     */
+    public log(message: string, level: 'INFO' | 'ERROR' | 'WARN' | 'DEBUG' = 'INFO'): void {
+        // 使用北京时间 (UTC+8)
+        const now = new Date();
+        const beijingTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+        const timestamp = beijingTime.toISOString().replace('T', ' ').substring(0, 19);
+        const logMessage = `[${timestamp} +08:00] [${level}] ${message}\n`;
+
+        try {
+            // 写入文件
+            fs.appendFileSync(this.logPath, logMessage);
+        } catch (error) {
+            console.error('Failed to write log to file:', error);
+        }
+
+        // 同时输出到控制台（开发模式可见）
+        console.log(`[${level}] ${message}`);
+    }
+
+    /**
+     * 记录信息日志
+     */
+    public info(message: string): void {
+        this.log(message, 'INFO');
+    }
+
+    /**
+     * 记录错误日志
+     */
+    public error(message: string): void {
+        this.log(message, 'ERROR');
+    }
+
+    /**
+     * 记录警告日志
+     */
+    public warn(message: string): void {
+        this.log(message, 'WARN');
+    }
+
+    /**
+     * 记录调试日志
+     */
+    public debug(message: string): void {
+        this.log(message, 'DEBUG');
+    }
+
+    /**
+     * 获取当前日志文件路径
+     */
+    public getLogFilePath(): string {
+        return this.logPath;
+    }
+}
+
+// 创建单例实例
+const logger = new Logger();
+module.exports = logger;

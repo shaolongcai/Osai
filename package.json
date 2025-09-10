@@ -1,0 +1,84 @@
+{
+  "productName": "ai-search",
+  "homepage": "./",
+  "type": "module",
+  "devDependencies": {
+    "@electron-forge/cli": "^7.9.0",
+    "@electron-forge/maker-deb": "^7.9.0",
+    "@electron-forge/maker-rpm": "^7.9.0",
+    "@electron-forge/maker-squirrel": "^7.9.0",
+    "@electron-forge/maker-wix": "^7.9.0",
+    "@electron-forge/maker-zip": "^7.9.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.9.0",
+    "@electron-forge/plugin-fuses": "^7.9.0",
+    "@electron-forge/plugin-vite": "^7.9.0",
+    "@electron/fuses": "^1.8.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.3.1",
+    "@vitejs/plugin-react": "^5.0.2",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.0.0",
+    "electron": "^38.0.0",
+    "electron-rebuild": "^3.2.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5",
+    "wait-on": "^8.0.4"
+  },
+  "scripts": {
+    "electron": "electron .",
+    "electron:dev": "concurrently \"npm run frontend:dev\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
+    "frontend:dev": "cd frontend && npm run dev",
+    "rebuild": "electron-rebuild",
+    "make": "electron-forge make",
+    "start": "electron-forge start",
+    "package": "electron-forge package"
+  },
+  "name": "ai-search",
+  "version": "0.1.0",
+  "description": "a search app by ai",
+  "main": "dist-electron/main.js",
+  "license": "none",
+  "private": true,
+  "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "dayjs": "^1.11.18",
+    "electron-squirrel-startup": "^1.0.1"
+  },
+  "build": {
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    }
+  },
+  "author": {
+    "name": "蔡包",
+    "email": "your.email@example.com"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "name": "Oogway",
+        "executableName": "Oogway",
+        "asar": true,
+        "extraResource": [],
+        "ignore": [
+          "^/frontend/(?!dist($|/))",
+          "^\\.venv($|/)",
+          "^/\\.git($|/)",
+          "^/\\.vscode($|/)",
+          "\\.log$",
+          "^/node_modules/\\.cache($|/)"
+        ]
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "Oogway"
+          }
+        }
+      ],
+      "publishers": []
+    }
+  }
+}
