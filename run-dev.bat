@@ -79,6 +79,39 @@ if %errorlevel% equ 0 (
         )
         
         %log_success% TypeScript compilation completed
+
+        
+        cd ..
+        
+        REM --- 复制resources目录到dist-electron ---
+        %log_info% Copying resources to dist-electron...
+        
+        REM 检查dist-electron目录是否存在
+        if not exist "dist-electron" (
+            %log_info% Creating dist-electron directory...
+            mkdir "dist-electron"
+        )
+        
+        REM 复制整个resources目录
+        if exist "electron\resources" (
+            %log_info% Copying electron/resources to dist-electron/resources...
+            
+            REM 如果目标目录存在，先删除
+            if exist "dist-electron\resources" (
+                rmdir /s /q "dist-electron\resources"
+            )
+            
+            REM 复制整个resources目录
+            xcopy "electron\resources" "dist-electron\resources" /E /I /Y >nul
+            
+            if %errorlevel% equ 0 (
+                %log_success% Resources copied successfully
+            ) else (
+                %log_warning% Failed to copy some resources, but continuing...
+            )
+        ) else (
+            %log_warning% electron/resources directory not found, skipping copy
+        )
     ) else (
         %log_info% No TypeScript files found in electron directory
     )

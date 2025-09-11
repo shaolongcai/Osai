@@ -118,3 +118,8 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# venv
+venv/
+electron/resources/venv/
+electron/resources/venv/*

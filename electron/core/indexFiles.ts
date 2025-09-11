@@ -5,7 +5,7 @@ import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
-import { vectorFiles } from './vectorization.js';
+import { summarizeImage } from './model.js';
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
@@ -108,6 +108,13 @@ const deleteExtraFiles = async (allFiles: string[]) => {
  * @returns 找到的所有文件的路径列表。
  */
 export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string, data: any) => void): Promise<string[]> {
+
+    const startIndexImageTime = Date.now();
+    await indexImageFiles();
+    const endIndexImageTime = Date.now();
+    console.log(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
+    return
+
     const startTime = Date.now();
     // const drives = getDrives();
     const drives = ['D:'] // 测试用
@@ -170,6 +177,7 @@ export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string,
     });
 
     try {
+
         const results = await Promise.all(promises);
         const allFiles = results.flat(); // flat方法展开二维数组
 
@@ -206,9 +214,36 @@ export async function indexImageFiles() {
         'SELECT path FROM files WHERE ext IN (\'.jpg\', \'.png\', \'.jpeg\')'
     ).all() as Array<{ path: string }>;
 
-    // 调用大模型，摘要图片
-    for (const file of files) {
-        const filePath = file.path;
-        const summary = await summarizeImage(filePath);
+    const images = [
+        'C://Users//Administrator//Downloads//索引的流程图.png',
+        'C://Users//Administrator//Downloads//back_info.jpg',
+        'C://Users//Administrator//Downloads//微信图片.jpg',
+    ]
+    console.log(`一共需要索引 ${files.length} 个图片`)
+    for (const image of images) {
+        try {
+            const summary = await summarizeImage(image);
+            console.log('summary',summary)
+
+            // // 更新数据库
+            // await new Promise<void>((resolve, reject) => {
+            //     const updateQuery = `UPDATE files SET summary = ? WHERE file_path = ?`;
+            //     db.run(updateQuery, [summary, file.file_path], (err) => {
+            //         if (err) {
+            //             reject(err);
+            //         } else {
+            //             resolve();
+            //         }
+            //     });
+            // });
+
+        } catch (error) {
+            console.log('error',error)
+        }
     }
+    // 调用大模型，摘要图片
+    // for (const file of files) {
+    //     const filePath = file.path;
+    //     const summary = await summarizeImage(filePath);
+    // }
 }
