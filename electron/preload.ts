@@ -21,6 +21,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onIndexProgress: (callback) => {
         ipcRenderer.on('index-progress', (event, data) => callback(data));
     },
+    // 视觉索引监听
+    onVisualIndexProgress: (callback) => {
+        ipcRenderer.on('visual-index-progress', (event, data) => callback(data));
+    },
 
     // 移除事件监听
     removeAllListeners: (channel) => {

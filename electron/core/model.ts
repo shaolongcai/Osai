@@ -81,7 +81,7 @@ async function startPythonService(): Promise<void> {
                                     console.log(`任务 ${taskId} 完成，耗时: ${message.elapsed_time?.toFixed(2)}秒`);
                                     task.resolve(message.result);
                                 } else {
-                                    task.reject(new Error(message.error));
+                                    task.reject(new Error(message.errMsg));
                                 }
                                 pendingTasks.delete(taskId);
                             }
@@ -151,7 +151,7 @@ export async function summarizeImageWithPython(imagePath: string): Promise<strin
 
             // 检查图片文件是否存在
             if (!fs.existsSync(imagePath)) {
-                reject(new Error(`图片文件不存在: ${imagePath}`));
+                reject(new Error(`node端：图片文件不存在: ${imagePath}`));
                 return;
             }
 

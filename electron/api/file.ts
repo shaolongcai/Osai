@@ -23,6 +23,7 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
     // 搜索文件
     ipcMain.handle('search-files', (_event, keyword: string) => searchFiles(keyword));
 
+
     // 处理打开文件所在位置的请求
     //   ipcMain.handle('open-file-location', ()=>{});
 }

@@ -17,8 +17,9 @@ const ALLOWED_EXTENSIONS = new Set([
 const BATCH_SIZE = 5000 // 每 50 个文件报告一次进度
 
 // --- 1. 首先，获取 workerData 并初始化数据库 ---
-const { drive, dbPath } = workerData as { drive: string; dbPath: string };
+const { drive, dbPath, excludedDirNames } = workerData as { drive: string; dbPath: string; excludedDirNames: string[] };
 const db = new Database(dbPath);
+const excludedDirNamesSet = new Set(excludedDirNames); // 将目录名数组转回 Set 以提高查找效率
 db.pragma('journal_mode = WAL'); // 开启 WAL 模式以提高并发性能
 
 // --- 2. 其次，准备好所有需要用到的 SQL 语句 ---
@@ -32,6 +33,13 @@ const insertStmt = db.prepare(
 
 // 从主文件复制过来的 findFiles 函数
 function findFiles(dir: string): string[] {
+
+    // 如果目录名本身在被排除的名称列表中，则跳过
+    const baseName = path.basename(dir);
+    if (excludedDirNamesSet.has(baseName)) {
+        return [];
+    }
+
     let results: string[] = [];
     let fileCount = 0
     try {

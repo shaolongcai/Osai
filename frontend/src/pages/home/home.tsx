@@ -16,9 +16,15 @@ const Home = () => {
       console.log('索引进度:', data);
       setProgress(`已索引 ${data.count} 个文件`);
     });
+    // 监听视觉索引进度
+    window.electronAPI.onVisualIndexProgress(async (data) => {
+      console.log('索引进度:', data);
+      // setProgress(`已索引 ${data.count} 个文件`); //@todo 换成 视觉索引的count
+    });
     return () => {
       // 移除监听
       window.electronAPI.removeAllListeners('index-progress');
+      window.electronAPI.removeAllListeners('visual-index-progress');
     };
   }, []);
 

@@ -48,7 +48,7 @@ def load_model(model_path, mmproj_path=None):
             _model = llama_cpp.Llama(
                 model_path=model_path,
                 chat_handler=chat_handler,
-                n_gpu_layers=0, 
+                n_gpu_layers=-1, 
                 n_ctx=2048,
                 verbose=False,
                 n_batch=1024,
@@ -73,7 +73,7 @@ def process_single_image( image_path, task_id):
         
         # 检查图片文件
         if not os.path.exists(image_path):
-            return {"success": False, "type": "error", "errMsg": f"图片文件不存在: {image_path}"}
+            return {"success": False,  "errMsg": f"python端：图片文件不存在: {image_path}"}
         
         # 读取并处理图片
         with Image.open(image_path) as img:

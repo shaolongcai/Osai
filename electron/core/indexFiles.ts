@@ -109,15 +109,9 @@ const deleteExtraFiles = async (allFiles: string[]) => {
  */
 export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string, data: any) => void): Promise<string[]> {
 
-    const startIndexImageTime = Date.now();
-    await indexImageFiles();
-    const endIndexImageTime = Date.now();
-    console.log(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
-    return
-
     const startTime = Date.now();
-    // const drives = getDrives();
-    const drives = ['D:'] // 测试用
+    const drives = getDrives();
+    // const drives = ['D:'] // 测试用
     console.log(`使用 Worker 线程开始并行索引 ${drives.length} 个驱动器...`);
 
     // 已完成索引盘数
@@ -128,6 +122,22 @@ export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string,
     const dbDirectory = pathConfig.get('database');
     const dbPath = path.join(dbDirectory, 'metaData.db')
 
+    // 排除的目录名
+    const excludedDirNames = new Set([
+        'node_modules',
+        '$Recycle.Bin',
+        'System Volume Information',
+        'AppData',
+        'ProgramData',
+        'Program Files',
+        'Program Files (x86)',
+        'Windows',
+        '.git',
+        '.vscode',
+    ]);
+    // 将 Set 转换为数组以便通过 workerData 传递
+    const excludedDirNamesArray = Array.from(excludedDirNames);
+
     const promises = drives.map(drive => {
         return new Promise<string[]>((resolve, reject) => {
             // 明确指定 worker 脚本的路径
@@ -135,7 +145,7 @@ export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string,
             const workerPath = path.join(__dirname, 'indexer.worker.js');
 
             const worker = new Worker(workerPath, {
-                workerData: { drive, dbPath }
+                workerData: { drive, dbPath, excludedDirNames: excludedDirNamesArray }
             });
 
 
@@ -188,6 +198,10 @@ export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string,
         await deleteExtraFiles(allFiles);
 
         // 对所有图片文件，都使用vl应用读取摘要
+        const startIndexImageTime = Date.now();
+        await indexImageFiles(sendToRenderer);
+        const endIndexImageTime = Date.now();
+        console.log(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
 
         // 对所有文件进行向量化,暂时不需要
         // const startVectorTime = Date.now();
@@ -206,39 +220,41 @@ export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string,
 /**
  * 索引图片应用
  */
-export async function indexImageFiles() {
+export async function indexImageFiles(sendToRenderer: (channel: string, data: any) => void) {
 
     const db = getDatabase()
     // 使用ext字段查询图片文件（ext字段存储的是带点的扩展名）
-    const files = db.prepare(
-        'SELECT path FROM files WHERE ext IN (\'.jpg\', \'.png\', \'.jpeg\')'
-    ).all() as Array<{ path: string }>;
+    const selectStmt = db.prepare(
+        'SELECT path FROM files WHERE ext IN (\'.jpg\', \'.png\', \'.jpeg\') AND size > 50 * 1024 AND summary IS NULL'
+    )
+    const files = selectStmt.all() as Array<{ path: string }>;
+    // 总共需要视觉处理的文件数量
+    let totalFiles = files.length;
+    sendToRenderer('visual-index-progress', {
+        message: `一共找到 ${files.length} 个图片，准备视觉索引服务`,
+        process: 'pending',
+        count: totalFiles
+    })
 
-    const images = [
-        'C://Users//Administrator//Downloads//索引的流程图.png',
-        'C://Users//Administrator//Downloads//back_info.jpg',
-        'C://Users//Administrator//Downloads//微信图片.jpg',
-    ]
-    console.log(`一共需要索引 ${files.length} 个图片`)
-    for (const image of images) {
+    for (const file of files) {
         try {
-            const summary = await summarizeImage(image);
-            console.log('summary',summary)
+            const summary = await summarizeImage(file.path);
+            console.log('summary', summary)
 
-            // // 更新数据库
-            // await new Promise<void>((resolve, reject) => {
-            //     const updateQuery = `UPDATE files SET summary = ? WHERE file_path = ?`;
-            //     db.run(updateQuery, [summary, file.file_path], (err) => {
-            //         if (err) {
-            //             reject(err);
-            //         } else {
-            //             resolve();
-            //         }
-            //     });
-            // });
+            // 更新数据库
+            const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);
+            const res = updateStmt.run(summary, file.path);
+            console.log('res', res)
+            if (res.changes > 0) {
+                sendToRenderer('visual-index-progress', {
+                    process: 'loading',
+                    count: totalFiles
+                })
+                totalFiles--
+            }
 
         } catch (error) {
-            console.log('error',error)
+            console.log('error', error)
         }
     }
     // 调用大模型，摘要图片
