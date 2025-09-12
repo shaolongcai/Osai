@@ -9,3 +9,22 @@
     height: 80vh;
     // flex: 1;
 }
+
+
+// 索引示意图
+.indexRoot {
+    width: 180px;
+    margin: 180px auto;
+
+    img {
+        width: 100%;
+    }
+
+    .progress {
+        width: 100%;
+    }
+
+    .text {
+        font-weight: 600;
+    }
+}

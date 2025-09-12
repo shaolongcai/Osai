@@ -1,14 +1,22 @@
 // Electron API类型声明
-
+import { NotificationType } from "@/utils/enum";
 
 export interface Progress {
     count: number,
-    message: string
+    message: string,
+    process: 'finish' | 'pending' //完成或准备中
 }
 
 export type searchItem = {
     name: string,
     path: string
+}
+
+// 通知接口
+export interface Notification {
+    text: string,
+    type: NotificationType,
+    tooltip?: string
 }
 
 

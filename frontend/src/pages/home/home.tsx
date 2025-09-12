@@ -1,7 +1,7 @@
-import { Box, Button, Paper, Stack, TextField, Typography } from "@mui/material"
+import { Box, Button, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material"
 import React, { useCallback, useEffect, useState } from "react";
 import styles from './home.module.scss'
-import { Search } from '@/components';
+import { Search, InfoCard } from '@/components';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -9,11 +9,13 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { TableVirtuoso, TableComponents } from 'react-virtuoso';
-import { searchItem } from "@/type/electron";
+import { Progress, searchItem } from "@/type/electron";
+import readySearchImage from '@/assets/images/search-ready.png'
+import { Notification } from '@/type/electron';
 
 const Home = () => {
 
-  const [progress, setProgress] = useState(''); //索引的进度信息
+  const [indexProgress, setIndexProgress] = useState<Progress | null>(); //索引的进度信息
   const [needIndexImageCount, setNeedIndexImageCount] = useState<number | null>(null); //剩下需要索引的图片
   const [keyword, setKeyword] = useState(''); //搜索的关键词
   const [data, setData] = useState<searchItem[]>([]); //搜索的结果
@@ -24,8 +26,7 @@ const Home = () => {
   useEffect(() => {
     // 监听索引进度
     window.electronAPI.onIndexProgress(async (data) => {
-      console.log('索引进度:', data);
-      setProgress(`已索引 ${data.count} 个文件`);
+      setIndexProgress(data);
     });
     // 监听视觉索引进度
     window.electronAPI.onVisualIndexProgress(async (data) => {
@@ -41,7 +42,6 @@ const Home = () => {
 
   const searchFiles = useCallback(async (keyword: string) => {
     const res = await window.electronAPI.searchFiles(keyword);
-    console.log(res);
     setData(res)
   }, []);
 
@@ -49,6 +49,9 @@ const Home = () => {
   useEffect(() => {
     if (keyword) {
       searchFiles(keyword);
+    }
+    else {
+      setData([]);
     }
   }, [keyword])
 
@@ -195,29 +198,68 @@ const Home = () => {
     );
   }
 
+  // 模拟message
+  const notifications: Notification[] = [
+    {
+      text: '检测到GPU',
+      type: 'warning',
+      tooltip: '没有检查到任何可用GPU，将使用CPU进行推理，但速度会有所降低',
+    },
+    {
+      text: '正在下载AI模型',
+      type: 'loading',
+    },
+    {
+      text: '视觉服务已就绪',
+      type: 'pending',
+    },
+     {
+      text: '视觉索引服务已启动 剩余 34,000',
+      type: 'loadingQuestion',
+    },
+  ]
+
   return (
     <div className={styles.root}>
       <Search onSearch={setKeyword} />
-      <Box className={styles.table}>
-        <TableVirtuoso
-          fixedHeaderContent={fixedHeaderContent}
-          data={data}
-          components={VirtuosoTableComponents}
-          itemContent={rowContent}
-        />
-      </Box>
+      {
+        data.length > 0 ?
+          <Box className={styles.table}>
+            <TableVirtuoso
+              fixedHeaderContent={fixedHeaderContent}
+              data={data}
+              components={VirtuosoTableComponents}
+              itemContent={rowContent}
+            />
+          </Box>
+          :
+          <Stack className={styles.indexRoot} alignItems='center' spacing={1}>
+            <img src={readySearchImage} alt='' />
+            {
+              indexProgress?.process !== 'finish' &&
+              <LinearProgress className={styles.progress} />
+            }
+            <Typography className={styles.text} variant='body1'>
+              {indexProgress ? indexProgress.message : '正在索引'}
+            </Typography>
+            <Typography className={styles.text} variant='body1'>
+              你可以随时进行搜索
+            </Typography>
+          </Stack>
+      }
       <Button onClick={indexFiles}>
         索引
       </Button>
-      {/* <Button onClick={getFilesCount}>
-        获取文件数量
-      </Button> */}
-      <Typography>
-        {progress}
-      </Typography>
       <Typography>
         {needIndexImageCount}
       </Typography>
+      <Box sx={{
+        position: 'absolute',
+        bottom: '24px',
+        left: '24px',
+      }}>
+        <InfoCard notifications={notifications} />
+      </Box>
     </div>
   )
 }

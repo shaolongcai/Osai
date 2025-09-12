@@ -154,9 +154,9 @@ export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string,
                     console.log(`驱动器 ${drive} 索引完成，找到 ${message.files.length} 个文件。`);
                     completedDrives++;
                     completedFiles += message.files.length;
-                    const formattedTotal = completedFiles.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    const formattedTotal = completedFiles.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); //加入千分位
                     sendToRenderer('index-progress', {
-                        message: `驱动器 ${drive} 索引完成，找到 ${message.files.length} 个文件。`,
+                        message: `已索引 ${formattedTotal} 个文件`,
                         process: completedDrives === drives.length ? 'finish' : 'pending',
                         count: formattedTotal
                     })

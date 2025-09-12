@@ -1,0 +1,35 @@
+.root {
+    border-radius: 16px !important;
+    min-width: 338px;
+}
+
+.info {
+    min-width: 128px;
+    width: 234px;
+
+    .text {
+        color: #00000065;
+
+    }
+
+    .icon {
+        // width: 24px !important;
+        cursor: pointer;
+
+        img {
+            width: 24px !important;
+        }
+    }
+}
+
+.tooltip {
+    max-width: 120px !important;
+}
+
+//向下图标
+.downIcon{
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    cursor: pointer;
+}
