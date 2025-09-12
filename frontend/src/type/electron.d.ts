@@ -6,11 +6,16 @@ export interface Progress {
     message: string
 }
 
+export type searchItem = {
+    name: string,
+    path: string
+}
+
 
 interface ElectronAPI {
 
     // 搜索相关
-    searchFiles(query: string): Promise<{ success: boolean, data: string[] }>;
+    searchFiles(query: string): Promise<searchItem[]>
 
     // 索引相关
     indexFiles(): Promise<void>;
@@ -26,6 +31,7 @@ interface ElectronAPI {
     // 事件监听
     onLogger(callback: (data: string) => void): void;
     onIndexProgress(callback: (data: Progress) => void): void;
+    onVisualIndexProgress(callback: (data: Progress) => void): void;
 
     // 移除事件监听
     removeAllListeners(channel: string): void;

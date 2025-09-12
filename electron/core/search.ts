@@ -59,10 +59,9 @@ export function searchFiles(searchTerm: string): any[] {
     // 2. 从数据库中获取所有文件名
     // 注意：如果文件数量非常多（例如超过几十万），一次性加载到内存中可能会有性能问题。
     // 使用 SQL LIKE 进行模糊匹配，% 通配符表示匹配任意字符
-    const stmt = db.prepare('SELECT path, name FROM files WHERE name LIKE ?');
+    const stmt = db.prepare('SELECT path, name FROM files WHERE name LIKE ? OR summary LIKE ?');
     const searchPattern = `%${searchTerm}%`;
-    const allFiles = stmt.all(searchPattern) as { path: string; name: string }[];
-    console.log('搜索数量', allFiles.length)
+    const allFiles = stmt.all(searchPattern, searchPattern) as { path: string; name: string }[];
 
 
     // 3. 使用 Levenshtein 距离进行模糊匹配

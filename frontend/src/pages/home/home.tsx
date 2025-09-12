@@ -1,11 +1,22 @@
-import { Button, Paper, Stack, TextField, Typography } from "@mui/material"
-import { useEffect, useState } from "react";
-
+import { Box, Button, Paper, Stack, TextField, Typography } from "@mui/material"
+import React, { useCallback, useEffect, useState } from "react";
+import styles from './home.module.scss'
+import { Search } from '@/components';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import { TableVirtuoso, TableComponents } from 'react-virtuoso';
+import { searchItem } from "@/type/electron";
 
 const Home = () => {
 
   const [progress, setProgress] = useState(''); //索引的进度信息
+  const [needIndexImageCount, setNeedIndexImageCount] = useState<number | null>(null); //剩下需要索引的图片
   const [keyword, setKeyword] = useState(''); //搜索的关键词
+  const [data, setData] = useState<searchItem[]>([]); //搜索的结果
 
   // 检查是否在Electron环境中
   const isElectron = typeof window !== 'undefined' && window.electronAPI;
@@ -18,8 +29,7 @@ const Home = () => {
     });
     // 监听视觉索引进度
     window.electronAPI.onVisualIndexProgress(async (data) => {
-      console.log('索引进度:', data);
-      // setProgress(`已索引 ${data.count} 个文件`); //@todo 换成 视觉索引的count
+      setNeedIndexImageCount(data.count);
     });
     return () => {
       // 移除监听
@@ -28,14 +38,15 @@ const Home = () => {
     };
   }, []);
 
+
+  const searchFiles = useCallback(async (keyword: string) => {
+    const res = await window.electronAPI.searchFiles(keyword);
+    console.log(res);
+    setData(res)
+  }, []);
+
   // 触发搜索
   useEffect(() => {
-
-    const searchFiles = async (keyword: string) => {
-      const res = await window.electronAPI.searchFiles(keyword);
-      console.log(res);
-    }
-
     if (keyword) {
       searchFiles(keyword);
     }
@@ -52,67 +63,160 @@ const Home = () => {
     console.log('文件数量:', count);
   }
 
-  return (
-    <div>
-      <Paper
-        elevation={0}
-        // className={styles.questionPaper}
+
+  const columns: ColumnData[] = [
+    {
+      width: 60,
+      label: '文件名称',
+      dataKey: 'name',
+      styles: {
+        fontColor: '#00000085',
+      }
+    },
+    {
+      width: 100,
+      label: '路径',
+      dataKey: 'path',
+      styles: {
+        fontColor: '#00000065',
+      }
+    },
+    // {
+    //   width: 50,
+    //   label: 'Age',
+    //   dataKey: 'age',
+    //   numeric: true,
+    // },
+  ];
+
+
+  const VirtuosoTableComponents: TableComponents<DataItem> = {
+    Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
+      <TableContainer component={Paper} {...props} ref={ref}
         sx={{
-          padding: '16px',
-          borderRadius: '8px',
-          boxShadow: '0px 2px 4px rgba(25, 33, 61, 0.08)',
-          border: '1px solid #F0F2F5',
+          boxShadow: 'none',
+          border: 'none',
+          // 使用 ::-webkit-scrollbar 系列伪元素来自定义滚动条
+          // 这些样式会覆盖浏览器默认的滚动条外观
+          '&::-webkit-scrollbar': {
+            width: '6px', // 滚动条宽度
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'transparent', // 轨道背景透明
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(0, 0, 0, 0.2)', // 滑块颜色
+            borderRadius: '3px', // 滑块圆角
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.4)', // 鼠标悬停时滑块颜色变深
+          },
         }}
-      >
-        <Stack direction="row" spacing={2} alignItems="center">
-          <TextField
-            // className={styles.input}
-            fullWidth
-            placeholder="对此知识库进行询问"
-            variant="outlined"
-            // value={question}
-            onChange={(event) => setKeyword(event.target.value)}
-            // onKeyDown={handleKeyDown}
+      />
+    )),
+    Table: (props) => (
+      <Table {...props} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />
+    ),
+    TableHead: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
+      <TableHead {...props} ref={ref} />
+    )),
+    TableRow,
+    TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
+      <TableBody {...props} ref={ref}
+        sx={{
+          '& .MuiTableRow-root:hover': {
+            backgroundColor: '#1890FF25', // 应用您想要的蓝色背景
+            cursor: 'pointer',
+            // transition: 'background-color 0.1s ease',
+
+            // b. 为该行的第一个单元格设置左侧圆角
+            '& .MuiTableCell-root:first-of-type': {
+              borderRadius: '8px 0 0 8px',
+            },
+            // c. 为该行的最后一个单元格设置右侧圆角
+            '& .MuiTableCell-root:last-of-type': {
+              borderRadius: '0 8px 8px 0',
+            },
+          },
+        }}
+      />
+    )),
+  };
+
+  // 表格内容
+  function rowContent(_index: number, row: DataItem) {
+    return (
+      <React.Fragment>
+        {columns.map((column) => (
+          <TableCell
+            key={column.dataKey}
+            align={column.numeric || false ? 'right' : 'left'}
             sx={{
-              flex: 1,
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderWidth: '0px',
-                },
-                '&:hover fieldset': {
-                  borderColor: '#0f5baa',
-                },
-                '&.Mui-focused fieldset': {
-                  borderWidth: '0px',
-                },
-                '& .MuiOutlinedInput-input': {
-                  padding: '0', // 修改内边距
-                  color: '#666F8D'
-                }
-              },
+              borderBottom: 'none',
+              p: '8px', //row内边距
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              color: column.styles?.fontColor,
             }}
-          />
-          <Button
-          // loading={loading}
-          // variant="contained"
-          // color="primary"
-          // disableElevation
-          // onClick={() => { handleSendMessage(question) }}
-          // startIcon={<img className='' src={sendIcon} alt='' />}
-          // sx={{ minWidth: '100px' }}
           >
-            发送消息
-          </Button>
-        </Stack>
-      </Paper>
+            {row[column.dataKey]}
+          </TableCell>
+        ))}
+      </React.Fragment>
+    );
+  }
+
+  // 固定的表头
+  function fixedHeaderContent() {
+    return (
+      <TableRow>
+        {columns.map((column) => (
+          <TableCell
+            key={column.dataKey}
+            variant="head"
+            align={column.numeric || false ? 'right' : 'left'}
+            style={{ width: column.width }}
+            sx={{
+              backgroundColor: 'background.paper',
+              borderBottom: 'none',
+              // borderRight: '1px solid #cccccc',
+              height: '8px',
+              fontSize: '14px',
+              color: '#00000085',
+              fontWeight: 600,
+              p: '8px',
+            }}
+          >
+            {column.label}
+          </TableCell>
+        ))}
+      </TableRow>
+    );
+  }
+
+  return (
+    <div className={styles.root}>
+      <Search onSearch={setKeyword} />
+      <Box className={styles.table}>
+        <TableVirtuoso
+          fixedHeaderContent={fixedHeaderContent}
+          data={data}
+          components={VirtuosoTableComponents}
+          itemContent={rowContent}
+        />
+      </Box>
       <Button onClick={indexFiles}>
         索引
       </Button>
-      <Button onClick={getFilesCount}>
+      {/* <Button onClick={getFilesCount}>
         获取文件数量
-      </Button>
+      </Button> */}
       <Typography>
         {progress}
+      </Typography>
+      <Typography>
+        {needIndexImageCount}
       </Typography>
     </div>
   )

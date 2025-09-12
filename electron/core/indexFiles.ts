@@ -239,7 +239,6 @@ export async function indexImageFiles(sendToRenderer: (channel: string, data: an
     for (const file of files) {
         try {
             const summary = await summarizeImage(file.path);
-            console.log('summary', summary)
 
             // 更新数据库
             const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);
