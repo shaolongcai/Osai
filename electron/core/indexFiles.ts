@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
 import { summarizeImage } from './model.js';
+import { setIndexUpdate, waitForIndexUpdate, waitForModelReady } from './appState.js';
+import { sendToRenderer } from '../main.js';
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
@@ -196,12 +198,8 @@ export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string,
 
         // 删除多余的数据库记录
         await deleteExtraFiles(allFiles);
-
-        // 对所有图片文件，都使用vl应用读取摘要
-        const startIndexImageTime = Date.now();
-        await indexImageFiles(sendToRenderer);
-        const endIndexImageTime = Date.now();
-        console.log(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
+        // 索引更新
+        setIndexUpdate(true);
 
         // 对所有文件进行向量化,暂时不需要
         // const startVectorTime = Date.now();
@@ -218,9 +216,9 @@ export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string,
 
 
 /**
- * 索引图片应用
+ * 第二部：索引图片应用
  */
-export async function indexImageFiles(sendToRenderer: (channel: string, data: any) => void) {
+async function indexImageFiles() {
 
     const db = getDatabase()
     // 使用ext字段查询图片文件（ext字段存储的是带点的扩展名）
@@ -239,6 +237,7 @@ export async function indexImageFiles(sendToRenderer: (channel: string, data: an
     for (const file of files) {
         try {
             const summary = await summarizeImage(file.path);
+            // console.log('summary', summary)
 
             // 更新数据库
             const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);
@@ -255,4 +254,24 @@ export async function indexImageFiles(sendToRenderer: (channel: string, data: an
             console.log('error', error)
         }
     }
+}
+
+
+/**
+ * 第一步：开启视觉索引服务
+ */
+export const openIndexImagesService = async (): Promise<void> => {
+    console.log('等待索引更新完毕')
+    await waitForIndexUpdate();
+    console.log('索引更新完毕')
+
+    console.log('等待AI模型准备就绪...');
+    await waitForModelReady();
+    console.log('AI模型已就绪，开始索引图片。');
+
+    // 对所有图片文件，都使用vl应用读取摘要
+    const startIndexImageTime = Date.now();
+    await indexImageFiles();
+    const endIndexImageTime = Date.now();
+    console.log(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
 }

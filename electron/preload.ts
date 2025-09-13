@@ -3,8 +3,6 @@ const { contextBridge, ipcRenderer } = require('electron'); //沙箱环境，这
 
 // 暴露安全的API给渲染进程
 contextBridge.exposeInMainWorld('electronAPI', {
-    // 启动索引
-    indexFiles: (dir: string) => ipcRenderer.invoke('index-files', dir),
     // 检查模型是否存在
     getFilesCount: () => ipcRenderer.invoke('get-files-count'),
     // 打开文件所在位置
@@ -12,7 +10,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // 搜索文件
     searchFiles: (keyword: string) => ipcRenderer.invoke('search-files', keyword),
     // 告知主线程，前端渲染完毕
-    rendererReady: () => ipcRenderer.send('renderer-ready'),
+    rendererReady: () => ipcRenderer.invoke('renderer-ready'),
+    // 开启图片视觉索引
+    IndexImage: () => ipcRenderer.send('index-image'), //send的返回值永远都是void
 
 
     // 日志监听

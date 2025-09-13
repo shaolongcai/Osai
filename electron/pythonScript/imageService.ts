@@ -16,7 +16,7 @@ const pendingTasks = new Map<string, { resolve: Function, reject: Function }>();
 // Python 路径
 const modeldir = pathConfig.get('models')
 const modelName = 'Qwen2.5-VL-3B-Instruct-Q4_K_M.gguf'
-const mmprojName = 'mmproj-F16.gguf'
+const mmprojName = 'mmproj-model-f16.gguf'
 const visionModelPath = path.join(modeldir, modelName);
 const mmprojPath = path.join(modeldir, mmprojName);
 
@@ -205,3 +205,5 @@ export const shutdownVisionService = (): void => {
         }, 5000);
     }
 };
+
+

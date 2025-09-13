@@ -69,8 +69,11 @@ const checkGPUInfo = async (): Promise<GPUInfo> => {
 
 
 
-//检查GPU
-export const checkGPU = async () => {
+/**
+ * 检查系统是否有可用的GPU
+ * @returns 
+ */
+export const checkGPU = async (): Promise<GPUInfo> => {
     const gpuInfo = await checkGPUInfo();
     const notification: INotification = {
         id: 'checkGPU',
@@ -80,4 +83,6 @@ export const checkGPU = async () => {
     }
     console.log('检查到的GPU信息', gpuInfo)
     sendToRenderer('system-info', notification);
+
+    return gpuInfo;
 }

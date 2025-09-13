@@ -1,6 +1,5 @@
-import { ipcMain, BrowserWindow, shell } from 'electron';
-import path from 'path';
-import { indexAllFilesWithWorkers } from '../core/indexFiles.js';
+import { ipcMain, BrowserWindow } from 'electron';
+import { openIndexImagesService } from '../core/indexFiles.js';
 import { getFilesCount } from '../database/sqlite.js';
 import { searchFiles } from '../core/search.js';
 import { sendToRenderer } from '../main.js';
@@ -13,9 +12,6 @@ import { downloadModel } from '../pythonScript/downloadModle.js';
  */
 export function initializeFileApi(mainWindow: BrowserWindow) {
 
-    // 处理文件索引请求
-    ipcMain.handle('index-files', () => indexAllFilesWithWorkers(sendToRenderer));
-
     // 处理获取文件数量的请求
     ipcMain.handle('get-files-count', getFilesCount);
 
@@ -23,11 +19,14 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
     ipcMain.handle('search-files', (_event, keyword: string) => searchFiles(keyword));
 
     // 渲染准备，监听后，再下载模型
-    ipcMain.once('renderer-ready', async () => {
-        console.log('前端已就绪，开始下载模型...');
-        await checkGPU()
+    ipcMain.handle('renderer-ready', async () => {
+        const gpuInfo = await checkGPU();
         downloadModel(sendToRenderer);
+        return gpuInfo;
     });
+
+    // 开启图片视觉索引
+    ipcMain.on('index-image', openIndexImagesService)
 
     // 处理打开文件所在位置的请求
     //   ipcMain.handle('open-file-location', ()=>{});

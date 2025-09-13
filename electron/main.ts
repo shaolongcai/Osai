@@ -3,10 +3,10 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'path';
 import fs from 'fs';
-import os from 'os';
 import { fileURLToPath } from 'url';
-import { getFilesCount, initializeDatabase } from './database/sqlite.js';
+import { initializeDatabase } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
+import { indexAllFilesWithWorkers } from './core/indexFiles.js';
 // import { initLanceDB } from './database/lanceDb.js';
 
 // ES 模块中的 __dirname 和 __filename 替代方案
@@ -122,6 +122,8 @@ app.whenReady().then(async () => {
   initializeDatabase();
   // 初始化向量数据库
   // initLanceDB();
+  // 开启索引
+  indexAllFilesWithWorkers(sendToRenderer);
 });
 
 app.on('window-all-closed', () => {

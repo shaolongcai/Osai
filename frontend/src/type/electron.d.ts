@@ -20,11 +20,18 @@ export interface Notification {
     tooltip?: string
 }
 
+// 检查GPU信息的返回
+export interface GpuInfo {
+    hasGPU: boolean,
+    memory: number, //以MB为单位
+    hasDiscreteGPU: boolean //是否有独显
+}
+
 
 interface ElectronAPI {
 
     // 告诉主线程准备完毕
-    rendererReady(): void;
+    rendererReady(): Promise<GpuInfo>;
 
     // 搜索相关
     searchFiles(query: string): Promise<searchItem[]>

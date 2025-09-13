@@ -1,9 +1,10 @@
+import * as path from 'path';
+import fs from 'fs';
 import { spawn } from 'child_process'
 import pathConfig from '../core/pathConfigs.js';
-import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { INotification } from '../types/system.js';
-import fs from 'fs';
+import { setModelReady } from '../core/appState.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,6 +68,8 @@ async function checkModel() {
             // logger.info('models--BAAI--bge-base-zh-v1.5 不存在');
             return false
         }
+        //若模型存在，立即告知appState.ts ，开始视觉索引
+        setModelReady(true);
         return true
     } catch (error) {
         // logger.error(`检查模型失败:${error.message}`);
@@ -105,6 +108,7 @@ export async function downloadModel(sendToRenderer: (channel: string, data: any)
             type: 'success',
         }
         sendToRenderer('system-info', successNotification)
+        setModelReady(true);
     } catch (error) {
         const msg = error instanceof Error ? error.message : '执行脚本失败';
         console.error(msg);
