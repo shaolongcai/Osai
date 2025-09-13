@@ -40,6 +40,7 @@ interface ElectronAPI {
     onLogger(callback: (data: string) => void): void;
     onIndexProgress(callback: (data: Progress) => void): void;
     onVisualIndexProgress(callback: (data: Progress) => void): void;
+    onSystemInfo(callback: (data: Notification) => void): void;
 
     // 移除事件监听
     removeAllListeners(channel: string): void;

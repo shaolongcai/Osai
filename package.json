@@ -45,7 +45,8 @@
     "better-sqlite3": "^12.2.0",
     "dayjs": "^1.11.18",
     "electron-squirrel-startup": "^1.0.1",
-    "node-llama-cpp": "^3.13.0"
+    "node-llama-cpp": "^3.13.0",
+    "systeminformation": "^5.27.9"
   },
   "build": {
     "electronDownload": {

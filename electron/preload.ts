@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron'); //沙箱环境，这份文件只能使用这个导入方式
 
+
 // 暴露安全的API给渲染进程
 contextBridge.exposeInMainWorld('electronAPI', {
     // 启动索引
@@ -25,6 +26,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onVisualIndexProgress: (callback) => {
         ipcRenderer.on('visual-index-progress', (event, data) => callback(data));
     },
+    // 系统运行信息
+    onSystemInfo: (callback) => {
+        ipcRenderer.on('system-info', (_event, data) => callback(data));
+    },
+
 
     // 移除事件监听
     removeAllListeners: (channel) => {
