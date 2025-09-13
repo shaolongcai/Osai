@@ -1,4 +1,4 @@
-import { Card, CardContent, Stack, Tooltip, Typography, CircularProgress, Collapse } from "@mui/material";
+import { Card, CardContent, Stack, Tooltip, Typography, CircularProgress, Collapse, Fade } from "@mui/material";
 import {
     Error as WaringIcon,
     AccessTimeFilled as PendingIcon,
@@ -21,13 +21,29 @@ const InfoCard: React.FC<Props> = ({
 }) => {
 
     const [isCollapsed, setIsCollapsed] = useState(true);
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [notifications, setNotifications] = useState<Notification[]>([]); //@todo 这里要有个id可以替换
 
     // 接收后台的消息推送
     useEffect(() => {
+        // 告知主线程，前端渲染完毕
+        window.electronAPI.rendererReady()
         window.electronAPI.onSystemInfo((data) => {
-            setNotifications([data, ...notifications])
+            console.log('收到消息:', data);
+            setNotifications(prev => {
+                const index = prev.findIndex(item => item.id === data.id)
+                // 如果找到相同id的通知，则更新该通知
+                if (index !== -1) {
+                    const newNotifications = [...prev];
+                    newNotifications[index] = data;
+                    return newNotifications;
+                }
+                // 如果没找到，则添加到数组最前面
+                return [data, ...prev];
+            })
         })
+        return () => {
+            window.electronAPI.removeAllListeners('system-info')
+        }
     }, [])
 
     //渲染图标
@@ -59,29 +75,29 @@ const InfoCard: React.FC<Props> = ({
                 }}
             />
             <CardContent sx={{ p: 3 }}>
-                <Collapse in={isCollapsed} collapsedSize={24}>
-                    <Stack spacing={1}>
-                        {notifications.map(item =>
-                            <Stack
-                                key={item.text}
-                                direction='row'
-                                className={styles.info}
-                                alignItems='center'
-                                justifyContent='space-between'
-                            >
-                                <Typography variant="body2" component="div" className={styles.text}>
-                                    {item.text}
-                                </Typography>
-                                <Tooltip title={item.tooltip} arrow className={styles.tooltip} >
-                                    <div style={{ height: '24px' }}>
-                                        {/* 没有转发ref，Tooltip 内部的元素不会被转发 */}
-                                        {renderIcon(item.type)}
-                                    </div>
-                                </Tooltip>
-                            </Stack>
-                        )}
-                    </Stack>
-                </Collapse>
+                    <Collapse in={isCollapsed} collapsedSize={24}>
+                        <Stack spacing={1}>
+                            {notifications.map(item =>
+                                <Stack
+                                    key={item.text}
+                                    direction='row'
+                                    className={styles.info}
+                                    alignItems='center'
+                                    justifyContent='space-between'
+                                >
+                                    <Typography variant="body2" component="div" className={styles.text}>
+                                        {item.text}
+                                    </Typography>
+                                    <Tooltip title={item.tooltip} arrow className={styles.tooltip} >
+                                        <div style={{ height: '24px' }}>
+                                            {/* 没有转发ref，Tooltip 内部的元素不会被转发 */}
+                                            {renderIcon(item.type)}
+                                        </div>
+                                    </Tooltip>
+                                </Stack>
+                            )}
+                        </Stack>
+                    </Collapse>
             </CardContent>
         </Card>
     )

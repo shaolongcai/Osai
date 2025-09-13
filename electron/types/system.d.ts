@@ -20,6 +20,7 @@ interface GPUInfo {
  * @returns tooltip  通知提示
  */
 export interface INotification {
+    id: string,
     text: string,
     type: NotificationType,
     tooltip?: string

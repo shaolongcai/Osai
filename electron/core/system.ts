@@ -4,12 +4,14 @@
 import * as os from 'os';
 import si from 'systeminformation';
 import { GPUInfo } from '../types/system';
+import { sendToRenderer } from '../main.js';
+import { INotification } from '../types/system.js';
 
 
 /**
  * 检查系统是否有可用的GPU
  */
-export const checkGPUInfo = async (): Promise<GPUInfo> => {
+const checkGPUInfo = async (): Promise<GPUInfo> => {
     try {
         const graphics = await si.graphics();
         const platform = os.platform();
@@ -63,4 +65,19 @@ export const checkGPUInfo = async (): Promise<GPUInfo> => {
         // this.logger.error(`GPU检测失败: ${error.message}`);
         return { hasGPU: false, memory: 0, hasDiscreteGPU: false };
     }
+}
+
+
+
+//检查GPU
+export const checkGPU = async () => {
+    const gpuInfo = await checkGPUInfo();
+    const notification: INotification = {
+        id: 'checkGPU',
+        text: '检测到GPU',
+        type: gpuInfo.hasGPU ? 'success' : 'warning',
+        tooltip: gpuInfo.hasGPU ? '' : '没有检查到任何可用GPU，将使用CPU进行推理，但速度会有所降低'
+    }
+    console.log('检查到的GPU信息', gpuInfo)
+    sendToRenderer('system-info', notification);
 }

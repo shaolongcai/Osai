@@ -243,7 +243,6 @@ export async function indexImageFiles(sendToRenderer: (channel: string, data: an
             // 更新数据库
             const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);
             const res = updateStmt.run(summary, file.path);
-            console.log('res', res)
             if (res.changes > 0) {
                 sendToRenderer('visual-index-progress', {
                     process: 'loading',
@@ -256,9 +255,4 @@ export async function indexImageFiles(sendToRenderer: (channel: string, data: an
             console.log('error', error)
         }
     }
-    // 调用大模型，摘要图片
-    // for (const file of files) {
-    //     const filePath = file.path;
-    //     const summary = await summarizeImage(filePath);
-    // }
 }

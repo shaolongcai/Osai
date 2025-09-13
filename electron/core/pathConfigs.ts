@@ -66,7 +66,7 @@ class PathConfig {
             logs: path.join(this.appDataPath, 'logs'),
 
             // 模型和缓存
-            models: path.join(this.userHome, '.cache', 'huggingface', 'hub'),
+            models: path.join(this.appDataPath, 'models'),
             cache: path.join(this.appDataPath, 'cache'),
 
             // 数据库

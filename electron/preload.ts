@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openFileLocation: (filePath: string) => ipcRenderer.invoke('open-file-location', filePath),
     // 搜索文件
     searchFiles: (keyword: string) => ipcRenderer.invoke('search-files', keyword),
+    // 告知主线程，前端渲染完毕
+    rendererReady: () => ipcRenderer.send('renderer-ready'),
 
 
     // 日志监听

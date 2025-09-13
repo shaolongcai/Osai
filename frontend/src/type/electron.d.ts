@@ -14,6 +14,7 @@ export type searchItem = {
 
 // 通知接口
 export interface Notification {
+    id: string,
     text: string,
     type: NotificationType,
     tooltip?: string
@@ -21,6 +22,9 @@ export interface Notification {
 
 
 interface ElectronAPI {
+
+    // 告诉主线程准备完毕
+    rendererReady(): void;
 
     // 搜索相关
     searchFiles(query: string): Promise<searchItem[]>

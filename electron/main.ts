@@ -8,8 +8,6 @@ import { fileURLToPath } from 'url';
 import { getFilesCount, initializeDatabase } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
 // import { initLanceDB } from './database/lanceDb.js';
-import { checkGPUInfo } from './core/system.js';
-import { INotification } from './types/system.js';
 
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
@@ -63,31 +61,6 @@ function createWindow() {
 
 
 /**
- * 检查模型
- */
-async function checkModel() {
-  try {
-    // logger.info('=== 开始检查嵌入模型是否存在 ===');
-    // 获取现在模型的路径(暂时)
-    // 获取 HuggingFace 缓存目录路径
-    const userHome = os.homedir();
-    const hfCacheDir = path.join(userHome, '.cache', 'huggingface', 'hub');
-    const modelPath = path.join(hfCacheDir, 'models--BAAI--bge-base-zh-v1.5');
-
-    //检查是否有这个模型
-    if (!fs.existsSync(modelPath)) {
-      // logger.info('models--BAAI--bge-base-zh-v1.5 不存在');
-      return { success: false, error: '模型不存在' };
-    }
-    return { success: true };
-  } catch (error) {
-    // logger.error(`检查模型失败:${error.message}`);
-    return { success: false, error: '检查模型失败' };
-  }
-}
-
-
-/**
  * 打开某个目录
  * @param {} filePath 
  * @returns 
@@ -127,21 +100,6 @@ const openUploadDir = (filePath: string) => {
   shell.openPath(uploadDir);
 }
 
-
-//检查GPU
-const checkGPU = async () => {
-  const gpuInfo = await checkGPUInfo();
-  const notification: INotification = {
-    text: '检测到GPU',
-    type: gpuInfo.hasGPU ? 'success' : 'warning',
-    tooltip: gpuInfo.hasGPU ? '' : '没有检查到任何可用GPU，将使用CPU进行推理，但速度会有所降低'
-  }
-  console.log('检查到的GPU信息', gpuInfo)
-  sendToRenderer('system-info', notification);
-}
-
-
-
 //----- 触发事件 ---- 
 export const sendToRenderer = (channel: string, data: any) => {
   mainWindow.webContents.send(channel, data);
@@ -154,7 +112,7 @@ ipcMain.handle('open-dir', (event, type) => { openDir(type) });
 
 
 // 应用事件
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createWindow();
   // 初始化数据库
   initializeDatabase()
@@ -164,8 +122,6 @@ app.whenReady().then(() => {
   initializeDatabase();
   // 初始化向量数据库
   // initLanceDB();
-  // 检查GPU
-  checkGPU()
 });
 
 app.on('window-all-closed', () => {
@@ -174,7 +130,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('activate', () => {
+app.on('activate', async () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
