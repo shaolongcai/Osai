@@ -1,7 +1,7 @@
 import { Box, Button, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material"
 import React, { useCallback, useEffect, useState } from "react";
 import styles from './home.module.scss'
-import { Search, InfoCard } from '@/components';
+import { Search, InfoCard, Setting } from '@/components';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -11,7 +11,7 @@ import TableRow from '@mui/material/TableRow';
 import { TableVirtuoso, TableComponents } from 'react-virtuoso';
 import { Progress, searchItem } from "@/type/electron";
 import readySearchImage from '@/assets/images/search-ready.png'
-import { Notification } from '@/type/electron';
+import { SettingsOutlined as SettingsIcon } from "@mui/icons-material";
 
 const Home = () => {
 
@@ -19,6 +19,7 @@ const Home = () => {
   const [needIndexImageCount, setNeedIndexImageCount] = useState<number | null>(null); //剩下需要索引的图片
   const [keyword, setKeyword] = useState(''); //搜索的关键词
   const [data, setData] = useState<searchItem[]>([]); //搜索的结果
+  const [openSetting, setOpenSetting] = useState(false); //是否打开设置弹窗
 
   // 检查是否在Electron环境中
   const isElectron = typeof window !== 'undefined' && window.electronAPI;
@@ -190,6 +191,13 @@ const Home = () => {
   return (
     <div className={styles.root}>
       <Search onSearch={setKeyword} />
+      <SettingsIcon
+        className={styles.settingsIcon}
+        fontSize='large'
+        color='inherit'
+        onClick={() => setOpenSetting(true)}
+      />
+      <Setting open={openSetting} onClose={() => setOpenSetting(false)} />
       {
         data.length > 0 ?
           <Box className={styles.table}>

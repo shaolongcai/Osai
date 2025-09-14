@@ -34,9 +34,17 @@ const InfoCard: React.FC<Props> = ({
             // 告知主线程，前端渲染完毕
             const gpuInfo = await window.electronAPI.rendererReady()
             console.log('gpuInfo', gpuInfo)
-            if (gpuInfo.hasGPU) {
+
+            // 若有缓存，则先由缓存决定是否开启
+            if (localStorage.getItem('openIndexImage')) {
+                const openIndexImage = Number(localStorage.getItem('openIndexImage') || 0) // 获取是否开启的缓存,1为开启，0为关闭
+                Boolean(openIndexImage) && await window.electronAPI.IndexImage()
+            }
+            else if (gpuInfo.hasGPU) {
                 // 若拥有GPU则自动打开图片索引
                 await window.electronAPI.IndexImage()
+                // 默认开启索引
+                localStorage.setItem('openIndexImage', '1')
             }
         }
         indexCheckGPUAndDownloadModel();
@@ -48,7 +56,6 @@ const InfoCard: React.FC<Props> = ({
     // 接收后台的消息推送
     useEffect(() => {
         window.electronAPI.onSystemInfo((data) => {
-            console.log('收到消息:', data);
             setNotifications(prev => {
                 const index = prev.findIndex(item => item.id === data.id)
                 // 如果找到相同id的通知，则更新该通知

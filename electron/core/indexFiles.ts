@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
 import { summarizeImage } from './model.js';
-import { setIndexUpdate, waitForIndexUpdate, waitForModelReady } from './appState.js';
+import { setIndexUpdate, setOpenIndexImages, waitForIndexImage, waitForIndexUpdate, waitForModelReady } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 
@@ -234,6 +234,9 @@ async function indexImageFiles() {
     for (const file of files) {
         try {
             const summary = await summarizeImage(file.path);
+            // console.log('等待开启图片索引服务')
+            await waitForIndexImage();
+            // console.log('已开启图片索引服务')
             // console.log('summary', summary)
             // 更新数据库
             const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);
@@ -259,7 +262,7 @@ async function indexImageFiles() {
 /**
  * 第一步：开启视觉索引服务
  */
-export const openIndexImagesService = async (): Promise<void> => {
+export const indexImagesService = async (): Promise<void> => {
     console.log('等待索引更新完毕')
     await waitForIndexUpdate();
     console.log('索引更新完毕')

@@ -59,7 +59,6 @@ const checkGPUInfo = async (): Promise<GPUInfo> => {
             }
         }
 
-        // gpuInfo.hasGPU = false //测试CPU时候
         return gpuInfo;
     } catch (error) {
         // this.logger.error(`GPU检测失败: ${error.message}`);
@@ -75,6 +74,7 @@ const checkGPUInfo = async (): Promise<GPUInfo> => {
  */
 export const checkGPU = async (): Promise<GPUInfo> => {
     const gpuInfo = await checkGPUInfo();
+    gpuInfo.hasGPU = false //测试CPU时候
     const notification: INotification = {
         id: 'checkGPU',
         text: '检测到GPU',

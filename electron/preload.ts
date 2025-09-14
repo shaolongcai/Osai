@@ -11,8 +11,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     searchFiles: (keyword: string) => ipcRenderer.invoke('search-files', keyword),
     // 告知主线程，前端渲染完毕
     rendererReady: () => ipcRenderer.invoke('renderer-ready'),
-    // 开启图片视觉索引
+    // 图片视觉索引
     IndexImage: () => ipcRenderer.send('index-image'), //send的返回值永远都是void
+    // 切换图片视觉索引开关
+    toggleIndexImage: (open: boolean) => ipcRenderer.send('toggle-index-image', open),
 
 
     // 日志监听

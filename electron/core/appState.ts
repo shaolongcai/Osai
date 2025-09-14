@@ -6,6 +6,7 @@ const appEmitter = new EventEmitter();
 
 let isModelReady = false;
 let isIndexUpdate = false;
+let isOpenIndexImages = true;
 
 /**
  * 步骤2：设置模型就绪状态并发出事件
@@ -27,6 +28,17 @@ export function setIndexUpdate(status: boolean) {
     if (status) {
         // 当索引准备好时，发出 'index-update' 事件
         appEmitter.emit('index-update');
+    }
+}
+
+
+//开启图片索引
+export function setOpenIndexImages(status: boolean) {
+    if (isOpenIndexImages === status) return; // 状态未改变，则不执行任何操作
+    isOpenIndexImages = status;
+    if (status) {
+        // 当索引准备好时，发出 'open-index-image' 事件
+        appEmitter.emit('open-index-image');
     }
 }
 
@@ -60,6 +72,21 @@ export function waitForIndexUpdate(): Promise<void> {
         } else {
             // 否则，监听 'index-update' 事件，一旦触发就解析
             appEmitter.once('index-update', () => {
+                resolve();
+            });
+        }
+    });
+}
+
+//等待开启图片索引
+export function waitForIndexImage(): Promise<void> {
+    return new Promise((resolve) => {
+        if (isOpenIndexImages) {
+            // 如果索引已经更新，立即解析
+            resolve();
+        } else {
+            // 请使用once。使用on，会在循环中，造成大量监听器。导致内存溢出
+            appEmitter.once('open-index-image', () => {
                 resolve();
             });
         }

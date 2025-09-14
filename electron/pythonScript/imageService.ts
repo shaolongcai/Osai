@@ -3,6 +3,7 @@ import pathConfig from '../core/pathConfigs.js';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import * as fs from 'fs';
+import { setOpenIndexImages } from '../core/appState.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,7 +23,6 @@ const mmprojPath = path.join(modeldir, mmprojName);
 
 const PYTHON_ENV_PATH = path.join(__dirname, '../resources/venv/Scripts/python.exe')
 const PYTHON_SCRIPT_PATH = path.join(__dirname, '../resources/pythonScript/vision_processor.py')
-
 
 
 /**
@@ -193,17 +193,21 @@ export async function summarizeImageWithPython(imagePath: string): Promise<strin
 /**
  * 关闭Python服务
  */
-export const shutdownVisionService = (): void => {
-    if (pythonProcess && !pythonProcess.killed) {
-        const shutdownCommand = { type: 'shutdown' };
-        pythonProcess.stdin?.write(JSON.stringify(shutdownCommand) + '\n');
+// export const shutdownVisionService = (): void => {
+//     setOpenIndexImages(false)
+//     // if (pythonProcess && !pythonProcess.killed) {
+//     //     console.log('关闭python图片服务')
+//     //     setOpenIndexImages(false)
 
-        setTimeout(() => {
-            if (pythonProcess && !pythonProcess.killed) {
-                pythonProcess.kill();
-            }
-        }, 5000);
-    }
-};
+//     //     const shutdownCommand = { type: 'shutdown' };
+//     //     pythonProcess.stdin?.write(JSON.stringify(shutdownCommand) + '\n');
+
+//     //     setTimeout(() => {
+//     //         if (pythonProcess && !pythonProcess.killed) {
+//     //             pythonProcess.kill();
+//     //         }
+//     //     }, 5000);
+//     // }
+// };
 
 
