@@ -26,4 +26,4 @@ export interface INotification {
     tooltip?: string
 }
 
-export type NotificationType =  'pending' | 'success' | 'warning' | 'loading' | 'loadingQuestion';
+export type NotificationType =  'pending' | 'success' | 'warning' | 'loading' | 'loadingQuestion' | 'question';

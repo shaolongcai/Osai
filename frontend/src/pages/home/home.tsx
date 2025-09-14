@@ -55,17 +55,6 @@ const Home = () => {
     }
   }, [keyword])
 
-  //索引文件
-  const indexFiles = async () => {
-    await window.electronAPI.indexFiles();
-  }
-
-  // 获取文件数量
-  const getFilesCount = async () => {
-    const count = await window.electronAPI.getFilesCount();
-    console.log('文件数量:', count);
-  }
-
 
   const columns: ColumnData[] = [
     {
@@ -198,28 +187,6 @@ const Home = () => {
     );
   }
 
-  // 模拟message
-  const notifications: Notification[] = [
-    {
-      text: '检测到GPU',
-      type: 'warning',
-      tooltip: '没有检查到任何可用GPU，将使用CPU进行推理，但速度会有所降低',
-    },
-    {
-      text: '正在下载AI模型',
-      type: 'loading',
-    },
-    {
-      text: '视觉服务已就绪',
-      type: 'pending',
-    },
-     {
-      text: '视觉索引服务已启动 剩余 34,000',
-      type: 'loadingQuestion',
-      tooltip: '视觉服务：你可以直接搜索图片中的内容，而不仅是名称。你可前往【设置】手动关闭',
-    },
-  ]
-
   return (
     <div className={styles.root}>
       <Search onSearch={setKeyword} />
@@ -248,9 +215,6 @@ const Home = () => {
             </Typography>
           </Stack>
       }
-      <Button onClick={indexFiles}>
-        索引
-      </Button>
       <Typography>
         {needIndexImageCount}
       </Typography>
@@ -259,7 +223,7 @@ const Home = () => {
         bottom: '24px',
         left: '24px',
       }}>
-        <InfoCard notifications={notifications} />
+        <InfoCard />
       </Box>
     </div>
   )

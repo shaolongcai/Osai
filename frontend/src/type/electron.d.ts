@@ -38,7 +38,7 @@ interface ElectronAPI {
 
     // 索引相关
     indexFiles(): Promise<void>;
-    getFilesCount(): Promise<number>;
+    IndexImage(): Promise<void>;
 
     // 模型相关
     checkModelExists(): Promise<{ success: boolean }>;

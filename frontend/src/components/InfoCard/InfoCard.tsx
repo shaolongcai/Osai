@@ -4,7 +4,8 @@ import {
     AccessTimeFilled as PendingIcon,
     CheckCircle as SuccessIcon,
     Help as LoadingQuestionIcon,
-    KeyboardArrowDown as DownIcon
+    KeyboardArrowDown as DownIcon,
+    Help as QuestionIcon
 } from '@mui/icons-material';
 
 import styles from './InfoCard.module.scss'
@@ -14,21 +15,22 @@ import { useEffect, useRef, useState } from "react";
 
 
 interface Props {
-    notifications: Notification[]
+
 }
 const InfoCard: React.FC<Props> = ({
-    // notifications
+
 }) => {
 
     const [isCollapsed, setIsCollapsed] = useState(true);
-    const [notifications, setNotifications] = useState<Notification[]>([]); //@todo 这里要有个id可以替换
-    const effectRan = useRef(false);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const effectRan = useRef(false); // 执行守卫
 
     useEffect(() => {
         const indexCheckGPUAndDownloadModel = async () => {
-             if (effectRan.current === true ) {
-            return;
-        }
+            // 执行守卫，防止在开发模式下触发两次
+            if (effectRan.current === true) {
+                return;
+            }
             // 告知主线程，前端渲染完毕
             const gpuInfo = await window.electronAPI.rendererReady()
             console.log('gpuInfo', gpuInfo)
@@ -52,7 +54,8 @@ const InfoCard: React.FC<Props> = ({
                 // 如果找到相同id的通知，则更新该通知
                 if (index !== -1) {
                     const newNotifications = [...prev];
-                    newNotifications[index] = data;
+                    newNotifications.splice(index, 1); // 先删除原来的消息
+                    newNotifications.unshift(data); // 将更新的消息放到数组最前面
                     return newNotifications;
                 }
                 // 如果没找到，则添加到数组最前面
@@ -77,6 +80,8 @@ const InfoCard: React.FC<Props> = ({
                 return <CircularProgress className={styles.icon} size={24} />
             case NOTIFICATION_TYPE.LOADING_QUESTION:
                 return <LoadingQuestionIcon className={styles.icon} color='info' />
+            case NOTIFICATION_TYPE.QUESTION:
+                return <QuestionIcon className={styles.icon} color='info' />
             default:
                 return null
         }

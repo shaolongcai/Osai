@@ -8,6 +8,7 @@ import { getDatabase } from '../database/sqlite.js';
 import { summarizeImage } from './model.js';
 import { setIndexUpdate, waitForIndexUpdate, waitForModelReady } from './appState.js';
 import { sendToRenderer } from '../main.js';
+import { INotification } from '../types/system.js';
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
@@ -228,25 +229,23 @@ async function indexImageFiles() {
     const files = selectStmt.all() as Array<{ path: string }>;
     // 总共需要视觉处理的文件数量
     let totalFiles = files.length;
-    sendToRenderer('visual-index-progress', {
-        message: `一共找到 ${files.length} 个图片，准备视觉索引服务`,
-        process: 'pending',
-        count: totalFiles
-    })
+    console.log(`一共找到 ${files.length} 个图片，准备视觉索引服务`)
 
     for (const file of files) {
         try {
             const summary = await summarizeImage(file.path);
             // console.log('summary', summary)
-
             // 更新数据库
             const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);
             const res = updateStmt.run(summary, file.path);
             if (res.changes > 0) {
-                sendToRenderer('visual-index-progress', {
-                    process: 'loading',
-                    count: totalFiles
-                })
+                const notification: INotification = {
+                    id: 'visual-index',
+                    text: `视觉索引服务已启动 剩余 ${totalFiles}`,
+                    type: 'loadingQuestion',
+                    tooltip: '视觉服务：你可以直接搜索图片中的内容，而不仅是名称。你可前往【设置】手动关闭'
+                }
+                sendToRenderer('system-info', notification)
                 totalFiles--
             }
 
@@ -274,4 +273,10 @@ export const openIndexImagesService = async (): Promise<void> => {
     await indexImageFiles();
     const endIndexImageTime = Date.now();
     console.log(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
+    const notification: INotification = {
+        id: 'visual-index',
+        text: '视觉索引已全部完成',
+        type: 'success',
+    }
+    sendToRenderer('system-info', notification);
 }
