@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
 import { summarizeImage } from './model.js';
-import { setIndexUpdate, setOpenIndexImages, waitForIndexImage, waitForIndexUpdate, waitForModelReady } from './appState.js';
+import { setOpenIndexImages, waitForIndexImage, waitForModelReady } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 
@@ -200,7 +200,10 @@ export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string,
         // 删除多余的数据库记录
         await deleteExtraFiles(allFiles);
         // 索引更新
-        setIndexUpdate(true);
+        // setIndexUpdate(true);
+
+        // 索引图片
+        indexImagesService()
 
         // 对所有文件进行向量化,暂时不需要
         // const startVectorTime = Date.now();
@@ -234,7 +237,7 @@ async function indexImageFiles() {
     for (const file of files) {
         try {
             const summary = await summarizeImage(file.path);
-            // console.log('等待开启图片索引服务')
+           
             await waitForIndexImage();
             // console.log('已开启图片索引服务')
             // console.log('summary', summary)
@@ -263,9 +266,9 @@ async function indexImageFiles() {
  * 第一步：开启视觉索引服务
  */
 export const indexImagesService = async (): Promise<void> => {
-    console.log('等待索引更新完毕')
-    await waitForIndexUpdate();
-    console.log('索引更新完毕')
+    // console.log('等待索引更新完毕')
+    // await waitForIndexUpdate();
+    // console.log('索引更新完毕')
 
     console.log('等待AI模型准备就绪...');
     await waitForModelReady();

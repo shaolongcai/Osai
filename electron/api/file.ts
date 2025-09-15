@@ -7,6 +7,7 @@ import { checkGPU } from '../core/system.js';
 import { downloadModel } from '../pythonScript/downloadModle.js';
 // import { shutdownVisionService } from '../pythonScript/imageService.js';
 import { setOpenIndexImages } from '../core/appState.js';
+import { INotification } from '../types/system.js';
 
 /**
  * 初始化所有与文件相关的 IPC 事件监听器
@@ -27,12 +28,9 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
         return gpuInfo;
     });
 
-    // 开启图片视觉索引
-    ipcMain.on('index-image', indexImagesService)
     // 切换图片视觉索引开关
     ipcMain.on('toggle-index-image', (_event, open) => {
-        console.log('图片索引切换为', open)
-        setOpenIndexImages(open)
+        setOpenIndexImages(open) //允许或暂停索引图片
     })
 
     // 处理打开文件所在位置的请求

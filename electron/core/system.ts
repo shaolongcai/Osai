@@ -77,23 +77,23 @@ export const checkGPU = async (): Promise<GPUInfo> => {
     gpuInfo.hasGPU = false //测试CPU时候
     const notification: INotification = {
         id: 'checkGPU',
-        text: '检测到GPU',
+        text: '检测GPU',
         type: gpuInfo.hasGPU ? 'success' : 'warning',
-        tooltip: gpuInfo.hasGPU ? '' : '没有检查到任何可用GPU，将使用CPU进行推理，但速度会有所降低'
+        tooltip: gpuInfo.hasGPU ? '' : '没有检查到任何可用GPU，将使用CPU进行推理，但速度会有所降低。视觉索引服务将默认关闭'
     }
     console.log('检查到的GPU信息', gpuInfo)
     sendToRenderer('system-info', notification);
 
     // 若检查到没有可用的GPU，提示用户视觉服务已关闭
-    if (!gpuInfo.hasGPU) {
-        const notification: INotification = {
-            id: 'visual-index',
-            text: '视觉服务已关闭',
-            type: 'question',
-            tooltip: '视觉服务：你可以直接搜索图片中的内容，而不仅是名称。CPU下，索引会较慢，已自动关闭。你可前往【设置】手动开启'
-        }
-        sendToRenderer('system-info', notification);
-    }
+    // if (!gpuInfo.hasGPU) {
+    //     const notification: INotification = {
+    //         id: 'visual-index',
+    //         text: '视觉服务已关闭',
+    //         type: 'question',
+    //         tooltip: '视觉服务：你可以直接搜索图片中的内容，而不仅是名称。CPU下，索引会较慢，已自动关闭。你可前往【设置】手动开启'
+    //     }
+    //     sendToRenderer('system-info', notification);
+    // }
 
     return gpuInfo;
 }

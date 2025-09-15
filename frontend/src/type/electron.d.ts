@@ -38,7 +38,7 @@ interface ElectronAPI {
 
     // 索引相关
     indexFiles(): Promise<void>;
-    IndexImage(): Promise<void>;
+    toggleIndexImage(open: boolean): Promise<void>;
 
     // 模型相关
     checkModelExists(): Promise<{ success: boolean }>;

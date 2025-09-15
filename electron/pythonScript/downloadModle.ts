@@ -107,7 +107,7 @@ export async function downloadModel(sendToRenderer: (channel: string, data: any)
             text: 'AI服务已就绪',
             type: 'success',
         }
-        sendToRenderer('system-info', successNotification)
+        sendToRenderer('', successNotification)
         setModelReady(true);
     } catch (error) {
         const msg = error instanceof Error ? error.message : '执行脚本失败';

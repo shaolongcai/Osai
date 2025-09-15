@@ -38,13 +38,15 @@ const InfoCard: React.FC<Props> = ({
             // 若有缓存，则先由缓存决定是否开启
             if (localStorage.getItem('openIndexImage')) {
                 const openIndexImage = Number(localStorage.getItem('openIndexImage') || 0) // 获取是否开启的缓存,1为开启，0为关闭
-                Boolean(openIndexImage) && await window.electronAPI.IndexImage()
+                // Boolean(openIndexImage) && await window.electronAPI.IndexImage()
+                await window.electronAPI.toggleIndexImage(Boolean(openIndexImage))
             }
             else if (gpuInfo.hasGPU) {
                 // 若拥有GPU则自动打开图片索引
-                await window.electronAPI.IndexImage()
+                // await window.electronAPI.IndexImage()
                 // 默认开启索引
                 localStorage.setItem('openIndexImage', '1')
+                await window.electronAPI.toggleIndexImage(true)
             }
         }
         indexCheckGPUAndDownloadModel();
