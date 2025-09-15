@@ -12,7 +12,7 @@ import styles from './InfoCard.module.scss'
 import { NOTIFICATION_TYPE, NotificationType } from "@/utils/enum";
 import { Notification } from "@/type/electron";
 import { useEffect, useRef, useState } from "react";
-
+import {useGlobalContext} from "@/context/globalContext";
 
 interface Props {
 
@@ -23,7 +23,9 @@ const InfoCard: React.FC<Props> = ({
 
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [notifications, setNotifications] = useState<Notification[]>([]);
+
     const effectRan = useRef(false); // 执行守卫
+    const context = useGlobalContext();
 
     useEffect(() => {
         const indexCheckGPUAndDownloadModel = async () => {
@@ -34,6 +36,7 @@ const InfoCard: React.FC<Props> = ({
             // 告知主线程，前端渲染完毕
             const gpuInfo = await window.electronAPI.rendererReady()
             console.log('gpuInfo', gpuInfo)
+            context.setGpuInfo(gpuInfo)
 
             // 若有缓存，则先由缓存决定是否开启
             if (localStorage.getItem('openIndexImage')) {
@@ -67,6 +70,10 @@ const InfoCard: React.FC<Props> = ({
                     newNotifications.unshift(data); // 将更新的消息放到数组最前面
                     return newNotifications;
                 }
+                // 若id是 checkGPU，则存入全局，@todo，应该放在一份表中
+                // if (data.id === 'checkGPU') {
+                //     context.setGpuInfo(data)
+                // }
                 // 如果没找到，则添加到数组最前面
                 return [data, ...prev];
             })

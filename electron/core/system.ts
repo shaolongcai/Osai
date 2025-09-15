@@ -109,7 +109,6 @@ export const checkGPU = async (): Promise<GPUInfo> => {
  * @returns 
  */
 export const openDir = (type: string, filePath?: string) => {
-    console.log('打开目录', type, filePath)
     switch (type) {
         // 打开运行日志
         case 'runLog':
