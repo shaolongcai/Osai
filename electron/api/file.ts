@@ -1,19 +1,20 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { indexImagesService } from '../core/indexFiles.js';
+import { indexAllFilesWithWorkers } from '../core/indexFiles.js';
 import { getFilesCount } from '../database/sqlite.js';
 import { searchFiles } from '../core/search.js';
 import { sendToRenderer } from '../main.js';
-import { checkGPU } from '../core/system.js';
+import { checkGPU, openDir } from '../core/system.js';
 import { downloadModel } from '../pythonScript/downloadModle.js';
 // import { shutdownVisionService } from '../pythonScript/imageService.js';
 import { setOpenIndexImages } from '../core/appState.js';
-import { INotification } from '../types/system.js';
 
 /**
  * 初始化所有与文件相关的 IPC 事件监听器
  * @param mainWindow 主浏览器窗口实例
  */
 export function initializeFileApi(mainWindow: BrowserWindow) {
+    // 开启索引
+    ipcMain.handle('open-index', indexAllFilesWithWorkers)
 
     // 处理获取文件数量的请求
     ipcMain.handle('get-files-count', getFilesCount);
@@ -28,11 +29,11 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
         return gpuInfo;
     });
 
+    // 打开某个路径（📌，需要取代open-file-location）
+    ipcMain.on('open-dir', (event, type, path) => { openDir(type, path) });
+
     // 切换图片视觉索引开关
     ipcMain.on('toggle-index-image', (_event, open) => {
         setOpenIndexImages(open) //允许或暂停索引图片
     })
-
-    // 处理打开文件所在位置的请求
-    //   ipcMain.handle('open-file-location', ()=>{});
 }

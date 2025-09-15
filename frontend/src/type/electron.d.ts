@@ -37,15 +37,14 @@ interface ElectronAPI {
     searchFiles(query: string): Promise<searchItem[]>
 
     // 索引相关
-    indexFiles(): Promise<void>;
-    toggleIndexImage(open: boolean): Promise<void>;
+    openIndex(): Promise<void>; // 开启索引所有硬盘得文件
+    toggleIndexImage(open: boolean): Promise<void>; //开启/关闭视觉索引服务
 
     // 模型相关
     checkModelExists(): Promise<{ success: boolean }>;
 
     //操作相关
-    openFileLocation(relative_file_path: string): Promise<void>;
-    openDir(type: string): Promise<void>;
+    openDir(type: string, path: string): Promise<void>;
 
     // 事件监听
     onLogger(callback: (data: string) => void): void;

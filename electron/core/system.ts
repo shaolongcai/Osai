@@ -3,10 +3,12 @@
  */
 import * as os from 'os';
 import si from 'systeminformation';
+import { shell } from 'electron';
 import { GPUInfo } from '../types/system';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
-
+import pathConfig from './pathConfigs.js';
+import { exec } from 'child_process';
 
 /**
  * 检查系统是否有可用的GPU
@@ -96,4 +98,37 @@ export const checkGPU = async (): Promise<GPUInfo> => {
     // }
 
     return gpuInfo;
+}
+
+
+
+/**
+ * 打开某个目录
+ * @param type 目录类型
+ * @param filePath 目录路径,当type为openFileDir，必须要传入
+ * @returns 
+ */
+export const openDir = (type: string, filePath?: string) => {
+    console.log('打开目录', type, filePath)
+    switch (type) {
+        // 打开运行日志
+        case 'runLog':
+            const logsDir = pathConfig.get('logs')
+            shell.openPath(logsDir);
+            break;
+        case 'openFileDir':
+            if (process.platform === 'win32') {
+                // 在 Windows 上，使用 explorer.exe 并通过 /select 参数来选中文件
+                exec(`explorer.exe /select,"${filePath}"`);
+            } else if (process.platform === 'darwin') {
+                // 在 macOS 上，使用 open 命令并附带 -R 参数来在 Finder 中显示文件
+                exec(`open -R "${filePath}"`);
+            } else {
+                // 对于其他平台（如 Linux），继续使用 showItemInFolder 作为备选
+                shell.showItemInFolder(filePath);
+            }
+            break;
+        default:
+            break;
+    }
 }

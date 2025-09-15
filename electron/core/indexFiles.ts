@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
 import { summarizeImage } from './model.js';
-import { setOpenIndexImages, waitForIndexImage, waitForModelReady } from './appState.js';
+import { waitForIndexImage, waitForModelReady } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 
@@ -110,7 +110,7 @@ const deleteExtraFiles = async (allFiles: string[]) => {
  * 索引所有驱动器上具有允许扩展名的所有文件。
  * @returns 找到的所有文件的路径列表。
  */
-export async function indexAllFilesWithWorkers(sendToRenderer: (channel: string, data: any) => void): Promise<string[]> {
+export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
     const startTime = Date.now();
     const drives = getDrives();
@@ -237,7 +237,7 @@ async function indexImageFiles() {
     for (const file of files) {
         try {
             const summary = await summarizeImage(file.path);
-           
+
             await waitForIndexImage();
             // console.log('已开启图片索引服务')
             // console.log('summary', summary)

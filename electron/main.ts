@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { initializeDatabase } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
 import { indexAllFilesWithWorkers } from './core/indexFiles.js';
+import { shutdownVisionService } from './pythonScript/imageService.js';
 // import { initLanceDB } from './database/lanceDb.js';
 
 // ES 模块中的 __dirname 和 __filename 替代方案
@@ -60,34 +61,6 @@ function createWindow() {
 }
 
 
-/**
- * 打开某个目录
- * @param {} filePath 
- * @returns 
- */
-const openDir = (type: string) => {
-  const appPath = ''
-  // const appPath = pathConfig.default.get('appData')
-  switch (type) {
-    // 打开运行日志
-    case 'runLog':
-      shell.openPath(path.join(appPath, 'backend_logs'));
-      break;
-    // 打开安装日志
-    case 'installLog':
-      // shell.openPath(pathConfig.default.get('logs'));
-      break;
-    case 'localData':
-      shell.openPath(path.join(appPath, 'data'));
-      break;
-    case 'upload':
-      shell.openPath(path.join(appPath, 'uploads'));
-      break;
-    default:
-      break;
-  }
-}
-
 // 打开upload目录
 const openUploadDir = (filePath: string) => {
   // 确定目录路径
@@ -107,8 +80,6 @@ export const sendToRenderer = (channel: string, data: any) => {
 
 // 打开文件所在位置，filePath为相对位置（即MD5）
 ipcMain.handle('open-file-location', (event, filePath) => { openUploadDir(filePath) });
-// 打开某个路径（📌，需要取代open-file-location）
-ipcMain.handle('open-dir', (event, type) => { openDir(type) });
 
 
 // 应用事件
@@ -123,7 +94,7 @@ app.whenReady().then(async () => {
   // 初始化向量数据库
   // initLanceDB();
   // 开启索引
-  indexAllFilesWithWorkers(sendToRenderer);
+  indexAllFilesWithWorkers();
 });
 
 app.on('window-all-closed', () => {
@@ -140,5 +111,5 @@ app.on('activate', async () => {
 
 app.on('before-quit', () => {
   // 清理后端进程
-
+  shutdownVisionService();
 });

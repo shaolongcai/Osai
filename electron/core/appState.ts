@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
-import { sendToRenderer } from '../main';
-import { INotification } from '../types/system';
+import { sendToRenderer } from '../main.js';
+import { INotification } from '../types/system.js';
 
 // 步骤1：创建一个事件发射器
 // 作用：用于在应用的不同部分之间解耦通信。当模型准备就绪时，我们将用它来广播一个事件。

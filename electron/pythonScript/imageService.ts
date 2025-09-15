@@ -193,21 +193,19 @@ export async function summarizeImageWithPython(imagePath: string): Promise<strin
 /**
  * 关闭Python服务
  */
-// export const shutdownVisionService = (): void => {
-//     setOpenIndexImages(false)
-//     // if (pythonProcess && !pythonProcess.killed) {
-//     //     console.log('关闭python图片服务')
-//     //     setOpenIndexImages(false)
+export const shutdownVisionService = (): void => {
+    if (pythonProcess && !pythonProcess.killed) {
+        console.log('关闭python图片服务')
 
-//     //     const shutdownCommand = { type: 'shutdown' };
-//     //     pythonProcess.stdin?.write(JSON.stringify(shutdownCommand) + '\n');
+        const shutdownCommand = { type: 'shutdown' };
+        pythonProcess.stdin?.write(JSON.stringify(shutdownCommand) + '\n');
 
-//     //     setTimeout(() => {
-//     //         if (pythonProcess && !pythonProcess.killed) {
-//     //             pythonProcess.kill();
-//     //         }
-//     //     }, 5000);
-//     // }
-// };
+        setTimeout(() => {
+            if (pythonProcess && !pythonProcess.killed) {
+                pythonProcess.kill();
+            }
+        }, 5000);
+    }
+};
 
 
