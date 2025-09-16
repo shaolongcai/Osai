@@ -1,6 +1,7 @@
 import path from 'path';
 import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
+import { logger } from './logger.js';
 
 /**
  * 计算两个字符串之间的 Levenshtein 距离。
@@ -51,7 +52,7 @@ export function searchFiles(searchTerm: string): any[] {
     // 1. 获取数据库连接
     const dbDirectory = pathConfig.get('database');
     if (!dbDirectory) {
-        console.error('数据库目录未配置');
+        logger.error('数据库目录未配置');
         return [];
     }
     const db = getDatabase()

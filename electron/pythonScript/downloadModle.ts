@@ -5,6 +5,7 @@ import pathConfig from '../core/pathConfigs.js';
 import { fileURLToPath } from 'url';
 import { INotification } from '../types/system.js';
 import { setModelReady } from '../core/appState.js';
+import { logger } from '../core/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,7 +40,7 @@ function executeDownloadModelPythonScript(): Promise<string> {
             if (code !== 0) {
                 // 如果脚本以非0状态码退出，视为执行失败
                 const msg = `Python script [${PYTHON_ENV_PATH}] exited with code ${code}: ${stderr}`;
-                console.error(msg);
+                logger.error(msg);
                 reject(new Error(msg));
             } else {
                 // 成功执行，返回收集到的标准输出
@@ -83,7 +84,7 @@ export async function downloadModel(sendToRenderer: (channel: string, data: any)
         // 检查是否有模型
         const isExist = await checkModel()
         if (isExist) {
-            console.log('模型已存在，无需下载')
+            logger.info('模型已存在，无需下载')
             const notification: INotification = {
                 id: 'downloadModel',
                 text: 'AI服务已就绪',
@@ -101,7 +102,7 @@ export async function downloadModel(sendToRenderer: (channel: string, data: any)
         }
         sendToRenderer('system-info', notification)
         const result = await executeDownloadModelPythonScript();
-        console.log('脚本输出:', result);
+        logger.info(`脚本输出:${result}`);
         const successNotification: INotification = {
             id: 'downloadModel',
             text: 'AI服务已就绪',
@@ -111,7 +112,7 @@ export async function downloadModel(sendToRenderer: (channel: string, data: any)
         setModelReady(true);
     } catch (error) {
         const msg = error instanceof Error ? error.message : '执行脚本失败';
-        console.error(msg);
+        logger.error(msg);
         // 在您的应用中，这里可以调用 message.error(msg) 向用户显示错误
     }
 }

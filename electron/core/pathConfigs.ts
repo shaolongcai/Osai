@@ -43,7 +43,7 @@ class PathConfig {
         this.userHome = os.homedir();
 
         // 基础目录配置
-        this.baseAppDir = app.isPackaged ? 'oogway' : 'oogway-test'; //sqlit 访问不了带.的前缀的文件夹
+        this.baseAppDir = app.isPackaged ? 'Osai' : 'Osai-test'; //sqlit 访问不了带.的前缀的文件夹
         this.appDataPath = path.join(this.userHome, this.baseAppDir);
         this.resources = app && app.isPackaged ? process.resourcesPath : path.join(__dirname, '../../electron/', 'resources'),   // 资源文件
             this.paths = null;

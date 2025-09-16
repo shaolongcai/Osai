@@ -4,6 +4,7 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 import * as fs from 'fs';
 import { setOpenIndexImages } from '../core/appState.js';
+import { logger } from '../core/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,8 +37,7 @@ async function startPythonService(): Promise<void> {
             resolve();
             return;
         }
-
-        console.log('启动Python视觉处理服务...');
+        logger.info('启动Python视觉处理服务...');
 
         // 启动Python进程
         pythonProcess = spawn(PYTHON_ENV_PATH, [PYTHON_SCRIPT_PATH], {
@@ -57,14 +57,14 @@ async function startPythonService(): Promise<void> {
 
                     switch (message.type) {
                         case 'log':
-                            console.log('Python服务:', message.msg);
+                            logger.info(`Python服务:${message.msg}`);
                             break;
 
                         case 'init_result':
                             if (message.success) {
                                 isProcessReady = true;
                                 clearTimeout(initTimeout);
-                                console.log('Python服务初始化成功');
+                                logger.info('Python服务初始化成功');
                                 resolve();
                             } else {
                                 clearTimeout(initTimeout);
@@ -73,7 +73,7 @@ async function startPythonService(): Promise<void> {
                             break;
 
                         case 'task_accepted':
-                            console.log(`任务 ${message.task_id} 已被接收`);
+                            logger.info(`任务 ${message.task_id} 已被接收`);
                             break;
 
                         case 'result':
@@ -82,7 +82,7 @@ async function startPythonService(): Promise<void> {
                             const task = pendingTasks.get(taskId);
                             if (task) {
                                 if (message.success) {
-                                    console.log(`任务 ${taskId} 完成，耗时: ${message.elapsed_time?.toFixed(2)}秒`);
+                                    logger.info(`任务 ${taskId} 完成，耗时: ${message.elapsed_time?.toFixed(2)}秒`);
                                     task.resolve(message.result);
                                 } else {
                                     task.reject(new Error(message.errMsg));
@@ -92,23 +92,23 @@ async function startPythonService(): Promise<void> {
                             break;
 
                         case 'error':
-                            console.error('Python服务错误:', message.errMsg);
+                            logger.error(`Python服务错误:${message.errMsg}`);
                             break;
                     }
                 } catch (e) {
-                    console.log('Python输出:', line);
+                    // console.log('Python输出:', line);
                 }
             });
         })
 
         // 收集错误
         pythonProcess.stderr.on('data', (data) => {
-            console.error('日志输出:', data.toString());
+            // console.error('日志输出:', data.toString());
         })
 
         // 处理进程结束
         pythonProcess.on('close', (code) => {
-            console.log(`Python服务退出，代码: ${code}`);
+            logger.info(`Python服务退出，代码: ${code}`);
             isProcessReady = false;
             pythonProcess = null;
 
@@ -195,7 +195,7 @@ export async function summarizeImageWithPython(imagePath: string): Promise<strin
  */
 export const shutdownVisionService = (): void => {
     if (pythonProcess && !pythonProcess.killed) {
-        console.log('关闭python图片服务')
+        logger.info('关闭python图片服务')
 
         const shutdownCommand = { type: 'shutdown' };
         pythonProcess.stdin?.write(JSON.stringify(shutdownCommand) + '\n');

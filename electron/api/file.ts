@@ -1,6 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { indexAllFilesWithWorkers } from '../core/indexFiles.js';
-import { getFilesCount } from '../database/sqlite.js';
 import { searchFiles } from '../core/search.js';
 import { sendToRenderer } from '../main.js';
 import { checkGPU, openDir } from '../core/system.js';
@@ -15,9 +14,6 @@ import { setOpenIndexImages } from '../core/appState.js';
 export function initializeFileApi(mainWindow: BrowserWindow) {
     // 开启索引
     ipcMain.handle('open-index', indexAllFilesWithWorkers)
-
-    // 处理获取文件数量的请求
-    ipcMain.handle('get-files-count', getFilesCount);
 
     // 搜索文件
     ipcMain.handle('search-files', (_event, keyword: string) => searchFiles(keyword));

@@ -1,4 +1,4 @@
-import { Box, Button, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material"
+import { Box, Button, Chip, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material"
 import React, { useCallback, useEffect, useState } from "react";
 import styles from './home.module.scss'
 import { Search, InfoCard, Setting } from '@/components';
@@ -263,6 +263,12 @@ const Home = () => {
             <Typography className={styles.text} variant='body1'>
               你可以随时进行搜索
             </Typography>
+            <Chip
+              color='primary'
+              label='Beta 0.1.0'
+              size='medium'
+              variant='outlined'
+            />
           </Stack>
       }
       <Typography>

@@ -89,8 +89,6 @@ app.whenReady().then(async () => {
   initializeDatabase()
   // 初始化API
   initializeFileApi(mainWindow);
-  // 初始化数据库
-  initializeDatabase();
   // 初始化向量数据库
   // initLanceDB();
   // 开启索引

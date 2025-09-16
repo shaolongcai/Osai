@@ -1,6 +1,23 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import pathConfig from './pathConfigs';
+import pathConfig from './pathConfigs.js';
+
+// ANSI颜色代码，用于在控制台和支持的查看器中输出彩色日志
+const logColors = {
+    INFO: '\x1b[34m',    // 蓝色
+    ERROR: '\x1b[31m',   // 红色
+    WARN: '\x1b[33m',    // 黄色
+    DEBUG: '\x1b[90m',   // 灰色
+    reset: '\x1b[0m'     // 重置颜色
+};
+
+// 日志级别对应的 Emoji
+const logEmojis = {
+    INFO: 'ℹ️',
+    ERROR: '❌',
+    WARN: '⚠️',
+    DEBUG: '🐛'
+};
 
 /**
  * 日志管理器类
@@ -51,17 +68,24 @@ class Logger {
         const now = new Date();
         const beijingTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
         const timestamp = beijingTime.toISOString().replace('T', ' ').substring(0, 19);
-        const logMessage = `[${timestamp} +08:00] [${level}] ${message}\n`;
+        const color = logColors[level] || logColors.reset; // 获取对应级别的颜色
+        const emoji = logEmojis[level] || ''; // 获取对应的 emoji
+        const resetColor = logColors.reset;
+
+        // const logMessage = `[${timestamp} +08:00] [${level}] ${message}\n`;
+        const fileLogMessage = `${emoji}[${timestamp} +08:00] [${level}] ${message}\n`;
 
         try {
             // 写入文件
-            fs.appendFileSync(this.logPath, logMessage);
+            fs.appendFileSync(this.logPath, fileLogMessage);
         } catch (error) {
             console.error('Failed to write log to file:', error);
         }
 
-        // 同时输出到控制台（开发模式可见）
-        console.log(`[${level}] ${message}`);
+        // 为控制台构造带颜色的日志消息
+        const consoleLogMessage = `${color}[${level}] ${message}${resetColor}`;
+        // 同时输出到控制台
+        console.log(consoleLogMessage);
     }
 
     /**
@@ -100,6 +124,5 @@ class Logger {
     }
 }
 
-// 创建单例实例
-const logger = new Logger();
-module.exports = logger;
+
+export const logger = new Logger();

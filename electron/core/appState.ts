@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
+import { logger } from './logger.js';
 
 // 步骤1：创建一个事件发射器
 // 作用：用于在应用的不同部分之间解耦通信。当模型准备就绪时，我们将用它来广播一个事件。
@@ -87,7 +88,7 @@ export function waitForIndexImage(): Promise<void> {
             // 如果索引已经更新，立即解析
             resolve();
         } else {
-            console.log('图片索引已暂停服务')
+            logger.info('图片索引已暂停服务')
             const notification: INotification = {
                 id: 'visual-index',
                 text: `视觉索引服务已暂停`,

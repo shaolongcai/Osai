@@ -9,6 +9,7 @@ import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 import pathConfig from './pathConfigs.js';
 import { exec } from 'child_process';
+import { logger } from './logger.js';
 
 /**
  * 检查系统是否有可用的GPU
@@ -76,14 +77,14 @@ const checkGPUInfo = async (): Promise<GPUInfo> => {
  */
 export const checkGPU = async (): Promise<GPUInfo> => {
     const gpuInfo = await checkGPUInfo();
-    gpuInfo.hasGPU = false //测试CPU时候
+    // gpuInfo.hasGPU = false //测试CPU时候
     const notification: INotification = {
         id: 'checkGPU',
         text: '检测GPU',
         type: gpuInfo.hasGPU ? 'success' : 'warning',
         tooltip: gpuInfo.hasGPU ? '' : '没有检查到任何可用GPU，将使用CPU进行推理，但速度会有所降低。视觉索引服务将默认关闭'
     }
-    console.log('检查到的GPU信息', gpuInfo)
+    logger.info(`检查到的GPU信息:${JSON.stringify(gpuInfo)}`,)
     sendToRenderer('system-info', notification);
 
     // 若检查到没有可用的GPU，提示用户视觉服务已关闭
