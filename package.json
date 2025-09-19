@@ -4,10 +4,7 @@
   "type": "module",
   "devDependencies": {
     "@electron-forge/cli": "^7.9.0",
-    "@electron-forge/maker-deb": "^7.9.0",
-    "@electron-forge/maker-rpm": "^7.9.0",
     "@electron-forge/maker-squirrel": "^7.9.0",
-    "@electron-forge/maker-wix": "^7.9.0",
     "@electron-forge/maker-zip": "^7.9.0",
     "@electron-forge/plugin-auto-unpack-natives": "^7.9.0",
     "@electron-forge/plugin-fuses": "^7.9.0",
@@ -60,20 +57,25 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "name": "ai-search",
-        "executableName": "ai-search",
-        "icon": "/logo.svg", 
+        "name": "Osai",
+        "executableName": "Osai",
+        "icon": "./dist-electron/resources/assets/logo-256",
         "asar": {
           "unpack": "**/node_modules/@lancedb/**"
         },
-        "extraResource": [],
+        "extraResource": [
+          "dist-electron/resources/pythonScript",
+          "dist-electron/resources/venv"
+        ],
         "ignore": [
+          "^/electron($|/)",
           "^/frontend/(?!dist($|/))",
-          "^\\.venv($|/)",
           "^/\\.git($|/)",
           "^/\\.vscode($|/)",
           "\\.log$",
-          "^/node_modules/\\.cache($|/)"
+          "^/node_modules/\\.cache($|/)",
+          "__pycache__",
+          "^/venv($|/)"
         ]
       },
       "makers": [
@@ -89,6 +91,19 @@
         {
           "name": "@electron-forge/plugin-auto-unpack-natives",
           "config": {}
+        },
+        {
+          "name": "@electron-forge/plugin-fuses",
+          "config": {
+            "version": "V1",
+            "resetAdHocDarwinSignature": false,
+            "[FuseV1Options.RunAsNode]": false,
+            "[FuseV1Options.EnableCookieEncryption]": true,
+            "[FuseV1Options.EnableNodeOptionsEnvironmentVariable]": false,
+            "[FuseV1Options.EnableNodeCliInspectArguments]": false,
+            "[FuseV1Options.EnableEmbeddedAsarIntegrityValidation]": true,
+            "[FuseV1Options.OnlyLoadAppFromAsar]": true
+          }
         }
       ]
     }

@@ -38,15 +38,40 @@ if not exist "node_modules" (
 )
 popd
 
+REM --- Clean previous builds ---
+if exist "out" (
+    echo [INFO] Cleaning previous application build...
+    rmdir /s /q "out"
+)
+if exist "dist-electron" (
+    echo [INFO] Cleaning previously compiled backend...
+    rmdir /s /q "dist-electron"
+)
 
-REM --- Compile TypeScript files ---
-echo [INFO] Compiling TypeScript files...
-call cd frontend
+REM --- Compile Electron TypeScript files ---
+echo [INFO] Compiling Electron TypeScript files...
+pushd "%~dp0electron"
 call npx tsc
 if %errorlevel% neq 0 (
-    echo [ERROR] TypeScript compilation failed
+    echo [ERROR] Electron TypeScript compilation failed
+    popd
     pause
     exit /b 1
+)
+popd
+echo [SUCCESS] Electron TypeScript compilation completed.
+
+REM --- Copy resources to dist-electron ---
+echo [INFO] Copying resources to dist-electron...
+if exist "electron\resources" (
+    xcopy "electron\resources" "dist-electron\resources" /E /I /Y >nul
+    if %errorlevel% equ 0 (
+        echo [SUCCESS] Resources copied successfully.
+    ) else (
+        echo [WARNING] Failed to copy some resources, but continuing...
+    )
+) else (
+    echo [WARNING] electron/resources directory not found, skipping copy.
 )
 
 REM --- Build frontend ---
@@ -61,25 +86,25 @@ if %errorlevel% neq 0 (
 )
 popd
 
-REM --- Clean previous build ---
-if exist "out" (
-    echo [INFO] Cleaning previous build...
-    rmdir /s /q "out"
-)
-
 REM --- Make Electron app with Forge ---
 echo [INFO] Making Electron application with Forge...
 echo This may take several minutes...
 echo.
 
-call cd ..
-call npm run make
-@REM call npm run package
+call npm run package
 if %errorlevel% neq 0 (
     echo [ERROR] Electron Forge make failed
     pause
     exit /b 1
 )
+
+@REM call npm run make
+@REM call npm run package
+@REM if %errorlevel% neq 0 (
+@REM     echo [ERROR] Electron Forge make failed
+@REM     pause
+@REM     exit /b 1
+@REM )
 
 echo.
 echo [SUCCESS] Build completed successfully!
@@ -87,11 +112,6 @@ echo.
 echo Built files are located in: out\
 echo.
 echo You can find the installer in the out directory.
-echo The application will include:
-echo - Frontend (React + Vite)
-echo - Backend (Python + FastAPI)
-echo - Dependency installer UI
-echo - Automatic Python environment setup
 echo.
 
 REM --- Show build results ---

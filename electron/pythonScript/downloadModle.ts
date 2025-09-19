@@ -10,9 +10,10 @@ import { logger } from '../core/logger.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const resourcePath = pathConfig.get('resources')
 // Python 路径
-const PYTHON_ENV_PATH = path.join(__dirname, '../resources/venv/Scripts/python.exe')
-const PYTHON_SCRIPT_PATH = path.join(__dirname, '../resources/pythonScript/downloadModel.py')
+const PYTHON_ENV_PATH = path.join(resourcePath, 'venv/Scripts/python.exe')
+const PYTHON_SCRIPT_PATH = path.join(resourcePath, 'pythonScript/downloadModel.py')
 // 模型路径
 const MODEL_PATH = pathConfig.get('models')
 
@@ -73,7 +74,7 @@ async function checkModel() {
         setModelReady(true);
         return true
     } catch (error) {
-        // logger.error(`检查模型失败:${error.message}`);
+        logger.error(`检查模型失败:${error.message}`);
         return false
     }
 }
@@ -108,7 +109,7 @@ export async function downloadModel(sendToRenderer: (channel: string, data: any)
             text: 'AI服务已就绪',
             type: 'success',
         }
-        sendToRenderer('', successNotification)
+        sendToRenderer('system-info', successNotification)
         setModelReady(true);
     } catch (error) {
         const msg = error instanceof Error ? error.message : '执行脚本失败';

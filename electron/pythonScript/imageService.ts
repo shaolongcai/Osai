@@ -22,8 +22,9 @@ const mmprojName = 'mmproj-model-f16.gguf'
 const visionModelPath = path.join(modeldir, modelName);
 const mmprojPath = path.join(modeldir, mmprojName);
 
-const PYTHON_ENV_PATH = path.join(__dirname, '../resources/venv/Scripts/python.exe')
-const PYTHON_SCRIPT_PATH = path.join(__dirname, '../resources/pythonScript/vision_processor.py')
+const resourcePath = pathConfig.get('resources')
+const PYTHON_ENV_PATH = path.join(resourcePath, 'venv/Scripts/python.exe')
+const PYTHON_SCRIPT_PATH = path.join(resourcePath, 'pythonScript/vision_processor.py')
 
 
 /**

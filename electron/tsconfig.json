@@ -9,7 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "../dist-electron", // 编译后输出的目录
     "resolveJsonModule": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "baseUrl": ".",
     "paths": {
       "*": ["node_modules/*"]

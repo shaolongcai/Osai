@@ -60,6 +60,12 @@ if not exist "node_modules" (
 REM 返回根目录
 popd
 
+REM --- 清理之前编译的后端文件 ---
+if exist "dist-electron" (
+    %log_info% Cleaning previously compiled backend...
+    rmdir /s /q "dist-electron"
+)
+
 REM --- 编译TypeScript文件 ---
 %log_info% Compiling TypeScript files...
 
