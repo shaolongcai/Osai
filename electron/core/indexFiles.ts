@@ -10,6 +10,7 @@ import { waitForIndexImage, waitForModelReady } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 import { logger } from './logger.js';
+import * as os from 'os';
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
@@ -17,21 +18,33 @@ const __dirname = path.dirname(__filename);
 
 
 /**
- * 获取 Windows 系统上的所有逻辑驱动器。
- * @returns 驱动器号列表 (例如, ['C:', 'D:'])。
+ * 获取 Windows 系统上的所有逻辑驱动器（现代方法）
+ * @returns 驱动器号列表 (例如, ['C:', 'D:'])
  */
 function getDrives(): string[] {
     try {
-        // 使用 wmic 命令获取驱动器列表
-        const output = execSync('wmic logicaldisk get name').toString();
-        const drives = output.split('\r\n')
+        if (os.platform() !== 'win32') {
+            logger.warn('当前系统不是Windows，返回空驱动器列表');
+            return [];
+        }
+
+        // 使用dir命令列出所有驱动器（兼容性最好）
+        const output = execSync('dir /a:d C:\\ 2>nul & for %i in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do @if exist %i:\\ echo %i:', {
+            encoding: 'utf8',
+            shell: 'cmd.exe'
+        });
+
+        const drives = output.split('\n')
             .map(line => line.trim())
-            .filter(line => /^[A-Z]:$/.test(line));
-        logger.info(`发现的驱动器列表:${drives}`,)
+            .filter(line => /^[A-Z]:$/.test(line))
+            .sort();
+
+        logger.info(`发现的驱动器列表:${drives}`);
         return drives;
     } catch (error) {
         logger.error(`无法获取驱动器列表:${JSON.stringify(error)}`);
-        return [];
+        // 返回至少包含C盘的默认列表
+        return ['C:'];
     }
 }
 

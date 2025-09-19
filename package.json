@@ -29,7 +29,7 @@
     "rebuild": "electron-rebuild",
     "make": "electron-forge make",
     "start": "electron-forge start",
-    "package": "electron-forge package"
+     "package": "electron-forge package"
   },
   "name": "osai",
   "version": "0.1.0",
@@ -59,6 +59,8 @@
       "packagerConfig": {
         "name": "Osai",
         "executableName": "Osai",
+        "prune": true,
+        "quiet": false,
         "icon": "./dist-electron/resources/assets/logo-256",
         "asar": {
           "unpack": "**/node_modules/@lancedb/**"
@@ -95,7 +97,7 @@
         {
           "name": "@electron-forge/plugin-fuses",
           "config": {
-            "version": "V1",
+            "version": "1",
             "resetAdHocDarwinSignature": false,
             "[FuseV1Options.RunAsNode]": false,
             "[FuseV1Options.EnableCookieEncryption]": true,

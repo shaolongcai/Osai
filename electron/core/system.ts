@@ -80,7 +80,7 @@ export const checkGPU = async (): Promise<GPUInfo> => {
     // gpuInfo.hasGPU = false //测试CPU时候
     const notification: INotification = {
         id: 'checkGPU',
-        text: '检测GPU',
+        text: '检测GPU', 
         type: gpuInfo.hasGPU ? 'success' : 'warning',
         tooltip: gpuInfo.hasGPU ? '' : '没有检查到任何可用GPU，将使用CPU进行推理，但速度会有所降低。视觉索引服务将默认关闭'
     }

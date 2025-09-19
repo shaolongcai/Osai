@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { INotification } from '../types/system.js';
 import { setModelReady } from '../core/appState.js';
 import { logger } from '../core/logger.js';
+import { sendToRenderer } from '../main.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,28 +21,57 @@ const MODEL_PATH = pathConfig.get('models')
 function executeDownloadModelPythonScript(): Promise<string> {
 
     return new Promise((resolve, reject) => {
+
+        // 步骤1：检查Python路径是否存在
+        if (!fs.existsSync(PYTHON_ENV_PATH)) {
+            const msg = `虚拟环境Python不存在: ${PYTHON_ENV_PATH}`;
+            logger.error(msg);
+            reject(new Error(msg));
+            return;
+        }
+
+        // 启动python
+        const venvPath = path.dirname(path.dirname(PYTHON_ENV_PATH)); // 获取venv根目录
+        const env = {
+            ...process.env,
+            PYTHONPATH: '', // 清空PYTHONPATH避免冲突
+            PYTHONHOME: '', // 清空PYTHONHOME避免冲突
+            VIRTUAL_ENV: venvPath,
+            PATH: `${path.dirname(PYTHON_ENV_PATH)};${process.env.PATH}` // 优先使用venv的Scripts目录
+        };
+
         // 步骤2：使用 spawn 创建并执行一个新的、独立的Python进程
-        const process = spawn(PYTHON_ENV_PATH, [PYTHON_SCRIPT_PATH, MODEL_PATH]);
+        const pythonProcess = spawn(PYTHON_ENV_PATH, [PYTHON_SCRIPT_PATH, MODEL_PATH], {
+            env: env
+        });
 
         let stdout = '';
         let stderr = '';
 
         // 步骤3：收集脚本的标准输出
-        process.stdout.on('data', (data) => {
+        pythonProcess.stdout.on('data', (data) => {
             stdout += data.toString();
         });
 
         // 日志从这里输出
-        process.stderr.on('data', (data) => {
+        pythonProcess.stderr.on('data', (data) => {
             stderr += data.toString();
         });
 
         // 处理进程退出事件
-        process.on('close', (code) => {
+        pythonProcess.on('close', (code) => {
             if (code !== 0) {
                 // 如果脚本以非0状态码退出，视为执行失败
                 const msg = `Python script [${PYTHON_ENV_PATH}] exited with code ${code}: ${stderr}`;
                 logger.error(msg);
+                // 发送错误的信息给前端
+                const notification: INotification = {
+                    id: 'downloadModel',
+                    text: '模型下载失败',
+                    type: 'question',
+                    tooltip: stderr,
+                }
+                sendToRenderer('system-info', notification);
                 reject(new Error(msg));
             } else {
                 // 成功执行，返回收集到的标准输出
@@ -55,6 +85,71 @@ function executeDownloadModelPythonScript(): Promise<string> {
         });
     });
 }
+
+async function detectPythonEnvironment(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        // 步骤1：检查Python路径是否存在
+        if (!fs.existsSync(PYTHON_ENV_PATH)) {
+            const msg = `虚拟环境Python不存在: ${PYTHON_ENV_PATH}`;
+            logger.error(msg);
+            reject(new Error(msg));
+            return;
+        }
+
+         // 步骤2：设置虚拟环境变量（与executeDownloadModelPythonScript保持一致）
+        const venvPath = path.dirname(path.dirname(PYTHON_ENV_PATH)); // 获取venv根目录
+        const env = {
+            ...process.env,
+            PYTHONPATH: '', // 清空PYTHONPATH避免冲突
+            PYTHONHOME: '', // 清空PYTHONHOME避免冲突
+            VIRTUAL_ENV: venvPath,
+            PATH: `${path.dirname(PYTHON_ENV_PATH)};${process.env.PATH}` // 优先使用venv的Scripts目录
+        };
+
+        // 步骤2：创建环境检测命令
+        const commands = [
+            'import sys; print(f"executable: {sys.executable}")',
+            'import sys; print(f"virtual_env: {hasattr(sys, \'real_prefix\') or (hasattr(sys, \'base_prefix\') and sys.base_prefix != sys.prefix)}")',
+            'import os; print(f"VIRTUAL_ENV: {os.environ.get(\'VIRTUAL_ENV\', \'Not Set\')}")'
+        ];
+
+        const detectCmd = commands.join('; ');
+        const pythonProcess = spawn(PYTHON_ENV_PATH, ['-c', detectCmd],{ env } );
+
+        let output = '';
+        let errorOutput = '';
+
+        // 步骤3：捕获标准输出
+        pythonProcess.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        // 步骤4：捕获错误输出
+        pythonProcess.stderr.on('data', (data) => {
+            errorOutput += data.toString();
+        });
+
+        // 步骤5：处理进程结束
+        pythonProcess.on('close', (code) => {
+            if (code === 0) {
+                logger.info(`Python环境信息:\n${output}`);
+                resolve();
+            } else {
+                const errorMsg = `python环境检测失败: ${code}${errorOutput ? `\n错误信息: ${errorOutput}` : ''}`;
+                logger.error(errorMsg);
+                reject(new Error(errorMsg));
+            }
+        });
+
+        // 步骤6：处理进程启动错误
+        pythonProcess.on('error', (err) => {
+            const msg = `Python进程启动失败: ${err.message}`;
+            logger.error(msg);
+            reject(new Error(msg));
+        });
+    });
+}
+
 
 /**
  * 检查模型
@@ -82,6 +177,10 @@ async function checkModel() {
 
 export async function downloadModel(sendToRenderer: (channel: string, data: any) => void) {
     try {
+
+        // 步骤1：先检测Python环境
+        await detectPythonEnvironment();
+
         // 检查是否有模型
         const isExist = await checkModel()
         if (isExist) {

@@ -40,10 +40,21 @@ async function startPythonService(): Promise<void> {
         }
         logger.info('启动Python视觉处理服务...');
 
+        // 设置虚拟环境变量
+        const venvPath = path.dirname(path.dirname(PYTHON_ENV_PATH)); // 获取venv根目录
+        const env = {
+            ...process.env,
+            PYTHONPATH: '', // 清空PYTHONPATH避免冲突
+            PYTHONHOME: '', // 清空PYTHONHOME避免冲突
+            VIRTUAL_ENV: venvPath,
+            PATH: `${path.dirname(PYTHON_ENV_PATH)};${process.env.PATH}` // 优先使用venv的Scripts目录
+        };
+
         // 启动Python进程
         pythonProcess = spawn(PYTHON_ENV_PATH, [PYTHON_SCRIPT_PATH], {
             stdio: ['pipe', 'pipe', 'pipe'],
-            shell: false
+            shell: false,
+            env: env  // 添加环境变量
         });
 
         // 计算超时
@@ -93,7 +104,7 @@ async function startPythonService(): Promise<void> {
                             break;
 
                         case 'error':
-                            logger.error(`Python服务错误:${message.errMsg}`);
+                            logger.error(`图片处理失败:${message.errMsg}`);
                             break;
                     }
                 } catch (e) {
@@ -161,7 +172,7 @@ export async function summarizeImageWithPython(imagePath: string): Promise<strin
             }
 
             // 生成任务ID
-            const taskId = `task_${++taskCounter}_${Date.now()}`;
+            const taskId = `task_${imagePath}`;
 
             // 注册任务回调
             pendingTasks.set(taskId, { resolve, reject });
