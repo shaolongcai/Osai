@@ -1,7 +1,7 @@
-import path from 'path';
 import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
 import { logger } from './logger.js';
+
 
 /**
  * 计算两个字符串之间的 Levenshtein 距离。
@@ -45,24 +45,35 @@ function levenshteinDistance(s1: string, s2: string): number {
  * @param searchTerm 搜索关键词
  * @returns 匹配到的文件列表，按匹配度排序
  */
-export function searchFiles(searchTerm: string): any[] {
+export function searchFiles(searchTerm: string): SearchResult {
     if (!searchTerm) {
-        return []; // 如果没有搜索词，返回所有文件
+        return {
+            data: [],
+            total: 0,
+        }; // 如果没有搜索词，返回所有文件
     }
     // 1. 获取数据库连接
     const dbDirectory = pathConfig.get('database');
     if (!dbDirectory) {
         logger.error('数据库目录未配置');
-        return [];
+        return {
+            data: [],
+            total: 0,
+        };
     }
     const db = getDatabase()
 
     // 2. 从数据库中获取所有文件名
     // 注意：如果文件数量非常多（例如超过几十万），一次性加载到内存中可能会有性能问题。
     // 使用 SQL LIKE 进行模糊匹配，% 通配符表示匹配任意字符
-    const stmt = db.prepare('SELECT path, name FROM files WHERE name LIKE ? OR summary LIKE ?');
+    const stmt = db.prepare('SELECT id,path, name,modified_at,ext FROM files WHERE name LIKE ? OR summary LIKE ?');
     const searchPattern = `%${searchTerm}%`;
-    const allFiles = stmt.all(searchPattern, searchPattern) as { path: string; name: string }[];
+    const allFiles = stmt.all(searchPattern, searchPattern) as SearchDataItem[];
+
+    return {
+        data: allFiles,
+        total: allFiles.length,
+    };
 
 
     // 3. 使用 Levenshtein 距离进行模糊匹配
@@ -80,8 +91,6 @@ export function searchFiles(searchTerm: string): any[] {
     //         return file.distance <= Math.min(2, threshold);
     //     })
     //     .sort((a, b) => a.distance - b.distance); // 5. 按距离排序，最匹配的在前面
-
-    return allFiles;
 }
 
 

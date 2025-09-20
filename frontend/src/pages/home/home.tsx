@@ -9,7 +9,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow, { TableRowProps } from '@mui/material/TableRow';
 import { TableVirtuoso, TableComponents } from 'react-virtuoso';
-import { Progress, searchItem } from "@/type/electron";
+import { Progress } from "@/type/electron";
 import readySearchImage from '@/assets/images/search-ready.png'
 import { SettingsOutlined as SettingsIcon } from "@mui/icons-material";
 import dayjs from "dayjs";
@@ -19,7 +19,7 @@ const Home = () => {
   const [indexProgress, setIndexProgress] = useState<Progress | null>(); //索引的进度信息
   const [needIndexImageCount, setNeedIndexImageCount] = useState<number | null>(null); //剩下需要索引的图片
   const [keyword, setKeyword] = useState(''); //搜索的关键词
-  const [data, setData] = useState<searchItem[]>([]); //搜索的结果
+  const [data, setData] = useState<SearchDataItem[]>([]); //搜索的结果
   const [openSetting, setOpenSetting] = useState(false); //是否打开设置弹窗
 
   // 检查是否在Electron环境中
@@ -67,7 +67,8 @@ const Home = () => {
 
   const searchFiles = useCallback(async (keyword: string) => {
     const res = await window.electronAPI.searchFiles(keyword);
-    setData(res)
+    console.log('搜索结果', res)
+    setData(res.data);
   }, []);
 
 
@@ -88,16 +89,22 @@ const Home = () => {
         fontColor: '#00000065',
       }
     },
-    // {
-    //   width: 50,
-    //   label: 'Age',
-    //   dataKey: 'age',
-    //   numeric: true,
-    // },
+    {
+      width: 50,
+      label: '修改时间',
+      dataKey: 'modified_at',
+      numeric: true,
+    },
+    {
+      width: 50,
+      label: '文件类型',
+      dataKey: 'ext',
+      numeric: true,
+    },
   ];
 
 
-  const VirtuosoTableComponents: TableComponents<searchItem> = {
+  const VirtuosoTableComponents: TableComponents<SearchDataItem> = {
     Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
       <TableContainer component={Paper} {...props} ref={ref}
         sx={{
@@ -127,7 +134,7 @@ const Home = () => {
     TableHead: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
       <TableHead {...props} ref={ref} />
     )),
-    TableRow: (props: TableRowProps & { item: searchItem }) => {
+    TableRow: (props: TableRowProps & { item: SearchDataItem }) => {
       const { item, ...rest } = props;
       const handleRowClick = () => {
         if (item) {
@@ -159,7 +166,7 @@ const Home = () => {
   };
 
   // 表格内容
-  function rowContent(_index: number, row: searchItem) {
+  function rowContent(_index: number, row: SearchDataItem) {
     return (
       <React.Fragment>
         {columns.map((column) => (
@@ -213,12 +220,26 @@ const Home = () => {
   return (
     <div className={styles.root}>
       <Search onSearch={setKeyword} />
-      <SettingsIcon
-        className={styles.settingsIcon}
-        fontSize='large'
-        color='inherit'
-        onClick={() => setOpenSetting(true)}
-      />
+      {/* 搜索与结果 */}
+      <Stack
+        direction='row'
+        spacing={1}
+        alignItems='flex-end'
+        className={styles.settings}
+      >
+        {
+          data.length > 0 && 
+          <Typography className={styles.total}>
+          共搜索到 {data?.length} 条结果
+        </Typography>
+        }
+        <SettingsIcon
+          className={styles.settingsIcon}
+          fontSize='large'
+          color='inherit'
+          onClick={() => setOpenSetting(true)}
+        />
+      </Stack>
       <Setting open={openSetting} onClose={() => setOpenSetting(false)} />
       {
         data.length > 0 ?

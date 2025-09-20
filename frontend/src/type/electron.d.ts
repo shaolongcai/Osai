@@ -7,9 +7,11 @@ export interface Progress {
     process: 'finish' | 'pending' //完成或准备中
 }
 
-export type searchItem = {
-    name: string,
-    path: string
+
+
+export type SearchResult = {
+    data: SearchDataItem[],
+    total: number,
 }
 
 // 通知接口
@@ -40,7 +42,7 @@ interface ElectronAPI {
     getConfig(key?: string): Promise<UserConfig>;
 
     // 搜索相关
-    searchFiles(query: string): Promise<searchItem[]>
+    searchFiles(query: string): Promise<SearchResult>
 
     // 索引相关
     openIndex(): Promise<void>; // 开启索引所有硬盘得文件

@@ -1,14 +1,16 @@
 
 
 
-interface DataItem {
+type SearchDataItem  = {
     id: number;
-    name: string;
     path: string;
+    name: string;
+    ext: string;
+    modified_at: string;
 }
 
 interface ColumnData {
-    dataKey: keyof DataItem;
+    dataKey: keyof SearchDataItem;
     label: string;
     numeric?: boolean;
     width?: number;
