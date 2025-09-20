@@ -1,14 +1,13 @@
-// require('ts-node/register'); //开发环境使用
-// const logger = require('./logger.ts').default;
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { initializeDatabase } from './database/sqlite.js';
+import { getConfig, initializeDatabase } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
-import { indexAllFilesWithWorkers } from './core/indexFiles.js';
+import { indexAllFilesWithWorkers, indexImagesService } from './core/indexFiles.js';
 import { shutdownVisionService } from './pythonScript/imageService.js';
-// import { initLanceDB } from './database/lanceDb.js';
+import { logger } from './core/logger.js';
+import { checkGPU } from './core/system.js';
+import { downloadModel } from './pythonScript/downloadModle.js';
 
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
@@ -61,38 +60,53 @@ function createWindow() {
 }
 
 
-// 打开upload目录
-const openUploadDir = (filePath: string) => {
-  // 确定目录路径
-  const uploadDir = app.isPackaged ? path.join(process.resourcesPath, 'uploads', filePath) : path.join(__dirname, '..', 'backend', 'uploads', filePath);
-  // logger.info(`打开目录:${uploadDir}`);
-  if (!fs.existsSync(uploadDir)) {
-    // logger.error(`目录不存在:${uploadDir}`);
-    return;
-  }
-  shell.openPath(uploadDir);
-}
 
 //----- 触发事件 ---- 
 export const sendToRenderer = (channel: string, data: any) => {
   mainWindow.webContents.send(channel, data);
 };
 
-// 打开文件所在位置，filePath为相对位置（即MD5）
-ipcMain.handle('open-file-location', (event, filePath) => { openUploadDir(filePath) });
+
+// 初始化所有必须条件
+export const init =async () => {
+  // 初始化数据库
+  initializeDatabase()
+  //检查GPU
+  await checkGPU()
+  // 下载模型 （如果已下载会跳过）
+  downloadModel();
+  // 初始化向量数据库
+  // initLanceDB();
+  // 判断是否需要索引
+  const lastIndexTime = getConfig('last_index_time');
+  const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
+  const currentTime = Date.now();
+  // 是否超过1小时
+  if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)) {
+    logger.info(`索引间隔超过1小时，重新索引`);
+    // 索引间隔超过1小时，重新索引
+    indexAllFilesWithWorkers();
+  }
+  else {
+    logger.info(`缓存期间无需索引`);
+    // 无需重新索引，直接获取数据库的数据返回
+    const last_index_file_count = getConfig('last_index_file_count');
+    sendToRenderer('index-progress', {
+      message: `已索引 ${last_index_file_count} 个文件`,
+      process: 'finish',
+      count: last_index_file_count
+    })
+  }
+  // 开启视觉索引 （由appState控制继续还是关闭）
+  indexImagesService();
+}
 
 
 // 应用事件
-app.whenReady().then(async () => {
+app.whenReady().then(() => {
   createWindow();
-  // 初始化数据库
-  initializeDatabase()
   // 初始化API
   initializeFileApi(mainWindow);
-  // 初始化向量数据库
-  // initLanceDB();
-  // 开启索引
-  indexAllFilesWithWorkers();
 });
 
 app.on('window-all-closed', () => {

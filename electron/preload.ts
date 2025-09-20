@@ -9,13 +9,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getFilesCount: () => ipcRenderer.invoke('get-files-count'),
     // 搜索文件
     searchFiles: (keyword: string) => ipcRenderer.invoke('search-files', keyword),
-    // 告知主线程，前端渲染完毕
-    rendererReady: () => ipcRenderer.invoke('renderer-ready'),
+    // 告知node 程序，前端渲染进程已准备就绪
+    init: () => ipcRenderer.invoke('init'),
     // 切换图片视觉索引开关
     toggleIndexImage: (open: boolean) => ipcRenderer.send('toggle-index-image', open), //send的返回值永远都是void
     // 打开目录
     openDir: (type: string, path: string) => ipcRenderer.send('open-dir', type, path),
-
+    // 获取用户配置
+    getConfig: (key?: string) => ipcRenderer.invoke('get-config', key),
 
     // 日志监听
     onLogger: (callback) => {

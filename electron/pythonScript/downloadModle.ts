@@ -96,7 +96,7 @@ async function detectPythonEnvironment(): Promise<void> {
             return;
         }
 
-         // 步骤2：设置虚拟环境变量（与executeDownloadModelPythonScript保持一致）
+        // 步骤2：设置虚拟环境变量（与executeDownloadModelPythonScript保持一致）
         const venvPath = path.dirname(path.dirname(PYTHON_ENV_PATH)); // 获取venv根目录
         const env = {
             ...process.env,
@@ -114,7 +114,7 @@ async function detectPythonEnvironment(): Promise<void> {
         ];
 
         const detectCmd = commands.join('; ');
-        const pythonProcess = spawn(PYTHON_ENV_PATH, ['-c', detectCmd],{ env } );
+        const pythonProcess = spawn(PYTHON_ENV_PATH, ['-c', detectCmd], { env });
 
         let output = '';
         let errorOutput = '';
@@ -175,7 +175,7 @@ async function checkModel() {
 }
 
 
-export async function downloadModel(sendToRenderer: (channel: string, data: any) => void) {
+export async function downloadModel() {
     try {
 
         // 步骤1：先检测Python环境

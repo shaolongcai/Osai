@@ -40,6 +40,11 @@ function findFiles(dir: string): string[] {
         return [];
     }
 
+     // 添加回收站路径检查
+    if (dir.includes('$RECYCLE.BIN') || dir.includes('System Volume Information')) {
+        return [];
+    }
+
     let results: string[] = [];
     let fileCount = 0
     try {

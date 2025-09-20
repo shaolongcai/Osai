@@ -1,5 +1,5 @@
 import { Box, Button, Chip, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material"
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from './home.module.scss'
 import { Search, InfoCard, Setting } from '@/components';
 import Table from '@mui/material/Table';
@@ -24,45 +24,13 @@ const Home = () => {
 
   // 检查是否在Electron环境中
   const isElectron = typeof window !== 'undefined' && window.electronAPI;
+  const effectRan = useRef(false); // 执行守卫
 
-  // 获取上次索引时间
-  // useEffect(() => {
-  //   const init = async () => {
-  //     const getLastIndexTime = localStorage.getItem('lastIndexTime')
-  //     if (getLastIndexTime) {
-  //       // 若有缓存，则判断时间是否超一个小时
-  //       const now = dayjs()
-  //       const lastIndexTime = dayjs(getLastIndexTime)
-  //       if (now.diff(lastIndexTime, 'hour') > 1) {
-  //         console.log('再次索引')
-  //         // 开启索引
-  //         window.electronAPI.openIndex()
-  //         return
-  //       }
-  //       // 从缓存信息中取出，更新索引进度信息
-  //       console.log('获取索引进度缓存信息')
-  //       const getIndexProgress = localStorage.getItem('indexProgress')
-  //       if (getIndexProgress) {
-  //         setIndexProgress(JSON.parse(getIndexProgress))
-  //       }
-  //     }
-  //     else {
-  //       // 没有索引过，则开启索引
-  //       window.electronAPI.openIndex()
-  //     }
-  //   }
-  //   init()
-  // }, [])
 
   useEffect(() => {
     // 监听索引进度
     window.electronAPI.onIndexProgress(async (data) => {
       setIndexProgress(data);
-      // 完成后，将索引信息存入缓存
-      // if (data.process === 'finish') {
-      //   localStorage.setItem('indexProgress', JSON.stringify(data))
-      //   localStorage.setItem('lastIndexTime', dayjs().format())
-      // }
     });
     // 监听视觉索引进度
     window.electronAPI.onVisualIndexProgress(async (data) => {
@@ -73,6 +41,18 @@ const Home = () => {
       window.electronAPI.removeAllListeners('index-progress');
       window.electronAPI.removeAllListeners('visual-index-progress');
     };
+  }, []);
+
+  // 初始化node进程,(设置完监听后，再开始初始化)
+  useEffect(() => {
+    if (effectRan.current) {
+      return;
+    }
+    const init = async () => {
+      effectRan.current = true;
+      await window.electronAPI.init();
+    }
+    init();
   }, []);
 
   // 触发搜索
