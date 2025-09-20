@@ -67,7 +67,6 @@ export function initializeDatabase(): Database.Database {
     insertConfig.run('last_index_file_count', '0', 'number', '上次索引的文件数量')
     insertConfig.run('ignored_folders', '[]', 'json', '忽略索引的文件夹列表')
     insertConfig.run('ignore_hidden_files', 'false', 'boolean', '是否忽略隐藏文件')
-    insertConfig.run('visual_index_enabled', null, 'boolean', '是否启用视觉索引')
 
     return db
   } catch (error) {

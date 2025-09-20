@@ -192,7 +192,7 @@ export async function summarizeImageWithPython(imagePath: string): Promise<strin
                     pendingTasks.delete(taskId);
                     reject(new Error('图片处理超时'));
                 }
-            }, 60000); // 60秒超时
+            }, 30000); // 30秒超时
 
         } catch (error) {
             const msg = error instanceof Error ? error.message : '处理失败';

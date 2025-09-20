@@ -31,7 +31,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
         if (open) {
             window.electronAPI.getConfig().then((res: UserConfig) => {
                 console.log('config', res)
-                setOpenIndexImage(Boolean(res.visual_index_enabled))
+                setOpenIndexImage(res.visual_index_enabled)
                 setHasGPU(res.hasGPU) // 需要重新删除数据库尝试
             })
         }

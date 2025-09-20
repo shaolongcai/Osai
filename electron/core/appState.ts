@@ -18,6 +18,7 @@ let isModelReady = false;
 let isIndexUpdate = lastIndexTime && (currentTime - lastIndexTime <= indexInterval); // 若无需重新索引，则视为索引已更新
 let isOpenIndexImages = getConfig('visual_index_enabled');;
 
+
 /**
  * 步骤2：设置模型就绪状态并发出事件
  * @param status 模型是否已准备好

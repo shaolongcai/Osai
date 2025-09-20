@@ -91,8 +91,7 @@ export const checkGPU = async (): Promise<GPUInfo> => {
     sendToRenderer('system-info', notification);
 
     // 若检查到没有可用的GPU，并且没有过视觉索引的配置,则设置为false
-    const visualIndexEnabled = getConfig('visual_index_enabled') || undefined
-    if (!gpuInfo.hasGPU && !visualIndexEnabled) {
+    if (!gpuInfo.hasGPU && getConfig('visual_index_enabled') === undefined) {
         const notification: INotification = {
             id: 'visual-index',
             text: '视觉索引服务已自动关闭',
@@ -103,7 +102,7 @@ export const checkGPU = async (): Promise<GPUInfo> => {
         // 设置为false
         setConfig('visual_index_enabled', false, 'boolean')
     }
-    else if (gpuInfo.hasGPU && !visualIndexEnabled) {
+    else if (gpuInfo.hasGPU && getConfig('visual_index_enabled') === undefined) {
         // 若检查到有可用的GPU，并且没有过视觉索引的配置,则设置为true
         setConfig('visual_index_enabled', true, 'boolean')
     }

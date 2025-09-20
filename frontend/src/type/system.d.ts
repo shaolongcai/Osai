@@ -12,5 +12,5 @@ export type UserConfig = {
     index_interval: number;
     last_index_file_count: string;
     last_index_time: string;
-    visual_index_enabled: string;
+    visual_index_enabled: boolean;
 }

@@ -21,6 +21,7 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
         return key ? getConfig(key) : getAllConfigs();
     })
 
+
     // 开启索引
     ipcMain.handle('open-index', indexAllFilesWithWorkers)
 
@@ -33,7 +34,8 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
 
     // 切换图片视觉索引开关
     ipcMain.on('toggle-index-image', (_event, open) => {
-        setConfig('visual_index_enabled', open);
+        console.log('open',open)
+        setConfig('visual_index_enabled', open, 'boolean'); //设置时需要赋予类型
         setOpenIndexImages(open) //允许或暂停索引图片
     })
 }
