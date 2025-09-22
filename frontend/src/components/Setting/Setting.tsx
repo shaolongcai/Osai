@@ -1,7 +1,7 @@
 import { Drawer, Box, Typography, Card, CardContent, Switch, styled, Paper, Stack, Button } from '@mui/material';
 import styles from './Setting.module.scss'
 import { useEffect, useState } from 'react';
-import { Dialog } from '@/components';
+import { Contact, Dialog } from '@/components';
 import { UserConfig } from '@/type/system';
 
 
@@ -88,7 +88,11 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                     },
                 }}
             >
-                <Box role="presentation">
+                <Box
+                    role="presentation"
+                    sx={{
+                        flex: 1
+                    }}>
                     <StyledTitle variant="h5" >
                         设置
                     </StyledTitle>
@@ -132,6 +136,9 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                         </Paper>
                     </Stack>
                 </Box>
+                <div className={styles.contact}>
+                    <Contact title='在社区中，给与我们反馈吧！' />
+                </div>
             </Drawer>
         </div>
     );
