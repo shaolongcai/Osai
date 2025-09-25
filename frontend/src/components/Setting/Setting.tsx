@@ -1,11 +1,10 @@
-import { Drawer, Box, Typography, Card, CardContent, Switch, styled, Paper, Stack } from '@mui/material';
+import { Drawer, Box, Typography, Card, CardContent, Switch, styled, Paper, Stack, Button } from '@mui/material';
 import styles from './Setting.module.scss'
-import { useState } from 'react';
-import { Dialog } from '@/components';
-import { useGlobalContext } from '@/context/globalContext';
+import { useEffect, useState } from 'react';
+import { Contact, Dialog } from '@/components';
+import { UserConfig } from '@/type/system';
 
-// 步骤1：定义组件的 Props 接口
-// 作用：让父组件可以控制侧边栏的打开（open）和关闭（onClose）状态。
+
 interface SettingProps {
     open: boolean;
     onClose: () => void;
@@ -24,13 +23,23 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
 
     const [openIndexImage, setOpenIndexImage] = useState(Boolean(Number(localStorage.getItem('openIndexImage') || 0)))
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false) //CPU下开启索引的弹窗
+    const [hasGPU, setHasGPU] = useState(false)
 
-    const context = useGlobalContext()
+
+    // 拉取用户配置
+    useEffect(() => {
+        if (open) {
+            window.electronAPI.getConfig().then((res: UserConfig) => {
+                console.log('config', res)
+                setOpenIndexImage(res.visual_index_enabled)
+                setHasGPU(res.hasGPU) // 需要重新删除数据库尝试
+            })
+        }
+    }, [open])
 
     // 切换视觉索引开关
-    const toggleVisualIndex = (checked: boolean) => {
-        localStorage.setItem('openIndexImage', checked ? '1' : '0')
-        const hasGPU = context.gpuInfo.hasGPU
+    const toggleVisualIndex = async (checked: boolean) => {
+        console.log('hasGPU', hasGPU)
         if (!hasGPU && checked) {
             // CPU下开启需要弹窗
             setConfirmDialogOpen(true)
@@ -79,21 +88,57 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                     },
                 }}
             >
-                <Box role="presentation">
+                <Box
+                    role="presentation"
+                    sx={{
+                        flex: 1
+                    }}>
                     <StyledTitle variant="h5" >
                         设置
                     </StyledTitle>
+                    <Stack spacing={1}>
+                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
+                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                <Typography variant="body1" className={styles.label} >开启图片索引</Typography>
+                                <Switch
+                                    checked={openIndexImage}
+                                    onChange={(e) => { toggleVisualIndex(e.target.checked) }}
+                                />
+                            </Stack>
+                        </Paper>
 
-                    <Paper className={styles.settingItem} elevation={0} variant='outlined' >
-                        <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                            <Typography variant="body1" className={styles.label} >开启图片索引</Typography>
-                            <Switch
-                                checked={openIndexImage}
-                                onChange={(e) => { toggleVisualIndex(e.target.checked) }}
-                            />
-                        </Stack>
-                    </Paper>
+                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
+                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                <Typography variant="body1" className={styles.label} >运行日志</Typography>
+                                <Button
+                                    sx={{
+                                        '&:focus': {
+                                            outline: 'none',
+                                            border: 'none',
+                                            boxShadow: 'none'
+                                        },
+                                        '&:active': {
+                                            outline: 'none',
+                                            border: 'none',
+                                            boxShadow: 'none'
+                                        },
+                                        '&:hover': {
+                                            border: 'none'
+                                        }
+                                    }}
+                                    variant='text'
+                                    onClick={() => {
+                                        window.electronAPI.openDir('runLog')
+                                    }}>
+                                    打开
+                                </Button>
+                            </Stack>
+                        </Paper>
+                    </Stack>
                 </Box>
+                <div className={styles.contact}>
+                    <Contact title='在社区中，给与我们反馈吧！' />
+                </div>
             </Drawer>
         </div>
     );

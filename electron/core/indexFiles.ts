@@ -1,12 +1,11 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
 import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
-import { getDatabase } from '../database/sqlite.js';
+import { getDatabase, setConfig } from '../database/sqlite.js';
 import { summarizeImage } from './model.js';
-import { waitForIndexImage, waitForModelReady } from './appState.js';
+import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate, waitForModelReady } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 import { logger } from './logger.js';
@@ -169,15 +168,10 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         // 删除多余的数据库记录
         await deleteExtraFiles(allFiles);
         // 索引更新
-        // setIndexUpdate(true);
-
-        // 索引图片
-        indexImagesService()
-
-        // 对所有文件进行向量化,暂时不需要
-        // const startVectorTime = Date.now();
-        // await vectorFiles()
-        // const endVectorTime = Date.now();
+        setIndexUpdate(true);
+        // 记录索引时间，以及索引的文件数量
+        setConfig('last_index_time', Date.now());
+        setConfig('last_index_file_count', allFiles.length);
 
         return allFiles;
     } catch (error) {
@@ -223,7 +217,8 @@ async function indexImageFiles() {
             }
 
         } catch (error) {
-            logger.error(`图片索引服务失败:${JSON.stringify(error)}`)
+            const msg = error instanceof Error ? error.message : '图片索引服务失败';
+            logger.error(`图片索引服务失败:${msg}；文件路径:${file.path}`)
         }
     }
 }
@@ -233,9 +228,9 @@ async function indexImageFiles() {
  * 第一步：开启视觉索引服务
  */
 export const indexImagesService = async (): Promise<void> => {
-    // console.log('等待索引更新完毕')
-    // await waitForIndexUpdate();
-    // console.log('索引更新完毕')
+    logger.info('等待索引更新完毕')
+    await waitForIndexUpdate();
+    logger.info('索引更新完毕')
 
     logger.info('等待AI模型准备就绪...');
     await waitForModelReady();

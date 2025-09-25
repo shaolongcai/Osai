@@ -29,7 +29,7 @@
     "rebuild": "electron-rebuild",
     "make": "electron-forge make",
     "start": "electron-forge start",
-     "package": "electron-forge package"
+    "package": "electron-forge package"
   },
   "name": "osai",
   "version": "0.1.0",

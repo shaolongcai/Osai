@@ -7,9 +7,11 @@ export interface Progress {
     process: 'finish' | 'pending' //完成或准备中
 }
 
-export type searchItem = {
-    name: string,
-    path: string
+
+
+export type SearchResult = {
+    data: SearchDataItem[],
+    total: number,
 }
 
 // 通知接口
@@ -28,13 +30,19 @@ export interface GpuInfo {
 }
 
 
+
+type OpenDirType = 'runLog' | 'openFileDir'
+
 interface ElectronAPI {
 
-    // 告诉主线程准备完毕
-    rendererReady(): Promise<GpuInfo>;
+    // 告诉主线程可以初始化 （目的是为了，等监听器全部就绪完毕）
+    init(): Promise<void>;
+
+    // 获取用户配置
+    getConfig(key?: string): Promise<UserConfig>;
 
     // 搜索相关
-    searchFiles(query: string): Promise<searchItem[]>
+    searchFiles(query: string): Promise<SearchResult>
 
     // 索引相关
     openIndex(): Promise<void>; // 开启索引所有硬盘得文件
@@ -44,7 +52,7 @@ interface ElectronAPI {
     checkModelExists(): Promise<{ success: boolean }>;
 
     //操作相关
-    openDir(type: string, path: string): Promise<void>;
+    openDir(type: OpenDirType, path?: string): Promise<void>;
 
     // 事件监听
     onLogger(callback: (data: string) => void): void;

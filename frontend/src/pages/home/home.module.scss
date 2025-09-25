@@ -29,9 +29,37 @@
     }
 }
 
-.settingsIcon {
+.settings {
     position: absolute;
     bottom: 24px;
     right: 24px;
-    cursor: pointer;
+
+    .total {
+        font-size: 14px !important;
+        color: rgba(0, 0, 0, 0.65);
+    }
+
+    .settingsIcon {
+        cursor: pointer;
+    }
+}
+
+//搜索为空
+.searchNull {
+    margin-top: 160px;
+
+    img {
+        width: 180px;
+        height: 180px;
+    }
+
+    .text {
+        font-size: 14px !important;
+        color: rgba(0, 0, 0, 0.65);
+        font-weight: 600;
+    }
+}
+
+.contact{
+    margin-top: 24px;
 }

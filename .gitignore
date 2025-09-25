@@ -123,3 +123,14 @@ Thumbs.db
 venv/
 electron/resources/venv/
 electron/resources/venv/*
+
+# python
+electron/resources/python/
+electron/resources/python/*
+# Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.py[cod]
+*$py.class

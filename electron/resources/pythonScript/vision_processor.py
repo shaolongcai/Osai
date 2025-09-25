@@ -191,9 +191,12 @@ def main_service():
                         def handle_result(fut):
                             try:
                                 # 获取在process_single_image中返回的结果
-                                result = fut.result()
+                                result = fut.result(timeout=30)
                                 # 将结果通过标准输出打印
                                 print(json.dumps({"type": "result", **result}))
+                            except TimeoutError:
+                                # 超时处理
+                                print(json.dumps({"type": "result", "task_id": tid, "success": False, "errMsg": "处理超时：超过30秒未完成"}))
                             except Exception as e:
                                 # 如果出现异常，也打印错误信息，并使用正确的task_id
                                 print(json.dumps({"type": "result", "task_id": tid, "success": False, "errMsg": str(e)}))

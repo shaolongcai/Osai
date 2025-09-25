@@ -1,7 +1,7 @@
-import { Box, Button, Chip, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material"
-import React, { useCallback, useEffect, useState } from "react";
+import { Box, Chip, LinearProgress, Paper, Stack, Tooltip, Typography } from "@mui/material"
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from './home.module.scss'
-import { Search, InfoCard, Setting } from '@/components';
+import { Search, InfoCard, Setting, Contact } from '@/components';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -9,60 +9,37 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow, { TableRowProps } from '@mui/material/TableRow';
 import { TableVirtuoso, TableComponents } from 'react-virtuoso';
-import { Progress, searchItem } from "@/type/electron";
+import { Progress } from "@/type/electron";
 import readySearchImage from '@/assets/images/search-ready.png'
-import { SettingsOutlined as SettingsIcon } from "@mui/icons-material";
 import dayjs from "dayjs";
+import { getFileTypeByExtension } from "@/utils/tools";
+import { SettingsOutlined as SettingsIcon, ArrowUpward, ArrowDownward } from "@mui/icons-material";
+import searchNull from '@/assets/images/search-null.png'
+
 
 const Home = () => {
 
   const [indexProgress, setIndexProgress] = useState<Progress | null>(); //索引的进度信息
   const [needIndexImageCount, setNeedIndexImageCount] = useState<number | null>(null); //剩下需要索引的图片
-  const [keyword, setKeyword] = useState(''); //搜索的关键词
-  const [data, setData] = useState<searchItem[]>([]); //搜索的结果
+  const [keyword, setKeyword] = useState<string>(''); //搜索的关键词
+  const [data, setData] = useState<SearchDataItem[]>([]); //搜索的结果
   const [openSetting, setOpenSetting] = useState(false); //是否打开设置弹窗
+  // 统一的排序状态管理
+  const [sortConfig, setSortConfig] = useState<{
+    key: string | null;
+    direction: 'asc' | 'desc' | null;
+  }>({ key: null, direction: null });
+  const [sortedData, setSortedData] = useState<SearchDataItem[]>([]); // 排序后的数据
 
   // 检查是否在Electron环境中
   const isElectron = typeof window !== 'undefined' && window.electronAPI;
+  const effectRan = useRef(false); // 执行守卫
 
-  // 获取上次索引时间
-  // useEffect(() => {
-  //   const init = async () => {
-  //     const getLastIndexTime = localStorage.getItem('lastIndexTime')
-  //     if (getLastIndexTime) {
-  //       // 若有缓存，则判断时间是否超一个小时
-  //       const now = dayjs()
-  //       const lastIndexTime = dayjs(getLastIndexTime)
-  //       if (now.diff(lastIndexTime, 'hour') > 1) {
-  //         console.log('再次索引')
-  //         // 开启索引
-  //         window.electronAPI.openIndex()
-  //         return
-  //       }
-  //       // 从缓存信息中取出，更新索引进度信息
-  //       console.log('获取索引进度缓存信息')
-  //       const getIndexProgress = localStorage.getItem('indexProgress')
-  //       if (getIndexProgress) {
-  //         setIndexProgress(JSON.parse(getIndexProgress))
-  //       }
-  //     }
-  //     else {
-  //       // 没有索引过，则开启索引
-  //       window.electronAPI.openIndex()
-  //     }
-  //   }
-  //   init()
-  // }, [])
 
   useEffect(() => {
     // 监听索引进度
     window.electronAPI.onIndexProgress(async (data) => {
       setIndexProgress(data);
-      // 完成后，将索引信息存入缓存
-      // if (data.process === 'finish') {
-      //   localStorage.setItem('indexProgress', JSON.stringify(data))
-      //   localStorage.setItem('lastIndexTime', dayjs().format())
-      // }
     });
     // 监听视觉索引进度
     window.electronAPI.onVisualIndexProgress(async (data) => {
@@ -75,6 +52,18 @@ const Home = () => {
     };
   }, []);
 
+  // 初始化node进程,(设置完监听后，再开始初始化)
+  useEffect(() => {
+    if (effectRan.current) {
+      return;
+    }
+    const init = async () => {
+      effectRan.current = true;
+      await window.electronAPI.init();
+    }
+    init();
+  }, []);
+
   // 触发搜索
   useEffect(() => {
     if (keyword) {
@@ -82,12 +71,78 @@ const Home = () => {
     }
     else {
       setData([]);
+      setSortedData([]);
+      setSortConfig({ key: null, direction: null });
     }
   }, [keyword])
 
+  // 处理数据排序
+  // 通用数据排序逻辑
+  useEffect(() => {
+    if (sortConfig.key && sortConfig.direction && data.length > 0) {
+      const sorted = [...data].sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        // 根据不同字段进行不同的排序处理
+        switch (sortConfig.key) {
+          case 'ext':
+            aValue = getFileTypeByExtension(a.ext).toLowerCase();
+            bValue = getFileTypeByExtension(b.ext).toLowerCase();
+            break;
+          case 'modified_at':
+            aValue = new Date(a.modified_at).getTime();
+            bValue = new Date(b.modified_at).getTime();
+            break;
+          case 'name':
+            aValue = a.name.toLowerCase();
+            bValue = b.name.toLowerCase();
+            break;
+          case 'path':
+            aValue = a.path.toLowerCase();
+            bValue = b.path.toLowerCase();
+            break;
+          default:
+            aValue = a[sortConfig.key as keyof SearchDataItem];
+            bValue = b[sortConfig.key as keyof SearchDataItem];
+        }
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return sortConfig.direction === 'asc'
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+
+        if (sortConfig.direction === 'asc') {
+          return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        } else {
+          return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        }
+      });
+      setSortedData(sorted);
+    } else {
+      setSortedData(data);
+    }
+  }, [data, sortConfig]);
+
+  // 通用排序处理函数
+  const handleSort = (columnKey: string) => {
+    let direction: 'asc' | 'desc' | null = 'asc';
+
+    if (sortConfig.key === columnKey) {
+      if (sortConfig.direction === 'asc') {
+        direction = 'desc';
+      } else if (sortConfig.direction === 'desc') {
+        direction = null;
+      }
+    }
+
+    setSortConfig({ key: columnKey, direction });
+  };
+
   const searchFiles = useCallback(async (keyword: string) => {
     const res = await window.electronAPI.searchFiles(keyword);
-    setData(res)
+    setData(res.data);
   }, []);
 
 
@@ -106,18 +161,43 @@ const Home = () => {
       dataKey: 'path',
       styles: {
         fontColor: '#00000065',
-      }
+      },
+      render: (value) => {
+        return <Tooltip title={value}>
+          <div style={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            {value}
+          </div>
+        </Tooltip>
+      },
     },
-    // {
-    //   width: 50,
-    //   label: 'Age',
-    //   dataKey: 'age',
-    //   numeric: true,
-    // },
+    {
+      width: 50,
+      label: '修改时间',
+      dataKey: 'modified_at',
+      styles: {
+        fontColor: '#00000065',
+      },
+      render: (value) => dayjs(value).format('YYYY-MM-DD HH:mm:ss'),
+      sortable: true
+    },
+    {
+      width: 50,
+      label: '文件类型',
+      dataKey: 'ext',
+      styles: {
+        fontColor: '#00000065',
+      },
+      render: (value) => getFileTypeByExtension(value as string),
+      sortable: true // 标记该列可排序
+    },
   ];
 
 
-  const VirtuosoTableComponents: TableComponents<searchItem> = {
+  const VirtuosoTableComponents: TableComponents<SearchDataItem> = {
     Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
       <TableContainer component={Paper} {...props} ref={ref}
         sx={{
@@ -147,7 +227,7 @@ const Home = () => {
     TableHead: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
       <TableHead {...props} ref={ref} />
     )),
-    TableRow: (props: TableRowProps & { item: searchItem }) => {
+    TableRow: (props: TableRowProps & { item: SearchDataItem }) => {
       const { item, ...rest } = props;
       const handleRowClick = () => {
         if (item) {
@@ -178,8 +258,33 @@ const Home = () => {
     )),
   };
 
+  // 通用的排序图标渲染函数
+  const renderSortIcon = (columnKey: string) => {
+    if (sortConfig.key !== columnKey) {
+      return (
+        <>
+          <ArrowUpward sx={{ fontSize: 12, marginBottom: '-2px', opacity: 0.3 }} />
+          <ArrowDownward sx={{ fontSize: 12, opacity: 0.3 }} />
+        </>
+      );
+    }
+
+    if (sortConfig.direction === 'asc') {
+      return <ArrowUpward sx={{ fontSize: 14, color: '#1976d2' }} />;
+    } else if (sortConfig.direction === 'desc') {
+      return <ArrowDownward sx={{ fontSize: 14, color: '#1976d2' }} />;
+    }
+
+    return (
+      <>
+        <ArrowUpward sx={{ fontSize: 12, marginBottom: '-2px', opacity: 0.3 }} />
+        <ArrowDownward sx={{ fontSize: 12, opacity: 0.3 }} />
+      </>
+    );
+  };
+
   // 表格内容
-  function rowContent(_index: number, row: searchItem) {
+  function rowContent(_index: number, row: SearchDataItem) {
     return (
       <React.Fragment>
         {columns.map((column) => (
@@ -195,7 +300,7 @@ const Home = () => {
               color: column.styles?.fontColor,
             }}
           >
-            {row[column.dataKey]}
+            {column.render ? column.render(row[column.dataKey]) : row[column.dataKey]}
           </TableCell>
         ))}
       </React.Fragment>
@@ -209,10 +314,12 @@ const Home = () => {
         {columns.map((column) => (
           <TableCell
             key={column.dataKey}
+            onClick={column.sortable ? () => handleSort(column.dataKey) : undefined}
             variant="head"
             align={column.numeric || false ? 'right' : 'left'}
             style={{ width: column.width }}
             sx={{
+              cursor: column.sortable ? 'pointer' : 'default',
               backgroundColor: 'background.paper',
               borderBottom: 'none',
               // borderRight: '1px solid #cccccc',
@@ -223,7 +330,14 @@ const Home = () => {
               p: '8px',
             }}
           >
-            {column.label}
+            <Box display="flex" alignItems="center" gap={0.5}>
+              {column.label}
+              {column.sortable && (
+                <Box display="flex" flexDirection="column" sx={{ opacity: 0.6 }}>
+                  {renderSortIcon(column.dataKey)}
+                </Box>
+              )}
+            </Box>
           </TableCell>
         ))}
       </TableRow>
@@ -233,43 +347,71 @@ const Home = () => {
   return (
     <div className={styles.root}>
       <Search onSearch={setKeyword} />
-      <SettingsIcon
-        className={styles.settingsIcon}
-        fontSize='large'
-        color='inherit'
-        onClick={() => setOpenSetting(true)}
-      />
+      {/* 搜索与结果 */}
+      <Stack
+        direction='row'
+        spacing={1}
+        alignItems='flex-end'
+        className={styles.settings}
+      >
+        {
+          data.length > 0 &&
+          <Typography className={styles.total}>
+            共搜索到 {data?.length} 条结果
+          </Typography>
+        }
+        <SettingsIcon
+          className={styles.settingsIcon}
+          fontSize='large'
+          color='inherit'
+          onClick={() => setOpenSetting(true)}
+        />
+      </Stack>
       <Setting open={openSetting} onClose={() => setOpenSetting(false)} />
       {
         data.length > 0 ?
           <Box className={styles.table}>
             <TableVirtuoso
               fixedHeaderContent={fixedHeaderContent}
-              data={data}
+              data={sortedData}
               components={VirtuosoTableComponents}
               itemContent={rowContent}
             />
           </Box>
           :
-          <Stack className={styles.indexRoot} alignItems='center' spacing={1}>
-            <img src={readySearchImage} alt='' />
-            {
-              indexProgress?.process !== 'finish' &&
-              <LinearProgress className={styles.progress} />
-            }
-            <Typography className={styles.text} variant='body1'>
-              {indexProgress ? indexProgress.message : '正在索引'}
-            </Typography>
-            <Typography className={styles.text} variant='body1'>
-              你可以随时进行搜索
-            </Typography>
-            <Chip
-              color='primary'
-              label='Beta 0.1.1'
-              size='medium'
-              variant='outlined'
-            />
-          </Stack>
+          // 若为空，但是有搜索关键词，则显示搜索为空
+          keyword.length > 0 ?
+            <>
+              <Stack className={styles.searchNull} alignItems='center'>
+                <img src={searchNull} />
+                <Typography variant='body1' className={styles.text}>
+                  没搜索到任何结果
+                </Typography>
+              </Stack>
+              <div className={styles.contact}>
+                <Contact />
+              </div>
+            </>
+            :
+            <Stack className={styles.indexRoot} alignItems='center' spacing={1}>
+              <img src={readySearchImage} alt='' />
+              {
+                indexProgress?.process !== 'finish' &&
+                <LinearProgress className={styles.progress} />
+              }
+              <Typography className={styles.text} variant='body1'>
+                {indexProgress ? indexProgress.message : '正在索引'}
+              </Typography>
+              <Typography className={styles.text} variant='body1'>
+                你可以随时进行搜索
+              </Typography>
+              <Chip
+                color='primary'
+                label='Beta 0.2.0'
+                size='medium'
+                variant='outlined'
+              />
+            </Stack>
       }
       <Typography>
         {needIndexImageCount}

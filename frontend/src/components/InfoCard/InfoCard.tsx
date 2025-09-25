@@ -11,8 +11,8 @@ import {
 import styles from './InfoCard.module.scss'
 import { NOTIFICATION_TYPE, NotificationType } from "@/utils/enum";
 import { Notification } from "@/type/electron";
-import { useEffect, useRef, useState } from "react";
-import {useGlobalContext} from "@/context/globalContext";
+import { useEffect, useState } from "react";
+import { useGlobalContext } from "@/context/globalContext";
 
 interface Props {
 
@@ -24,39 +24,7 @@ const InfoCard: React.FC<Props> = ({
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [notifications, setNotifications] = useState<Notification[]>([]);
 
-    const effectRan = useRef(false); // 执行守卫
     const context = useGlobalContext();
-
-    useEffect(() => {
-        const indexCheckGPUAndDownloadModel = async () => {
-            // 执行守卫，防止在开发模式下触发两次
-            if (effectRan.current === true) {
-                return;
-            }
-            // 告知主线程，前端渲染完毕
-            const gpuInfo = await window.electronAPI.rendererReady()
-            console.log('gpuInfo', gpuInfo)
-            context.setGpuInfo(gpuInfo)
-
-            // 若有缓存，则先由缓存决定是否开启
-            if (localStorage.getItem('openIndexImage')) {
-                const openIndexImage = Number(localStorage.getItem('openIndexImage') || 0) // 获取是否开启的缓存,1为开启，0为关闭
-                // Boolean(openIndexImage) && await window.electronAPI.IndexImage()
-                await window.electronAPI.toggleIndexImage(Boolean(openIndexImage))
-            }
-            else if (gpuInfo.hasGPU) {
-                // 若拥有GPU则自动打开图片索引
-                // await window.electronAPI.IndexImage()
-                // 默认开启索引
-                localStorage.setItem('openIndexImage', '1')
-                await window.electronAPI.toggleIndexImage(true)
-            }
-        }
-        indexCheckGPUAndDownloadModel();
-        return () => {
-            effectRan.current = true;
-        }
-    }, [])
 
     // 接收后台的消息推送
     useEffect(() => {
@@ -70,10 +38,6 @@ const InfoCard: React.FC<Props> = ({
                     newNotifications.unshift(data); // 将更新的消息放到数组最前面
                     return newNotifications;
                 }
-                // 若id是 checkGPU，则存入全局，@todo，应该放在一份表中
-                // if (data.id === 'checkGPU') {
-                //     context.setGpuInfo(data)
-                // }
                 // 如果没找到，则添加到数组最前面
                 return [data, ...prev];
             })
