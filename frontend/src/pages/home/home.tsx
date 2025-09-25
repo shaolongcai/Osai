@@ -372,6 +372,7 @@ const Home = () => {
         data.length > 0 ?
           <Box className={styles.table}>
             <TableVirtuoso
+              className={styles.TableContainer}
               fixedHeaderContent={fixedHeaderContent}
               data={sortedData}
               components={VirtuosoTableComponents}

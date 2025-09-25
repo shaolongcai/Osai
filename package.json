@@ -67,9 +67,11 @@
         },
         "extraResource": [
           "dist-electron/resources/pythonScript",
-          "dist-electron/resources/venv"
+          "dist-electron/resources/python"
         ],
         "ignore": [
+          "^/electron/resources/check_gpu.py",
+          "^/electron/resources/get-pip.py",
           "^/electron($|/)",
           "^/frontend/(?!dist($|/))",
           "^/\\.git($|/)",
