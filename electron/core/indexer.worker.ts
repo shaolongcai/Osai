@@ -14,6 +14,32 @@ const ALLOWED_EXTENSIONS = new Set([
     '.doc', '.docx', '.txt', '.xlsx', '.xls', '.pdf'
 ]);
 
+
+// 任何包含这些字符串的路径都将被忽略。
+// 注意：这里使用小写进行匹配，以确保跨平台和大小写不敏感的兼容性。
+const ignorePatterns = [
+    '$recycle.bin', // Windows 回收站
+    'system volume information', // Windows 系统卷信息
+    'app.asar',     // Electron ASAR 归档文件
+    'node_modules', // 通常不需要索引的依赖文件夹
+    '.git',         // Git 版本控制文件夹
+    '.vscode',      // VSCode 配置文件夹
+    '.idea',        // IntelliJ IDEA 配置文件夹
+    'temp',         // 临时文件或文件夹
+    'tmp',          // 临时文件或文件夹
+    'cache',        // 缓存文件夹
+    'logs',         // 日志文件夹
+    'build',        // 构建输出文件夹
+    'dist',         // 分发输出文件夹
+    'out',          // 输出文件夹
+    'target',       // Java/Maven 等构建输出
+    '__pycache__',  // Python 缓存
+    '.DS_Store',    // macOS 文件
+    'thumbs.db',    // Windows 缩略图缓存
+    'desktop.ini',  // Windows 系统文件
+];
+
+
 const BATCH_SIZE = 5000 // 每 50 个文件报告一次进度
 
 // --- 1. 首先，获取 workerData 并初始化数据库 ---
@@ -40,8 +66,13 @@ function findFiles(dir: string): string[] {
         return [];
     }
 
-     // 添加回收站路径检查
-    if (dir.includes('$RECYCLE.BIN') || dir.includes('System Volume Information')) {
+    // 添加回收站路径检查
+    // if (dir.includes('$RECYCLE.BIN') || dir.includes('System Volume Information')) {
+    //     return [];
+    // }
+
+    // 检查忽略路径
+    if (ignorePatterns.some(pattern => dir.toLowerCase().includes(pattern))) {
         return [];
     }
 

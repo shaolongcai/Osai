@@ -7,6 +7,7 @@ import * as https from 'https'
 import * as http from 'http'
 import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
+import { setModelReady } from './appState.js';
 
 
 // 主要的图片摘要函数 @todo 移去其他地方
@@ -231,6 +232,7 @@ export class ModelDownloader {
                 type: 'success',
             }
             sendToRenderer('system-info', notification)
+            setModelReady(true)
             return true
         }
 
@@ -251,6 +253,7 @@ export class ModelDownloader {
                 type: 'success',
             }
             sendToRenderer('system-info', notification)
+            setModelReady(true)
             // 清理临时目录
             this.cleanupTempDir()
             return true
