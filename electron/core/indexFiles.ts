@@ -198,9 +198,9 @@ async function indexImageFiles() {
 
     for (const file of files) {
         try {
-            const summary = await summarizeImage(file.path);
 
             await waitForIndexImage();
+            const summary = await summarizeImage(file.path);
             // logger.info(`图片摘要: ${summary}`);
             // 更新数据库
             const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);

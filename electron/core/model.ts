@@ -7,7 +7,8 @@ import * as https from 'https'
 import * as http from 'http'
 import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
-import { setModelReady } from './appState.js';
+import { setModelReady, waitForModelReady } from './appState.js';
+import { Llama, getLlama, LlamaModel } from 'node-llama-cpp';
 
 
 // 主要的图片摘要函数 @todo 移去其他地方
@@ -19,6 +20,60 @@ export async function summarizeImage(imagePath: string): Promise<string> {
         const msg = error instanceof Error ? error.message : '图片摘要生成失败';
         throw new Error(msg);
     }
+}
+
+
+// 全局唯一实例
+let loadedLlama: Llama | null = null;
+let loadedModel: LlamaModel | null = null;
+
+/**
+ * 初始化并加载AI模型到内存中。
+ * 这个函数在整个应用生命周期中只应被调用一次。
+ */
+export async function initializeModel() {
+    // 如果模型已经加载，则直接返回，防止重复加载
+    if (loadedModel) {
+        logger.info('模型已经初始化，跳过重复加载。');
+        return;
+    }
+
+    try {
+        logger.info('开始全局初始化AI模型...');
+        await waitForModelReady(); // 等待模型文件下载完成
+
+        const llama = await getLlama();
+        const modelDir = pathConfig.get('models');
+        const modelPath = path.join(modelDir, "Qwen2.5-VL-3B-Instruct-Q4_K_M.gguf");
+
+        // 执行加载操作，并将实例存入全局变量
+        loadedLlama = llama;
+        loadedModel = await llama.loadModel({ modelPath });
+        logger.info('AI模型已成功加载到内存，可供全局使用。');
+
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : '全局初始化AI模型失败';
+        logger.error(`全局初始化AI模型失败:${msg}`);
+        // 抛出错误，以便启动时可以捕获
+        throw error;
+    }
+}
+
+/**
+ * 获取已加载的模型实例。
+ * @returns {LlamaModel} 已加载的模型实例
+ * @throws {Error} 如果模型尚未初始化，则抛出错误
+ */
+export function getLoadedModel(): LlamaModel {
+    if (!loadedModel) {
+        // 模型未初始化，抛出错误
+        throw new Error('模型尚未初始化或加载失败，无法获取实例。');
+    }
+    return loadedModel;
+}
+
+export function getLlamaInstance(): Llama | null {
+    return loadedLlama;
 }
 
 

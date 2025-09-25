@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getFilesCount: () => ipcRenderer.invoke('get-files-count'),
     // 搜索文件
     searchFiles: (keyword: string) => ipcRenderer.invoke('search-files', keyword),
+    // 执行AI搜索
+    aiSearch: (query: string) => ipcRenderer.invoke('ai-search', query),
     // 告知node 程序，前端渲染进程已准备就绪
     init: () => ipcRenderer.invoke('init'),
     // 切换图片视觉索引开关
