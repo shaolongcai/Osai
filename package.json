@@ -47,6 +47,7 @@
     "langchain": "^0.3.34",
     "mammoth": "^1.11.0",
     "node-llama-cpp": "^3.13.0",
+    "ollama": "^0.6.0",
     "systeminformation": "^5.27.9",
     "word-extractor": "^1.0.4"
   },
@@ -67,7 +68,7 @@
         "prune": true,
         "quiet": false,
         "icon": "./dist-electron/resources/assets/logo-256",
-         "extraFiles": [
+        "extraFiles": [
           {
             "from": "electron/resources/redist",
             "to": ".",

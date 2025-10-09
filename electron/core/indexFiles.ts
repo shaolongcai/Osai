@@ -4,7 +4,7 @@ import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { getDatabase, setConfig } from '../database/sqlite.js';
-import { summarizeImage } from './model.js';
+import { ollamaService } from './ollama.js'
 import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate, waitForModelReady } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
@@ -182,7 +182,32 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
 
 /**
- * 第二部：索引图片应用
+ * 第一步：开启视觉索引服务
+ */
+export const indexImagesService = async (): Promise<void> => {
+    logger.info('等待索引更新完毕')
+    await waitForIndexUpdate();
+    logger.info('索引更新完毕')
+
+    logger.info('等待AI模型准备就绪...');
+    await waitForModelReady();
+    logger.info('AI模型已就绪，开始索引图片。');
+
+    // 对所有图片文件，都使用vl应用读取摘要
+    const startIndexImageTime = Date.now();
+    await indexImageFiles();
+    const endIndexImageTime = Date.now();
+    logger.info(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
+    const notification: INotification = {
+        id: 'visual-index',
+        text: '视觉索引已全部完成',
+        type: 'success',
+    }
+    sendToRenderer('system-info', notification);
+}
+
+/**
+ * 第二步：索引所有图片
  */
 async function indexImageFiles() {
 
@@ -198,7 +223,6 @@ async function indexImageFiles() {
 
     for (const file of files) {
         try {
-
             await waitForIndexImage();
             const summary = await summarizeImage(file.path);
             // logger.info(`图片摘要: ${summary}`);
@@ -223,28 +247,18 @@ async function indexImageFiles() {
     }
 }
 
-
 /**
- * 第一步：开启视觉索引服务
+ * 第三步：单个图片摘要函数 
+ * @param imagePath 图片路径
+ * @returns 图片摘要
  */
-export const indexImagesService = async (): Promise<void> => {
-    logger.info('等待索引更新完毕')
-    await waitForIndexUpdate();
-    logger.info('索引更新完毕')
-
-    logger.info('等待AI模型准备就绪...');
-    await waitForModelReady();
-    logger.info('AI模型已就绪，开始索引图片。');
-
-    // 对所有图片文件，都使用vl应用读取摘要
-    const startIndexImageTime = Date.now();
-    await indexImageFiles();
-    const endIndexImageTime = Date.now();
-    logger.info(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
-    const notification: INotification = {
-        id: 'visual-index',
-        text: '视觉索引已全部完成',
-        type: 'success',
+export async function summarizeImage(imagePath: string): Promise<string> {
+    try {
+        // 直接使用Ollama处理图片，无需Python
+        return await ollamaService.processImage(imagePath);
+    } catch (error) {
+        // 被reject（失败）后，走这里，会 立即将这个 Promise 的拒绝原因作为异常抛出 。
+        const msg = error instanceof Error ? error.message : '图片摘要生成失败';
+        throw new Error(msg);
     }
-    sendToRenderer('system-info', notification);
 }

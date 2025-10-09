@@ -127,6 +127,7 @@ electron/resources/venv/*
 # python
 electron/resources/python/
 electron/resources/python/*
+electron/resources/Ollama/*
 # Python bytecode files
 *.pyc
 *.pyo
@@ -134,3 +135,4 @@ electron/resources/python/*
 __pycache__/
 *.py[cod]
 *$py.class
+

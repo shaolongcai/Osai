@@ -1,4 +1,3 @@
-import { summarizeImageWithPython } from '../pythonScript/imageService.js';
 import { logger } from './logger.js'
 import pathConfig from './pathConfigs.js';
 import * as path from 'path'
@@ -7,25 +6,9 @@ import * as https from 'https'
 import * as http from 'http'
 import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
-import { setModelReady, waitForModelReady } from './appState.js';
-import { Llama, getLlama, LlamaModel } from 'node-llama-cpp';
+import { setModelReady } from './appState.js';
+import { ollamaService } from './ollama.js'
 
-
-// 主要的图片摘要函数 @todo 移去其他地方
-export async function summarizeImage(imagePath: string): Promise<string> {
-    try {
-        return await summarizeImageWithPython(imagePath);  // task中的message.result最终返回到这里
-    } catch (error) {
-        // 被reject（失败）后，走这里，会 立即将这个 Promise 的拒绝原因作为异常抛出 。
-        const msg = error instanceof Error ? error.message : '图片摘要生成失败';
-        throw new Error(msg);
-    }
-}
-
-
-// 全局唯一实例
-let loadedLlama: Llama | null = null;
-let loadedModel: LlamaModel | null = null;
 
 /**
  * 初始化并加载AI模型到内存中。
@@ -33,48 +16,51 @@ let loadedModel: LlamaModel | null = null;
  */
 export async function initializeModel() {
     // 如果模型已经加载，则直接返回，防止重复加载
-    if (loadedModel) {
-        logger.info('模型已经初始化，跳过重复加载。');
-        return;
-    }
-
     try {
-        logger.info('开始全局初始化AI模型...');
-        await waitForModelReady(); // 等待模型文件下载完成
+        logger.info('启动Ollama AI服务...');
 
-        const llama = await getLlama();
-        const modelDir = pathConfig.get('models');
-        const modelPath = path.join(modelDir, "Qwen2.5-VL-3B-Instruct-Q4_K_M.gguf");
+        // 启动Ollama服务
+        await ollamaService.start();
 
-        // 执行加载操作，并将实例存入全局变量
-        loadedLlama = llama;
-        loadedModel = await llama.loadModel({ modelPath });
-        logger.info('AI模型已成功加载到内存，可供全局使用。');
+        // 拉取所需模型
+        await pullOllamaModel('Qwen2.5-VL-3B-Instruct-Q4_K_M.gguf');
+
+        logger.info('AI模型已成功初始化');
+        setModelReady(true);
 
     } catch (error) {
-        const msg = error instanceof Error ? error.message : '全局初始化AI模型失败';
-        logger.error(`全局初始化AI模型失败:${msg}`);
-        // 抛出错误，以便启动时可以捕获
-        throw error;
+        const msg = error instanceof Error ? error.message : '模型初始化失败';
+        logger.error(`模型初始化失败: ${msg}`);
+        throw new Error(msg);
     }
 }
 
-/**
- * 获取已加载的模型实例。
- * @returns {LlamaModel} 已加载的模型实例
- * @throws {Error} 如果模型尚未初始化，则抛出错误
- */
-export function getLoadedModel(): LlamaModel {
-    if (!loadedModel) {
-        // 模型未初始化，抛出错误
-        throw new Error('模型尚未初始化或加载失败，无法获取实例。');
+
+// 从远端或本地添加模型
+async function pullOllamaModel(modelName: string): Promise<void> {
+    try {
+
+        logger.info(`开始拉取模型: ${modelName}`);
+
+        const response = await fetch('http://127.0.0.1:11434/api/pull', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: modelName })
+        });
+
+        if (!response.ok) {
+            throw new Error(`模型拉取失败: ${response.statusText}`);
+        }
+
+        logger.info(`模型 ${modelName} 拉取完成`);
+
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : '模型拉取失败';
+        logger.error(`模型拉取失败: ${msg}`);
+        throw new Error(msg);
     }
-    return loadedModel;
 }
 
-export function getLlamaInstance(): Llama | null {
-    return loadedLlama;
-}
 
 
 interface DownloadTask {
