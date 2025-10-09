@@ -1,5 +1,6 @@
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material"
 import styles from './search.module.scss'
+import { useState } from "react";
 
 
 interface Props {
@@ -9,6 +10,20 @@ interface Props {
 const Search: React.FC<Props> = ({
     onSearch
 }) => {
+
+    const [searchValue, setSearchValue] = useState(''); //搜索的关键词
+
+    const aiSearch = async () => {
+        // const result = await window.electronAPI.aiSearch(searchValue);
+        // console.log('AI搜索结果:', result);
+    }
+
+    // 处理搜索
+    const handleSearch = (value: string) => {
+        setSearchValue(value)
+        onSearch(value);
+    }
+
     return <Paper
         elevation={0}
         className={styles.root}
@@ -27,7 +42,7 @@ const Search: React.FC<Props> = ({
                 placeholder="搜索文件名称或者图片摘要"
                 variant="outlined"
                 // value={question}
-                onChange={(event) => onSearch(event.target.value)}
+                onChange={(event) => handleSearch(event.target.value)}
                 // onKeyDown={handleKeyDown}
                 sx={{
                     flex: 1,
@@ -49,6 +64,7 @@ const Search: React.FC<Props> = ({
                 }}
             />
             <Button
+                onClick={aiSearch}
             // loading={loading}
             // variant="contained"
             // color="primary"

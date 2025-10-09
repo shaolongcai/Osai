@@ -25,7 +25,7 @@ function executeDownloadModelPythonScript(): Promise<string> {
 
         // 步骤1：检查Python路径是否存在
         if (!fs.existsSync(PYTHON_ENV_PATH)) {
-            const msg = `虚拟环境Python不存在: ${PYTHON_ENV_PATH}`;
+            const msg = `嵌入Python不存在: ${PYTHON_ENV_PATH}`;
             logger.error(msg);
             reject(new Error(msg));
             return;
@@ -109,11 +109,37 @@ async function checkModel() {
         const modelPath = path.join(modelsDir, 'Qwen2.5-VL-3B-Instruct-Q4_K_M.gguf')
         const mmprojPath = path.join(modelsDir, 'mmproj-model-f16.gguf')
 
+        // 定义预期的文件大小（字节）
+        const expectedSizes = {
+            model: 1880000000, // 约1.93GB，根据实际大小调整
+            mmproj: 1300000000,  // 约1.34GB ，根据实际大小调整
+        }
+
         //检查是否有这个模型,model 与投影model都需要存在
         if (!fs.existsSync(modelPath) || !fs.existsSync(mmprojPath)) {
             // logger.info('models--BAAI--bge-base-zh-v1.5 不存在');
             return false
         }
+
+        const modelStats = fs.statSync(modelPath)
+        if (modelStats.size < expectedSizes.model) {
+            logger.info(`模型文件不完整: ${modelStats.size}/${expectedSizes.model} 字节`)
+            return false
+        }
+
+        // 检查投影模型文件
+        if (!fs.existsSync(mmprojPath)) {
+            return false
+        }
+        const mmprojStats = fs.statSync(mmprojPath)
+        if (mmprojStats.size < expectedSizes.mmproj) {
+            logger.info(`投影模型文件不完整: ${mmprojStats.size}/${expectedSizes.mmproj} 字节，重新下载`)
+            return false
+        }
+
+
+        logger.info(`模型文件完整: ${modelStats.size}/${expectedSizes.model} 字节`)
+        logger.info(`投影模型文件完整: ${mmprojStats.size}/${expectedSizes.mmproj} 字节`)
         //若模型存在，立即告知appState.ts ，开始视觉索引
         setModelReady(true);
         return true
@@ -147,8 +173,8 @@ export async function downloadModel() {
             tooltip: '这通常需要3~5分钟，视乎你的网络'
         }
         sendToRenderer('system-info', notification)
-        const result = await executeDownloadModelPythonScript();
-        logger.info(`脚本输出:${result}`);
+        await executeDownloadModelPythonScript();
+        logger.info(`模型下载已完毕`);
         const successNotification: INotification = {
             id: 'downloadModel',
             text: 'AI服务已就绪',

@@ -39,11 +39,16 @@
   "private": true,
   "dependencies": {
     "@lancedb/lancedb": "^0.22.0",
+    "@langchain/community": "^0.3.56",
+    "@langchain/core": "^0.3.77",
     "better-sqlite3": "^12.2.0",
     "dayjs": "^1.11.18",
     "electron-squirrel-startup": "^1.0.1",
+    "langchain": "^0.3.34",
+    "mammoth": "^1.11.0",
     "node-llama-cpp": "^3.13.0",
-    "systeminformation": "^5.27.9"
+    "systeminformation": "^5.27.9",
+    "word-extractor": "^1.0.4"
   },
   "build": {
     "electronDownload": {
@@ -62,14 +67,25 @@
         "prune": true,
         "quiet": false,
         "icon": "./dist-electron/resources/assets/logo-256",
+         "extraFiles": [
+          {
+            "from": "electron/resources/redist",
+            "to": ".",
+            "filter": [
+              "**/*"
+            ]
+          }
+        ],
         "asar": {
           "unpack": "**/node_modules/@lancedb/**"
         },
         "extraResource": [
           "dist-electron/resources/pythonScript",
-          "dist-electron/resources/venv"
+          "dist-electron/resources/python"
         ],
         "ignore": [
+          "^/electron/resources/check_gpu.py",
+          "^/electron/resources/get-pip.py",
           "^/electron($|/)",
           "^/frontend/(?!dist($|/))",
           "^/\\.git($|/)",

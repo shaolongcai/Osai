@@ -1,6 +1,7 @@
 import sys
 import os
 import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # 设置控制台编码为UTF-8
 if sys.platform == 'win32':
@@ -11,6 +12,7 @@ if sys.platform == 'win32':
     sys.stderr.reconfigure(encoding='utf-8', line_buffering=True)
     # 同样为标准输入配置UTF-8编码，以正确处理来自Node.js的中文路径
     sys.stdin.reconfigure(encoding='utf-8')
+
 
 def download_file(url, local_path):
     """下载单个文件"""
@@ -59,21 +61,48 @@ def download_model(local_dir):
         'mmproj-model-f16.gguf'
     ]
     
+    # 准备下载任务
+    download_tasks = []
     for filename in files:
         url = base_url + filename
         local_path = os.path.join(local_dir, filename)
         
-        # 检查文件是否已存在
-        if os.path.exists(local_path):
-            print(f"文件已存在，跳过下载: {filename}")
-            continue
+        # 检查文件是否已存在,下载暂时需要一起下载，先不检验，因为可能中途断开
+        # if os.path.exists(local_path):
+        #     print(f"文件已存在，跳过下载: {filename}")
+        #     continue
         
-        if not download_file(url, local_path):
-            print(f"下载失败，停止后续下载")
-            return False
+        download_tasks.append((url, local_path))
     
-    print("所有模型文件下载完成！")
-    return True
+    if not download_tasks:
+        print("所有文件已存在！")
+        return True
+    
+    # 使用线程池并发下载
+    success_count = 0
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        # 提交所有下载任务
+        future_to_task = {executor.submit(download_file, url, path): (url, path) 
+                         for url, path in download_tasks}
+        
+        # 等待完成
+        for future in as_completed(future_to_task):
+            url, path = future_to_task[future]
+            try:
+                result = future.result()
+                if result:
+                    success_count += 1
+                else:
+                    print(f"下载失败: {os.path.basename(path)}")
+            except Exception as e:
+                print(f"下载异常: {e}")
+    
+    if success_count == len(download_tasks):
+        print("所有模型文件下载完成！")
+        return True
+    else:
+        print(f"部分文件下载失败，成功: {success_count}/{len(download_tasks)}")
+        return False
 
 if __name__ == "__main__":
     # 获取模型存储路径

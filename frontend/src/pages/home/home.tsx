@@ -372,6 +372,7 @@ const Home = () => {
         data.length > 0 ?
           <Box className={styles.table}>
             <TableVirtuoso
+              className={styles.TableContainer}
               fixedHeaderContent={fixedHeaderContent}
               data={sortedData}
               components={VirtuosoTableComponents}
@@ -407,7 +408,7 @@ const Home = () => {
               </Typography>
               <Chip
                 color='primary'
-                label='Beta 0.2.0'
+                label='Beta 0.2.1'
                 size='medium'
                 variant='outlined'
               />

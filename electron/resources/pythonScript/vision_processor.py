@@ -2,13 +2,27 @@
 import sys
 import json
 import os
-import llama_cpp
-from llama_cpp.llama_chat_format import Qwen25VLChatHandler
-from PIL import Image
-import base64
-from io import BytesIO
-import time
-from concurrent.futures import ThreadPoolExecutor
+
+
+# 步骤一：将所有可能出错的核心导入操作包裹在try...except块中
+try:
+    import llama_cpp
+    from llama_cpp.llama_chat_format import Qwen25VLChatHandler
+    from PIL import Image
+    import base64
+    from io import BytesIO
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+except ImportError as e:
+    # 步骤二：如果发生导入错误，立即打印一个JSON格式的错误信息到标准错误流(stderr)
+    # Node.js可以捕获这个错误，从而定位到具体是哪个库缺失了
+    error_message = {
+        "type": "error",
+        "errMsg": f"Python依赖库导入失败，请检查环境: {e}"
+    }
+    # 打印到stderr，因为Node.js的监听器会捕获它
+    print(json.dumps(error_message), file=sys.stderr)
+    sys.exit(1) # 以错误码1退出，表明启动失败
 
 # 设置控制台编码为UTF-8
 if sys.platform == 'win32':
@@ -34,12 +48,16 @@ def load_model(model_path, mmproj_path=None):
         return True
 
     try:
+         # 步骤一：动态检查硬件是否支持GPU
         has_gpu_support = llama_cpp.llama_supports_gpu_offload()
-        
+        n_gpu_layers_to_use = 0 # 默认值为0，即完全使用CPU
+
         if has_gpu_support:
-            print(json.dumps({"type": "log", "msg": "使用GPU加速模型服务"}))
+            print(json.dumps({"type": "log", "msg": "检测到GPU支持，将使用GPU加速"}))
+            n_gpu_layers_to_use = -1 # 如果支持，则设置为-1以最大化利用GPU
         else:
-            print(json.dumps({"type": "log", "msg": "当前环境不支持GPU加速，将使用CPU运行模型"}))
+            print(json.dumps({"type": "log", "msg": "未检测到GPU支持，将使用CPU运行"}))
+        
         if mmproj_path and os.path.exists(mmproj_path):
             # 2. 限制模型使用的CPU线程数为核心数的一半，以降低CPU占用
             n_threads = max(1, os.cpu_count() // 4)
@@ -48,7 +66,7 @@ def load_model(model_path, mmproj_path=None):
             _model = llama_cpp.Llama(
                 model_path=model_path,
                 chat_handler=chat_handler,
-                n_gpu_layers=-1, 
+                n_gpu_layers=n_gpu_layers_to_use, 
                 n_ctx=2048,
                 verbose=False,
                 n_batch=1024,
@@ -63,7 +81,12 @@ def load_model(model_path, mmproj_path=None):
         return True
         
     except Exception as e:
-        return None, str(e)
+        error_message = {
+            "type": "error",
+            "errMsg": f"加载模型失败: {e}"
+        }
+        print(json.dumps(error_message), file=sys.stderr)
+        return False, f"模型加载失败: {e}"
 
 def process_single_image( image_path, task_id):
     """处理图片并生成摘要"""

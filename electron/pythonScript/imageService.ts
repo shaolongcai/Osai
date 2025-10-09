@@ -23,7 +23,7 @@ const visionModelPath = path.join(modeldir, modelName);
 const mmprojPath = path.join(modeldir, mmprojName);
 
 const resourcePath = pathConfig.get('resources')
-const PYTHON_ENV_PATH = path.join(resourcePath, 'venv/Scripts/python.exe')
+const PYTHON_ENV_PATH = path.join(resourcePath, 'python/python.exe') //嵌入python路径
 const PYTHON_SCRIPT_PATH = path.join(resourcePath, 'pythonScript/vision_processor.py')
 
 
@@ -40,14 +40,13 @@ async function startPythonService(): Promise<void> {
         }
         logger.info('启动Python视觉处理服务...');
 
-        // 设置虚拟环境变量
-        const venvPath = path.dirname(path.dirname(PYTHON_ENV_PATH)); // 获取venv根目录
+        // 启动python
+        const pythonHome = path.dirname(PYTHON_ENV_PATH); // Python根目录
         const env = {
             ...process.env,
-            PYTHONPATH: '', // 清空PYTHONPATH避免冲突
-            PYTHONHOME: '', // 清空PYTHONHOME避免冲突
-            VIRTUAL_ENV: venvPath,
-            PATH: `${path.dirname(PYTHON_ENV_PATH)};${process.env.PATH}` // 优先使用venv的Scripts目录
+            PYTHONPATH: path.join(pythonHome, 'site-packages'), // 设置包路径
+            PYTHONHOME: pythonHome, // 设置Python主目录
+            PATH: `${pythonHome};${pythonHome}\\Scripts;${process.env.PATH}` // 添加Python和Scripts到PATH
         };
 
         // 启动Python进程
@@ -115,12 +114,14 @@ async function startPythonService(): Promise<void> {
 
         // 收集错误
         pythonProcess.stderr.on('data', (data) => {
+            logger.error(`Python服务 STDERR: ${data.toString()}`);
             // console.error('日志输出:', data.toString());
         })
 
         // 处理进程结束
         pythonProcess.on('close', (code) => {
             logger.info(`Python服务退出，代码: ${code}`);
+            clearTimeout(initTimeout);
             isProcessReady = false;
             pythonProcess = null;
 

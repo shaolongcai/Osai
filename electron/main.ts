@@ -8,6 +8,7 @@ import { shutdownVisionService } from './pythonScript/imageService.js';
 import { logger } from './core/logger.js';
 import { checkGPU } from './core/system.js';
 import { downloadModel } from './pythonScript/downloadModle.js';
+import { initializeModel, ModelDownloader } from './core/model.js'
 
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
@@ -68,13 +69,16 @@ export const sendToRenderer = (channel: string, data: any) => {
 
 
 // 初始化所有必须条件
-export const init =async () => {
+export const init = async () => {
   // 初始化数据库
   initializeDatabase()
   //检查GPU
   await checkGPU()
   // 下载模型 （如果已下载会跳过）
-  downloadModel();
+  const downloader = new ModelDownloader()
+  downloader.downloadModels()
+  // 初始化模型
+  initializeModel(); //看情况并入 ModelDownloader
   // 初始化向量数据库
   // initLanceDB();
   // 判断是否需要索引
