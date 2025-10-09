@@ -14,8 +14,8 @@ const Search: React.FC<Props> = ({
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
 
     const aiSearch = async () => {
-        const result = await window.electronAPI.aiSearch(searchValue);
-        console.log('AI搜索结果:', result);
+        // const result = await window.electronAPI.aiSearch(searchValue);
+        // console.log('AI搜索结果:', result);
     }
 
     // 处理搜索

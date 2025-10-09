@@ -173,10 +173,10 @@ export async function aiSearch(query: string): Promise<SearchResult> {
         // 步骤三：逐个检查是否相关
         const sortedFiles = await checkRelevance(searchFiles, query, keywords);
 
-        return {
-            data: sortedFiles,
-            total: sortedFiles.length,
-        };
+        // return {
+        //     data: sortedFiles,
+        //     total: sortedFiles.length,
+        // };
     } catch (error) {
         const msg = error instanceof Error ? error.message : 'AI模型调用失败';
         logger.error(`AI模型调用失败:${msg}`);
@@ -339,7 +339,7 @@ export async function checkRelevance(files: any[], query: string, keywords: stri
 
 
 // 根据文档类型读取文档内容
-async function readDocumentContent(file: any): Promise<string> {
+async function readDocumentContent(file: any): Promise<any> {
     try {
         const { path, ext } = file;
         switch (ext) {

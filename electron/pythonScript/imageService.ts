@@ -114,12 +114,14 @@ async function startPythonService(): Promise<void> {
 
         // 收集错误
         pythonProcess.stderr.on('data', (data) => {
+            logger.error(`Python服务 STDERR: ${data.toString()}`);
             // console.error('日志输出:', data.toString());
         })
 
         // 处理进程结束
         pythonProcess.on('close', (code) => {
             logger.info(`Python服务退出，代码: ${code}`);
+            clearTimeout(initTimeout);
             isProcessReady = false;
             pythonProcess = null;
 

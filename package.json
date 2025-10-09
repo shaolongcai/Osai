@@ -67,6 +67,15 @@
         "prune": true,
         "quiet": false,
         "icon": "./dist-electron/resources/assets/logo-256",
+         "extraFiles": [
+          {
+            "from": "electron/resources/redist",
+            "to": ".",
+            "filter": [
+              "**/*"
+            ]
+          }
+        ],
         "asar": {
           "unpack": "**/node_modules/@lancedb/**"
         },
