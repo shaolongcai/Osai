@@ -27,7 +27,11 @@ class OllamaService {
         try {
             this.process = spawn(this.ollamaPath, ['serve'], {
                 stdio: 'pipe',
-                env: { ...process.env, OLLAMA_HOST: '127.0.0.1:11434' }
+                env: {
+                    ...process.env,
+                    OLLAMA_HOST: '127.0.0.1:11434',
+                    OLLAMA_REGISTRY: 'https://registry.cn-hangzhou.aliyuncs.com' //国内专用阿里镜像
+                }
             });
 
             this.process.on('error', (error) => {

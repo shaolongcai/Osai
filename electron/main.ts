@@ -74,9 +74,6 @@ export const init = async () => {
   initializeDatabase()
   //检查GPU
   await checkGPU()
-  // 下载模型 （如果已下载会跳过）
-  const downloader = new ModelDownloader()
-  downloader.downloadModels()
   // 初始化模型
   initializeModel(); //看情况并入 ModelDownloader
   // 初始化向量数据库
