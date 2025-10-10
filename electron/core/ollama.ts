@@ -30,7 +30,7 @@ class OllamaService {
                 env: {
                     ...process.env,
                     OLLAMA_HOST: '127.0.0.1:11434',
-                    OLLAMA_REGISTRY: 'https://registry.cn-hangzhou.aliyuncs.com' //国内专用阿里镜像
+                    OLLAMA_REGISTRY: 'https://docker.mirrors.ustc.edu.cn',   //国内专用中科大镜像
                 }
             });
 

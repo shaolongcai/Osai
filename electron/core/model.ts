@@ -33,7 +33,7 @@ export async function initializeModel() {
         const notification: INotification = {
             id: 'downloadModel',
             text: 'AI服务已就绪',
-            type: 'success', 
+            type: 'success',
         }
         sendToRenderer('system-info', notification)
 
