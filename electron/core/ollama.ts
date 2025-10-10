@@ -24,6 +24,9 @@ class OllamaService {
     async start(): Promise<void> {
         if (this.isRunning) return;
 
+        //启动前，清理所有进程
+        await this.killAllOllamaProcesses();
+
         try {
             this.process = spawn(this.ollamaPath, ['serve'], {
                 stdio: 'pipe',
@@ -113,6 +116,34 @@ class OllamaService {
             this.process.kill();
             this.process = null;
             this.isRunning = false;
+        }
+    }
+
+    private async killAllOllamaProcesses(): Promise<void> {
+        try {
+            logger.info('正在清理旧的Ollama进程...');
+
+            // Windows系统使用taskkill命令
+            const { exec } = await import('child_process');
+            const { promisify } = await import('util');
+            const execAsync = promisify(exec);
+
+            // 步骤3：强制结束所有ollama.exe进程
+            try {
+                await execAsync('taskkill /f /im ollama.exe');
+                logger.info('已清理旧的Ollama进程');
+            } catch (killError) {
+                // 如果没有找到进程，taskkill会报错，这是正常的
+                logger.info('没有发现需要清理的Ollama进程');
+            }
+
+            // 步骤4：等待一下确保进程完全结束
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : '清理进程失败';
+            logger.warn(`清理旧进程时出错: ${msg}`);
+            // 不抛出错误，继续启动新进程
         }
     }
 }

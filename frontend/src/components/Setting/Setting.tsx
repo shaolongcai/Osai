@@ -34,7 +34,8 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             window.electronAPI.getConfig().then((res: UserConfig) => {
                 console.log('config', res)
                 setOpenIndexImage(res.visual_index_enabled)
-                setHasGPU(res.hasGPU) // 需要重新删除数据库尝试
+                setHasGPU(res.hasGPU)
+                setIsInstallGpu(res.cuda_installed)
             })
         }
     }, [open])
@@ -165,7 +166,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                     }}
                                     variant='text'
                                     onClick={() => { setGpuSeverOpen(true) }} >
-                                    安装
+                                    {isInstallGpu ? '重新安装' : '安装'}
                                 </Button>
                             </Stack>
                         </Paper>
