@@ -88,6 +88,7 @@ export const checkGPU = async (): Promise<GPUInfo> => {
     logger.info(`检查到的GPU信息:${JSON.stringify(gpuInfo)}`,)
     // 保存是否拥有GPU的配置
     setConfig('hasGPU', gpuInfo.hasGPU, 'boolean')
+    // setConfig('hasGPU', false, 'boolean') //测试专用
     sendToRenderer('system-info', notification);
 
     // 若检查到没有可用的GPU，并且没有过视觉索引的配置,则设置为false

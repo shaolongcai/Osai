@@ -7,8 +7,7 @@ import { indexAllFilesWithWorkers, indexImagesService } from './core/indexFiles.
 import { shutdownVisionService } from './pythonScript/imageService.js';
 import { logger } from './core/logger.js';
 import { checkGPU } from './core/system.js';
-import { downloadModel } from './pythonScript/downloadModle.js';
-import { initializeModel, ModelDownloader } from './core/model.js'
+import { initializeModel } from './core/model.js'
 
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);

@@ -1,4 +1,4 @@
-import { Drawer, Box, Typography, Card, CardContent, Switch, styled, Paper, Stack, Button } from '@mui/material';
+import { Drawer, Box, Typography, Switch, styled, Paper, Stack, Button } from '@mui/material';
 import styles from './Setting.module.scss'
 import { useEffect, useState } from 'react';
 import { Contact, Dialog } from '@/components';
@@ -24,6 +24,8 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [openIndexImage, setOpenIndexImage] = useState(Boolean(Number(localStorage.getItem('openIndexImage') || 0)))
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false) //CPU下开启索引的弹窗
     const [hasGPU, setHasGPU] = useState(false)
+    const [gpuSeverOpen, setGpuSeverOpen] = useState(false) //GPU服务弹窗
+    const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
 
 
     // 拉取用户配置
@@ -36,6 +38,15 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             })
         }
     }, [open])
+
+    // 安装GPU服务
+    const installGpu = async () => {
+        console.log('即将安装GPU服务')
+        setGpuSeverOpen(false)
+        onClose()
+        window.electronAPI.installGpuServer()
+        // setIsInstallGpu(true)
+    }
 
     // 切换视觉索引开关
     const toggleVisualIndex = async (checked: boolean) => {
@@ -52,6 +63,32 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
 
     return (
         <div>
+            {/* 开启GPU服务 */}
+            <Dialog
+                title={hasGPU ? '安装GPU加速服务' : '本机没有任何GPU'}
+                primaryButtonText={hasGPU ? '安装' : '关闭'}
+                onPrimaryButtonClick={() => {
+                    hasGPU ? installGpu() : setGpuSeverOpen(false)
+                }}
+                secondaryButtonText={hasGPU && '取消'}
+                open={gpuSeverOpen}
+                onClose={() => { setGpuSeverOpen(false) }}
+                maxWidth='xs'
+                fullWidth={false}
+            >
+                {
+                    hasGPU ? (
+                        <Typography className={styles.dialogTips} >
+                            即将安装 GPU 加速服务，可能需要几分钟，请耐心等候。安装完毕后，请重启应用。
+                        </Typography>
+                    ) : (
+                        <Typography className={styles.dialogTips}>
+                            本机没有GPU/显卡，无法安装 GPU 加速服务。应用将会启动 CPU 索引图片。
+                        </Typography>
+                    )
+                }
+            </Dialog>
+            {/* 视觉服务提示 */}
             <Dialog
                 title='开启视觉索引服务'
                 primaryButtonText='开启'
@@ -104,6 +141,32 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                     checked={openIndexImage}
                                     onChange={(e) => { toggleVisualIndex(e.target.checked) }}
                                 />
+                            </Stack>
+                        </Paper>
+
+                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
+                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                <Typography variant="body1" className={styles.label} >GPU服务</Typography>
+                                <Button
+                                    sx={{
+                                        '&:focus': {
+                                            outline: 'none',
+                                            border: 'none',
+                                            boxShadow: 'none'
+                                        },
+                                        '&:active': {
+                                            outline: 'none',
+                                            border: 'none',
+                                            boxShadow: 'none'
+                                        },
+                                        '&:hover': {
+                                            border: 'none'
+                                        }
+                                    }}
+                                    variant='text'
+                                    onClick={() => { setGpuSeverOpen(true) }} >
+                                    安装
+                                </Button>
                             </Stack>
                         </Paper>
 

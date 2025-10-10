@@ -54,6 +54,9 @@ interface ElectronAPI {
     //操作相关
     openDir(type: OpenDirType, path?: string): Promise<void>;
 
+    // 安装GPU服务
+    installGpuServer(): Promise<void>;
+
     // 事件监听
     onLogger(callback: (data: string) => void): void;
     onIndexProgress(callback: (data: Progress) => void): void;
