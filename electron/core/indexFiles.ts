@@ -221,6 +221,14 @@ async function indexImageFiles() {
     let totalFiles = files.length;
     logger.info(`一共找到 ${files.length} 个图片，准备视觉索引服务`)
 
+    const notification: INotification = {
+        id: 'visual-index',
+        text: `视觉索引服务已启动 剩余 ${totalFiles}`,
+        type: 'loadingQuestion',
+        tooltip: '视觉服务：你可以直接搜索图片中的内容，而不仅是名称。你可前往【设置】手动关闭'
+    }
+    sendToRenderer('system-info', notification)
+
     for (const file of files) {
         try {
             await waitForIndexImage();

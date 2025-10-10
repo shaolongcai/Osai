@@ -8,6 +8,7 @@ import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
 import AdmZip from 'adm-zip';
 import { setConfig } from '../database/sqlite.js';
+import { detectCudaVersion } from './system.js';
 
 interface DownloadTask {
     url: string
@@ -169,10 +170,12 @@ export class severDownloader {
      * 并发下载多个文件
      */
     async downloadFiles(): Promise<boolean> {
+
+        // 检查CUDA版本
+        const cudaVersion = detectCudaVersion()
+
         const baseUrl = 'https://ai-lib-test.oss-cn-hangzhou.aliyuncs.com/osai/'
-        const files = [
-            'cudaV12.zip',
-        ]
+        const files = [cudaVersion]
 
         // 准备下载任务
         const tasks: DownloadTask[] = files.map(filename => ({
@@ -203,17 +206,20 @@ export class severDownloader {
                 return false
             }
         }
-        // 解压ZIP文件,若已下载，则直接解压
-        const zipPath = path.join(this.cudaDir, files[0])
-        this.extractZip(zipPath, this.cudaDir)
-        // 发送通知
-        const notification: INotification = {
-            id: 'downloadGpuSever',
-            text: 'CUDA服务已就绪',
-            type: 'success',
-        }
-        sendToRenderer('system-info', notification)
-        return true
+        // 解压ZIP文件,若已下载，则直接解压,下载完毕等待1秒再解压
+        setTimeout(() => {
+            const zipPath = path.join(this.cudaDir, files[0])
+            this.extractZip(zipPath, this.cudaDir)
+            // 发送通知
+            const notification: INotification = {
+                id: 'downloadGpuSever',
+                text: 'CUDA服务已就绪',
+                type: 'success',
+                tooltip: '请重启应用，以便CUDA服务生效'
+            }
+            sendToRenderer('system-info', notification)
+            return true
+        }, 1000)
     }
 
     /**
@@ -279,6 +285,13 @@ export class severDownloader {
                 ? `${error.name}: ${error.message}`
                 : String(error);
             logger.info('解压失败: ' + errorMessage);
+            const notification: INotification = {
+                id: 'downloadGpuSever',
+                text: 'CUDA服务解压失败,请重试',
+                type: 'warning',
+                tooltip: '你可以重新尝试安装GPU服务，可以重新解压'
+            }
+            sendToRenderer('system-info', notification)
             throw new Error('解压失败: ' + errorMessage);
         }
     }
