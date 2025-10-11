@@ -1,7 +1,6 @@
 import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
 import { logger } from './logger.js';
-import { getLlama, LlamaChatSession, LlamaContext } from "node-llama-cpp";
 import { waitForModelReady } from './appState.js';
 import { SearchPrompt } from '../data/prompt.js';
 import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
@@ -105,7 +104,7 @@ export function searchFiles(searchTerm: string): SearchResult {
 export async function aiSearch(query: string): Promise<SearchResult> {
 
     // 上下文
-    let context: LlamaContext | null = null;
+    let context: null = null;
 
     try {
         // 步骤1、模型分类
@@ -185,7 +184,7 @@ export async function aiSearch(query: string): Promise<SearchResult> {
     } finally {
         if (context) {
             // dispose() 会释放 context 占用的内存
-            await context.dispose();
+            // await context.dispose();
             logger.info('AI Context 已成功释放');
         }
     }

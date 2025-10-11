@@ -77,8 +77,7 @@ async function pullOllamaModel(modelName: string): Promise<void> {
 
                 }
             }
-
-            // 步骤3：流处理完成后才记录完成日志
+            // 流处理完成后才记录完成日志
             logger.info(`模型 ${modelName} 拉取完成`);
 
             resolve()
@@ -86,6 +85,13 @@ async function pullOllamaModel(modelName: string): Promise<void> {
         } catch (error) {
             const msg = error instanceof Error ? error.message : '模型拉取失败';
             logger.error(`模型拉取失败: ${msg}`);
+            const notification: INotification = {
+                id: 'downloadModel',
+                text: `模型下载失败`,
+                type: 'warning',
+                tooltip: '请重启应用，以重新下载模型'
+            }
+            sendToRenderer('system-info', notification)
             reject(new Error(msg));
         }
     })

@@ -47,7 +47,6 @@
     "electron-squirrel-startup": "^1.0.1",
     "langchain": "^0.3.34",
     "mammoth": "^1.11.0",
-    "node-llama-cpp": "^3.13.0",
     "ollama": "^0.6.0",
     "systeminformation": "^5.27.9",
     "word-extractor": "^1.0.4"
@@ -82,12 +81,14 @@
           "unpack": "**/node_modules/@lancedb/**"
         },
         "extraResource": [
-          "dist-electron/resources/pythonScript",
-          "dist-electron/resources/python"
+          "dist-electron/resources/Ollama"
         ],
         "ignore": [
-          "^/electron/resources/check_gpu.py",
-          "^/electron/resources/get-pip.py",
+          "electron/resources/pythonScript",
+          "electron/resources/check_gpu.py",
+          "electron/resources/get-pip.py",
+          "electron/resources/Ollama",
+          "frontend/node_modules",
           "^/electron($|/)",
           "^/frontend/(?!dist($|/))",
           "^/\\.git($|/)",

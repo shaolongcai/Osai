@@ -171,43 +171,43 @@ export class severDownloader {
      */
     async downloadFiles(): Promise<boolean> {
 
-        // 检查CUDA版本
-        const cudaVersion = detectCudaVersion()
+        try {
+            // 检查CUDA版本
+            const cudaVersion = detectCudaVersion()
 
-        const baseUrl = 'https://ai-lib-test.oss-cn-hangzhou.aliyuncs.com/osai/'
-        const files = [cudaVersion]
+            const baseUrl = 'https://ai-lib-test.oss-cn-hangzhou.aliyuncs.com/osai/'
+            const files = [cudaVersion]
 
-        // 准备下载任务
-        const tasks: DownloadTask[] = files.map(filename => ({
-            url: baseUrl + filename,
-            filename,
-            tempPath: path.join(this.tempDir, filename),
-            finalPath: path.join(this.cudaDir, filename)
-        }))
+            // 准备下载任务
+            const tasks: DownloadTask[] = files.map(filename => ({
+                url: baseUrl + filename,
+                filename,
+                tempPath: path.join(this.tempDir, filename),
+                finalPath: path.join(this.cudaDir, filename)
+            }))
 
-        console.log('tasks', tasks)
-        // 确认是否已经存在，存在则不需要重新下载zip包
-        const pendingTasks = tasks.filter(t => !fs.existsSync(t.finalPath))
+            console.log('tasks', tasks)
+            // 确认是否已经存在，存在则不需要重新下载zip包
+            const pendingTasks = tasks.filter(t => !fs.existsSync(t.finalPath))
 
-        if (pendingTasks.length > 0) {
-            logger.info('CUDA服务已安装，无需重新下载')
-            // 并发下载
-            const downloadPromises = pendingTasks.map(task => this.downloadFile(task))
-            const results = await Promise.all(downloadPromises)
-            const successCount = results.filter(result => result).length
+            if (pendingTasks.length > 0) {
+                logger.info('CUDA服务已安装，无需重新下载')
+                // 并发下载
+                const downloadPromises = pendingTasks.map(task => this.downloadFile(task))
+                const results = await Promise.all(downloadPromises)
+                const successCount = results.filter(result => result).length
 
-            if (successCount === pendingTasks.length) {
-                logger.info('CUDA服务下载完成！')
-                // 清理临时目录
-                this.cleanupTempDir()
+                if (successCount === pendingTasks.length) {
+                    logger.info('CUDA服务下载完成！')
+                    // 清理临时目录
+                    this.cleanupTempDir()
 
-            } else {
-                logger.error(`部分文件下载失败，成功: ${successCount}/${pendingTasks.length}`)
-                return false
+                } else {
+                    logger.error(`部分文件下载失败，成功: ${successCount}/${pendingTasks.length}`)
+                    return false
+                }
             }
-        }
-        // 解压ZIP文件,若已下载，则直接解压,下载完毕等待1秒再解压
-        setTimeout(() => {
+            // 解压ZIP文件
             const zipPath = path.join(this.cudaDir, files[0])
             this.extractZip(zipPath, this.cudaDir)
             // 发送通知
@@ -219,7 +219,16 @@ export class severDownloader {
             }
             sendToRenderer('system-info', notification)
             return true
-        }, 1000)
+        } catch (error) {
+            const notification: INotification = {
+                id: 'downloadGpuSever',
+                text: 'CUDA服务解压失败,请重试',
+                type: 'warning',
+                tooltip: '你可以重新尝试安装GPU服务，可以重新解压'
+            }
+            sendToRenderer('system-info', notification)
+            return false
+        }
     }
 
     /**
@@ -253,7 +262,7 @@ export class severDownloader {
             text: 'CUDA服务正在解压...',
             type: 'loading',
         }
-        sendToRenderer('system-info', notification)
+        sendToRenderer('system-info', notification) 
         logger.info('解压目标路径: ' + extractPath);
         try {
             // 确保目标目录存在
@@ -285,13 +294,6 @@ export class severDownloader {
                 ? `${error.name}: ${error.message}`
                 : String(error);
             logger.info('解压失败: ' + errorMessage);
-            const notification: INotification = {
-                id: 'downloadGpuSever',
-                text: 'CUDA服务解压失败,请重试',
-                type: 'warning',
-                tooltip: '你可以重新尝试安装GPU服务，可以重新解压'
-            }
-            sendToRenderer('system-info', notification)
             throw new Error('解压失败: ' + errorMessage);
         }
     }
