@@ -13,4 +13,5 @@ export type UserConfig = {
     last_index_file_count: string;
     last_index_time: string;
     visual_index_enabled: boolean;
+    cuda_installed: boolean;
 }

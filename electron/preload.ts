@@ -19,6 +19,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openDir: (type: string, path: string) => ipcRenderer.send('open-dir', type, path),
     // 获取用户配置
     getConfig: (key?: string) => ipcRenderer.invoke('get-config', key),
+    // 安装GPU服务
+    installGpuServer: () => ipcRenderer.invoke('install-gpu-server'),
 
     // 日志监听
     onLogger: (callback) => {

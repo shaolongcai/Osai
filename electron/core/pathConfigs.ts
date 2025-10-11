@@ -20,6 +20,7 @@ interface PathsConfig {
     database: string;
     resources: string;
     temp: string;
+    ollamaPath: string;
 }
 
 /**
@@ -37,7 +38,6 @@ class PathConfig {
     private appDataPath: string;
     private paths: PathsConfig;
     private resources: string;
-
 
     constructor() {
         this.userHome = os.homedir();
@@ -58,6 +58,9 @@ class PathConfig {
             // 主目录
             userHome: this.userHome,
             appData: this.appDataPath,
+
+            // Ollama可执行文件路径
+            ollamaPath: path.join(this.resources, 'ollama', 'ollama.exe'),
 
             // 资源文件
             resources: this.resources,

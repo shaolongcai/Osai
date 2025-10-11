@@ -1,9 +1,7 @@
 import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
 import { logger } from './logger.js';
-import { getLlama, LlamaChatSession, LlamaContext } from "node-llama-cpp";
 import { waitForModelReady } from './appState.js';
-import { getLlamaInstance, getLoadedModel } from './model.js';
 import { SearchPrompt } from '../data/prompt.js';
 import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 
@@ -106,7 +104,7 @@ export function searchFiles(searchTerm: string): SearchResult {
 export async function aiSearch(query: string): Promise<SearchResult> {
 
     // 上下文
-    let context: LlamaContext | null = null;
+    let context: null = null;
 
     try {
         // 步骤1、模型分类
@@ -119,59 +117,58 @@ export async function aiSearch(query: string): Promise<SearchResult> {
         // 检查模型是否就绪(@todo 换成checkmodel)
         await waitForModelReady();
         // 获取模型
-        const llama = getLlamaInstance();
-        const model = getLoadedModel();
 
+        return
         // JSON模式
-        context = await model.createContext();
-        const session = new LlamaChatSession({
-            contextSequence: context.getSequence(),
-            systemPrompt: SearchPrompt
-        });
-        const grammar = await llama.createGrammarForJsonSchema({
-            type: "object",
-            properties: {
-                keywords: {
-                    type: "array",
-                    items: {
-                        type: "string"
-                    }
-                },
-                ext: {
-                    type: "array",
-                    items: {
-                        type: "string"
-                    }
-                }
-            },
-            required: ["keywords", "ext"]
-        });
+        // context = await model.createContext();
+        // const session = new LlamaChatSession({
+        //     contextSequence: context.getSequence(),
+        //     systemPrompt: SearchPrompt
+        // });
+        // const grammar = await llama.createGrammarForJsonSchema({
+        //     type: "object",
+        //     properties: {
+        //         keywords: {
+        //             type: "array",
+        //             items: {
+        //                 type: "string"
+        //             }
+        //         },
+        //         ext: {
+        //             type: "array",
+        //             items: {
+        //                 type: "string"
+        //             }
+        //         }
+        //     },
+        //     required: ["keywords", "ext"]
+        // });
 
-        // 📌 使用惩罚性参数，以免模型一直循环卡住。
-        const response = await session.prompt(`用户输入：${query}`, {
-            grammar,
-            maxTokens: context.contextSize,
-            temperature: 0.5,
-            // 惩罚token 参数
-            repeatPenalty: {
-                penalty: 1.12,
-                presencePenalty: 0.02,
-            },
-            // onTextChunk(chunk: string) {
-            //     logger.info(`AI模型返回结果:${chunk}`);
-            //     process.stdout.write(chunk);
-            // }
-        });
+        // // 📌 使用惩罚性参数，以免模型一直循环卡住。
+        // const response = await session.prompt(`用户输入：${query}`, {
+        //     grammar,
+        //     maxTokens: context.contextSize,
+        //     temperature: 0.5,
+        //     // 惩罚token 参数
+        //     repeatPenalty: {
+        //         penalty: 1.12,
+        //         presencePenalty: 0.02,
+        //     },
+        //     // onTextChunk(chunk: string) {
+        //     //     logger.info(`AI模型返回结果:${chunk}`);
+        //     //     process.stdout.write(chunk);
+        //     // }
+        // });
 
-        logger.info(`AI模型调用成功，返回结果:${response}`);
-        // 取出参数
-        const { keywords, ext } = JSON.parse(response);
+        // logger.info(`AI模型调用成功，返回结果:${response}`);
+        // // 取出参数
+        // const { keywords, ext } = JSON.parse(response);
 
-        // 步骤二：搜索文件
-        const searchFiles = await searchByKeywordsAndExt(keywords, ext);
+        // // 步骤二：搜索文件
+        // const searchFiles = await searchByKeywordsAndExt(keywords, ext);
 
-        // 步骤三：逐个检查是否相关
-        const sortedFiles = await checkRelevance(searchFiles, query, keywords);
+        // // 步骤三：逐个检查是否相关
+        // const sortedFiles = await checkRelevance(searchFiles, query, keywords);
 
         // return {
         //     data: sortedFiles,
@@ -187,7 +184,7 @@ export async function aiSearch(query: string): Promise<SearchResult> {
     } finally {
         if (context) {
             // dispose() 会释放 context 占用的内存
-            await context.dispose();
+            // await context.dispose();
             logger.info('AI Context 已成功释放');
         }
     }

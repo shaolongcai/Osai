@@ -11,6 +11,7 @@ import pathConfig from './pathConfigs.js';
 import { exec } from 'child_process';
 import { logger } from './logger.js';
 import { getConfig, setConfig } from '../database/sqlite.js';
+import { execSync } from 'child_process';
 
 /**
  * 检查系统是否有可用的GPU
@@ -88,6 +89,7 @@ export const checkGPU = async (): Promise<GPUInfo> => {
     logger.info(`检查到的GPU信息:${JSON.stringify(gpuInfo)}`,)
     // 保存是否拥有GPU的配置
     setConfig('hasGPU', gpuInfo.hasGPU, 'boolean')
+    // setConfig('hasGPU', false, 'boolean') //测试专用
     sendToRenderer('system-info', notification);
 
     // 若检查到没有可用的GPU，并且没有过视觉索引的配置,则设置为false
@@ -110,6 +112,35 @@ export const checkGPU = async (): Promise<GPUInfo> => {
     return gpuInfo;
 }
 
+
+/**
+ * 检查系统的CUDA版本
+ */
+export const detectCudaVersion = (): 'cudaV13.zip' | 'cudaV12.zip' => {
+    try {
+        const nvidiaOutput = execSync('nvidia-smi', { encoding: 'utf8', timeout: 5000 });
+        const cudaMatch = nvidiaOutput.match(/CUDA Version: (\d+)\.(\d+)/);
+
+        if (cudaMatch) {
+            const majorVersion = parseInt(cudaMatch[1]);
+            const minorVersion = parseInt(cudaMatch[2]);
+
+            logger.info(`检测到驱动支持的CUDA版本: ${majorVersion}.${minorVersion}`);
+
+            if (majorVersion >= 13) {
+                return 'cudaV13.zip';
+            } else if (majorVersion >= 12) {
+                return 'cudaV12.zip';
+            }
+        }
+    } catch (error) {
+        logger.warn('无法检测CUDA版本，可能未安装CUDA驱动');
+    }
+
+    // 默认返回CUDA 12版本
+    logger.info('默认使用CUDA 12版本');
+    return 'cudaV12.zip';
+}
 
 
 /**
