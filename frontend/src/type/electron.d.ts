@@ -42,6 +42,13 @@ export interface GpuInfo {
 }
 
 
+// 设置配置需要填写的参数
+export interface ConfigParams {
+    key: string, // 配置项的key
+    value: any, // 配置项的值
+    type?: 'boolean' | 'string' | 'number', // 配置值的类型，默认是string
+}
+
 
 type OpenDirType = 'runLog' | 'openFileDir'
 
@@ -52,6 +59,8 @@ interface ElectronAPI {
 
     // 获取用户配置
     getConfig(key?: string): Promise<UserConfig>;
+    // 设置用户配置,type value的类型
+    setConfig(params: ConfigParams): Promise<void>;
 
     // 搜索相关
     searchFiles(query: string): Promise<SearchResult>

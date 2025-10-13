@@ -3,6 +3,7 @@ import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
 import { setModelReady } from './appState.js';
 import ollama from 'ollama'
+import { reportErrorToWechat } from './system.js';
 
 /**
  * 初始化模型
@@ -37,6 +38,10 @@ export async function initializeModel() {
 
 // 从远端或本地添加模型
 async function pullOllamaModel(modelName: string): Promise<void> {
+
+    // 记录开始时间
+    const startTime = Date.now();
+
     const maxRetries = 3;
     let lastError: Error | null = null;
 
@@ -72,6 +77,19 @@ async function pullOllamaModel(modelName: string): Promise<void> {
             }
             // 流处理完成后才记录完成日志
             logger.info(`模型 ${modelName} 拉取完成`);
+            // 记录结束时间
+            const endTime = Date.now();
+            // 计算耗时
+            const duration = (endTime - startTime) / 1000; // 转换为秒
+            logger.info(`模型 ${modelName} 拉取耗时: ${duration.toFixed(2)} 秒`);
+
+            // 报告到企业微信
+            const errorData = {
+                类型: '拉取模型成功',
+                模型名称: modelName,
+                耗时: `${duration.toFixed(2)} 秒`,
+            };
+            reportErrorToWechat(errorData)
             return
 
         } catch (error) {
@@ -101,6 +119,7 @@ async function pullOllamaModel(modelName: string): Promise<void> {
     sendToRenderer('system-info', notification);
     throw new Error(`模型拉取失败，已重试${maxRetries}次: ${finalMsg}`);
 }
+
 
 // 列出模型检查
 async function listOllamaModels(): Promise<boolean> {

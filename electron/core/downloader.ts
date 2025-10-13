@@ -8,7 +8,7 @@ import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
 import AdmZip from 'adm-zip';
 import { setConfig } from '../database/sqlite.js';
-import { detectCudaVersion, extractZip } from './system.js';
+import { detectCudaVersion, extractZip, reportErrorToWechat } from './system.js';
 
 
 interface DownloadTask {
@@ -169,6 +169,7 @@ export class severDownloader {
 
     /**
      * 并发下载多个文件
+     * 暂时只下载CUDA文件
      */
     async downloadFiles(): Promise<boolean> {
 
@@ -176,7 +177,10 @@ export class severDownloader {
             // 检查CUDA版本
             const cudaVersion = detectCudaVersion()
 
-            const baseUrl = 'https://ai-lib-test.oss-cn-hangzhou.aliyuncs.com/osai/'
+            // 开始时间
+            const startTime = Date.now()
+
+            const baseUrl = 'http://t420e4d1q.hd-bkt.clouddn.com/' //CUDA下载的url，七牛服务
             const files = [cudaVersion]
 
             // 准备下载任务
@@ -187,7 +191,6 @@ export class severDownloader {
                 finalPath: path.join(this.cudaDir, filename)
             }))
 
-            console.log('tasks', tasks)
             // 确认是否已经存在，存在则不需要重新下载zip包
             const pendingTasks = tasks.filter(t => !fs.existsSync(t.finalPath))
 
@@ -199,7 +202,17 @@ export class severDownloader {
                 const successCount = results.filter(result => result).length
 
                 if (successCount === pendingTasks.length) {
-                    logger.info('CUDA服务下载完成！')
+                    // 计算下载时间
+                    const endTime = Date.now()
+                    const downloadTime = (endTime - startTime) / 1000 // 转换为秒
+                    logger.info(`CUDA服务下载完成！下载耗时: ${downloadTime.toFixed(2)} 秒`)
+                    // 发送企业微信
+                    const errorData = {
+                        类型: 'CUDA服务下载完成',
+                        信息: `CUDA服务下载完成，耗时: ${downloadTime.toFixed(2)} 秒`,
+                    };
+                    reportErrorToWechat(errorData)
+
                     // 清理临时目录
                     this.cleanupTempDir()
 
@@ -208,6 +221,7 @@ export class severDownloader {
                     return false
                 }
             }
+
             // 解压ZIP文件
             const notification: INotification = {
                 id: 'downloadGpuSever',
@@ -230,6 +244,8 @@ export class severDownloader {
             sendToRenderer('system-info', notification2)
             return true
         } catch (error) {
+            const msg = error instanceof Error ? error.message : 'CUDA服务解压失败';
+            logger.error(`CUDA服务解压失败: ${msg}`);
             const notification: INotification = {
                 id: 'downloadGpuSever',
                 text: 'CUDA服务解压失败,请重试',
@@ -237,6 +253,13 @@ export class severDownloader {
                 tooltip: '你可以重新尝试安装GPU服务，可以重新解压'
             }
             sendToRenderer('system-info', notification)
+            // 报告企业微信
+            const errorData = {
+                类型: 'CUDA服务安装失败',
+                错误位置: error.stack,
+                错误信息: msg,
+            };
+            reportErrorToWechat(errorData)
             return false
         }
     }

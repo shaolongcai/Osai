@@ -19,6 +19,9 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
 
     // 获取用户配置
     ipcMain.handle('get-config', (_event, key?: string) => { return key ? getConfig(key) : getAllConfigs() })
+    // 设置用户配置
+    ipcMain.handle('set-config', (_event, key: string, value: any, type?: string) => { setConfig(key, value, type) })
+
     // 搜索文件
     ipcMain.handle('search-files', (_event, keyword: string) => searchFiles(keyword));
     // 执行AI搜索

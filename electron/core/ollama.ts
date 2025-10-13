@@ -32,8 +32,9 @@ class OllamaService {
             try {
                 //启动前，清理所有进程
                 await this.killAllOllamaProcesses();
+                const elevatePath = path.join(pathConfig.get('resources'), 'elevate.exe');
 
-                this.process = spawn(this.ollamaPath, ['serve'], {
+                this.process = spawn(elevatePath, [this.ollamaPath, 'serve'], {
                     stdio: 'pipe',
                     env: {
                         ...process.env,
@@ -42,20 +43,27 @@ class OllamaService {
                     }
                 });
 
-                this.process.on('error', (error) => {
-                    const msg = error instanceof Error ? error.message : 'Ollama启动失败';
-                    logger.error(`Ollama启动失败: ${msg}`);
-                    throw new Error(msg);
+                const processErrorPromise = new Promise((_, reject) => {
+                    this.process.on('error', (error) => {
+                        const msg = error instanceof Error ? error.message : 'Ollama启动失败';
+                        logger.error(`Ollama启动失败: ${msg}`);
+                        reject(new Error(msg));
+                    });
                 });
 
-                await this.waitForReady();
+                // 等待服务就绪或进程错误
+                await Promise.race([
+                    this.waitForReady(),
+                    processErrorPromise
+                ]);
+
                 this.isRunning = true;
                 logger.info('Ollama服务启动成功');
                 return // 成功后退出循环
             } catch (error) {
                 const msg = error instanceof Error ? error.message : 'Ollama启动失败';
                 lastError = new Error(msg);
-                logger.error(`Ollama启动失败: ${msg}`);
+                logger.error(`Ollama服务启动失败: ${msg}`);
 
                 // 如果不是最后一次尝试，等待一段时间后重试
                 if (attempt < maxRetries) {
@@ -68,7 +76,6 @@ class OllamaService {
                 }
             }
         }
-
         // 3次重试失败，抛出最后一个错误
         const finalMsg = lastError?.message || 'Ollama启动失败';
         logger.error(`Ollama启动失败，已重试${maxRetries}次: ${finalMsg}`);

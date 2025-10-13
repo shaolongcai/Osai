@@ -7,7 +7,7 @@ import { initializeFileApi } from './api/file.js';
 import { indexAllFilesWithWorkers, indexImagesService } from './core/indexFiles.js';
 import { shutdownVisionService } from './pythonScript/imageService.js';
 import { logger } from './core/logger.js';
-import { checkGPU, extractZip } from './core/system.js';
+import { checkGPU, extractZip, reportErrorToWechat } from './core/system.js';
 import { initializeModel } from './core/model.js'
 import { ollamaService } from './core/ollama.js';
 import pathConfig from './core/pathConfigs.js';
@@ -109,6 +109,13 @@ export const init = async () => {
   } catch (error) {
     const msg = error instanceof Error ? error.message : '未知原因'
     logger.error(`初始化失败:${JSON.stringify(msg)}`)
+    // 向企业微信报告
+    const errorData = {
+      类型: '初始化失败',
+      错误位置: error.stack,
+      错误信息: msg,
+    };
+    reportErrorToWechat(errorData)
     return {
       code: 1,
       errMsg: msg + '请重启应用或联系开发者'
@@ -157,6 +164,13 @@ export const startIndexTask = async () => {
       tooltip: msg
     }
     sendToRenderer('system-info', notification);
+    // 报告企业微信
+    const errorData = {
+      类型: '索引任务失败',
+      错误位置: error.stack,
+      错误信息: msg,
+    };
+    reportErrorToWechat(errorData)
   }
 }
 
