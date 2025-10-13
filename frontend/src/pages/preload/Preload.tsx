@@ -9,7 +9,7 @@ import { ReportProtocol } from "@/components";
 const Preload = () => {
 
     const [initError, setInitError] = useState<string | null>(null);
-    const [protocolOpen, setProtocolOpen] = useState(!Boolean(localStorage.getItem('not_remind_again'))); // 协议弹窗
+    const [protocolOpen, setProtocolOpen] = useState(!Boolean(localStorage.getItem('not_remind_again') === 'true')); // 协议弹窗
 
     const effectRan = useRef(false); // 执行守卫
     const navigate = useNavigate();

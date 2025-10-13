@@ -1,8 +1,9 @@
 import { Drawer, Box, Typography, Switch, styled, Paper, Stack, Button } from '@mui/material';
 import styles from './Setting.module.scss'
 import { useEffect, useState } from 'react';
-import { Contact, Dialog } from '@/components';
+import { Contact, Dialog, ReportProtocol, SettingItem } from '@/components';
 import { UserConfig } from '@/type/system';
+import { ConfigParams } from '@/type/electron';
 
 
 interface SettingProps {
@@ -23,9 +24,12 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
 
     const [openIndexImage, setOpenIndexImage] = useState(Boolean(Number(localStorage.getItem('openIndexImage') || 0)))
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false) //CPU下开启索引的弹窗
+    const [openReportProtocol, setOpenReportProtocol] = useState(false) //用户体验改进计划弹窗
     const [hasGPU, setHasGPU] = useState(false)
     const [gpuSeverOpen, setGpuSeverOpen] = useState(false) //GPU服务弹窗
     const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
+    const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
+
 
 
     // 拉取用户配置
@@ -36,6 +40,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                 setOpenIndexImage(res.visual_index_enabled)
                 setHasGPU(res.hasGPU)
                 setIsInstallGpu(res.cuda_installed)
+                setReportAgreement(res.report_agreement)
             })
         }
     }, [open])
@@ -62,8 +67,29 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
         window.electronAPI.toggleIndexImage(checked)
     }
 
+    // 切换用户体验改进计划
+    const toggleReportAgreement = async (checked: boolean) => {
+        if (checked) {
+            // 同意用户体验改进计划，需要弹窗
+            setOpenReportProtocol(true)
+            return
+        }
+        setReportAgreement(checked)
+        const params: ConfigParams = {
+            key: 'report_agreement',
+            value: checked,
+            type: 'boolean',
+        }
+        window.electronAPI.setConfig(params)
+    }
+
     return (
         <div>
+            {/* 同意协议弹窗 */}
+            <ReportProtocol
+                open={openReportProtocol}
+                onClose={() => setOpenReportProtocol(false)}
+            />
             {/* 开启GPU服务 */}
             <Dialog
                 title={hasGPU ? '安装GPU加速服务' : '本机没有任何GPU'}
@@ -135,19 +161,15 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                         设置
                     </StyledTitle>
                     <Stack spacing={1}>
+                        <SettingItem
+                            title='开启图片索引'
+                            type='switch'
+                            value={openIndexImage}
+                            onAction={toggleVisualIndex}
+                        />
                         <Paper className={styles.settingItem} elevation={0} variant='outlined' >
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >开启图片索引</Typography>
-                                <Switch
-                                    checked={openIndexImage}
-                                    onChange={(e) => { toggleVisualIndex(e.target.checked) }}
-                                />
-                            </Stack>
-                        </Paper>
-
-                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
-                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >GPU服务</Typography>
+                                <Typography variant="body1" className={styles.label} >GPU加速服务</Typography>
                                 <Button
                                     sx={{
                                         '&:focus': {
@@ -198,6 +220,12 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                 </Button>
                             </Stack>
                         </Paper>
+                        <SettingItem
+                            title='用户体验改进计划'
+                            type='switch'
+                            value={reportAgreement}
+                            onAction={toggleReportAgreement}
+                        />
                     </Stack>
                 </Box>
                 <div className={styles.contact}>

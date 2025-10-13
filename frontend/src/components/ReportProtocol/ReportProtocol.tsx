@@ -17,17 +17,17 @@ const ReportProtocol: React.FC<Props> = ({
     onClose,
 }) => {
 
-    const [isRemind, setIsRemind] = useState(true);
+    const [isRemind, setIsRemind] = useState(false);
 
     // 同意协议
-    const agree = () => {
+    const agree = async () => {
         console.log('同意协议')
         const params: ConfigParams = {
             key: 'report_agreement',
             value: true,
             type: 'boolean',
         }
-        window.electronAPI.setConfig(params);
+        await window.electronAPI.setConfig(params);
         localStorage.setItem('not_remind_again', 'true');  //同意时，直接不需要再提醒
         // 接口设置同意
         onClose();
@@ -71,7 +71,7 @@ const ReportProtocol: React.FC<Props> = ({
                     sx={{
                         marginTop: '16px'
                     }}
-                    control={<Checkbox onChange={(_e, check) => setIsRemind(check)} />}
+                    control={<Checkbox checked={isRemind} onChange={(_e, check) => setIsRemind(check)} />}
                     label={<Typography sx={{ color: 'rgba(0,0,0,0.45)', fontSize: '14px' }}>不再显示</Typography>}
                 />
             </>
