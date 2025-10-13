@@ -8,7 +8,8 @@ import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
 import AdmZip from 'adm-zip';
 import { setConfig } from '../database/sqlite.js';
-import { detectCudaVersion } from './system.js';
+import { detectCudaVersion, extractZip } from './system.js';
+
 
 interface DownloadTask {
     url: string
@@ -208,16 +209,25 @@ export class severDownloader {
                 }
             }
             // 解压ZIP文件
-            const zipPath = path.join(this.cudaDir, files[0])
-            this.extractZip(zipPath, this.cudaDir)
-            // 发送通知
             const notification: INotification = {
+                id: 'downloadGpuSever',
+                text: 'CUDA服务正在解压...',
+                type: 'loading',
+            }
+            sendToRenderer('system-info', notification)
+            const zipPath = path.join(this.cudaDir, files[0])
+            extractZip(zipPath, this.cudaDir)
+            //记录配置，并且清除压缩包
+            setConfig('cuda_installed', true, 'boolean');
+            setConfig('cuda_version', '12.0', 'string');
+            // 解压成功
+            const notification2: INotification = {
                 id: 'downloadGpuSever',
                 text: 'CUDA服务已就绪',
                 type: 'success',
                 tooltip: '请重启应用，以便CUDA服务生效'
             }
-            sendToRenderer('system-info', notification)
+            sendToRenderer('system-info', notification2)
             return true
         } catch (error) {
             const notification: INotification = {
@@ -249,52 +259,4 @@ export class severDownloader {
         }
     }
 
-
-    /**
-     * 解压ZIP文件
-     * @param zipPath ZIP文件路径
-     * @param extractPath 解压目标路径
-     */
-    private async extractZip(zipPath, extractPath) {
-
-        const notification: INotification = {
-            id: 'downloadGpuSever',
-            text: 'CUDA服务正在解压...',
-            type: 'loading',
-        }
-        sendToRenderer('system-info', notification) 
-        logger.info('解压目标路径: ' + extractPath);
-        try {
-            // 确保目标目录存在
-            if (!fs.existsSync(extractPath)) {
-                fs.mkdirSync(extractPath, { recursive: true });
-            }
-
-            // 使用 adm-zip 解压
-            const zip = new AdmZip(zipPath);
-            zip.extractAllTo(extractPath, true);
-
-            logger.info('解压完成');
-
-            //记录配置，并且清除压缩包
-            setConfig('cuda_installed', true, 'boolean');
-            setConfig('cuda_version', '12.0', 'string');
-
-            try {
-                if (fs.existsSync(zipPath)) {
-                    fs.unlinkSync(zipPath);
-                    logger.info(`压缩包已删除: ${zipPath}`);
-                }
-            } catch (deleteError) {
-                logger.warn(`删除压缩包失败: ${deleteError}`);
-            }
-
-        } catch (error) {
-            const errorMessage = error instanceof Error
-                ? `${error.name}: ${error.message}`
-                : String(error);
-            logger.info('解压失败: ' + errorMessage);
-            throw new Error('解压失败: ' + errorMessage);
-        }
-    }
 }

@@ -1,6 +1,18 @@
 // Electron API类型声明
 import { NotificationType } from "@/utils/enum";
 
+
+/**
+ * 接口返回的base响应
+ */
+export interface BaseResponse<T = any> {
+    code: number,
+    errMsg?: string,
+    data: T
+}
+
+
+
 export interface Progress {
     count: number,
     message: string,
@@ -36,7 +48,7 @@ type OpenDirType = 'runLog' | 'openFileDir'
 interface ElectronAPI {
 
     // 告诉主线程可以初始化 （目的是为了，等监听器全部就绪完毕）
-    init(): Promise<void>;
+    init(): Promise<BaseResponse>;
 
     // 获取用户配置
     getConfig(key?: string): Promise<UserConfig>;
@@ -45,7 +57,7 @@ interface ElectronAPI {
     searchFiles(query: string): Promise<SearchResult>
 
     // 索引相关
-    openIndex(): Promise<void>; // 开启索引所有硬盘得文件
+    startIndex(): Promise<void>; // 开启索引
     toggleIndexImage(open: boolean): Promise<void>; //开启/关闭视觉索引服务
 
     // 模型相关

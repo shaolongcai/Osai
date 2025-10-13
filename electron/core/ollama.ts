@@ -24,35 +24,57 @@ class OllamaService {
     async start(): Promise<void> {
         if (this.isRunning) return;
 
-        //启动前，清理所有进程
-        await this.killAllOllamaProcesses();
+        // 重试机制，最多重试3次
+        const maxRetries = 3;
+        let lastError: Error | null = null;
 
-        try {
-            this.process = spawn(this.ollamaPath, ['serve'], {
-                stdio: 'pipe',
-                env: {
-                    ...process.env,
-                    OLLAMA_HOST: '127.0.0.1:11434',
-                    OLLAMA_REGISTRY: 'https://docker.mirrors.ustc.edu.cn',   //国内专用中科大镜像
-                }
-            });
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                //启动前，清理所有进程
+                await this.killAllOllamaProcesses();
 
-            this.process.on('error', (error) => {
+                this.process = spawn(this.ollamaPath, ['serve'], {
+                    stdio: 'pipe',
+                    env: {
+                        ...process.env,
+                        OLLAMA_HOST: '127.0.0.1:11434',
+                        OLLAMA_REGISTRY: 'https://docker.mirrors.ustc.edu.cn',   //国内专用中科大镜像
+                    }
+                });
+
+                this.process.on('error', (error) => {
+                    const msg = error instanceof Error ? error.message : 'Ollama启动失败';
+                    logger.error(`Ollama启动失败: ${msg}`);
+                    throw new Error(msg);
+                });
+
+                await this.waitForReady();
+                this.isRunning = true;
+                logger.info('Ollama服务启动成功');
+                return // 成功后退出循环
+            } catch (error) {
                 const msg = error instanceof Error ? error.message : 'Ollama启动失败';
+                lastError = new Error(msg);
                 logger.error(`Ollama启动失败: ${msg}`);
-                throw new Error(msg);
-            });
 
-            await this.waitForReady();
-            this.isRunning = true;
-            logger.info('Ollama服务启动成功');
+                // 如果不是最后一次尝试，等待一段时间后重试
+                if (attempt < maxRetries) {
+                    const waitTime = attempt * 1000; // 递增等待时间：1秒、2秒
+                    logger.info(`等待${waitTime}ms后重试...`);
+                    await new Promise(resolve => setTimeout(resolve, waitTime)); //等待的函数
 
-        } catch (error) {
-            const msg = error instanceof Error ? error.message : 'Ollama启动失败';
-            logger.error(`Ollama启动失败: ${msg}`);
-            throw new Error(msg);
+                    // 重试前清理进程
+                    await this.killAllOllamaProcesses();
+                }
+            }
         }
+
+        // 3次重试失败，抛出最后一个错误
+        const finalMsg = lastError?.message || 'Ollama启动失败';
+        logger.error(`Ollama启动失败，已重试${maxRetries}次: ${finalMsg}`);
+        throw new Error(`Ollama启动失败，已重试${maxRetries}次: ${finalMsg}`);
     }
+
 
     // 等待服务就绪
     private async waitForReady(): Promise<void> {
@@ -119,6 +141,7 @@ class OllamaService {
         }
     }
 
+    // 清理所有旧的Ollama进程
     private async killAllOllamaProcesses(): Promise<void> {
         try {
             logger.info('正在清理旧的Ollama进程...');

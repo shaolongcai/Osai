@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import Home from './pages/home/home'
 import './App.css'
-import { NotificationsProvider, } from '@toolpad/core/useNotifications';
+import { NotificationsProvider } from '@toolpad/core/useNotifications';
 import { globalContext } from '@/context/globalContext';
 import { GpuInfo } from './type/electron';
+import Preload from './pages/preload/Preload';
+import Home from './pages/home/Home'
+import { Routes, Route, HashRouter } from 'react-router-dom';
 
 function App() {
 
@@ -23,7 +25,12 @@ function App() {
         gpuInfo,
         setGpuInfo
       }}>
-        <Home />
+        <HashRouter>
+          <Routes>
+            <Route path='/' element={<Preload />} />
+            <Route path="/home" element={<Home />} />
+          </Routes>
+        </HashRouter>
       </globalContext.Provider>
     </NotificationsProvider>
   )

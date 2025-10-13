@@ -2,21 +2,15 @@ import { logger } from './logger.js'
 import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
 import { setModelReady } from './appState.js';
-import { ollamaService } from './ollama.js'
 import ollama from 'ollama'
 
 /**
- * 初始化并加载AI模型到内存中。
- * 这个函数在整个应用生命周期中只应被调用一次。
+ * 初始化模型
  */
 export async function initializeModel() {
     // 如果模型已经加载，则直接返回，防止重复加载
     try {
-        logger.info('启动Ollama AI服务...');
-
-        // 启动Ollama服务
-        await ollamaService.start();
-
+        logger.info('正在初始化模型...');
         // 检查模型是否存在
         const modelExists = await listOllamaModels();
         if (!modelExists) {
@@ -31,7 +25,6 @@ export async function initializeModel() {
             type: 'success',
         }
         sendToRenderer('system-info', notification)
-
         setModelReady(true);
 
     } catch (error) {
@@ -44,12 +37,12 @@ export async function initializeModel() {
 
 // 从远端或本地添加模型
 async function pullOllamaModel(modelName: string): Promise<void> {
+    const maxRetries = 3;
+    let lastError: Error | null = null;
 
-    return new Promise(async (resolve, reject) => {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
-
             logger.info(`开始拉取模型: ${modelName}`);
-
             const response = await ollama.pull({
                 model: modelName,
                 stream: true,
@@ -79,22 +72,34 @@ async function pullOllamaModel(modelName: string): Promise<void> {
             }
             // 流处理完成后才记录完成日志
             logger.info(`模型 ${modelName} 拉取完成`);
-
-            resolve()
+            return
 
         } catch (error) {
             const msg = error instanceof Error ? error.message : '模型拉取失败';
-            logger.error(`模型拉取失败: ${msg}`);
-            const notification: INotification = {
-                id: 'downloadModel',
-                text: `模型下载失败`,
-                type: 'warning',
-                tooltip: '请重启应用，以重新下载模型'
+            lastError = new Error(msg);
+            logger.error(`模型拉取失败 (第${attempt}次尝试): ${msg}`);
+
+            // 如果不是最后一次尝试，等待后重试
+            if (attempt < maxRetries) {
+                const waitTime = attempt * 2000; // 递增等待时间：2秒、4秒
+                logger.info(`等待${waitTime}ms后重试...`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
             }
-            sendToRenderer('system-info', notification)
-            reject(new Error(msg));
         }
-    })
+    }
+
+    // 3次失败再抛出错误
+    const finalMsg = lastError?.message || '模型拉取失败';
+    logger.error(`模型拉取失败，已重试${maxRetries}次: ${finalMsg}`);
+
+    const notification: INotification = {
+        id: 'downloadModel',
+        text: `模型下载失败，已重试${maxRetries}次`,
+        type: 'warning',
+        tooltip: '请检查网络连接或重启应用'
+    };
+    sendToRenderer('system-info', notification);
+    throw new Error(`模型拉取失败，已重试${maxRetries}次: ${finalMsg}`);
 }
 
 // 列出模型检查

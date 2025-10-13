@@ -12,6 +12,8 @@ import { exec } from 'child_process';
 import { logger } from './logger.js';
 import { getConfig, setConfig } from '../database/sqlite.js';
 import { execSync } from 'child_process';
+import * as fs from 'fs'
+import AdmZip from 'adm-zip';
 
 /**
  * 检查系统是否有可用的GPU
@@ -171,5 +173,45 @@ export const openDir = (type: string, filePath?: string) => {
             break;
         default:
             break;
+    }
+}
+
+
+/**
+    * 公用的解压ZIP文件
+    * @param zipPath ZIP文件路径
+    * @param extractPath 解压目标路径
+    */
+export const extractZip = async (zipPath: string, extractPath: string) => {
+
+
+    logger.info('解压目标路径: ' + extractPath);
+    try {
+        // 确保目标目录存在
+        if (!fs.existsSync(extractPath)) {
+            fs.mkdirSync(extractPath, { recursive: true });
+        }
+
+        // 使用 adm-zip 解压
+        const zip = new AdmZip(zipPath);
+        zip.extractAllTo(extractPath, true);
+
+        logger.info('解压完成');
+
+        try {
+            if (fs.existsSync(zipPath)) {
+                fs.unlinkSync(zipPath);
+                logger.info(`压缩包已删除: ${zipPath}`);
+            }
+        } catch (deleteError) {
+            logger.warn(`删除压缩包失败: ${deleteError}`);
+        }
+
+    } catch (error) {
+        const errorMessage = error instanceof Error
+            ? `${error.name}: ${error.message}`
+            : String(error);
+        logger.info('解压失败: ' + errorMessage);
+        throw new Error('解压失败: ' + errorMessage);
     }
 }

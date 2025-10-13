@@ -59,7 +59,7 @@ const Home = () => {
     }
     const init = async () => {
       effectRan.current = true;
-      await window.electronAPI.init();
+      await window.electronAPI.startIndex();
     }
     init();
   }, []);
@@ -408,7 +408,7 @@ const Home = () => {
               </Typography>
               <Chip
                 color='primary'
-                label='Beta 0.2.2'
+                label='Beta 0.2.3'
                 size='medium'
                 variant='outlined'
               />
