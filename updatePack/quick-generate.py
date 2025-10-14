@@ -7,8 +7,21 @@ import base64
 from datetime import datetime
 
 # 配置区域 - 修改这里的参数
-FILE_PATH = "F://my-electron-app//out//Osai-win32-x64.exe"  # 修改为你的安装包路径
-NEW_VERSION = "1.0.0"              # 修改为新版本号
+FILE_PATH = "F://my-electron-app//out//Osai Setup 0.2.3.exe"  # 修改为你的安装包路径
+
+# 从 package.json 读取版本号
+def get_version_from_package_json():
+    """从 package.json 读取版本号"""
+    package_json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'package.json')
+    try:
+        with open(package_json_path, 'r', encoding='utf-8') as f:
+            package_data = json.load(f)
+            return package_data.get('version', '1.0.0')
+    except Exception as e:
+        print(f"⚠️ 读取 package.json 失败: {e}")
+        return '1.0.0'  # 默认版本号
+
+NEW_VERSION = get_version_from_package_json()  # 从 package.json 获取版本号
 
 def generate_update_info():
     """快速生成更新信息"""

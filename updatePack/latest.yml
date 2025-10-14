@@ -1,8 +1,8 @@
 version: 0.2.3
 files:
-  - url: Osai-win32-x64.exe
-    sha512: zMBMmLW1qh5cuqLOuorj7fdDZs2oGdVKNyGXx2zlv1aC+KYYIgJ4M3Xa+YM9J/NSNfe7gegsMw5X6FHmurQEuw==
-    size: 260841947
-path: Osai-win32-x64.exe
-sha512: zMBMmLW1qh5cuqLOuorj7fdDZs2oGdVKNyGXx2zlv1aC+KYYIgJ4M3Xa+YM9J/NSNfe7gegsMw5X6FHmurQEuw==
-releaseDate: '2025-10-14T14:36:06.850413Z'
+  - url: Osai Setup 0.2.3.exe
+    sha512: naiuBnzvNG61fbBqMCXYR6R9UPXcqe37EstDWMYPe2ZRBZ1NvVlGM7mkp+Db79NXQE0iGTWCGky5+H6YTvhYdQ==
+    size: 277602046
+path: Osai Setup 0.2.3.exe
+sha512: naiuBnzvNG61fbBqMCXYR6R9UPXcqe37EstDWMYPe2ZRBZ1NvVlGM7mkp+Db79NXQE0iGTWCGky5+H6YTvhYdQ==
+releaseDate: '2025-10-14T16:40:04.364598Z'

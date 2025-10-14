@@ -128,7 +128,7 @@ class UpdateService {
      */
     installAndRestart(): void {
         logger.info('安装更新并重启应用');
-        autoUpdater.quitAndInstall();
+        autoUpdater.quitAndInstall(false,true); //第一个参数不显示安装界面，第二个界面后台静默安装
     }
 
     /**
@@ -145,6 +145,7 @@ class UpdateService {
         });
 
         if (result.response === 0) {
+            // @todo： 下个版本尝试注释这个
             this.installAndRestart();
         }
     }
