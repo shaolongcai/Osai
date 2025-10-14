@@ -80,7 +80,14 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             value: checked,
             type: 'boolean',
         }
+        // 取消不再提醒
         window.electronAPI.setConfig(params)
+        const params2: ConfigParams = {
+            key: 'not_remind_again',
+            value: false,
+            type: 'boolean',
+        }
+        window.electronAPI.setConfig(params2)
     }
 
     return (
@@ -89,7 +96,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             <ReportProtocol
                 open={openReportProtocol}
                 onClose={() => setOpenReportProtocol(false)}
-                confirm={() => { setReportAgreement(true) }} // 同意协议的回调
+                onConfirm={() => { setReportAgreement(true) }} // 同意协议的回调
             />
             {/* 开启GPU服务 */}
             <Dialog

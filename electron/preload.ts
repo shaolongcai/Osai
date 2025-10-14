@@ -43,6 +43,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onSystemInfo: (callback) => {
         ipcRenderer.on('system-info', (_event, data) => callback(data));
     },
+    // 更新状态监听
+    onUpdateStatus: (callback) => {
+        ipcRenderer.on('update-status', (event, data) => callback(data));
+    },
 
     // 移除事件监听
     removeAllListeners: (channel) => {

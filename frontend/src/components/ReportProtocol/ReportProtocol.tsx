@@ -7,7 +7,7 @@ import { ConfigParams } from "@/type/electron";
 interface Props {
     open: boolean;
     onClose: () => void;
-    confirm?: () => void; //同意的回调
+    onConfirm?: () => void;
 }
 
 /**
@@ -16,7 +16,7 @@ interface Props {
 const ReportProtocol: React.FC<Props> = ({
     open,
     onClose,
-    confirm,
+    onConfirm,
 }) => {
 
     const [isRemind, setIsRemind] = useState(false);
@@ -30,15 +30,25 @@ const ReportProtocol: React.FC<Props> = ({
             type: 'boolean',
         }
         await window.electronAPI.setConfig(params);  // 接口设置同意
-        localStorage.setItem('not_remind_again', 'true');  //同意时，直接不需要再提醒
-        confirm?.();
+        await setNotRemind();
+        onConfirm?.();
         onClose();
     }
 
     // 关闭弹窗
-    const handleClose = () => {
-        localStorage.setItem('not_remind_again', isRemind.toString());
+    const handleClose = async () => {
+        await setNotRemind();
         onClose();
+    }
+
+    // 设置不再提醒
+    const setNotRemind = async () => {
+        const params: ConfigParams = {
+            key: 'not_remind_again',
+            value: isRemind,
+            type: 'boolean',
+        }
+        await window.electronAPI.setConfig(params);  // 接口设置不再提醒
     }
 
     return (

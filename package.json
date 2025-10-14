@@ -32,7 +32,7 @@
     "package": "electron-forge package"
   },
   "name": "osai",
-  "version": "0.1.0",
+  "version": "0.2.2",
   "description": "a search app by ai",
   "main": "dist-electron/main.js",
   "license": "none",
@@ -86,14 +86,20 @@
           "unpack": "**/node_modules/@lancedb/**"
         },
         "extraResource": [
-          "dist-electron/resources/Ollama"
+          "dist-electron/resources/Ollama",
+          "dist-electron/resources/elevate.exe",
+          "dist-electron/resources/app-update.yml"
         ],
         "ignore": [
+          "dev-app-update.yml",
+          "updatePack",
           "electron/resources/pythonScript",
           "electron/resources/check_gpu.py",
           "electron/resources/get-pip.py",
           "electron/resources/Ollama",
+          "dist-electron/resources/Ollama/lib/ollama/cuda_v12",
           "frontend/node_modules",
+          "frontend/src",
           "^/electron($|/)",
           "^/frontend/(?!dist($|/))",
           "^/\\.git($|/)",

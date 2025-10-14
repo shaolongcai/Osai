@@ -26,12 +26,6 @@ class UpdateService {
         // 禁用自动下载，只检查更新
         autoUpdater.autoDownload = false;
 
-        // 开发环境下禁用自动更新
-        // if (process.env.NODE_ENV === 'development') {
-        //     autoUpdater.updateConfigPath = null;
-        //     return;
-        // }
-
         // 强制开发环境也进行更新检查（仅用于测试）
         if (process.env.NODE_ENV === 'development') {
             autoUpdater.forceDevUpdateConfig = true;
@@ -50,22 +44,25 @@ class UpdateService {
 
         autoUpdater.on('update-available', (info) => {
             logger.info(`发现新版本: ${info.version}`);
-            sendToRenderer('update-available', {
+            sendToRenderer('update-status', {
                 version: info.version,
                 releaseNotes: info.releaseNotes,
-                releaseDate: info.releaseDate
+                releaseDate: info.releaseDate,
+                isUpdateAvailable: true
             });
         });
 
         autoUpdater.on('update-not-available', () => {
             logger.info('当前已是最新版本');
-            sendToRenderer('update-status', { type: 'not-available', message: '当前已是最新版本' });
+            sendToRenderer('update-status', { isUpdateAvailable: false, message: '当前已是最新版本' });
         });
+
+
 
         autoUpdater.on('error', (error) => {
             const msg = error instanceof Error ? error.message : '更新检查失败';
             logger.error(`更新错误: ${msg}`);
-            sendToRenderer('update-status', { type: 'error', message: msg });
+            sendToRenderer('update-status', { isUpdateAvailable: false, message: msg });
         });
 
         autoUpdater.on('download-progress', (progressObj) => {
@@ -108,7 +105,6 @@ class UpdateService {
         } catch (error) {
             const msg = error instanceof Error ? error.message : '检查更新失败';
             logger.error(`检查更新失败: ${msg}`);
-            sendToRenderer('update-status', { type: 'error', message: msg });
         } finally {
             this.isUpdating = false;
         }
@@ -124,7 +120,6 @@ class UpdateService {
         } catch (error) {
             const msg = error instanceof Error ? error.message : '下载更新失败';
             logger.error(`下载更新失败: ${msg}`);
-            sendToRenderer('update-status', { type: 'error', message: msg });
         }
     }
 

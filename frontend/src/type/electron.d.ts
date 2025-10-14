@@ -87,6 +87,7 @@ interface ElectronAPI {
     onIndexProgress(callback: (data: Progress) => void): void;
     onVisualIndexProgress(callback: (data: Progress) => void): void;
     onSystemInfo(callback: (data: Notification) => void): void;
+    onUpdateStatus(callback: (data: any) => void): void; // 检查更新状态,暂时用any占位
 
     // 移除事件监听
     removeAllListeners(channel: string): void;

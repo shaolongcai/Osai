@@ -40,8 +40,8 @@ sha512: {sha512}
 releaseDate: '{current_time}'"""
     
     # 写入文件
-    os.makedirs('updateInfo', exist_ok=True)
-    with open('updateInfo/latest.yml', 'w', encoding='utf-8') as f:
+    # os.makedirs('updateInfo', exist_ok=True)
+    with open('latest.yml', 'w', encoding='utf-8') as f:
         f.write(yml_content)
     
     print("✅ 生成完成!")

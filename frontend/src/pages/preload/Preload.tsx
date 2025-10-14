@@ -9,7 +9,7 @@ import { Dialog, ReportProtocol } from "@/components";
 const Preload = () => {
 
     const [initError, setInitError] = useState<string | null>(null);
-    const [protocolOpen, setProtocolOpen] = useState(!Boolean(localStorage.getItem('not_remind_again') === 'true')); // 协议弹窗
+    const [protocolOpen, setProtocolOpen] = useState(false); // 协议弹窗
     const [updateOpen, setUpdateOpen] = useState(false); // 更新弹窗
 
     // 检查节点
@@ -22,7 +22,22 @@ const Preload = () => {
 
     // 检查是否有更新， 考虑用wait - promise 去处理三个事情： 1、检查更新版本，2、同意协议，3、初始化服务
     useEffect(() => {
-        checkForUpdates();
+        // 监听更新
+        window.electronAPI.onUpdateStatus(async (data) => {
+            console.log('更新信息', data)
+            if (data.isUpdateAvailable) {
+                setUpdateOpen(true);
+            }
+            else {
+                setIsCheckUpdate(true);
+            }
+        });
+        window.electronAPI.checkForUpdates();
+
+        return () => {
+            // 移除监听
+            window.electronAPI.removeAllListeners('update-status');
+        };
     }, []);
 
     // 检查是否是否同意报告协议
@@ -57,37 +72,28 @@ const Preload = () => {
     }, [navigate])
 
 
-    // 获取更新信息
-    const checkForUpdates = useCallback(async () => {
-        const res = await window.electronAPI.checkForUpdates();
-        if (res) {
-            console.log('有更新')
-            setUpdateOpen(true);
-        }
-        else {
-            setIsCheckUpdate(true);
-        }
-    }, []);
-
     // 展示同意协议
-    const showAgreeProtocol = useCallback(() => {
+    const showAgreeProtocol = useCallback(async () => {
         try {
-            // 若已同意协议，则不需要再显示弹窗
-            if (localStorage.getItem('not_remind_again') === 'true') {
-                setProtocolOpen(false);
-
+            // 是否设置不再提醒
+            const notRemindAgain = await window.electronAPI.getConfig('not_remind_again')
+            if (notRemindAgain) {
+                setIsCheckProtocol(true);
                 return;
             }
+
             // 已设置同意不需要再询问
-            window.electronAPI.getConfig('report_agreement').then((value) => {
-                if (value) {
-                    setProtocolOpen(false);
-                    localStorage.setItem('not_remind_again', 'true');
-                }
-            });
+            const agreeProtocol = await window.electronAPI.getConfig('report_agreement')
+            if (agreeProtocol) {
+                setIsCheckProtocol(true);
+                return
+            }
+
+            // 其余情况，展示弹窗
+            setProtocolOpen(true);
+
         } catch (error) {
             console.error('展示同意协议失败', error);
-        } finally {
             setIsCheckProtocol(true);
         }
     }, []);
@@ -126,7 +132,10 @@ const Preload = () => {
             {/* 弹窗同意条款 */}
             <ReportProtocol
                 open={protocolOpen}
-                onClose={() => setProtocolOpen(false)}
+                onClose={() => {
+                    setProtocolOpen(false)
+                    setIsCheckProtocol(true);
+                }}
             />
             <Stack className={styles.root} spacing={1} alignItems="center">
                 {
