@@ -1,6 +1,7 @@
 import { Stack, LinearProgress, Typography, Button } from "@mui/material"
 import { useRef, useEffect, useCallback, useState } from "react";
-import searchNull from '@/assets/images/search-null.png'
+import initImg from '@/assets/images/init.png'
+import initErrorImg from '@/assets/images/init-error.png'
 import styles from './Preload.module.scss'
 import { useNavigate } from 'react-router-dom';
 import { ReportProtocol } from "@/components";
@@ -67,7 +68,7 @@ const Preload = () => {
                 {
                     initError ? (
                         <Stack spacing={1} alignItems="center">
-                            <img src={searchNull} className={styles.image} />
+                            <img src={initErrorImg} className={styles.image} />
                             <Typography variant="body1" color="error" align="center">
                                 初始化失败
                             </Typography>
@@ -80,7 +81,7 @@ const Preload = () => {
                         </Stack>
                     ) :
                         <>
-                            <img src={searchNull} className={styles.image} />
+                            <img src={initImg} className={styles.image} />
                             <LinearProgress
                                 className={styles.progress}
                             />

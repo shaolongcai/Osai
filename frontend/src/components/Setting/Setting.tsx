@@ -89,6 +89,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             <ReportProtocol
                 open={openReportProtocol}
                 onClose={() => setOpenReportProtocol(false)}
+                confirm={() => { setReportAgreement(true) }} // 同意协议的回调
             />
             {/* 开启GPU服务 */}
             <Dialog
