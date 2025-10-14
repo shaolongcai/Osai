@@ -165,8 +165,7 @@ class UpdateService {
             }
         } catch (error) {
             const msg = error instanceof Error ? error.message : '检查更新失败';
-            logger.error(`手动检查更新失败: ${msg}`);
-            sendToRenderer('update-status', { type: 'error', message: msg });
+            throw new Error(msg)
         }
     }
 }

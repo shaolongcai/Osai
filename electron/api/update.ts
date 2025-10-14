@@ -12,7 +12,7 @@ export function initializeUpdateApi() {
             return true;
         } catch (error) {
             const msg = error instanceof Error ? error.message : '检查更新失败';
-            logger.error(`检查更新失败: ${msg}`);
+            logger.error(`手动检查更新失败: ${msg}`);
             return false;
         }
     });
