@@ -1,0 +1,8 @@
+version: 1.0.0
+files:
+  - url: Osai-win32-x64.exe
+    sha512: aChsdRqHZMw4FJhGvkyccgfXWCzPQ++JzY7zKDZsu8PzEjEYK8fiHNgpkFOBtL++98E7gwkUr1ESEW1ydJMphw==
+    size: 260355415
+path: Osai-win32-x64.exe
+sha512: aChsdRqHZMw4FJhGvkyccgfXWCzPQ++JzY7zKDZsu8PzEjEYK8fiHNgpkFOBtL++98E7gwkUr1ESEW1ydJMphw==
+releaseDate: '2025-10-14T04:29:47.487125Z'

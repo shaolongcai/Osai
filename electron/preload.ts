@@ -22,6 +22,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getConfig: (key?: string) => ipcRenderer.invoke('get-config', key),  // 获取用户配置
     installGpuServer: () => ipcRenderer.invoke('install-gpu-server'), // 安装GPU服务
 
+    // 更新相关
+    checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+
 
     // 日志监听
     onLogger: (callback) => {

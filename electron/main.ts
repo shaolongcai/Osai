@@ -12,6 +12,7 @@ import { initializeModel } from './core/model.js'
 import { ollamaService } from './core/ollama.js';
 import pathConfig from './core/pathConfigs.js';
 import { INotification } from './types/system.js';
+import { initializeUpdateApi } from './api/update.js';
 
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
@@ -180,6 +181,8 @@ app.whenReady().then(() => {
   createWindow();
   // 初始化API
   initializeFileApi(mainWindow);
+  // 初始化更新APO
+  initializeUpdateApi()
 });
 
 app.on('window-all-closed', () => {

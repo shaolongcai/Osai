@@ -45,6 +45,7 @@
     "better-sqlite3": "^12.2.0",
     "dayjs": "^1.11.18",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-updater": "^6.6.2",
     "langchain": "^0.3.34",
     "mammoth": "^1.11.0",
     "ollama": "^0.6.0",
@@ -54,6 +55,10 @@
   "build": {
     "electronDownload": {
       "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
+    "publish": {
+      "provider": "generic",
+      "url": "http://t420e4d1q.hd-bkt.clouddn.com/V1.0-test/"
     }
   },
   "author": {

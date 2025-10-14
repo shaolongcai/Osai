@@ -78,6 +78,9 @@ interface ElectronAPI {
     // 安装GPU服务
     installGpuServer(): Promise<void>;
 
+    //更新接口
+    checkForUpdates(): Promise<boolean>; //手动检查有没有更新
+
     // 事件监听
     onLogger(callback: (data: string) => void): void;
     onIndexProgress(callback: (data: Progress) => void): void;
