@@ -2,6 +2,7 @@ import pkg from 'electron-updater'
 import { app, dialog } from 'electron';
 import { logger } from './logger.js';
 import { sendToRenderer } from '../main.js';
+import { INotification } from '../types/system.js';
 
 
 const { autoUpdater } = pkg;
@@ -44,7 +45,7 @@ class UpdateService {
         // 监听更新事件
         autoUpdater.on('checking-for-update', () => {
             logger.info('正在检查更新...');
-            sendToRenderer('update-status', { type: 'checking', message: '正在检查更新...' });
+            // sendToRenderer('update-status', { type: 'checking', message: '正在检查更新...' });
         });
 
         autoUpdater.on('update-available', (info) => {
@@ -69,19 +70,24 @@ class UpdateService {
 
         autoUpdater.on('download-progress', (progressObj) => {
             const message = `下载进度: ${Math.round(progressObj.percent)}%`;
-            logger.info(message);
-            sendToRenderer('update-progress', {
-                percent: Math.round(progressObj.percent),
-                bytesPerSecond: progressObj.bytesPerSecond,
-                total: progressObj.total,
-                transferred: progressObj.transferred
-            });
+            logger.info(`update-${message}`);
+            const notification: INotification = {
+                id: 'download-progress',
+                text: message,
+                type: 'loading',
+                tooltip: '下载完成后需要重启应用'
+            }
+            sendToRenderer('system-info', notification);
         });
 
         autoUpdater.on('update-downloaded', () => {
             logger.info('更新下载完成');
-            sendToRenderer('update-status', { type: 'downloaded', message: '更新下载完成，准备安装' });
-
+            const notification: INotification = {
+                id: 'download-progress',
+                text: '更新下载完成，准备安装',
+                type: 'success',
+            }
+            sendToRenderer('system-info', notification);
             // 显示重启对话框
             this.showRestartDialog();
         });
@@ -114,7 +120,6 @@ class UpdateService {
     async downloadUpdate(): Promise<void> {
         try {
             logger.info('开始下载更新...');
-            sendToRenderer('update-status', { type: 'downloading', message: '开始下载更新...' });
             await autoUpdater.downloadUpdate();
         } catch (error) {
             const msg = error instanceof Error ? error.message : '下载更新失败';
@@ -150,7 +155,7 @@ class UpdateService {
     }
 
     /**
-     * 步骤7：手动触发更新检查
+     * 手动触发检查更新
      */
     async manualCheckForUpdates(): Promise<void> {
         try {

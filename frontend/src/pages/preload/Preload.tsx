@@ -6,34 +6,45 @@ import styles from './Preload.module.scss'
 import { useNavigate } from 'react-router-dom';
 import { Dialog, ReportProtocol } from "@/components";
 
-
 const Preload = () => {
 
     const [initError, setInitError] = useState<string | null>(null);
     const [protocolOpen, setProtocolOpen] = useState(!Boolean(localStorage.getItem('not_remind_again') === 'true')); // 协议弹窗
     const [updateOpen, setUpdateOpen] = useState(false); // 更新弹窗
 
+    // 检查节点
+    const [isCheckUpdate, setIsCheckUpdate] = useState(false); //检查版本更新
+    const [isCheckProtocol, setIsCheckProtocol] = useState(false); //初始化服务
+
     const effectRan = useRef(false); // 执行守卫
     const navigate = useNavigate();
+
 
     // 检查是否有更新， 考虑用wait - promise 去处理三个事情： 1、检查更新版本，2、同意协议，3、初始化服务
     useEffect(() => {
         checkForUpdates();
     }, []);
 
+    // 检查是否是否同意报告协议
+    useEffect(() => {
+        console.log('展示同意协议')
+        if (isCheckUpdate) {
+            showAgreeProtocol();
+        }
+    }, [isCheckUpdate]);
+
     // 初始化准备工作
     useEffect(() => {
-        // 协议弹窗关闭时，才初始化
-        if (protocolOpen) {
-            return;
+        if (isCheckProtocol) {
+            if (effectRan.current) {
+                return;
+            }
+            initServer();
         }
-        if (effectRan.current) {
-            return;
-        }
-        init();
-    }, [protocolOpen]);
+    }, [isCheckProtocol]);
 
-    const init = useCallback(async () => {
+    // 初始化服务
+    const initServer = useCallback(async () => {
         effectRan.current = true;
         const res = await window.electronAPI.init();
         if (res.code === 0) {
@@ -53,37 +64,47 @@ const Preload = () => {
             console.log('有更新')
             setUpdateOpen(true);
         }
+        else {
+            setIsCheckUpdate(true);
+        }
     }, []);
 
     // 展示同意协议
     const showAgreeProtocol = useCallback(() => {
-        // 若已同意协议，则不需要再显示弹窗
-        if (localStorage.getItem('not_remind_again') === 'true') {
-            setProtocolOpen(false);
-            return;
-        }
-        // 已设置同意不需要再询问
-        window.electronAPI.getConfig('report_agreement').then((value) => {
-            if (value) {
+        try {
+            // 若已同意协议，则不需要再显示弹窗
+            if (localStorage.getItem('not_remind_again') === 'true') {
                 setProtocolOpen(false);
-                localStorage.setItem('not_remind_again', 'true');
+
+                return;
             }
-        });
+            // 已设置同意不需要再询问
+            window.electronAPI.getConfig('report_agreement').then((value) => {
+                if (value) {
+                    setProtocolOpen(false);
+                    localStorage.setItem('not_remind_again', 'true');
+                }
+            });
+        } catch (error) {
+            console.error('展示同意协议失败', error);
+        } finally {
+            setIsCheckProtocol(true);
+        }
     }, []);
 
     // 处理更新
     const handleUpdate = useCallback(() => {
         console.log('处理更新')
-        return
-        window.electronAPI.update();
-        showAgreeProtocol();
+        window.electronAPI.downloadUpdate();
+        setUpdateOpen(false);
+        setIsCheckUpdate(true);
     }, []);
 
     //关闭更新弹窗
     const handleCloseUpdate = useCallback(() => {
         setUpdateOpen(false);
-        showAgreeProtocol();
-    }, [showAgreeProtocol]);
+        setIsCheckUpdate(true);
+    }, []);
 
     return (
         <>
@@ -92,10 +113,13 @@ const Preload = () => {
                 title="更新版本"
                 open={updateOpen}
                 onClose={handleCloseUpdate}
+                primaryButtonText="更新"
+                secondaryButtonText="稍后"
                 onSecondaryButtonClick={handleCloseUpdate}
                 onPrimaryButtonClick={handleUpdate}
+                maxWidth='xs'
             >
-                <Typography variant="h6" align="center">
+                <Typography variant="body1" align='left'>
                     发现最新版本，是否进行更新
                 </Typography>
             </Dialog>

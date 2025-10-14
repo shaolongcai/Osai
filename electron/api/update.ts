@@ -16,4 +16,16 @@ export function initializeUpdateApi() {
             return false;
         }
     });
+
+    // 手动下载更新包
+    ipcMain.handle('download-update', async () => {
+        try {
+            await updateService.downloadUpdate();
+            return true;
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : '下载更新失败';
+            logger.error(`下载更新失败: ${msg}`);
+            return false;
+        }
+    });
 }

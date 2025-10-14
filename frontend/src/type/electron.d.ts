@@ -80,6 +80,7 @@ interface ElectronAPI {
 
     //更新接口
     checkForUpdates(): Promise<boolean>; //手动检查有没有更新
+    downloadUpdate(): Promise<boolean>; //手动下载更新包
 
     // 事件监听
     onLogger(callback: (data: string) => void): void;

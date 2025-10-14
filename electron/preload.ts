@@ -23,7 +23,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     installGpuServer: () => ipcRenderer.invoke('install-gpu-server'), // 安装GPU服务
 
     // 更新相关
-    checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+    checkForUpdates: () => ipcRenderer.invoke('check-for-updates'), // 检查
+    downloadUpdate: () => ipcRenderer.invoke('download-update'),  // 下载
 
 
     // 日志监听
