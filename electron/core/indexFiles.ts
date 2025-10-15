@@ -238,6 +238,7 @@ async function indexImageFiles() {
             const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);
             const res = updateStmt.run(summary, file.path);
             if (res.changes > 0) {
+                logger.info(`剩余处理图片数: ${totalFiles}`);
                 const notification: INotification = {
                     id: 'visual-index',
                     text: `视觉索引服务已启动 剩余 ${totalFiles}`,

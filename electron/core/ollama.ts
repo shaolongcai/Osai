@@ -96,16 +96,37 @@ class OllamaService {
     }
 
     // 处理图像 - 替换Python方案
-    async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片'): Promise<string> {
+    async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片，请简洁描述，不要重复内容，控制在300字以内'): Promise<string> {
         try {
+            
             // 读取图片并转换为base64
             const imageBuffer = fs.readFileSync(imagePath);
             const base64Image = imageBuffer.toString('base64');
 
-            const response = await ollama.chat({
+            // 步骤5：设置超时处理
+            const timeoutPromise = new Promise<never>((_, reject) => {
+                setTimeout(() => {
+                    reject(new Error('图像处理超时'));
+                }, 15000); // 15秒超时
+            });
+
+            const chatPromise = ollama.chat({
                 model: 'qwen2.5vl:3b',
-                messages: [{ role: 'user', content: prompt, images: [base64Image] }],
-            })
+                messages: [{
+                    role: 'user',
+                    content: prompt,
+                    images: [base64Image],
+                }],
+                options: {
+                    num_predict: 300, // 限制生成的token数量
+                    temperature: 0.7, // 控制生成的随机性
+                    repeat_penalty: 1.1,  //增加重复惩罚
+                }
+            }) //这里需要为promise
+
+            const response = await Promise.race([chatPromise, timeoutPromise]); //timeoutPromise 生效时，会立即生效
+
+            // logger.info(`Ollama模型返回: ${response.message.content}`);
 
             return response.message.content;
 

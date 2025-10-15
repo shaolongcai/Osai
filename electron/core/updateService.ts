@@ -128,7 +128,16 @@ class UpdateService {
      */
     installAndRestart(): void {
         logger.info('安装更新并重启应用');
-        autoUpdater.quitAndInstall(false,true); //第一个参数不显示安装界面，第二个界面后台静默安装
+
+        //      const windows = BrowserWindow.getAllWindows();
+        // windows.forEach(window => {
+        //     if (!window.isDestroyed()) {
+        //         window.destroy();
+        //     }
+        // });
+
+        // todo：setTimeout，确保窗口销毁再进行
+        autoUpdater.quitAndInstall(false, true); //第一个参数不显示安装界面，第二个界面后台静默安装
     }
 
     /**
