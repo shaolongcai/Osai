@@ -24,35 +24,64 @@ class OllamaService {
     async start(): Promise<void> {
         if (this.isRunning) return;
 
-        //启动前，清理所有进程
-        await this.killAllOllamaProcesses();
+        // 重试机制，最多重试3次
+        const maxRetries = 3;
+        let lastError: Error | null = null;
 
-        try {
-            this.process = spawn(this.ollamaPath, ['serve'], {
-                stdio: 'pipe',
-                env: {
-                    ...process.env,
-                    OLLAMA_HOST: '127.0.0.1:11434',
-                    OLLAMA_REGISTRY: 'https://docker.mirrors.ustc.edu.cn',   //国内专用中科大镜像
-                }
-            });
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                //启动前，清理所有进程
+                await this.killAllOllamaProcesses();
+                const elevatePath = path.join(pathConfig.get('resources'), 'elevate.exe');
 
-            this.process.on('error', (error) => {
+                this.process = spawn(elevatePath, [this.ollamaPath, 'serve'], {
+                    stdio: 'pipe',
+                    env: {
+                        ...process.env,
+                        OLLAMA_HOST: '127.0.0.1:11434',
+                        OLLAMA_REGISTRY: 'https://docker.mirrors.ustc.edu.cn',   //国内专用中科大镜像
+                    }
+                });
+
+                const processErrorPromise = new Promise((_, reject) => {
+                    this.process.on('error', (error) => {
+                        const msg = error instanceof Error ? error.message : 'Ollama启动失败';
+                        logger.error(`Ollama启动失败: ${msg}`);
+                        reject(new Error(msg));
+                    });
+                });
+
+                // 等待服务就绪或进程错误
+                await Promise.race([
+                    this.waitForReady(),
+                    processErrorPromise
+                ]);
+
+                this.isRunning = true;
+                logger.info('Ollama服务启动成功');
+                return // 成功后退出循环
+            } catch (error) {
                 const msg = error instanceof Error ? error.message : 'Ollama启动失败';
-                logger.error(`Ollama启动失败: ${msg}`);
-                throw new Error(msg);
-            });
+                lastError = new Error(msg);
+                logger.error(`Ollama服务启动失败: ${msg}`);
 
-            await this.waitForReady();
-            this.isRunning = true;
-            logger.info('Ollama服务启动成功');
+                // 如果不是最后一次尝试，等待一段时间后重试
+                if (attempt < maxRetries) {
+                    const waitTime = attempt * 1000; // 递增等待时间：1秒、2秒
+                    logger.info(`等待${waitTime}ms后重试...`);
+                    await new Promise(resolve => setTimeout(resolve, waitTime)); //等待的函数
 
-        } catch (error) {
-            const msg = error instanceof Error ? error.message : 'Ollama启动失败';
-            logger.error(`Ollama启动失败: ${msg}`);
-            throw new Error(msg);
+                    // 重试前清理进程
+                    await this.killAllOllamaProcesses();
+                }
+            }
         }
+        // 3次重试失败，抛出最后一个错误
+        const finalMsg = lastError?.message || 'Ollama启动失败';
+        logger.error(`Ollama启动失败，已重试${maxRetries}次: ${finalMsg}`);
+        throw new Error(`Ollama启动失败，已重试${maxRetries}次: ${finalMsg}`);
     }
+
 
     // 等待服务就绪
     private async waitForReady(): Promise<void> {
@@ -67,16 +96,37 @@ class OllamaService {
     }
 
     // 处理图像 - 替换Python方案
-    async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片'): Promise<string> {
+    async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片，请简洁描述，不要重复内容，控制在300字以内'): Promise<string> {
         try {
+            
             // 读取图片并转换为base64
             const imageBuffer = fs.readFileSync(imagePath);
             const base64Image = imageBuffer.toString('base64');
 
-            const response = await ollama.chat({
+            // 步骤5：设置超时处理
+            const timeoutPromise = new Promise<never>((_, reject) => {
+                setTimeout(() => {
+                    reject(new Error('图像处理超时'));
+                }, 15000); // 15秒超时
+            });
+
+            const chatPromise = ollama.chat({
                 model: 'qwen2.5vl:3b',
-                messages: [{ role: 'user', content: prompt, images: [base64Image] }],
-            })
+                messages: [{
+                    role: 'user',
+                    content: prompt,
+                    images: [base64Image],
+                }],
+                options: {
+                    num_predict: 300, // 限制生成的token数量
+                    temperature: 0.7, // 控制生成的随机性
+                    repeat_penalty: 1.1,  //增加重复惩罚
+                }
+            }) //这里需要为promise
+
+            const response = await Promise.race([chatPromise, timeoutPromise]); //timeoutPromise 生效时，会立即生效
+
+            // logger.info(`Ollama模型返回: ${response.message.content}`);
 
             return response.message.content;
 
@@ -119,6 +169,7 @@ class OllamaService {
         }
     }
 
+    // 清理所有旧的Ollama进程
     private async killAllOllamaProcesses(): Promise<void> {
         try {
             logger.info('正在清理旧的Ollama进程...');

@@ -16,6 +16,7 @@
     "concurrently": "^9.2.1",
     "cross-env": "^10.0.0",
     "electron": "^38.0.0",
+    "electron-builder": "^26.0.12",
     "electron-rebuild": "^3.2.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
@@ -29,10 +30,11 @@
     "rebuild": "electron-rebuild",
     "make": "electron-forge make",
     "start": "electron-forge start",
-    "package": "electron-forge package"
+    "package": "electron-forge package",
+    "build:win": "electron-builder --win --x64"
   },
   "name": "osai",
-  "version": "0.1.0",
+  "version": "0.2.3",
   "description": "a search app by ai",
   "main": "dist-electron/main.js",
   "license": "none",
@@ -45,6 +47,7 @@
     "better-sqlite3": "^12.2.0",
     "dayjs": "^1.11.18",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-updater": "^6.6.2",
     "langchain": "^0.3.34",
     "mammoth": "^1.11.0",
     "ollama": "^0.6.0",
@@ -54,6 +57,72 @@
   "build": {
     "electronDownload": {
       "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
+    "appId": "com.osai.app",
+    "productName": "Osai",
+    "files": [
+      "dist-electron/**/*",
+      "frontend/dist/**/*",
+      "!dist-electron/resources/pythonScript",
+      "!dist-electron/resources/check_gpu.py",
+      "!dist-electron/resources/get-pip.py",
+      "!dist-electron/resources/Ollama",
+      "!electron/resources/Ollama",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+    ],
+    "extraResources": [
+      {
+        "from": "dist-electron/resources/Ollama",
+        "to": "Ollama",
+        "filter": [
+          "**/*",
+          "!cuda_v12/**/*",
+          "!**/cuda_v12/**"
+        ]
+      },
+      {
+        "from": "dist-electron/resources/elevate.exe",
+        "to": "elevate.exe"
+      },
+      {
+        "from": "dist-electron/resources/app-update.yml",
+        "to": "app-update.yml"
+      }
+    ],
+    "directories": {
+      "output": "out"
+    },
+    "win": {
+      "target": {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      },
+      "icon": "./dist-electron/resources/assets/logo-256.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Osai",
+      "installerIcon": "./dist-electron/resources/assets/logo-256.ico",
+      "uninstallerIcon": "./dist-electron/resources/assets/logo-256.ico",
+      "installerHeaderIcon": "./dist-electron/resources/assets/logo-256.ico",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true
     }
   },
   "author": {
@@ -81,14 +150,20 @@
           "unpack": "**/node_modules/@lancedb/**"
         },
         "extraResource": [
-          "dist-electron/resources/Ollama"
+          "dist-electron/resources/Ollama",
+          "dist-electron/resources/elevate.exe",
+          "dist-electron/resources/app-update.yml"
         ],
         "ignore": [
+          "dev-app-update.yml",
+          "updatePack",
           "electron/resources/pythonScript",
           "electron/resources/check_gpu.py",
           "electron/resources/get-pip.py",
           "electron/resources/Ollama",
+          "dist-electron/resources/Ollama/lib/ollama/cuda_v12",
           "frontend/node_modules",
+          "frontend/src",
           "^/electron($|/)",
           "^/frontend/(?!dist($|/))",
           "^/\\.git($|/)",

@@ -71,6 +71,7 @@ export function initializeDatabase(): Database.Database {
     return db
   } catch (error) {
     logger.error(`数据库初始化失败:${JSON.stringify(error)}`)
+    throw new Error(`数据库初始化失败:${JSON.stringify(error)}`)
   }
 }
 

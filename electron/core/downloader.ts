@@ -8,7 +8,8 @@ import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
 import AdmZip from 'adm-zip';
 import { setConfig } from '../database/sqlite.js';
-import { detectCudaVersion } from './system.js';
+import { detectCudaVersion, extractZip, reportErrorToWechat } from './system.js';
+
 
 interface DownloadTask {
     url: string
@@ -168,6 +169,7 @@ export class severDownloader {
 
     /**
      * 并发下载多个文件
+     * 暂时只下载CUDA文件
      */
     async downloadFiles(): Promise<boolean> {
 
@@ -175,7 +177,10 @@ export class severDownloader {
             // 检查CUDA版本
             const cudaVersion = detectCudaVersion()
 
-            const baseUrl = 'https://ai-lib-test.oss-cn-hangzhou.aliyuncs.com/osai/'
+            // 开始时间
+            const startTime = Date.now()
+
+            const baseUrl = 'http://t420e4d1q.hd-bkt.clouddn.com/' //CUDA下载的url，七牛服务
             const files = [cudaVersion]
 
             // 准备下载任务
@@ -186,7 +191,6 @@ export class severDownloader {
                 finalPath: path.join(this.cudaDir, filename)
             }))
 
-            console.log('tasks', tasks)
             // 确认是否已经存在，存在则不需要重新下载zip包
             const pendingTasks = tasks.filter(t => !fs.existsSync(t.finalPath))
 
@@ -198,7 +202,17 @@ export class severDownloader {
                 const successCount = results.filter(result => result).length
 
                 if (successCount === pendingTasks.length) {
-                    logger.info('CUDA服务下载完成！')
+                    // 计算下载时间
+                    const endTime = Date.now()
+                    const downloadTime = (endTime - startTime) / 1000 // 转换为秒
+                    logger.info(`CUDA服务下载完成！下载耗时: ${downloadTime.toFixed(2)} 秒`)
+                    // 发送企业微信
+                    const errorData = {
+                        类型: 'CUDA服务下载完成',
+                        信息: `CUDA服务下载完成，耗时: ${downloadTime.toFixed(2)} 秒`,
+                    };
+                    reportErrorToWechat(errorData)
+
                     // 清理临时目录
                     this.cleanupTempDir()
 
@@ -207,19 +221,31 @@ export class severDownloader {
                     return false
                 }
             }
+
             // 解压ZIP文件
-            const zipPath = path.join(this.cudaDir, files[0])
-            this.extractZip(zipPath, this.cudaDir)
-            // 发送通知
             const notification: INotification = {
+                id: 'downloadGpuSever',
+                text: 'CUDA服务正在解压...',
+                type: 'loading',
+            }
+            sendToRenderer('system-info', notification)
+            const zipPath = path.join(this.cudaDir, files[0])
+            extractZip(zipPath, this.cudaDir)
+            //记录配置，并且清除压缩包
+            setConfig('cuda_installed', true, 'boolean');
+            setConfig('cuda_version', '12.0', 'string');
+            // 解压成功
+            const notification2: INotification = {
                 id: 'downloadGpuSever',
                 text: 'CUDA服务已就绪',
                 type: 'success',
                 tooltip: '请重启应用，以便CUDA服务生效'
             }
-            sendToRenderer('system-info', notification)
+            sendToRenderer('system-info', notification2)
             return true
         } catch (error) {
+            const msg = error instanceof Error ? error.message : 'CUDA服务解压失败';
+            logger.error(`CUDA服务解压失败: ${msg}`);
             const notification: INotification = {
                 id: 'downloadGpuSever',
                 text: 'CUDA服务解压失败,请重试',
@@ -227,6 +253,13 @@ export class severDownloader {
                 tooltip: '你可以重新尝试安装GPU服务，可以重新解压'
             }
             sendToRenderer('system-info', notification)
+            // 报告企业微信
+            const errorData = {
+                类型: 'CUDA服务安装失败',
+                错误位置: error.stack,
+                错误信息: msg,
+            };
+            reportErrorToWechat(errorData)
             return false
         }
     }
@@ -249,52 +282,4 @@ export class severDownloader {
         }
     }
 
-
-    /**
-     * 解压ZIP文件
-     * @param zipPath ZIP文件路径
-     * @param extractPath 解压目标路径
-     */
-    private async extractZip(zipPath, extractPath) {
-
-        const notification: INotification = {
-            id: 'downloadGpuSever',
-            text: 'CUDA服务正在解压...',
-            type: 'loading',
-        }
-        sendToRenderer('system-info', notification) 
-        logger.info('解压目标路径: ' + extractPath);
-        try {
-            // 确保目标目录存在
-            if (!fs.existsSync(extractPath)) {
-                fs.mkdirSync(extractPath, { recursive: true });
-            }
-
-            // 使用 adm-zip 解压
-            const zip = new AdmZip(zipPath);
-            zip.extractAllTo(extractPath, true);
-
-            logger.info('解压完成');
-
-            //记录配置，并且清除压缩包
-            setConfig('cuda_installed', true, 'boolean');
-            setConfig('cuda_version', '12.0', 'string');
-
-            try {
-                if (fs.existsSync(zipPath)) {
-                    fs.unlinkSync(zipPath);
-                    logger.info(`压缩包已删除: ${zipPath}`);
-                }
-            } catch (deleteError) {
-                logger.warn(`删除压缩包失败: ${deleteError}`);
-            }
-
-        } catch (error) {
-            const errorMessage = error instanceof Error
-                ? `${error.name}: ${error.message}`
-                : String(error);
-            logger.info('解压失败: ' + errorMessage);
-            throw new Error('解压失败: ' + errorMessage);
-        }
-    }
 }

@@ -12,6 +12,8 @@ import { exec } from 'child_process';
 import { logger } from './logger.js';
 import { getConfig, setConfig } from '../database/sqlite.js';
 import { execSync } from 'child_process';
+import * as fs from 'fs'
+import AdmZip from 'adm-zip';
 
 /**
  * 检查系统是否有可用的GPU
@@ -171,5 +173,116 @@ export const openDir = (type: string, filePath?: string) => {
             break;
         default:
             break;
+    }
+}
+
+
+/**
+    * 公用的解压ZIP文件
+    * @param zipPath ZIP文件路径
+    * @param extractPath 解压目标路径
+    */
+export const extractZip = async (zipPath: string, extractPath: string) => {
+
+
+    logger.info('解压目标路径: ' + extractPath);
+    try {
+        // 确保目标目录存在
+        if (!fs.existsSync(extractPath)) {
+            fs.mkdirSync(extractPath, { recursive: true });
+        }
+
+        // 使用 adm-zip 解压
+        const zip = new AdmZip(zipPath);
+        zip.extractAllTo(extractPath, true);
+
+        logger.info('解压完成');
+
+        try {
+            if (fs.existsSync(zipPath)) {
+                fs.unlinkSync(zipPath);
+                logger.info(`压缩包已删除: ${zipPath}`);
+            }
+        } catch (deleteError) {
+            logger.warn(`删除压缩包失败: ${deleteError}`);
+        }
+
+    } catch (error) {
+        const errorMessage = error instanceof Error
+            ? `${error.name}: ${error.message}`
+            : String(error);
+        logger.info('解压失败: ' + errorMessage);
+        throw new Error('解压失败: ' + errorMessage);
+    }
+}
+
+
+
+const buildMarkdownContent = (data: any) => {
+    let content = `Osai 报错\n`;
+    for (const [key, value] of Object.entries(data)) {
+        content += `> ${key}:<font color="comment">${value}</font>\n`;
+    }
+    return content;
+};
+
+
+/**
+ * 向企业微信报告错误
+ * 联网时报告
+ */
+export const reportErrorToWechat = async (error: any) => {
+
+    try {
+        logger.info(`用户是否同意报告,${getConfig('report_agreement')}`);
+        //查看用户是否允许上传系统信息
+        if (getConfig('report_agreement') !== true) {
+            return;
+        }
+
+        const systemInfo = {
+            platform: os.platform(),        // 操作系统平台 (win32, darwin, linux)
+            arch: os.arch(),                // CPU架构 (x64, arm64, ia32)
+            release: os.release(),          // 系统版本号
+            version: os.version(),          // 系统版本详细信息
+            cpus: os.cpus().length,         // CPU核心数
+            totalMemory: Math.round(os.totalmem() / 1024 / 1024 / 1024), // 总内存(GB)
+            freeMemory: Math.round(os.freemem() / 1024 / 1024 / 1024),   // 可用内存(GB)
+        };
+
+        // 2. 获取更详细的系统信息（可选）
+        const detailedInfo = await si.osInfo();
+        const windowsVersion = {
+            distro: detailedInfo.distro,           // Windows 10, Windows 11 等
+            release: detailedInfo.release,         // 版本号
+            codename: detailedInfo.codename,       // 代号
+            platform: detailedInfo.platform,      // 平台
+            arch: detailedInfo.arch                // 架构
+        };
+
+        const enhancedError = {
+            ...error,
+            systemInfo: JSON.stringify(systemInfo),
+            WindowsVersion: JSON.stringify(windowsVersion),
+        };
+
+        const params = {
+            "msgtype": "markdown",
+            "markdown": {
+                "content": buildMarkdownContent(enhancedError)
+            }
+        };
+        const url = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dbb06a64-caa9-4c40-bc30-5d7aa0f5e25d'
+        //代理服务器
+        const sendUrl = 'http://ai-lib.timefamily.cc:10090/common/proxy/post?url=' + encodeURIComponent(url);
+        await fetch(sendUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(params),
+        });
+    } catch (error) {
+        logger.error(`报告错误到企业微信失败: ${error}`);
     }
 }

@@ -1,7 +1,7 @@
-import { Box, Chip, LinearProgress, Paper, Stack, Tooltip, Typography } from "@mui/material"
+import { Box, Checkbox, Chip, FormControlLabel, LinearProgress, Paper, Stack, Tooltip, Typography } from "@mui/material"
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from './home.module.scss'
-import { Search, InfoCard, Setting, Contact } from '@/components';
+import { Search, InfoCard, Setting, Contact, Dialog } from '@/components';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -59,7 +59,7 @@ const Home = () => {
     }
     const init = async () => {
       effectRan.current = true;
-      await window.electronAPI.init();
+      await window.electronAPI.startIndex();
     }
     init();
   }, []);
@@ -346,6 +346,7 @@ const Home = () => {
 
   return (
     <div className={styles.root}>
+      {/* 用户体验改进协议 （应该放在preload页面） */}
       <Search onSearch={setKeyword} />
       {/* 搜索与结果 */}
       <Stack
@@ -408,7 +409,7 @@ const Home = () => {
               </Typography>
               <Chip
                 color='primary'
-                label='Beta 0.2.2'
+                label='Beta 0.2.3'
                 size='medium'
                 variant='outlined'
               />
