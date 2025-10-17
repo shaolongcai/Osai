@@ -51,7 +51,7 @@ class PathConfig {
         this.appDataPath = path.join(this.userHome, this.baseAppDir);
         this.resources = app && app.isPackaged ? process.resourcesPath : path.join(__dirname, '../../electron/', 'resources'),   // 资源文件
             this.paths = null;
-        this.ollamaPath = platform === 'win32' ? path.join(this.resources, 'ollama', 'ollama.exe') : path.join(this.resources, 'ollama','MacOS', 'ollama');
+        this.ollamaPath = platform === 'win32' ? path.join(this.resources, 'ollama', 'ollama.exe') : path.join(this.resources, 'ollama','Resources', 'ollama');
 
         // 初始化所有路径
         this._initializePaths();

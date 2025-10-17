@@ -18,6 +18,7 @@ class OllamaService {
     constructor() {
         // Ollama可执行文件路径
         this.ollamaPath = pathConfig.get('ollamaPath');
+        // logger.info(`Ollama可执行文件路径: ${this.ollamaPath}`);
     }
 
     // 启动Ollama服务
@@ -55,6 +56,7 @@ class OllamaService {
                         ...process.env,
                         OLLAMA_HOST: '127.0.0.1:11434',
                         OLLAMA_REGISTRY: 'https://docker.mirrors.ustc.edu.cn',   //国内专用中科大镜像
+                        OLLAMA_GPU_LAYERS: '-1',
                     }
                 });
 
@@ -122,7 +124,7 @@ class OllamaService {
             const timeoutPromise = new Promise<never>((_, reject) => {
                 setTimeout(() => {
                     reject(new Error('图像处理超时'));
-                }, 15000); // 15秒超时
+                }, 180000); // 3分钟超时
             });
 
             const chatPromise = ollama.chat({
@@ -141,7 +143,7 @@ class OllamaService {
 
             const response = await Promise.race([chatPromise, timeoutPromise]); //timeoutPromise 生效时，会立即生效
 
-            // logger.info(`Ollama模型返回: ${response.message.content}`);
+            logger.info(`Ollama模型返回: ${response.message.content}`);
 
             return response.message.content;
 

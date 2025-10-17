@@ -230,7 +230,6 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
  */
 export const indexImagesService = async (): Promise<void> => {
     logger.info('等待索引更新完毕')
-    return //测试
     await waitForIndexUpdate();
     logger.info('索引更新完毕')
 
