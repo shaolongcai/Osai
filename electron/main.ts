@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 import { getConfig, initializeDatabase } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
 import { indexAllFilesWithWorkers, indexImagesService } from './core/indexFiles.js';
-import { shutdownVisionService } from './pythonScript/imageService.js';
 import { logger } from './core/logger.js';
 import { checkGPU, extractZip, reportErrorToWechat } from './core/system.js';
 import { initializeModel } from './core/model.js'
@@ -199,5 +198,4 @@ app.on('activate', async () => {
 
 app.on('before-quit', () => {
   // 清理后端进程
-  shutdownVisionService();
 });

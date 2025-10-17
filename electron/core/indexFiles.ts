@@ -10,23 +10,20 @@ import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 import { logger } from './logger.js';
 import * as os from 'os';
+import * as fs from 'fs'
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
+
 /**
  * 获取 Windows 系统上的所有逻辑驱动器（现代方法）
  * @returns 驱动器号列表 (例如, ['C:', 'D:'])
  */
-function getDrives(): string[] {
+const getDrivesByWindows = () => {
     try {
-        if (os.platform() !== 'win32') {
-            logger.warn('当前系统不是Windows，返回空驱动器列表');
-            return [];
-        }
-
         // 使用dir命令列出所有驱动器（兼容性最好）
         const output = execSync('dir /a:d C:\\ 2>nul & for %i in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do @if exist %i:\\ echo %i:', {
             encoding: 'utf8',
@@ -42,8 +39,54 @@ function getDrives(): string[] {
         return drives;
     } catch (error) {
         logger.error(`无法获取驱动器列表:${JSON.stringify(error)}`);
-        // 返回至少包含C盘的默认列表
-        return ['C:'];
+        throw error
+    }
+}
+
+/**
+ * 获取mac上的驱动
+ */
+const getDrivesByMac = () => {
+    try {
+        const commonPaths = [
+            os.homedir(), // 用户主目录
+            // '/Applications', // macOS应用程序目录
+            '/Desktop', // 如果存在
+        ];
+
+        // 过滤出实际存在的路径
+        const existingPaths = commonPaths.filter(p => {
+            try {
+                return fs.existsSync(p);
+            } catch {
+                return false;
+            }
+        });
+
+        logger.info(`发现的索引路径列表:${existingPaths}`);
+        return existingPaths;
+    } catch (error) {
+        logger.error(`无法获取驱动器列表:${JSON.stringify(error)}`);
+        throw error
+    }
+}
+
+/**
+ * 获取驱动盘，区分mac与windows
+ */
+function getDrives(): string[] {
+    try {
+        let drives: string[]
+        if (os.platform() === 'win32') {
+            drives = getDrivesByWindows()
+        }
+        else {
+            drives = getDrivesByMac()
+        }
+        return drives;
+    } catch (error) {
+        logger.error(`无法获取驱动器列表:${JSON.stringify(error)}`);
+        return []
     }
 }
 
@@ -104,6 +147,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         'Windows',
         '.git',
         '.vscode',
+        'Library' //mac忽略目录
     ]);
     // 将 Set 转换为数组以便通过 workerData 传递
     const excludedDirNamesArray = Array.from(excludedDirNames);
@@ -112,7 +156,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             // 明确指定 worker 脚本的路径
             // 我们需要指向编译后的 .js 文件
-            const workerPath = path.join(__dirname, 'indexer.worker.js');
+            const workerPath = path.join(__dirname, 'indexer2.worker.js');
 
             const worker = new Worker(workerPath, {
                 workerData: { drive, dbPath, excludedDirNames: excludedDirNamesArray }
@@ -186,6 +230,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
  */
 export const indexImagesService = async (): Promise<void> => {
     logger.info('等待索引更新完毕')
+    return //测试
     await waitForIndexUpdate();
     logger.info('索引更新完毕')
 

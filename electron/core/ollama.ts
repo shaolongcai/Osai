@@ -32,9 +32,24 @@ class OllamaService {
             try {
                 //启动前，清理所有进程
                 await this.killAllOllamaProcesses();
-                const elevatePath = path.join(pathConfig.get('resources'), 'elevate.exe');
 
-                this.process = spawn(elevatePath, [this.ollamaPath, 'serve'], {
+                //区分win与mac启动
+                const platform = process.platform;
+                let spawnArgs: string[];
+                let spawnCommand: string;
+
+                if (platform === 'win32') {
+                    const elevatePath = path.join(pathConfig.get('resources'), 'elevate.exe');
+                    spawnCommand = elevatePath;
+                    spawnArgs = [this.ollamaPath, 'serve'];
+                } else {
+                    // macOS 和 Linux 直接启动
+                    spawnCommand = this.ollamaPath;
+                    spawnArgs = ['serve'];
+                }
+
+
+                this.process = spawn(spawnCommand, spawnArgs, {
                     stdio: 'pipe',
                     env: {
                         ...process.env,
@@ -98,7 +113,7 @@ class OllamaService {
     // 处理图像 - 替换Python方案
     async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片，请简洁描述，不要重复内容，控制在300字以内'): Promise<string> {
         try {
-            
+
             // 读取图片并转换为base64
             const imageBuffer = fs.readFileSync(imagePath);
             const base64Image = imageBuffer.toString('base64');
