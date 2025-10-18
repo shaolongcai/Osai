@@ -273,7 +273,8 @@ async function indexImageFiles() {
     }
     sendToRenderer('system-info', notification)
 
-    for (const file of files) {
+    // 编程for await 循环，每个文件都等待视觉索引服务完成
+    for await (const file of files) {
         try {
             await waitForIndexImage();
             const summary = await summarizeImage(file.path);
@@ -295,7 +296,7 @@ async function indexImageFiles() {
 
         } catch (error) {
             const msg = error instanceof Error ? error.message : '图片索引服务失败';
-            logger.error(`图片索引服务失败:${msg}；文件路径:${file.path}`)
+            // logger.error(`图片索引服务失败:${msg}；文件路径:${file.path}`)
         }
     }
 }

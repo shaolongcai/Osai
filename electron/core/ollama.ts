@@ -4,20 +4,26 @@ import * as path from 'path';
 import { logger } from './logger.js';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
+import { Worker } from 'worker_threads';
 import ollama from 'ollama'
 import * as fs from 'fs';
+import { createWorker } from 'tesseract.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 
 class OllamaService {
     private process: ChildProcess | null = null;
     private isRunning = false;
     private ollamaPath: string;
+    private imageWorker: Worker | null = null;
+    private pendingRequests = new Map<string, { resolve: Function; reject: Function }>();
 
     constructor() {
         // Ollama可执行文件路径
         this.ollamaPath = pathConfig.get('ollamaPath');
+        this.initializeImageWorker();
         // logger.info(`Ollama可执行文件路径: ${this.ollamaPath}`);
     }
 
@@ -56,7 +62,12 @@ class OllamaService {
                         ...process.env,
                         OLLAMA_HOST: '127.0.0.1:11434',
                         OLLAMA_REGISTRY: 'https://docker.mirrors.ustc.edu.cn',   //国内专用中科大镜像
-                        OLLAMA_GPU_LAYERS: '-1',
+                        // 降低资源占用
+                        OLLAMA_MAX_LOADED_MODELS: '1',
+                        OLLAMA_NUM_PARALLEL: '1',
+                        // 启用调试日志
+                        OLLAMA_DEBUG: '1',
+                        OLLAMA_LOG_LEVEL: 'debug'
                     }
                 });
 
@@ -112,47 +123,125 @@ class OllamaService {
         throw new Error('Ollama服务启动超时');
     }
 
-    // 处理图像 - 替换Python方案
-    async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片，请简洁描述，不要重复内容，控制在300字以内'): Promise<string> {
+    // 重启 Worker
+    private restartImageWorker(): void {
         try {
+            // 清理所有待处理的请求
+            for (const [requestId, pending] of this.pendingRequests) {
+                pending.reject(new Error('Worker重启，请求被取消'));
+            }
+            this.pendingRequests.clear();
 
-            // 读取图片并转换为base64
-            const imageBuffer = fs.readFileSync(imagePath);
-            const base64Image = imageBuffer.toString('base64');
+            // 关闭旧的Worker
+            if (this.imageWorker) {
+                this.imageWorker.terminate();
+                this.imageWorker = null;
+            }
 
-            // 步骤5：设置超时处理
-            const timeoutPromise = new Promise<never>((_, reject) => {
-                setTimeout(() => {
-                    reject(new Error('图像处理超时'));
-                }, 180000); // 3分钟超时
-            });
-
-            const chatPromise = ollama.chat({
-                model: 'qwen2.5vl:3b',
-                messages: [{
-                    role: 'user',
-                    content: prompt,
-                    images: [base64Image],
-                }],
-                options: {
-                    num_predict: 300, // 限制生成的token数量
-                    temperature: 0.7, // 控制生成的随机性
-                    repeat_penalty: 1.1,  //增加重复惩罚
-                }
-            }) //这里需要为promise
-
-            const response = await Promise.race([chatPromise, timeoutPromise]); //timeoutPromise 生效时，会立即生效
-
-            logger.info(`Ollama模型返回: ${response.message.content}`);
-
-            return response.message.content;
+            // 重新初始化Worker
+            setTimeout(() => {
+                this.initializeImageWorker();
+            }, 1000); // 延迟1秒重启
 
         } catch (error) {
-            const msg = error instanceof Error ? error.message : '图像处理失败';
-            logger.error(`图像处理失败: ${msg}`);
-            throw new Error(msg);
+            // logger.error(`重启图像处理 Worker 失败: ${error}`);
         }
     }
+
+    // 初始化图像处理 Worker
+    private initializeImageWorker(): void {
+        try {
+            const workerPath = path.join(__dirname, 'imageProcessor.worker.js');
+            this.imageWorker = new Worker(workerPath);
+
+            // 监听 Worker 消息
+            this.imageWorker.on('message', (response: any) => {
+                const { requestId, success, result, error } = response;
+                console.log('result', result)
+                const pending = this.pendingRequests.get(requestId);
+
+                if (pending) {
+                    this.pendingRequests.delete(requestId);
+                    if (success) {
+                        pending.resolve(result);
+                    } else {
+                        pending.reject(new Error(error));
+                    }
+                }
+            });
+
+            // 监听 Worker 错误
+            this.imageWorker.on('error', (error) => {
+                // logger.error(`图像处理 Worker 错误: ${error.message}`);
+                // 重启 Worker
+                this.restartImageWorker();
+            });
+
+            // 监听 Worker 退出
+            this.imageWorker.on('exit', (code) => {
+                if (code !== 0) {
+                    // logger.warn(`图像处理 Worker 异常退出，代码: ${code}`);
+                    this.restartImageWorker();
+                }
+            });
+
+        } catch (error) {
+            // logger.error(`初始化图像处理 Worker 失败: ${error}`);
+        }
+    }
+
+
+
+    async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片，请简洁描述，不要重复内容，控制在300字以内'): Promise<string> {
+        return new Promise(async (resolve, reject) => {
+            const fileName = path.basename(imagePath);
+            //跳过名称
+            const skipNames = ['企业微信截图', '截图', '公司', '充值方案', '图片详情', '图片信息', '图片详情']
+            if (skipNames.some(name => fileName.includes(name))) {
+                console.log(`跳过名称: ${fileName}`)
+                resolve('');
+                return;
+            }
+
+            // console.log(`开始处理：${imagePath}`)
+            const worker = await createWorker('chi_sim');
+            const ret = await worker.recognize(imagePath);
+            console.log(ret.data.text);
+            await worker.terminate();
+            resolve(ret.data.text)
+        });
+    }
+
+    //  使用线程来获取图片摘要
+    //    async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片，请简洁描述，不要重复内容，控制在300字以内'): Promise<string> {
+    //     return new Promise((resolve, reject) => {
+    //         const fileName = path.basename(imagePath);
+    //         //跳过名称
+    //         const skipNames = ['企业微信截图', '截图', '公司', '充值方案', '图片详情', '图片信息', '图片详情']
+    //         if (skipNames.some(name => fileName.includes(name))) {
+    //             console.log(`跳过名称: ${fileName}`)
+    //             resolve('');
+    //             return;
+    //         }
+
+    //         if (!this.imageWorker) {
+    //             reject(new Error('图像处理 Worker 未初始化'));
+    //             return;
+    //         }
+
+    //         const requestId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    //         // 存储 Promise 的 resolve 和 reject
+    //         this.pendingRequests.set(requestId, { resolve, reject });
+
+    //         // 发送任务到 Worker
+    //         this.imageWorker.postMessage({
+    //             imagePath,
+    //             prompt,
+    //             requestId
+    //         });
+    //     });
+    // }
 
     // 生成文本
     async generate(model: string, prompt: string): Promise<string> {
