@@ -9,13 +9,13 @@ import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate, waitForModelRead
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 import { logger } from './logger.js';
+import { createWorker } from 'tesseract.js';
 import * as os from 'os';
 import * as fs from 'fs'
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
 
 /**
@@ -168,7 +168,10 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
                     logger.info(`驱动器 ${drive} 索引完成，找到 ${message.files.length} 个文件。`);
                     completedDrives++;
                     completedFiles += message.files.length;
+                    // const formattedTotal = completedFiles.toLocaleString('en-US');
                     const formattedTotal = completedFiles.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); //加入千分位
+                    logger.info(`formattedTotal:${formattedTotal}`)
+                    // 加入千分位
                     sendToRenderer('index-progress', {
                         message: `已索引 ${formattedTotal} 个文件`,
                         process: completedDrives === drives.length ? 'finish' : 'pending',
@@ -233,9 +236,9 @@ export const indexImagesService = async (): Promise<void> => {
     await waitForIndexUpdate();
     logger.info('索引更新完毕')
 
-    logger.info('等待AI模型准备就绪...');
-    await waitForModelReady();
-    logger.info('AI模型已就绪，开始索引图片。');
+    // logger.info('等待AI模型准备就绪...');
+    // await waitForModelReady();
+    // logger.info('AI模型已就绪，开始索引图片。');
 
     // 对所有图片文件，都使用vl应用读取摘要
     const startIndexImageTime = Date.now();
@@ -244,7 +247,7 @@ export const indexImagesService = async (): Promise<void> => {
     logger.info(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
     const notification: INotification = {
         id: 'visual-index',
-        text: '视觉索引已全部完成',
+        text: 'OCR 索引已全部完成',
         type: 'success',
     }
     sendToRenderer('system-info', notification);
@@ -267,9 +270,9 @@ async function indexImageFiles() {
 
     const notification: INotification = {
         id: 'visual-index',
-        text: `视觉索引服务已启动 剩余 ${totalFiles}`,
+        text: `OCR 服务已启动 剩余 ${totalFiles}`,
         type: 'loadingQuestion',
-        tooltip: '视觉服务：你可以直接搜索图片中的内容，而不仅是名称。你可前往【设置】手动关闭'
+        tooltip: 'OCR 服务：AI会识别图片中的文字，你可以直接搜索图片中的文字，而不仅是名称。你可前往【设置】手动关闭'
     }
     sendToRenderer('system-info', notification)
 
@@ -284,12 +287,12 @@ async function indexImageFiles() {
             const res = updateStmt.run(summary, file.path);
             if (res.changes > 0) {
                 logger.info(`剩余处理图片数: ${totalFiles}`);
-                const notification: INotification = {
-                    id: 'visual-index',
-                    text: `视觉索引服务已启动 剩余 ${totalFiles}`,
-                    type: 'loadingQuestion',
-                    tooltip: '视觉服务：你可以直接搜索图片中的内容，而不仅是名称。你可前往【设置】手动关闭'
-                }
+                // const notification: INotification = {
+                //     id: 'visual-index',
+                //     text: `OCR 服务已启动 剩余 ${totalFiles}`,
+                //     type: 'loadingQuestion',
+                //     tooltip: 'OCR 服务：AI会识别图片中的文字，你可以直接搜索图片中的文字，而不仅是名称。你可前往【设置】手动关闭'
+                // }
                 sendToRenderer('system-info', notification)
                 totalFiles--
             }
@@ -309,10 +312,28 @@ async function indexImageFiles() {
 export async function summarizeImage(imagePath: string): Promise<string> {
     try {
         // 直接使用Ollama处理图片，无需Python
-        return await ollamaService.processImage(imagePath);
+        return await processImage(imagePath);
     } catch (error) {
         // 被reject（失败）后，走这里，会 立即将这个 Promise 的拒绝原因作为异常抛出 。
         const msg = error instanceof Error ? error.message : '图片摘要生成失败';
         throw new Error(msg);
     }
+}
+
+
+const processImage = (imagePath: string): Promise<string> => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log(`开始处理：${imagePath}`)
+            const worker = await createWorker('chi_sim');
+            const ret = await worker.recognize(imagePath);
+            // console.log(ret.data.text);
+            await worker.terminate();
+            resolve(ret.data.text)
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : '图片处理失败';
+            logger.error(`图片处理失败: ${msg}`);
+            reject(new Error(msg));
+        }
+    });
 }

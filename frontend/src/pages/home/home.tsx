@@ -20,7 +20,7 @@ import searchNull from '@/assets/images/search-null.png'
 const Home = () => {
 
   const [indexProgress, setIndexProgress] = useState<Progress | null>(); //索引的进度信息
-  const [needIndexImageCount, setNeedIndexImageCount] = useState<number | null>(null); //剩下需要索引的图片
+  const [needIndexImageCount, setNeedIndexImageCount] = useState<string | null>(''); //剩下需要索引的图片
   const [keyword, setKeyword] = useState<string>(''); //搜索的关键词
   const [data, setData] = useState<SearchDataItem[]>([]); //搜索的结果
   const [openSetting, setOpenSetting] = useState(false); //是否打开设置弹窗
@@ -43,7 +43,7 @@ const Home = () => {
     });
     // 监听视觉索引进度
     window.electronAPI.onVisualIndexProgress(async (data) => {
-      setNeedIndexImageCount(data.count);
+      setNeedIndexImageCount(data.count as string);
     });
     return () => {
       // 移除监听

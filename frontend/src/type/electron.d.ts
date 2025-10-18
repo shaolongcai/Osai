@@ -14,7 +14,7 @@ export interface BaseResponse<T = any> {
 
 
 export interface Progress {
-    count: number,
+    count: string,
     message: string,
     process: 'finish' | 'pending' //完成或准备中
 }

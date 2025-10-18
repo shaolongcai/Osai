@@ -5,9 +5,6 @@ import { logger } from './logger.js';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { Worker } from 'worker_threads';
-import ollama from 'ollama'
-import * as fs from 'fs';
-import { createWorker } from 'tesseract.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,8 +20,7 @@ class OllamaService {
     constructor() {
         // Ollama可执行文件路径
         this.ollamaPath = pathConfig.get('ollamaPath');
-        this.initializeImageWorker();
-        // logger.info(`Ollama可执行文件路径: ${this.ollamaPath}`);
+        // this.initializeImageWorker();
     }
 
     // 启动Ollama服务
@@ -190,27 +186,6 @@ class OllamaService {
         }
     }
 
-
-
-    async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片，请简洁描述，不要重复内容，控制在300字以内'): Promise<string> {
-        return new Promise(async (resolve, reject) => {
-            const fileName = path.basename(imagePath);
-            //跳过名称
-            const skipNames = ['企业微信截图', '截图', '公司', '充值方案', '图片详情', '图片信息', '图片详情']
-            if (skipNames.some(name => fileName.includes(name))) {
-                console.log(`跳过名称: ${fileName}`)
-                resolve('');
-                return;
-            }
-
-            // console.log(`开始处理：${imagePath}`)
-            const worker = await createWorker('chi_sim');
-            const ret = await worker.recognize(imagePath);
-            console.log(ret.data.text);
-            await worker.terminate();
-            resolve(ret.data.text)
-        });
-    }
 
     //  使用线程来获取图片摘要
     //    async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片，请简洁描述，不要重复内容，控制在300字以内'): Promise<string> {
