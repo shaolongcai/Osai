@@ -1,15 +1,16 @@
 import { GpuInfo } from '@/type/electron';
+import { OsType } from '@/type/system';
 import { createContext, useContext } from 'react';
 
 
 
 export interface IGlobalContext {
-
+    os: OsType,
 }
 
 // 创建全局上下文
 export const globalContext = createContext<IGlobalContext>({
-
+    os: 'unknown',
 });
 
 

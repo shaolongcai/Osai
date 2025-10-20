@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { Contact, Dialog, ReportProtocol, SettingItem } from '@/components';
 import { UserConfig } from '@/type/system';
 import { ConfigParams } from '@/type/electron';
-
+import { useContext } from 'react';
+import { globalContext } from '@/context/globalContext';
 
 interface SettingProps {
     open: boolean;
@@ -29,6 +30,8 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [gpuSeverOpen, setGpuSeverOpen] = useState(false) //GPU服务弹窗
     const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
     const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
+
+    const context = useContext(globalContext)
 
 
 
@@ -175,10 +178,14 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                             value={openIndexImage}
                             onAction={toggleVisualIndex}
                         />
-                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
-                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >GPU加速服务</Typography>
-                                <Button
+                        {
+                            context.os === 'win' &&
+                            <SettingItem
+                                title='GPU加速服务'
+                                type='custom'
+                                value={openIndexImage}
+                                onAction={toggleVisualIndex}
+                                action={<Button
                                     sx={{
                                         '&:focus': {
                                             outline: 'none',
@@ -198,9 +205,9 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                     onClick={() => { setGpuSeverOpen(true) }} >
                                     {isInstallGpu ? '重新安装' : '安装'}
                                 </Button>
-                            </Stack>
-                        </Paper>
-
+                                }
+                            />
+                        }
                         <Paper className={styles.settingItem} elevation={0} variant='outlined' >
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
                                 <Typography variant="body1" className={styles.label} >运行日志</Typography>

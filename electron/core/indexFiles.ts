@@ -287,12 +287,12 @@ async function indexImageFiles() {
             const res = updateStmt.run(summary, file.path);
             if (res.changes > 0) {
                 logger.info(`剩余处理图片数: ${totalFiles}`);
-                // const notification: INotification = {
-                //     id: 'visual-index',
-                //     text: `OCR 服务已启动 剩余 ${totalFiles}`,
-                //     type: 'loadingQuestion',
-                //     tooltip: 'OCR 服务：AI会识别图片中的文字，你可以直接搜索图片中的文字，而不仅是名称。你可前往【设置】手动关闭'
-                // }
+                const notification: INotification = {
+                    id: 'visual-index',
+                    text: `OCR 服务已启动 剩余 ${totalFiles}`,
+                    type: 'loadingQuestion',
+                    tooltip: 'OCR 服务：AI会识别图片中的文字，你可以直接搜索图片中的文字，而不仅是名称。你可前往【设置】手动关闭'
+                }
                 sendToRenderer('system-info', notification)
                 totalFiles--
             }
@@ -310,10 +310,23 @@ async function indexImageFiles() {
  * @returns 图片摘要
  */
 export async function summarizeImage(imagePath: string): Promise<string> {
+    let timeoutId: NodeJS.Timeout;
     try {
-        // 直接使用Ollama处理图片，无需Python
-        return await processImage(imagePath);
+        const timeout = new Promise<never>((_, reject) => {
+            timeoutId = setTimeout(() => {
+                reject(new Error('OCR 处理超时（30秒）'));
+            }, 30000);
+        })
+
+        const summary = await Promise.race([
+            processImage(imagePath),
+            timeout
+        ]);
+
+        clearTimeout(timeoutId);
+        return summary;
     } catch (error) {
+        clearTimeout(timeoutId);
         // 被reject（失败）后，走这里，会 立即将这个 Promise 的拒绝原因作为异常抛出 。
         const msg = error instanceof Error ? error.message : '图片摘要生成失败';
         throw new Error(msg);
@@ -321,11 +334,21 @@ export async function summarizeImage(imagePath: string): Promise<string> {
 }
 
 
+/**
+ * OCR索引
+ * @param imagePath 
+ * @returns 
+ */
 const processImage = (imagePath: string): Promise<string> => {
+
+    const resourcesPath = pathConfig.get('resources')
+
     return new Promise(async (resolve, reject) => {
         try {
             console.log(`开始处理：${imagePath}`)
-            const worker = await createWorker('chi_sim');
+            const worker = await createWorker(['chi_sim', 'chi_tra', 'eng'], 1, {
+                langPath: path.join(resourcesPath, 'traineddata'),
+            });
             const ret = await worker.recognize(imagePath);
             // console.log(ret.data.text);
             await worker.terminate();

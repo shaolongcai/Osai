@@ -409,7 +409,7 @@ const Home = () => {
               </Typography>
               <Chip
                 color='primary'
-                label='Beta 0.2.3'
+                label='Beta 0.3.0'
                 size='medium'
                 variant='outlined'
               />

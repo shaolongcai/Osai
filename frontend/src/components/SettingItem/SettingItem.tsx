@@ -3,13 +3,14 @@ import styles from './SettingItem.module.scss'
 
 
 
-type ActionType = 'button' | 'switch'
+type ActionType = 'button' | 'switch' | 'custom'
 
 interface Props {
     title: string;
     value?: string | boolean;
     type: ActionType;
     onAction: (checked: boolean) => void;
+    action?: React.ReactNode;
 }
 
 const SettingItem: React.FC<Props> = ({
@@ -17,6 +18,7 @@ const SettingItem: React.FC<Props> = ({
     value,
     type,
     onAction,
+    action,
 }) => {
 
 
@@ -55,6 +57,8 @@ const SettingItem: React.FC<Props> = ({
                         onChange={(_e, checked) => onAction(checked)}
                     />
                 )
+            case 'custom':
+                return action
             default:
                 break;
         }

@@ -3,6 +3,7 @@ import { app, dialog } from 'electron';
 import { logger } from './logger.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
+import * as os from 'os';
 
 
 const { autoUpdater } = pkg;
@@ -12,6 +13,31 @@ class UpdateService {
 
     constructor() {
         this.setupAutoUpdater();
+    }
+
+    /**
+    * 获取架构特定的更新文件名
+    */
+    private getArchSpecificUpdateFile(): string {
+        const arch = os.arch();
+        const platform = os.platform();
+
+        if (platform === 'darwin') {
+            // macOS 平台根据架构选择对应的更新文件
+            if (arch === 'arm64') {
+                return 'latest-arm64.yml';
+            } else if (arch === 'x64') {
+                return 'latest-x64.yml';
+            }
+            // 如果有 universal 版本，可以作为默认选择
+            return 'latest-mac-universal.yml';
+        } else if (platform === 'win32') {
+            // Windows 平台
+            return 'latest.yml';
+        }
+
+        // 默认返回通用文件名
+        return 'latest.yml';
     }
 
 
@@ -25,6 +51,20 @@ class UpdateService {
         autoUpdater.disableDifferentialDownload = true;
         // 禁用自动下载，只检查更新
         autoUpdater.autoDownload = false;
+        // mac测试
+        autoUpdater.allowPrerelease = true;
+        autoUpdater.allowDowngrade = true;
+
+        // 设置架构特定的更新文件
+        const updateFileName = this.getArchSpecificUpdateFile();
+        logger.info(`使用更新文件: ${updateFileName}`);
+
+        // 设置更新服务器地址和特定的更新文件
+        autoUpdater.setFeedURL({
+            provider: 'generic',
+            url: 'http://kodo.osai.timefamily.cc/last/',
+            channel: updateFileName.replace('.yml', '') //获取不同的更新yml
+        });
 
         // 强制开发环境也进行更新检查（仅用于测试）
         if (process.env.NODE_ENV === 'development') {
