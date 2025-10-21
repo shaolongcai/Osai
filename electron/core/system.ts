@@ -152,6 +152,7 @@ export const detectCudaVersion = (): 'cudaV13.zip' | 'cudaV12.zip' => {
  * @returns 
  */
 export const openDir = (type: string, filePath?: string) => {
+    logger.info(`打开目录: ${type}, ${filePath}`)
     switch (type) {
         // 打开运行日志
         case 'runLog':
@@ -162,14 +163,31 @@ export const openDir = (type: string, filePath?: string) => {
         case 'openFileDir':
             if (process.platform === 'win32') {
                 // 在 Windows 上，使用 explorer.exe 并通过 /select 参数来选中文件
-                exec(`explorer.exe /select,"${filePath}"`);
+                // 确保路径格式正确，将正斜杠转换为反斜杠
+                const windowsPath = filePath?.replace(/\//g, '\\') || filePath;
+                const command = `explorer.exe /select,"${windowsPath}"`;
+                exec(command, (error, stdout, stderr) => {
+                    if (error) {
+                        // 如果命令失败，使用备用方法
+                        shell.showItemInFolder(filePath);
+                    }
+                });
             } else if (process.platform === 'darwin') {
                 // 在 macOS 上，使用 open 命令并附带 -R 参数来在 Finder 中显示文件
-                exec(`open -R "${filePath}"`);
+                exec(`open -R "${filePath}"`, (error, stdout, stderr) => {
+                    if (error) {
+                        console.error('打开文件夹失败:', error);
+                        shell.showItemInFolder(filePath);
+                    }
+                });
             } else {
                 // 对于其他平台（如 Linux），继续使用 showItemInFolder 作为备选
                 shell.showItemInFolder(filePath);
             }
+            break;
+        // 直接打开文件
+        case 'openFile':
+            shell.openPath(filePath);
             break;
         default:
             break;

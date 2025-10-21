@@ -50,7 +50,7 @@ export interface ConfigParams {
 }
 
 
-type OpenDirType = 'runLog' | 'openFileDir'
+type OpenDirType = 'runLog' | 'openFileDir' | 'openFile'
 
 interface ElectronAPI {
 

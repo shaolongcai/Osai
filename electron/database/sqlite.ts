@@ -45,6 +45,8 @@ export function initializeDatabase(): Database.Database {
 
     // 为现有表添加tags字段（如果不存在）
     try {
+      db.exec(`ALTER TABLE files ADD COLUMN full_content TEXT DEFAULT ''`)
+      logger.info('成功添加full_content字段到files表')
       db.exec(`ALTER TABLE files ADD COLUMN tags TEXT DEFAULT '[]'`)
       logger.info('成功添加tags字段到files表')
     } catch (error) {

@@ -104,6 +104,8 @@ function processFile(filePath: string, stat: fs.Stats) {
                 const metadataString = `${filePath}-${stat.size}-${stat.mtime.getTime()}`;
                 const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
                 updateStmt.run(md5, stat.size, dayjs(stat.mtime).format(), filePath);
+
+                //@todo: AI mark功能 重新摘要（放到线程）
             }
         } else {
             const metadataString = `${filePath}-${stat.size}-${stat.mtime.getTime()}`;

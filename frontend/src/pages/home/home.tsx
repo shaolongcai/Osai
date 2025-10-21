@@ -1,19 +1,13 @@
 import { Box, Checkbox, Chip, FormControlLabel, LinearProgress, Paper, Stack, Tooltip, Typography } from "@mui/material"
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from './home.module.scss'
-import { Search, InfoCard, Setting, Contact, Dialog } from '@/components';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow, { TableRowProps } from '@mui/material/TableRow';
-import { TableVirtuoso, TableComponents } from 'react-virtuoso';
+import { Search, InfoCard, Setting, Contact, Dialog, TableRelust } from '@/components';
 import { Progress } from "@/type/electron";
 import readySearchImage from '@/assets/images/search-ready.png'
-import dayjs from "dayjs";
 import { getFileTypeByExtension } from "@/utils/tools";
-import { SettingsOutlined as SettingsIcon, ArrowUpward, ArrowDownward } from "@mui/icons-material";
+import {
+  SettingsOutlined as SettingsIcon
+} from "@mui/icons-material";
 import searchNull from '@/assets/images/search-null.png'
 
 
@@ -125,20 +119,6 @@ const Home = () => {
     }
   }, [data, sortConfig]);
 
-  // 通用排序处理函数
-  const handleSort = (columnKey: string) => {
-    let direction: 'asc' | 'desc' | null = 'asc';
-
-    if (sortConfig.key === columnKey) {
-      if (sortConfig.direction === 'asc') {
-        direction = 'desc';
-      } else if (sortConfig.direction === 'desc') {
-        direction = null;
-      }
-    }
-
-    setSortConfig({ key: columnKey, direction });
-  };
 
   const searchFiles = useCallback(async (keyword: string) => {
     const res = await window.electronAPI.searchFiles(keyword);
@@ -146,240 +126,36 @@ const Home = () => {
   }, []);
 
 
-  const columns: ColumnData[] = [
-    {
-      width: 60,
-      label: '文件名称',
-      dataKey: 'name',
-      styles: {
-        fontColor: '#00000085',
-      }
-    },
-    {
-      width: 100,
-      label: '路径',
-      dataKey: 'path',
-      styles: {
-        fontColor: '#00000065',
-      },
-      render: (value) => {
-        return <Tooltip title={value}>
-          <div style={{
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}>
-            {value}
-          </div>
-        </Tooltip>
-      },
-    },
-    {
-      width: 50,
-      label: '修改时间',
-      dataKey: 'modified_at',
-      styles: {
-        fontColor: '#00000065',
-      },
-      render: (value) => dayjs(value).format('YYYY-MM-DD HH:mm:ss'),
-      sortable: true
-    },
-    {
-      width: 50,
-      label: '文件类型',
-      dataKey: 'ext',
-      styles: {
-        fontColor: '#00000065',
-      },
-      render: (value) => getFileTypeByExtension(value as string),
-      sortable: true // 标记该列可排序
-    },
-  ];
 
-
-  const VirtuosoTableComponents: TableComponents<SearchDataItem> = {
-    Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
-      <TableContainer component={Paper} {...props} ref={ref}
-        sx={{
-          boxShadow: 'none',
-          border: 'none',
-          // 使用 ::-webkit-scrollbar 系列伪元素来自定义滚动条
-          // 这些样式会覆盖浏览器默认的滚动条外观
-          '&::-webkit-scrollbar': {
-            width: '6px', // 滚动条宽度
-          },
-          '&::-webkit-scrollbar-track': {
-            background: 'transparent', // 轨道背景透明
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: 'rgba(0, 0, 0, 0.2)', // 滑块颜色
-            borderRadius: '3px', // 滑块圆角
-          },
-          '&::-webkit-scrollbar-thumb:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.4)', // 鼠标悬停时滑块颜色变深
-          },
-        }}
-      />
-    )),
-    Table: (props) => (
-      <Table {...props} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />
-    ),
-    TableHead: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
-      <TableHead {...props} ref={ref} />
-    )),
-    TableRow: (props: TableRowProps & { item: SearchDataItem }) => {
-      const { item, ...rest } = props;
-      const handleRowClick = () => {
-        if (item) {
-          window.electronAPI.openDir('openFileDir', item.path);
-        }
-      };
-      return <TableRow {...rest} onClick={handleRowClick} />;
-    },
-    TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
-      <TableBody {...props} ref={ref}
-        sx={{
-          '& .MuiTableRow-root:hover': {
-            backgroundColor: '#1890FF25', // 应用您想要的蓝色背景
-            cursor: 'pointer',
-            // transition: 'background-color 0.1s ease',
-
-            // b. 为该行的第一个单元格设置左侧圆角
-            '& .MuiTableCell-root:first-of-type': {
-              borderRadius: '8px 0 0 8px',
-            },
-            // c. 为该行的最后一个单元格设置右侧圆角
-            '& .MuiTableCell-root:last-of-type': {
-              borderRadius: '0 8px 8px 0',
-            },
-          },
-        }}
-      />
-    )),
-  };
-
-  // 通用的排序图标渲染函数
-  const renderSortIcon = (columnKey: string) => {
-    if (sortConfig.key !== columnKey) {
-      return (
-        <>
-          <ArrowUpward sx={{ fontSize: 12, marginBottom: '-2px', opacity: 0.3 }} />
-          <ArrowDownward sx={{ fontSize: 12, opacity: 0.3 }} />
-        </>
-      );
-    }
-
-    if (sortConfig.direction === 'asc') {
-      return <ArrowUpward sx={{ fontSize: 14, color: '#1976d2' }} />;
-    } else if (sortConfig.direction === 'desc') {
-      return <ArrowDownward sx={{ fontSize: 14, color: '#1976d2' }} />;
-    }
-
-    return (
-      <>
-        <ArrowUpward sx={{ fontSize: 12, marginBottom: '-2px', opacity: 0.3 }} />
-        <ArrowDownward sx={{ fontSize: 12, opacity: 0.3 }} />
-      </>
-    );
-  };
-
-  // 表格内容
-  function rowContent(_index: number, row: SearchDataItem) {
-    return (
-      <React.Fragment>
-        {columns.map((column) => (
-          <TableCell
-            key={column.dataKey}
-            align={column.numeric || false ? 'right' : 'left'}
-            sx={{
-              borderBottom: 'none',
-              p: '8px', //row内边距
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              color: column.styles?.fontColor,
-            }}
-          >
-            {column.render ? column.render(row[column.dataKey]) : row[column.dataKey]}
-          </TableCell>
-        ))}
-      </React.Fragment>
-    );
-  }
-
-  // 固定的表头
-  function fixedHeaderContent() {
-    return (
-      <TableRow>
-        {columns.map((column) => (
-          <TableCell
-            key={column.dataKey}
-            onClick={column.sortable ? () => handleSort(column.dataKey) : undefined}
-            variant="head"
-            align={column.numeric || false ? 'right' : 'left'}
-            style={{ width: column.width }}
-            sx={{
-              cursor: column.sortable ? 'pointer' : 'default',
-              backgroundColor: 'background.paper',
-              borderBottom: 'none',
-              // borderRight: '1px solid #cccccc',
-              height: '8px',
-              fontSize: '14px',
-              color: '#00000085',
-              fontWeight: 600,
-              p: '8px',
-            }}
-          >
-            <Box display="flex" alignItems="center" gap={0.5}>
-              {column.label}
-              {column.sortable && (
-                <Box display="flex" flexDirection="column" sx={{ opacity: 0.6 }}>
-                  {renderSortIcon(column.dataKey)}
-                </Box>
-              )}
-            </Box>
-          </TableCell>
-        ))}
-      </TableRow>
-    );
-  }
 
   return (
     <div className={styles.root}>
-      {/* 用户体验改进协议 （应该放在preload页面） */}
-      <Search onSearch={setKeyword} />
-      {/* 搜索与结果 */}
-      <Stack
-        direction='row'
-        spacing={1}
-        alignItems='flex-end'
-        className={styles.settings}
-      >
-        {
-          data.length > 0 &&
-          <Typography className={styles.total}>
-            共搜索到 {data?.length} 条结果
-          </Typography>
-        }
-        <SettingsIcon
-          className={styles.settingsIcon}
-          fontSize='large'
-          color='inherit'
+      <Stack direction='row' alignItems='center' spacing={1} >
+        <Search onSearch={setKeyword} />
+        <Stack className={styles.settings} fontSize='large' alignItems='center' justifyContent='center'
           onClick={() => setOpenSetting(true)}
-        />
+        >
+          <SettingsIcon className={styles.settingsIcon} />
+          <Typography variant='body2' className={styles.text}>
+            设置
+          </Typography>
+        </Stack>
       </Stack>
+      {/* 搜索与结果 */}
+      {
+        data.length > 0 &&
+        <Typography className={styles.total}>
+          共搜索到 {data?.length} 条结果
+        </Typography>
+      }
       <Setting open={openSetting} onClose={() => setOpenSetting(false)} />
       {
         data.length > 0 ?
-          <Box className={styles.table}>
-            <TableVirtuoso
-              className={styles.TableContainer}
-              fixedHeaderContent={fixedHeaderContent}
-              data={sortedData}
-              components={VirtuosoTableComponents}
-              itemContent={rowContent}
-            />
-          </Box>
+          <TableRelust
+            sortedData={sortedData}
+            sortConfig={sortConfig}
+            setSortConfig={setSortConfig}
+          />
           :
           // 若为空，但是有搜索关键词，则显示搜索为空
           keyword.length > 0 ?
