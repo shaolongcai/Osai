@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 import { getConfig, initializeDatabase } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
 import { indexAllFilesWithWorkers, indexImagesService } from './core/indexFiles.js';
-import { shutdownVisionService } from './pythonScript/imageService.js';
 import { logger } from './core/logger.js';
 import { checkGPU, extractZip, reportErrorToWechat } from './core/system.js';
 import { initializeModel } from './core/model.js'
@@ -136,7 +135,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();
@@ -199,5 +198,4 @@ app.on('activate', async () => {
 
 app.on('before-quit', () => {
   // 清理后端进程
-  shutdownVisionService();
 });

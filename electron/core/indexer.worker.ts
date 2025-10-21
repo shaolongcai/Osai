@@ -37,6 +37,7 @@ const ignorePatterns = [
     '.DS_Store',    // macOS 文件
     'thumbs.db',    // Windows 缩略图缓存
     'desktop.ini',  // Windows 系统文件
+    '.trash',           // macOS 回收站
 ];
 
 
@@ -66,6 +67,7 @@ function findFiles(dir: string): string[] {
         return [];
     }
 
+
     // 添加回收站路径检查
     // if (dir.includes('$RECYCLE.BIN') || dir.includes('System Volume Information')) {
     //     return [];
@@ -81,8 +83,8 @@ function findFiles(dir: string): string[] {
     try {
         const list = fs.readdirSync(dir);
         list.forEach(file => {
-            const filePath = path.join(dir, file);
             try {
+                const filePath = path.join(dir, file);
                 const stat = fs.statSync(filePath);
                 if (stat && stat.isDirectory()) {
                     results = results.concat(findFiles(filePath));
@@ -118,12 +120,13 @@ function findFiles(dir: string): string[] {
                 }
             } catch (error) {
                 // 忽略无法访问的文件
-                // console.error('无法访问的文件:', error);
+                console.error('无法访问的文件:', error);
             }
         });
     } catch (error) {
         // 忽略无法读取的目录
-        // console.error('无法读取的目录:', error);
+        console.error('无法读取的目录:', error);
+        return []
     }
     return results;
 }
@@ -131,9 +134,10 @@ function findFiles(dir: string): string[] {
 
 // --- 工作线程入口点 ---
 try {
-    const files = findFiles(drive + '\\');
+    const files = findFiles(path.join(drive));
     parentPort?.postMessage({ status: 'success', files });
 } catch (error) {
     const msg = error instanceof Error ? error.message : '索引失败';
-    // parentPort?.postMessage({ status: 'error', error: msg });
+    console.log('索引失败:', msg);
+    parentPort?.postMessage({ status: 'error', error: msg });
 }

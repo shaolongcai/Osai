@@ -6,6 +6,7 @@ import { GpuInfo } from './type/electron';
 import Preload from './pages/preload/Preload';
 import Home from './pages/home/Home'
 import { Routes, Route, HashRouter } from 'react-router-dom';
+import { OsType } from './type/system';
 
 function App() {
 
@@ -15,6 +16,17 @@ function App() {
     hasDiscreteGPU: false,
   })
 
+  const getOs = (): OsType => {
+    const platform = navigator.platform.toLowerCase();
+    if (platform.startsWith('mac')) {
+      return 'mac';
+    }
+    if (platform.startsWith('win')) {
+      return 'win';
+    }
+    return 'unknown';
+  };
+
   return (
     <NotificationsProvider slotProps={{
       snackbar: {
@@ -22,8 +34,7 @@ function App() {
       },
     }}>
       <globalContext.Provider value={{
-        gpuInfo,
-        setGpuInfo
+        os: getOs(),
       }}>
         <HashRouter>
           <Routes>

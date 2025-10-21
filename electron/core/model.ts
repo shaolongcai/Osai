@@ -68,7 +68,7 @@ async function pullOllamaModel(modelName: string): Promise<void> {
                             id: 'downloadModel',
                             text: `正在下载AI模型 ${Math.floor(Number(progress))}%`,
                             type: 'loading',
-                            tooltip: '在AI模型下载完成前，你还可以使用传统搜索'
+                            tooltip: '在AI模型下载完成前，你可以随时进行搜索'
                         }
                         sendToRenderer('system-info', notification)
                     }
