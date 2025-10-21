@@ -36,11 +36,20 @@ export function initializeDatabase(): Database.Database {
               size INTEGER,
               created_at DATETIME,
               modified_at DATETIME,
-              summary TEXT
+              summary TEXT,
+              tags TEXT DEFAULT '[]'
             );
             CREATE UNIQUE INDEX IF NOT EXISTS idx_files_md5 ON files (md5);
             CREATE UNIQUE INDEX IF NOT EXISTS idx_files_path ON files (path);
           `)
+
+    // 为现有表添加tags字段（如果不存在）
+    try {
+      db.exec(`ALTER TABLE files ADD COLUMN tags TEXT DEFAULT '[]'`)
+      logger.info('成功添加tags字段到files表')
+    } catch (error) {
+      // 字段已存在时会报错，忽略即可
+    }
 
     // 创建用户配置表
     db.exec(`

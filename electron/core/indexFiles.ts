@@ -4,8 +4,7 @@ import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { getDatabase, setConfig } from '../database/sqlite.js';
-import { ollamaService } from './ollama.js'
-import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate, waitForModelReady } from './appState.js';
+import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 import { logger } from './logger.js';
