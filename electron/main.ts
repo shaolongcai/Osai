@@ -7,7 +7,7 @@ import { initializeFileApi } from './api/file.js';
 import { indexAllFilesWithWorkers, indexImagesService } from './core/indexFiles.js';
 import { logger } from './core/logger.js';
 import { checkGPU, extractZip, reportErrorToWechat } from './core/system.js';
-import { initializeModel } from './core/model.js'
+import { checkModelService, initializeModel } from './core/model.js'
 import { ollamaService } from './core/ollama.js';
 import pathConfig from './core/pathConfigs.js';
 import { INotification } from './types/system.js';
@@ -95,17 +95,27 @@ export const extractCUDA = async () => {
  * 初始化所有必须条件
  * 1、初始化数据库
  * 2、启动ollama服务，初始化模型
+ * 3、检查硬件
+ * 4、检查是否已经准备好AI mark
  */
 export const init = async () => {
   try {
     // 初始化数据库
     initializeDatabase()
     // 解压CUDA服务 (todo：改为检查CUDA服务，再解压)
-    await extractCUDA();
+    // await extractCUDA();
     // 启动Ollama服务
     await ollamaService.start();
+    // 检查硬件是否支持
+    const gpuInfo = await checkGPU();
+    // 检查是否准备好AI Mark功能
+    const isReadyAI = await getConfig('ai_server_installed');
     return {
       code: 0,
+      data: {
+        ...gpuInfo,
+        isReadyAI,
+      },
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : '未知原因'
@@ -129,8 +139,6 @@ export const init = async () => {
  */
 export const startIndexTask = async () => {
   try {
-    //检查GPU
-    await checkGPU()
     // 判断是否需要索引
     const lastIndexTime = getConfig('last_index_time');
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳

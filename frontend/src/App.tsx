@@ -17,6 +17,7 @@ function App() {
     memory: 0,
     hasDiscreteGPU: false,
   })
+  const [isReadyAI, setIsReadyAI] = useState<boolean>(false);
 
   const getOs = (): OsType => {
     const platform = navigator.platform.toLowerCase();
@@ -38,6 +39,10 @@ function App() {
       <ThemeProvider theme={theme}>
         <globalContext.Provider value={{
           os: getOs(),
+          gpuInfo,
+          setGpuInfo,
+          isReadyAI,
+          setIsReadyAI,
         }}>
           <HashRouter>
             <Routes>

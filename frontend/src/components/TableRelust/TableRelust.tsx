@@ -15,6 +15,7 @@ import {
     ArrowDropDown as DownwardIcon,
 } from "@mui/icons-material";
 import AIMarkDialog from "../AIMarkDialog/AIMarkDialog";
+import { useGlobalContext } from "@/context/globalContext";
 
 
 interface Props {
@@ -44,6 +45,8 @@ const TableRelust: React.FC<Props> = ({
         item: SearchDataItem | null;
     } | null>(null);
     const [aiMarkDialogOpen, setAIMarkDialogOpen] = useState(false);
+
+    const context = useGlobalContext(); //使用在内存的配置
 
 
     // 处理右键点击事件
@@ -76,8 +79,14 @@ const TableRelust: React.FC<Props> = ({
                 window.electronAPI.openDir('openFileDir', item.path);
                 break;
             case 'aiMark':
-                // 打开弹窗
-                setAIMarkDialogOpen(true);
+                const isReadyAI = context.isReadyAI;
+                if (isReadyAI) {
+                    // 调用接口开始处理
+                }
+                else {
+                    // 打开弹窗
+                    setAIMarkDialogOpen(true);
+                }
                 break;
             default:
                 break;

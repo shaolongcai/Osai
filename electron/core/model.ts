@@ -123,7 +123,10 @@ async function pullOllamaModel(modelName: string): Promise<void> {
 }
 
 
-// 列出模型检查
+/**
+ * @deprecated 该方法已被弃用，建议使用 checkModelService 方法
+ * 列出模型检查
+ */
 async function listOllamaModels(): Promise<boolean> {
     try {
         const response = await ollama.list();
@@ -133,5 +136,17 @@ async function listOllamaModels(): Promise<boolean> {
         const msg = error instanceof Error ? error.message : '模型列表获取失败';
         logger.error(`模型列表获取失败: ${msg}`);
         throw new Error(msg);
+    }
+}
+
+
+// 检查模型服务
+export async function checkModelService(modelName: string = 'qwen2.5vl:3b'): Promise<boolean> {
+    try {
+        const response = await ollama.list();
+        return response.models.some(model => model.name === modelName);
+    } catch (error) {
+        logger.error(`模型服务检查失败: ${error instanceof Error ? error.message : '未知原因'}`);
+        return false;
     }
 }

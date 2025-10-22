@@ -33,4 +33,4 @@ export type NotificationType =  'pending' | 'success' | 'warning' | 'loading' | 
 /**
  * 配置名称
  */
-export type ConfigName = 'cuda_installed' | 'aiModel_installed';
+export type ConfigName = 'cuda_installed' | 'aiModel_installed' | 'ai-sever-installed';

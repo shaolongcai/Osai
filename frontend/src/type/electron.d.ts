@@ -52,10 +52,17 @@ export interface ConfigParams {
 
 type OpenDirType = 'runLog' | 'openFileDir' | 'openFile'
 
+//初始化返回的类型
+type InitData = GpuInfo & { 
+    isReadyAI:  boolean, //是否准备好AI Mark功能
+}
+
+
+
 interface ElectronAPI {
 
     // 告诉主线程可以初始化 （目的是为了，等监听器全部就绪完毕）
-    init(): Promise<BaseResponse>;
+    init(): Promise<BaseResponse<InitData>>;
 
     // 获取用户配置
     getConfig(key?: string): Promise<UserConfig>;

@@ -10,6 +10,8 @@ import {
 } from "@mui/icons-material";
 import searchNull from '@/assets/images/search-null.png'
 import AIMarkDialog from "@/components/AIMarkDialog/AIMarkDialog";
+import { useGlobalContext } from "@/context/globalContext";
+
 
 
 const Home = () => {
@@ -30,6 +32,7 @@ const Home = () => {
   // 检查是否在Electron环境中
   const isElectron = typeof window !== 'undefined' && window.electronAPI;
   const effectRan = useRef(false); // 执行守卫
+  const context = useGlobalContext(); // 全局上下文
 
 
   useEffect(() => {
@@ -43,8 +46,8 @@ const Home = () => {
     });
     // 监听AI mark功能是否安装
     window.electronAPI.onAiSeverInstalled(async (data) => {
-      console.log('AI mark功能已安装:');
       setOpenAiMarkDialog(true)
+      context.setIsReadyAI(true);
     });
     return () => {
       // 移除监听
