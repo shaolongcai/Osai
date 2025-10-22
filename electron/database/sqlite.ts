@@ -2,6 +2,7 @@ import Database from 'better-sqlite3'
 import pathConfig from '../core/pathConfigs.js'
 import path from 'path'
 import { logger } from '../core/logger.js'
+import { ConfigName } from '../types/system.js'
 
 
 let db: Database.Database | null = null
@@ -92,7 +93,7 @@ export function initializeDatabase(): Database.Database {
  * @param key 配置键名
  * @returns 配置值，如果不存在返回null
  */
-export function getConfig(key: string): any {
+export function getConfig(key: ConfigName | string): any {
   try {
     const db = getDatabase()
     const stmt = db.prepare('SELECT config_value, config_type FROM user_config WHERE config_key = ?')

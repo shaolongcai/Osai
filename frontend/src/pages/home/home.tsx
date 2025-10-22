@@ -9,6 +9,7 @@ import {
   SettingsOutlined as SettingsIcon
 } from "@mui/icons-material";
 import searchNull from '@/assets/images/search-null.png'
+import AIMarkDialog from "@/components/AIMarkDialog/AIMarkDialog";
 
 
 const Home = () => {
@@ -24,6 +25,7 @@ const Home = () => {
     direction: 'asc' | 'desc' | null;
   }>({ key: null, direction: null });
   const [sortedData, setSortedData] = useState<SearchDataItem[]>([]); // 排序后的数据
+  const [openAiMarkDialog, setOpenAiMarkDialog] = useState(false); //是否打开AI mark功能引导弹窗
 
   // 检查是否在Electron环境中
   const isElectron = typeof window !== 'undefined' && window.electronAPI;
@@ -39,10 +41,16 @@ const Home = () => {
     window.electronAPI.onVisualIndexProgress(async (data) => {
       setNeedIndexImageCount(data.count as string);
     });
+    // 监听AI mark功能是否安装
+    window.electronAPI.onAiSeverInstalled(async (data) => {
+      console.log('AI mark功能已安装:');
+      setOpenAiMarkDialog(true)
+    });
     return () => {
       // 移除监听
       window.electronAPI.removeAllListeners('index-progress');
       window.electronAPI.removeAllListeners('visual-index-progress');
+      window.electronAPI.removeAllListeners('ai-server-installed');
     };
   }, []);
 
@@ -130,6 +138,11 @@ const Home = () => {
 
   return (
     <div className={styles.root}>
+      <AIMarkDialog
+        open={openAiMarkDialog}
+        onClose={() => setOpenAiMarkDialog(false)}
+        currentStep={3}
+      />
       <Stack direction='row' alignItems='center' spacing={1} >
         <Search onSearch={setKeyword} />
         <Stack className={styles.settings} fontSize='large' alignItems='center' justifyContent='center'

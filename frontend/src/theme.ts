@@ -28,28 +28,7 @@ export const theme = createTheme({
             }
         },
 
-        //表格
-        MuiTableContainer: {
-            styleOverrides: {
-                root: {
-                    boxShadow: 'none',
-                    border: 'none',
-                    backgroundColor: 'transparent',
-                }
-            }
-        },
 
-        MuiTableHead: {
-            styleOverrides: {
-                root: {
-                    backgroundColor: '#f5f5f5',
-                    '& .MuiTableCell-head': {
-                        backgroundColor: '#f5f5f5',
-
-                    },
-                }
-            }
-        },
 
         MuiChip: {
             styleOverrides: {

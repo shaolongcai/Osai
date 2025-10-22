@@ -26,12 +26,6 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
     ipcMain.handle('search-files', (_event, keyword: string) => searchFiles(keyword));
     // 执行AI搜索
     ipcMain.handle('ai-search', (_event, query: string) => aiSearch(query));
-    // 安装GPU服务
-    ipcMain.handle('install-gpu-server', (_event) => {
-        const downloader = new severDownloader();
-        downloader.downloadFiles();
-    });
-
 
     // 打开某个路径（📌，需要取代open-file-location）
     ipcMain.on('open-dir', (event, type, path) => { openDir(type, path) });

@@ -4,6 +4,7 @@ import { sendToRenderer } from '../main.js';
 import { setModelReady } from './appState.js';
 import ollama from 'ollama'
 import { reportErrorToWechat } from './system.js';
+import { setConfig } from '../database/sqlite.js';
 
 /**
  * 初始化模型
@@ -26,6 +27,7 @@ export async function initializeModel() {
             type: 'success',
         }
         sendToRenderer('system-info', notification)
+        setConfig('aiModel_installed', true, 'boolean');
         setModelReady(true);
 
     } catch (error) {

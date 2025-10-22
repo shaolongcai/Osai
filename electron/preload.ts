@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     setConfig: (params: ConfigParams) => ipcRenderer.invoke('set-config', params.key, params.value, params.type), // 设置用户配置
     getConfig: (key?: string) => ipcRenderer.invoke('get-config', key),  // 获取用户配置
     installGpuServer: () => ipcRenderer.invoke('install-gpu-server'), // 安装GPU服务
+    installAiServer: (withCuda: boolean) => ipcRenderer.invoke('install-ai-server', withCuda), // 安装AI服务(AI Mark),whiteCuda:是否安装CUDA
 
     // 更新相关
     checkForUpdates: () => ipcRenderer.invoke('check-for-updates'), // 检查
@@ -46,6 +47,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // 更新状态监听
     onUpdateStatus: (callback) => {
         ipcRenderer.on('update-status', (event, data) => callback(data));
+    },
+    // AImark组件安装监听
+    onAiSeverInstalled: (callback) => {
+        ipcRenderer.on('ai-sever-installed', (event, data) => callback(data));
     },
 
     // 移除事件监听

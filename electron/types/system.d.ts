@@ -27,3 +27,10 @@ export interface INotification {
 }
 
 export type NotificationType =  'pending' | 'success' | 'warning' | 'loading' | 'loadingQuestion' | 'question' | 'none';
+
+
+
+/**
+ * 配置名称
+ */
+export type ConfigName = 'cuda_installed' | 'aiModel_installed';

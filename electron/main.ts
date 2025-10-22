@@ -12,6 +12,7 @@ import { ollamaService } from './core/ollama.js';
 import pathConfig from './core/pathConfigs.js';
 import { INotification } from './types/system.js';
 import { initializeUpdateApi } from './api/update.js';
+import { initializeSystemApi } from './api/system.js';
 
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
@@ -99,7 +100,7 @@ export const init = async () => {
   try {
     // 初始化数据库
     initializeDatabase()
-    // 解压CUDA服务
+    // 解压CUDA服务 (todo：改为检查CUDA服务，再解压)
     await extractCUDA();
     // 启动Ollama服务
     await ollamaService.start();
@@ -150,8 +151,6 @@ export const startIndexTask = async () => {
         count: last_index_file_count
       })
     }
-    //初始化模型（如果没有会自动拉取）
-    await initializeModel();
     // 开启视觉索引 （由appState控制继续还是关闭）
     indexImagesService();
   } catch (error) {
@@ -180,8 +179,8 @@ app.whenReady().then(() => {
   createWindow();
   // 初始化API
   initializeFileApi(mainWindow);
-  // 初始化更新APO
   initializeUpdateApi()
+  initializeSystemApi()
 });
 
 app.on('window-all-closed', () => {

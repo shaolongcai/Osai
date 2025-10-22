@@ -1,7 +1,7 @@
 import Dialog from "../Dialog/Dialog"
-import phImage from "@/assets/images/weChat.png"
+import aiMarkImage from "@/assets/images/ai-mark.png"
 import styles from "./AIMarkDialog.module.scss"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Checkbox, FormControlLabel, Stack, Typography } from "@mui/material"
 
 
@@ -9,6 +9,7 @@ import { Checkbox, FormControlLabel, Stack, Typography } from "@mui/material"
 interface Props {
     onClose: () => void
     open: boolean
+    currentStep?: 1 | 2 | 3 //当前步骤
 }
 /**
  * 安装AI Mark功能的引导框
@@ -16,26 +17,24 @@ interface Props {
 const AIMarkDialog: React.FC<Props> = ({
     onClose,
     open,
+    currentStep,
 }) => {
 
 
-    const [step, setStep] = useState<1 | 2 | 3>(1) //一共3步，第三步为完成后弹出
+    const [step, setStep] = useState<1 | 2 | 3>(currentStep || 1) //一共3步，第三步为完成后弹出
     const [title, setTitle] = useState("或者你需要AI Mark")
-    const [cudaChecked, setCudaChecked] = useState(false)
+    const [cudaChecked, setCudaChecked] = useState(true)
 
-    useEffect(() => {
-        return () => {
-            setStep(1)
-        }
-    }, [open])
 
     //渲染第一步
     const renderStep1 = () => {
         return (
             <Stack spacing={2}>
                 <Stack spacing={1} alignItems="center">
-                    <img src={phImage} alt="" className={styles.aiMarkDialogImage} />
-                    <Typography variant="body2">右键菜单启动AI mark</Typography>
+                    <img src={aiMarkImage} alt="" className={styles.aiMarkDialogImage} />
+                    <Typography variant="bodyMedium" sx={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+                        右键菜单启动AI Mark
+                    </Typography>
                 </Stack>
                 <Stack spacing={1} className={styles.tips}>
                     <Typography variant="bodyMedium">
@@ -79,9 +78,9 @@ const AIMarkDialog: React.FC<Props> = ({
     const renderStep3 = () => {
         return (
             <Stack spacing={1} alignItems="center">
-                <img src={phImage} alt="" className={styles.aiMarkDialogImage} />
+                <img src={aiMarkImage} alt="" className={styles.aiMarkDialogImage} />
                 <Typography variant="bodyMedium">
-                    你可以试试对着文件右键，点击AI Mark，现在AI会记忆你的文件！
+                    你可以试试对着文件右键，点击AI Mark，现在AI会记忆你的文件！(CUDA服务，需要重启后生效)
                 </Typography>
             </Stack>
         )
@@ -93,8 +92,10 @@ const AIMarkDialog: React.FC<Props> = ({
             setStep(2)
             setTitle("AI Mark 将需要以下组件")
         } else if (step === 2) {
+            console.log('cudaChecked', cudaChecked)
             //执行安装
-            setStep(3) //测试
+            window.electronAPI.installAiServer(cudaChecked)
+            onClose()
         }
         else {
             onClose()
@@ -105,7 +106,7 @@ const AIMarkDialog: React.FC<Props> = ({
     return <Dialog
         open={open}
         onClose={onClose}
-        title={title}
+        title={step === 3 ? '恭喜你！ AI Mark 功能已生效' : title}
         primaryButtonText={step === 1 ? "下一步" : step === 2 ? "安装" : "完成"}
         secondaryButtonText={step === 3 ? "" : "稍后"}
         onPrimaryButtonClick={handleAiMarkInstall}

@@ -77,6 +77,8 @@ interface ElectronAPI {
 
     // 安装GPU服务
     installGpuServer(): Promise<void>;
+    // 安装AI服务(AI Mark)
+    installAiServer(withCuda: boolean): Promise<void>;
 
     //更新接口
     checkForUpdates(): Promise<boolean>; //手动检查有没有更新
@@ -88,6 +90,7 @@ interface ElectronAPI {
     onVisualIndexProgress(callback: (data: Progress) => void): void;
     onSystemInfo(callback: (data: Notification) => void): void;
     onUpdateStatus(callback: (data: any) => void): void; // 检查更新状态,暂时用any占位
+    onAiSeverInstalled(callback: (data: boolean) => void): void; // AI服务是否安装
 
     // 移除事件监听
     removeAllListeners(channel: string): void;
