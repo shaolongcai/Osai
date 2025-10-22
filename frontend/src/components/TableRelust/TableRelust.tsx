@@ -14,6 +14,7 @@ import {
     ArrowDropUp as UpwardIcon,
     ArrowDropDown as DownwardIcon,
 } from "@mui/icons-material";
+import AIMarkDialog from "../AIMarkDialog/AIMarkDialog";
 
 
 interface Props {
@@ -42,6 +43,7 @@ const TableRelust: React.FC<Props> = ({
         mouseY: number;
         item: SearchDataItem | null;
     } | null>(null);
+    const [aiMarkDialogOpen, setAIMarkDialogOpen] = useState(false);
 
 
     // 处理右键点击事件
@@ -74,8 +76,8 @@ const TableRelust: React.FC<Props> = ({
                 window.electronAPI.openDir('openFileDir', item.path);
                 break;
             case 'aiMark':
-                // 复制文件路径
-                navigator.clipboard.writeText(item.path);
+                // 打开弹窗
+                setAIMarkDialogOpen(true);
                 break;
             default:
                 break;
@@ -305,6 +307,10 @@ const TableRelust: React.FC<Props> = ({
 
 
     return <Box className={styles.table}>
+        <AIMarkDialog
+            open={aiMarkDialogOpen}
+            onClose={() => setAIMarkDialogOpen(false)}
+        />
         <ClickAwayListener onClickAway={handleClose}>
             <Menu
                 open={contextMenu !== null}

@@ -4,7 +4,9 @@ import { NotificationsProvider } from '@toolpad/core/useNotifications';
 import { globalContext } from '@/context/globalContext';
 import { GpuInfo } from './type/electron';
 import Preload from './pages/preload/Preload';
-import Home from './pages/home/Home'
+import Home from './pages/home/Home';
+import { ThemeProvider } from '@mui/material'
+import { theme } from './theme'
 import { Routes, Route, HashRouter } from 'react-router-dom';
 import { OsType } from './type/system';
 
@@ -33,16 +35,18 @@ function App() {
         anchorOrigin: { vertical: 'top', horizontal: 'center' },
       },
     }}>
-      <globalContext.Provider value={{
-        os: getOs(),
-      }}>
-        <HashRouter>
-          <Routes>
-            <Route path='/' element={<Preload />} />
-            <Route path="/home" element={<Home />} />
-          </Routes>
-        </HashRouter>
-      </globalContext.Provider>
+      <ThemeProvider theme={theme}>
+        <globalContext.Provider value={{
+          os: getOs(),
+        }}>
+          <HashRouter>
+            <Routes>
+              <Route path='/' element={<Preload />} />
+              <Route path="/home" element={<Home />} />
+            </Routes>
+          </HashRouter>
+        </globalContext.Provider>
+      </ThemeProvider>
     </NotificationsProvider>
   )
 }
