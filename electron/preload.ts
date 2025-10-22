@@ -27,6 +27,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     checkForUpdates: () => ipcRenderer.invoke('check-for-updates'), // 检查
     downloadUpdate: () => ipcRenderer.invoke('download-update'),  // 下载
 
+    // 执行AI Mark功能
+    aiMark: (filePath: string) => ipcRenderer.invoke('ai-mark', filePath),
+
 
     // 日志监听
     onLogger: (callback) => {

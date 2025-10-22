@@ -81,7 +81,8 @@ const TableRelust: React.FC<Props> = ({
             case 'aiMark':
                 const isReadyAI = context.isReadyAI;
                 if (isReadyAI) {
-                    // 调用接口开始处理
+                    console.log('path', item.path)
+                    window.electronAPI.aiMark(item.path);
                 }
                 else {
                     // 打开弹窗

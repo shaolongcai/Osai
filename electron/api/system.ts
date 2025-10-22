@@ -2,13 +2,16 @@ import { ipcMain } from 'electron';
 import { logger } from '../core/logger.js';
 import { severDownloader } from '../core/downloader.js';
 import { initializeModel } from '../core/model.js';
-import { getConfig, setConfig } from '../database/sqlite.js';
+import { getAllConfigs, getConfig, setConfig } from '../database/sqlite.js';
 import { sendToRenderer } from '../main.js';
 
 
 export function initializeSystemApi() {
 
-
+    // 获取用户配置
+    ipcMain.handle('get-config', (_event, key?: string) => { return key ? getConfig(key) : getAllConfigs() })
+    // 设置用户配置
+    ipcMain.handle('set-config', (_event, key: string, value: any, type?: string) => { setConfig(key, value, type) })
 
     // 安装GPU服务
     ipcMain.handle('install-gpu-server', (_event) => {

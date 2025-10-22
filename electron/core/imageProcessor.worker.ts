@@ -1,4 +1,4 @@
-import { parentPort, workerData } from 'worker_threads';
+import { parentPort } from 'worker_threads';
 import { Ollama } from 'ollama'
 import * as fs from 'fs';
 
@@ -17,13 +17,13 @@ interface ImageProcessResponse {
 
 // 处理图像的核心逻辑
 async function processImageInWorker(data: ImageProcessRequest): Promise<ImageProcessResponse> {
+    let timeoutId: NodeJS.Timeout;
     try {
-
         // 设置超时处理
         const timeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(() => {
+            timeoutId = setTimeout(() => {
                 reject(new Error('图像处理超时'));
-            }, 120000); // 分钟超时
+            }, 4 * 60 * 1000); // 4分钟超时
         });
 
         console.log(`开始处理图像: ${data.imagePath}`)
@@ -41,15 +41,9 @@ async function processImageInWorker(data: ImageProcessRequest): Promise<ImagePro
         }
         // 读取图片并转换为base64
         const imageBuffer = await fs.promises.readFile(data.imagePath);
-        console.log(`转换buffer成功: ${data.imagePath}`)
         const base64Image = imageBuffer.toString('base64');
 
-
-        console.log(`交付给olama: ${data.imagePath}`)
-
-
-
-        const response = await ollama.chat({
+        const chatResponse = ollama.chat({
             model: 'qwen2.5vl:3b',
             messages: [{
                 role: 'user',
@@ -60,17 +54,13 @@ async function processImageInWorker(data: ImageProcessRequest): Promise<ImagePro
                 num_predict: 300,
                 temperature: 0.7,
                 repeat_penalty: 1.1,
-                num_gpu: -1
             },
             stream: false,
         });
 
-        console.log(response.message.content)
+        const response = await Promise.race([chatResponse, timeoutPromise]);
 
-        // for await (const part of response) {
-        //     console.log(part.message.content)
-        //     // process.stdout.write(part.message.content)
-        // }
+        clearTimeout(timeoutId);
 
         return {
             requestId: data.requestId,
@@ -79,6 +69,7 @@ async function processImageInWorker(data: ImageProcessRequest): Promise<ImagePro
         };
 
     } catch (error) {
+        clearTimeout(timeoutId);
         const msg = error instanceof Error ? error.message : '图像处理失败';
         console.error(msg);
         return {
