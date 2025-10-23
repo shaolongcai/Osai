@@ -13,6 +13,7 @@ import { getFileTypeByExtension, FileType } from '../units/enum.js';
 import { ollamaService } from '../core/ollama.js';
 import { INotification } from '../types/system.js';
 import { ImageSever } from '../core/imageSever.js';
+import { DocumentSever } from '../core/documentSever.js';
 
 
 // 获取当前文件路径（ES模块兼容）
@@ -21,7 +22,7 @@ const __dirname = path.dirname(__filename);
 
 
 //事件广播
-let pendingImages = new Set<string>();
+let pendingRequests = new Set<string>();
 
 
 /**
@@ -32,6 +33,8 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
 
     // 初始化图片处理服务
     const imageSever = new ImageSever()
+    // 初始化文档服务
+    const documentSever = new DocumentSever()
 
     // 告知node 程序，前端渲染进程已准备就绪
     ipcMain.handle('init', init)
@@ -47,17 +50,28 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
      * 执行AI Mark功能
      */
     ipcMain.handle('ai-mark', async (_event, filePath: string) => {
-        pendingImages.add(filePath)
-        const totalFiles = pendingImages.size;
-        try {
 
+        try {
+            pendingRequests.add(filePath)
             const notification: INotification = {
                 id: 'ai-mark',
-                text: `AI 正在分析文档... 剩余 ${totalFiles}`,
+                text: `AI 正在分析文档... 剩余 ${pendingRequests.size}`,
                 type: 'loading',
                 // tooltip: ''
             }
             sendToRenderer('system-info', notification)
+
+            //等待队列中的任务完成（解决竞态问题）
+            // await new Promise((resolve) => {
+            //     const check = () => {
+            //         if (pendingRequests.size === 0) {
+            //             resolve(null);
+            //         } else {
+            //             setTimeout(check, 100); // 每100ms检查一次
+            //         }
+            //     };
+            //     check();
+            // });
 
             //判断类型
             const stat = fs.statSync(filePath);
@@ -66,11 +80,10 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
             const fileType = getFileTypeByExtension(ext);
             // 文档类型
             if (fileType === FileType.Document) {
-
+                await documentSever.readDocument(ext, filePath)
             }
             //图片类型
             else if (fileType === FileType.Image) {
-
                 await imageSever.processImageByAi(filePath)
             }
             //其他类型
@@ -79,10 +92,10 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
             }
         } catch (error) {
             logger.error(`AI mark失败: ${error}`);
-            pendingImages.delete(filePath)
+            pendingRequests.delete(filePath)
             const notification: INotification = {
                 id: 'ai-mark',
-                text: `AI 正在记录文档失败 剩余 ${pendingImages.size}`,
+                text: `AI 正在记录文档失败 剩余 ${pendingRequests.size}`,
                 type: 'warning',
                 // tooltip: `失败原因：${error}`
             }

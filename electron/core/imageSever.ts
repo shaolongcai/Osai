@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 /**
- * 图片处理服务:OCR以及AI摘要
+ * 图片处理服务:AI摘要
  */
 export class ImageSever {
 
@@ -67,7 +67,7 @@ export class ImageSever {
                     if (success) {
                         pending.resolve(result);
                     } else {
-                        pending.reject(new Error(error));
+                        pending.reject(new Error(error)); //这里reject到file.ts 然后报错，后期在这里加上重试
                     }
                 }
             });

@@ -3,7 +3,6 @@ import { getDatabase } from '../database/sqlite.js';
 import { logger } from './logger.js';
 import { waitForModelReady } from './appState.js';
 import { SearchPrompt } from '../data/prompt.js';
-import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 
 
 /**
@@ -282,34 +281,34 @@ export async function checkRelevance(files: any[], query: string, keywords: stri
                 } else if (file.ext === '.docx' || file.ext === '.xlsx' || file.ext === '.pptx') {
                     // 文档
                     logger.info(`打开文档:${file.path}`);
-                    const loader = new DocxLoader(file.path);
-                    const docs = await loader.load();
-                    const docContent = docs.map(doc => doc.pageContent).join('\n');
-                    // b. 如果成功读取内容，则基于关键词出现次数计算得分
-                    if (docContent) {
-                        if (keywords && keywords.length > 0) {
-                            let totalKeywordScore = 0;
-                            const lowerCaseContent = docContent.toLowerCase();
+                    // const loader = new DocxLoader(file.path);
+                    // const docs = await loader.load();
+                    // const docContent = docs.map(doc => doc.pageContent).join('\n');
+                    // // b. 如果成功读取内容，则基于关键词出现次数计算得分
+                    // if (docContent) {
+                    //     if (keywords && keywords.length > 0) {
+                    //         let totalKeywordScore = 0;
+                    //         const lowerCaseContent = docContent.toLowerCase();
 
-                            for (const keyword of keywords) {
-                                const lowerCaseKeyword = keyword.toLowerCase();
-                                if (lowerCaseKeyword.length === 0) continue;
+                    //         for (const keyword of keywords) {
+                    //             const lowerCaseKeyword = keyword.toLowerCase();
+                    //             if (lowerCaseKeyword.length === 0) continue;
 
-                                // 步骤 2.1: 统计单个关键词在内容中出现的总次数
-                                const escapedKeyword = escapeRegExp(lowerCaseKeyword);
-                                const occurrences = (lowerCaseContent.match(new RegExp(escapedKeyword, 'g')) || []).length;
+                    //             // 步骤 2.1: 统计单个关键词在内容中出现的总次数
+                    //             const escapedKeyword = escapeRegExp(lowerCaseKeyword);
+                    //             const occurrences = (lowerCaseContent.match(new RegExp(escapedKeyword, 'g')) || []).length;
 
-                                // 步骤 2.2: 使用 1 - 1/(n+1) 的方式对词频进行归一化，使其得分在 [0, 1) 区间
-                                // 这样，出现1次得0.5分，出现次数越多，得分越趋近于1，但增长会放缓
-                                const keywordScore = 1 - 1 / (occurrences + 1);
-                                totalKeywordScore += keywordScore;
-                            }
-                            // 步骤 2.3: 将所有关键词的归一化分数相加，然后除以关键词总数，得到最终的平均分
-                            score = totalKeywordScore / keywords.length;
-                        } else {
-                            score = 0;
-                        }
-                    }
+                    //             // 步骤 2.2: 使用 1 - 1/(n+1) 的方式对词频进行归一化，使其得分在 [0, 1) 区间
+                    //             // 这样，出现1次得0.5分，出现次数越多，得分越趋近于1，但增长会放缓
+                    //             const keywordScore = 1 - 1 / (occurrences + 1);
+                    //             totalKeywordScore += keywordScore;
+                    //         }
+                    //         // 步骤 2.3: 将所有关键词的归一化分数相加，然后除以关键词总数，得到最终的平均分
+                    //         score = totalKeywordScore / keywords.length;
+                    //     } else {
+                    //         score = 0;
+                    //     }
+                    // }
                     return {
                         ...file,
                         score,

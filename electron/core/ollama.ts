@@ -1,18 +1,26 @@
-// 步骤1：创建Ollama管理器
 import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
 import { logger } from './logger.js';
 import pathConfig from './pathConfigs.js';
 import ollama from 'ollama'
+import { Worker } from 'worker_threads';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class OllamaService {
     private process: ChildProcess | null = null;
     private isRunning = false;
     private ollamaPath: string;
+    private aiWorker: Worker | null = null;
+    private pendingAiRequests: Map<string, { resolve: Function; reject: Function }>
+
 
     constructor() {
-        // Ollama可执行文件路径
         this.ollamaPath = pathConfig.get('ollamaPath');
+        this.pendingAiRequests = new Map()
+        this.initializeAiWorker()
     }
 
     // 启动Ollama服务
@@ -111,6 +119,71 @@ class OllamaService {
         throw new Error('Ollama服务启动超时');
     }
 
+    //AI线程初始化
+    private initializeAiWorker() {
+        try {
+            this.aiWorker = new Worker(path.join(__dirname, '../workers/ai.worker.js'));
+
+            // 监听Worker消息
+            this.aiWorker.on('message', (response: any) => {
+                const { requestId, success, result, error } = response;
+                const pending = this.pendingAiRequests.get(requestId);
+
+                if (pending) {
+                    this.pendingAiRequests.delete(requestId);
+                    if (success) {
+                        pending.resolve(result);
+                    } else {
+                        pending.reject(new Error(error)); //这里reject到file.ts 然后报错，后期在这里加上重试
+                    }
+                }
+            });
+
+            // 监听Worker错误
+            this.aiWorker.on('error', (error) => {
+                console.error(`AI处理Worker错误: ${error.message}`);
+                // restartImageWorker();
+            });
+
+            // 监听Worker退出
+            this.aiWorker.on('exit', (code) => {
+                if (code !== 0) {
+                    console.warn(`AI处理Worker异常退出，代码: ${code}`);
+                    // restartImageWorker();
+                }
+            });
+        } catch (error) {
+            console.error(`初始化AI处理Worker失败: ${error}`);
+        }
+    }
+
+
+    // 使用线程生成文本
+    async generate(params: GenerateRequest): Promise<string> {
+        return new Promise((resolve, reject) => {
+            if (!this.aiWorker) {
+                reject(new Error('文档处理Worker未初始化'));
+                return;
+            }
+
+            const requestId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+            // 存储Promise的resolve和reject
+            this.pendingAiRequests.set(requestId, { resolve, reject });
+
+            // 发送任务到Worker
+            this.aiWorker.postMessage({
+                path: params.path,
+                prompt: params.prompt,
+                content: params.content,
+                isImage: params.isImage,
+                isJson: params.isJson,
+                jsonFormat: params.jsonFormat,
+                requestId
+            });
+        });
+    }
+
     // 重启 Worker
     // private restartImageWorker(): void {
     //     try {
@@ -136,42 +209,6 @@ class OllamaService {
     //     }
     // }
 
-
-    // 生成文本
-    async generate(prompt: string, content: string): Promise<string> {
-        try {
-            const response = await ollama.chat({
-                model: 'qwen2.5vl:3b',
-                messages: [{
-                    role: 'system',
-                    content: prompt,
-                }, {
-                    role: 'user',
-                    content: content,
-                }],
-                options: {
-                    num_predict: 300,
-                    temperature: 0.7,
-                    repeat_penalty: 1.1,
-                  
-                },
-                stream: false,
-                format:{
-                "type":'array',
-                "properties":{
-                    "tag":{"type":"string"}
-                }
-                }
-            });
-
-            return response.message.content;
-
-        } catch (error) {
-            const msg = error instanceof Error ? error.message : '生成失败';
-            logger.error(`生成失败: ${msg}`);
-            throw new Error(msg);
-        }
-    }
 
     // 停止服务
     stop(): void {
@@ -210,6 +247,8 @@ class OllamaService {
             // 不抛出错误，继续启动新进程
         }
     }
+
+
 }
 
 export const ollamaService = new OllamaService();
