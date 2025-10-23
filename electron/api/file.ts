@@ -1,25 +1,37 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { aiSearch, searchFiles } from '../core/search.js';
-import { init, startIndexTask } from '../main.js';
+import { init, sendToRenderer, startIndexTask } from '../main.js';
 import { openDir } from '../core/system.js';
 import { setOpenIndexImages } from '../core/appState.js';
-import { getAllConfigs, getConfig, setConfig } from '../database/sqlite.js';
+import { getAllConfigs, getConfig, getDatabase, setConfig } from '../database/sqlite.js';
 import { fileURLToPath } from 'url';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Worker } from 'worker_threads';
 import { logger } from '../core/logger.js';
+import { getFileTypeByExtension, FileType } from '../units/enum.js';
+import { ollamaService } from '../core/ollama.js';
+import { EventEmitter } from 'events';
+import { INotification } from '../types/system.js';
 
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
+//事件广播
+const appEmitter = new EventEmitter();
+let pendingImages = new Set<string>();
+let errorImages = new Set<string>();
+
 /**
  * 初始化所有与文件相关的 IPC 事件监听器
  * @param mainWindow 主浏览器窗口实例
  */
 export function initializeFileApi(mainWindow: BrowserWindow) {
+
+    const db = getDatabase()
 
 
     // 告知node 程序，前端渲染进程已准备就绪
@@ -39,22 +51,61 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
      * 2、标签
      */
     ipcMain.handle('ai-mark', async (_event, filePath: string) => {
-        //判断类型
-        const stat = fs.statSync(filePath);
-        // 获取扩展名
-        const ext = path.extname(filePath).toLowerCase();
-        // 文档类型
-        if (ext === '.docx' || ext === '.doc' || ext === '.pdf' || ext === '.txt') {
+        pendingImages.add(filePath)
+        const totalFiles = pendingImages.size;
+        try {
 
-        }
-        //图片类型
-        else if (ext === '.png' || ext === '.jpg' || ext === '.jpeg') {
-            const summary = await processImageWithWorker(filePath)
-            logger.info(`图片摘要: ${summary}`);
-        }
-        //其他类型
-        else {
+            const notification: INotification = {
+                id: 'ai-mark',
+                text: `AI 正在分析文档... 剩余 ${totalFiles}`,
+                type: 'loading',
+                // tooltip: ''
+            }
+            sendToRenderer('system-info', notification)
 
+            //判断类型
+            const stat = fs.statSync(filePath);
+            // 获取扩展名
+            const ext = path.extname(filePath).toLowerCase();
+            const fileType = getFileTypeByExtension(ext);
+            // 文档类型
+            if (fileType === FileType.Document) {
+
+            }
+            //图片类型
+            else if (fileType === FileType.Image) {
+                const aiResponseString = await processImageWithWorker(filePath)
+                console.log(aiResponseString)
+                const aiResponse = JSON.parse(aiResponseString)
+
+                const updateStmt = db.prepare(`UPDATE files SET summary = ?, tags = ?, ai_mark = 1, skip_ocr = 1 WHERE path = ?`);
+                const res = updateStmt.run(aiResponse.summary, JSON.stringify(aiResponse.tags), filePath);
+                if (res.changes > 0) {
+                    logger.info(`AI Mark 图片更新成功`);
+                    const notification: INotification = {
+                        id: 'ai-mark',
+                        text: `AI 正在记录文档... 剩余 ${totalFiles}`,
+                        type: 'loading',
+                        // tooltip: ''
+                    }
+                    sendToRenderer('system-info', notification)
+                    handleFinishImageProcessed(filePath)
+                }
+            }
+            //其他类型
+            else {
+
+            }
+        } catch (error) {
+            logger.error(`AI mark失败: ${error}`);
+            pendingImages.delete(filePath)
+            const notification: INotification = {
+                id: 'ai-mark',
+                text: `AI 正在记录文档失败 剩余 ${pendingImages.size}`,
+                type: 'warning',
+                // tooltip: `失败原因：${error}`
+            }
+            sendToRenderer('system-info', notification)
         }
     });
 
@@ -67,8 +118,6 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
         setConfig('visual_index_enabled', open, 'boolean'); //设置时需要赋予类型
         setOpenIndexImages(open) //允许或暂停索引图片
     })
-
-
 
 
 
@@ -141,3 +190,31 @@ const processImageWithWorker = (imagePath: string, prompt: string = '请使用�
         });
     });
 };
+
+
+
+// 处理完成的图片，发送消息
+const handleFinishImageProcessed = (filePath: string) => {
+    pendingImages.delete(filePath);
+    if (pendingImages.size === 0) {
+        const notification: INotification = {
+            id: 'ai-mark',
+            text: `AI Mark已完成`,
+            type: 'success',
+            // tooltip: ''
+        }
+        sendToRenderer('system-info', notification)
+    }
+}
+
+// appEmitter.on('imageProcessed', (filePath: string) => {
+
+//     logger.info(`图片 ${filePath} 处理完成`);
+//     const notification: INotification = {
+//         id: 'ai-mark',
+//         text: `AI 正在记录文档... 剩余 ${pendingImages.size}`,
+//         type: 'loading',
+//         // tooltip: ''
+//     }
+//     sendToRenderer('system-info', notification)
+// });

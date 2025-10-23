@@ -1,6 +1,8 @@
 import { parentPort } from 'worker_threads';
 import { Ollama } from 'ollama'
 import * as fs from 'fs';
+import { z } from 'zod'
+import { zodToJsonSchema } from 'zod-to-json-schema'
 
 interface ImageProcessRequest {
     imagePath: string;
@@ -43,23 +45,29 @@ async function processImageInWorker(data: ImageProcessRequest): Promise<ImagePro
         const imageBuffer = await fs.promises.readFile(data.imagePath);
         const base64Image = imageBuffer.toString('base64');
 
+        // JSON结构
+        const schema = z.object({
+            tags: z.array(z.string()),
+            summary: z.string(),
+        })
+
         const chatResponse = ollama.chat({
             model: 'qwen2.5vl:3b',
             messages: [{
                 role: 'user',
-                content: data.prompt,
+                content: '输出摘要以及若干个标签，标签数量限制在5~7个，摘要控制在300字以内,不要重复内容。',
                 images: [base64Image],
             }],
             options: {
-                num_predict: 300,
+                num_predict: 500,
                 temperature: 0.7,
                 repeat_penalty: 1.1,
             },
             stream: false,
+            format: zodToJsonSchema(schema),
         });
 
         const response = await Promise.race([chatResponse, timeoutPromise]);
-
         clearTimeout(timeoutId);
 
         return {

@@ -46,6 +46,10 @@ export function initializeDatabase(): Database.Database {
 
     // 为现有表添加tags字段（如果不存在）
     try {
+      db.exec(`ALTER TABLE files ADD COLUMN skip_ocr BOOLEAN DEFAULT 0`) //是否跳过ocr
+      logger.info('成功添加skip_ocr字段到files表')
+      db.exec(`ALTER TABLE files ADD COLUMN ai_mark BOOLEAN DEFAULT 0`)
+      logger.info('成功添加ai_mark字段到files表')
       db.exec(`ALTER TABLE files ADD COLUMN full_content TEXT DEFAULT ''`)
       logger.info('成功添加full_content字段到files表')
       db.exec(`ALTER TABLE files ADD COLUMN tags TEXT DEFAULT '[]'`)

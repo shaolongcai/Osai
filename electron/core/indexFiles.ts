@@ -260,13 +260,12 @@ async function indexImageFiles() {
     const db = getDatabase()
     // 使用ext字段查询图片文件（ext字段存储的是带点的扩展名）
     const selectStmt = db.prepare(
-        'SELECT path FROM files WHERE ext IN (\'.jpg\', \'.png\', \'.jpeg\') AND size > 50 * 1024 AND summary IS NULL'
+        'SELECT path FROM files WHERE ext IN (\'.jpg\', \'.png\', \'.jpeg\') AND size > 50 * 1024 AND summary IS NULL AND skip_ocr = 0'
     )
     const files = selectStmt.all() as Array<{ path: string }>;
     // 总共需要视觉处理的文件数量
     let totalFiles = files.length;
     logger.info(`一共找到 ${files.length} 个图片，准备视觉索引服务`)
-
 
 
     // 编程for await 循环，每个文件都等待视觉索引服务完成
@@ -287,19 +286,17 @@ async function indexImageFiles() {
             const res = updateStmt.run(summary, file.path);
             if (res.changes > 0) {
                 logger.info(`剩余处理图片数: ${totalFiles}`);
-                // const notification: INotification = {
-                //     id: 'visual-index',
-                //     text: `OCR 服务已启动 剩余 ${totalFiles}`,
-                //     type: 'loadingQuestion',
-                //     tooltip: 'OCR 服务：AI会识别图片中的文字，你可以直接搜索图片中的文字，而不仅是名称。你可前往【设置】手动关闭'
-                // }
-                // sendToRenderer('system-info', notification)
                 totalFiles--
                 continue
             }
-            logger.info(`数据库变更失败:${file.path}`)
 
         } catch (error) {
+            // 更新数据库记录无需再OCR
+            const updateStmt = db.prepare(`UPDATE files SET skip_ocr = 1 WHERE path = ?`);
+            const res = updateStmt.run(file.path);
+            if (res.changes > 0) {
+                logger.info(`已经记录跳过OCR`)
+            }
             const msg = error instanceof Error ? error.message : '图片索引服务失败';
             logger.error(`图片索引服务失败:${msg}；文件路径:${file.path}`)
         }
@@ -316,7 +313,7 @@ export async function summarizeImage(imagePath: string): Promise<string> {
     try {
         const timeout = new Promise<never>((_, reject) => {
             timeoutId = setTimeout(() => {
-                reject(new Error('OCR 处理超时（30秒）'));
+                reject(new Error('OCR 处理超时（60秒）'));
             }, 60000);
         })
 
@@ -331,7 +328,8 @@ export async function summarizeImage(imagePath: string): Promise<string> {
         clearTimeout(timeoutId);
         // 被reject（失败）后，走这里，会 立即将这个 Promise 的拒绝原因作为异常抛出 。
         const msg = error instanceof Error ? error.message : '图片摘要生成失败';
-        logger.error(`图片摘要生成失败:${msg}；文件路径:${imagePath}`)
+        // logger.error(`图片摘要生成失败:${msg}；文件路径:${imagePath}`)
+        throw new Error(msg);
     }
 }
 
