@@ -3,6 +3,7 @@ import { Ollama } from 'ollama'
 import * as fs from 'fs';
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
+import { ImagePrompt } from '../data/prompt.js';
 
 interface ImageProcessRequest {
     imagePath: string;
@@ -28,8 +29,6 @@ async function processImageInWorker(data: ImageProcessRequest): Promise<ImagePro
             }, 4 * 60 * 1000); // 4分钟超时
         });
 
-        console.log(`开始处理图像: ${data.imagePath}`)
-
         // 先检查文件是否存在
         if (!fs.existsSync(data.imagePath)) {
             throw new Error(`文件不存在: ${data.imagePath}`);
@@ -51,17 +50,19 @@ async function processImageInWorker(data: ImageProcessRequest): Promise<ImagePro
             summary: z.string(),
         })
 
+        console.log(`开始处理图像: ${data.imagePath.split('/').pop()}`)
+
         const chatResponse = ollama.chat({
             model: 'qwen2.5vl:3b',
             messages: [{
                 role: 'user',
-                content: '输出摘要以及若干个标签，标签数量限制在5~7个，摘要控制在300字以内,不要重复内容。',
+                content: `${ImagePrompt},文件名称：${data.imagePath.split('/').pop()}`,
                 images: [base64Image],
             }],
             options: {
                 num_predict: 500,
-                temperature: 0.7,
-                repeat_penalty: 1.1,
+                temperature: 0,
+                repeat_penalty: 1.2,
             },
             stream: false,
             format: zodToJsonSchema(schema),

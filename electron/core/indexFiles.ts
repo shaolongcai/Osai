@@ -235,10 +235,6 @@ export const indexImagesService = async (): Promise<void> => {
     await waitForIndexUpdate();
     logger.info('索引更新完毕')
 
-    // logger.info('等待AI模型准备就绪...');
-    // await waitForModelReady();
-    // logger.info('AI模型已就绪，开始索引图片。');
-
     // 对所有图片文件，都使用vl应用读取摘要
     const startIndexImageTime = Date.now();
     await indexImageFiles();
