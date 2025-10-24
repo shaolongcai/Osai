@@ -27,12 +27,10 @@ export class DocumentSever {
     private pendingDocuments: Map<string, { resolve: Function; reject: Function }>
     private db: Database
 
-
     constructor() {
         this.pendingDocuments = new Map()
         this.db = getDatabase()
     }
-
 
     // 读取文档
     public readDocument = async (ext: string, documentPath: string): Promise<void> => {
@@ -42,7 +40,7 @@ export class DocumentSever {
                 const loader = new PDFLoader(documentPath)
                 const docs = await loader.load()
                 content = docs.map(doc => doc.pageContent).join('\n')
-
+                break;
             case '.doc':
             case '.docx':
                 const loaderDocx = new DocxLoader(documentPath, {
@@ -50,6 +48,7 @@ export class DocumentSever {
                 })
                 const docsDocx = await loaderDocx.load()
                 content = docsDocx.map(doc => doc.pageContent).join('\n')
+                break;
             case '.txt':
                 content = await fs.readFile(documentPath, 'utf8');
                 break;
@@ -75,7 +74,7 @@ export class DocumentSever {
         const resultString = await ollamaService.generate({
             path: documentPath,
             prompt: DocumentPrompt,
-            content: `全文内容: ${content}，文件标题: ${documentPath.split('/').pop().replace('.pdf', '')}`,
+            content: `全文内容: ${content}，文件标题: ${documentPath.split('/').pop()}`,
             isJson: true,
         })
         const result = JSON.parse(resultString)
@@ -115,7 +114,6 @@ export class DocumentSever {
             sendToRenderer('system-info', notification)
         }
     }
-
 
 
     // 读取 Excel 文件的函数

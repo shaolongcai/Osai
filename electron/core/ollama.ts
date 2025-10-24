@@ -13,7 +13,8 @@ class OllamaService {
     private isRunning = false;
     private ollamaPath: string;
     private aiWorker: Worker | null = null;
-    private pendingAiRequests: Map<string, { resolve: Function; reject: Function }>
+    private pendingAiRequests: Map<string, { resolve: Function; reject: Function, params: GenerateRequest }>
+    private isProcessingQueue = false; // 用于标记是否正在处理队列中的请求
 
 
     constructor() {
@@ -130,6 +131,7 @@ class OllamaService {
 
                 if (pending) {
                     this.pendingAiRequests.delete(requestId);
+                    this.isProcessingQueue = false;
                     if (success) {
                         pending.resolve(result);
                     } else {
@@ -167,8 +169,30 @@ class OllamaService {
 
             const requestId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-            // 存储Promise的resolve和reject
-            this.pendingAiRequests.set(requestId, { resolve, reject });
+            // 添加到请求队列中
+            this.pendingAiRequests.set(requestId, { resolve, reject, params });
+
+            if (!this.isProcessingQueue) {
+                this.handleQueue();
+            }
+        });
+    }
+
+
+    // 处理队列中的请求
+    private async handleQueue() {
+        if (this.pendingAiRequests.size === 0) return
+        // 处理队列中的第一个请求
+        const firstRequestId = this.pendingAiRequests.keys().next().value;
+        const firstItem = this.pendingAiRequests.get(firstRequestId)!;
+        const { params, reject } = firstItem;
+        try {
+            if (this.isProcessingQueue) {
+                return;
+            }
+
+            logger.info(`处理队列中的第一个请求: ${firstRequestId}`);
+            this.isProcessingQueue = true; // 标记为正在处理队列中的请求
 
             // 发送任务到Worker
             this.aiWorker.postMessage({
@@ -178,9 +202,19 @@ class OllamaService {
                 isImage: params.isImage,
                 isJson: params.isJson,
                 jsonFormat: params.jsonFormat,
-                requestId
+                requestId: firstRequestId
             });
-        });
+
+        } catch (error) {
+            this.isProcessingQueue = false;
+            reject(error);
+
+        } finally {
+            setTimeout(() => {
+                // 处理完第一个请求后，递归调用处理队列(相隔一段时间等待)
+                this.handleQueue(); //或者可以改成while循环
+            }, 3000);
+        }
     }
 
     // 重启 Worker
@@ -250,4 +284,4 @@ class OllamaService {
 
 }
 
-export const ollamaService = new OllamaService();
+export const ollamaService = new OllamaService(); //单例模式，永远都是同一个实例

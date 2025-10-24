@@ -31,11 +31,6 @@ let pendingRequests = new Set<string>();
  */
 export function initializeFileApi(mainWindow: BrowserWindow) {
 
-    // 初始化图片处理服务
-    const imageSever = new ImageSever()
-    // 初始化文档服务
-    const documentSever = new DocumentSever()
-
     // 告知node 程序，前端渲染进程已准备就绪
     ipcMain.handle('init', init)
     // 开始索引所有文件
@@ -51,6 +46,9 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
      */
     ipcMain.handle('ai-mark', async (_event, filePath: string) => {
 
+        const imageSever = new ImageSever() // 初始化图片处理服务（用完会自动释放）
+        const documentSever = new DocumentSever() // 初始化文档服务（用完会自动释放）
+
         try {
             pendingRequests.add(filePath)
             const notification: INotification = {
@@ -61,20 +59,8 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
             }
             sendToRenderer('system-info', notification)
 
-            //等待队列中的任务完成（解决竞态问题）
-            // await new Promise((resolve) => {
-            //     const check = () => {
-            //         if (pendingRequests.size === 0) {
-            //             resolve(null);
-            //         } else {
-            //             setTimeout(check, 100); // 每100ms检查一次
-            //         }
-            //     };
-            //     check();
-            // });
-
             //判断类型
-            const stat = fs.statSync(filePath);
+            // const stat = fs.statSync(filePath);
             // 获取扩展名
             const ext = path.extname(filePath).toLowerCase();
             const fileType = getFileTypeByExtension(ext);

@@ -6,6 +6,8 @@ import { getDatabase } from '../database/sqlite.js';
 import { Database } from 'better-sqlite3';
 import { sendToRenderer } from '../main.js';
 import { fileURLToPath } from 'url';
+import { ollamaService } from './ollama.js';
+import { ImagePrompt } from '../data/prompt.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,8 +33,14 @@ export class ImageSever {
      * @param filePath 图片路径
      */
     public async processImageByAi(filePath: string) {
-        const aiResponseString = await this.processImageWithWorker(filePath)
-        console.log(aiResponseString)
+        const aiResponseString = await ollamaService.generate({
+            path: filePath,
+            prompt: ImagePrompt,
+            content: `图片标题: ${filePath.split('/').pop()}`,
+            isImage: true,
+            isJson: true,
+        })
+
         const aiResponse = JSON.parse(aiResponseString)
 
         const updateStmt = this.db.prepare(`UPDATE files SET summary = ?, tags = ?, ai_mark = 1, skip_ocr = 1 WHERE path = ?`);
