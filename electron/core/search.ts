@@ -68,9 +68,9 @@ export function searchFiles(searchTerm: string): SearchResult {
     // 2. 从数据库中获取所有文件名
     // 注意：如果文件数量非常多（例如超过几十万），一次性加载到内存中可能会有性能问题。
     // 使用 SQL LIKE 进行模糊匹配，% 通配符表示匹配任意字符
-    const stmt = db.prepare('SELECT id,path, name,modified_at,ext FROM files WHERE name LIKE ? OR summary LIKE ?');
+    const stmt = db.prepare('SELECT id,path, name,modified_at,ext,summary,ai_mark FROM files WHERE name LIKE ? OR summary LIKE ? OR tags LIKE ?');
     const searchPattern = `%${searchTerm}%`;
-    const allFiles = stmt.all(searchPattern, searchPattern) as SearchDataItem[];
+    const allFiles = stmt.all(searchPattern, searchPattern, searchPattern) as SearchDataItem[];
 
     return {
         data: allFiles,
