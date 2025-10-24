@@ -47,7 +47,7 @@ const Home = () => {
     // 监听AI mark功能是否安装
     window.electronAPI.onAiSeverInstalled(async (data) => {
       setOpenAiMarkDialog(true)
-      context.setIsReadyAI(true);
+      context.setIsReadyAI(true); //告诉全局AI功能已经准备好
     });
     return () => {
       // 移除监听

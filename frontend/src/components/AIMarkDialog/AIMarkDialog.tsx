@@ -3,7 +3,7 @@ import aiMarkImage from "@/assets/images/ai-mark.png"
 import styles from "./AIMarkDialog.module.scss"
 import { useState } from "react"
 import { Checkbox, FormControlLabel, Stack, Typography } from "@mui/material"
-
+import { useGlobalContext } from "@/context/globalContext"
 
 
 interface Props {
@@ -20,11 +20,11 @@ const AIMarkDialog: React.FC<Props> = ({
     currentStep,
 }) => {
 
+    const context = useGlobalContext()
 
     const [step, setStep] = useState<1 | 2 | 3>(currentStep || 1) //一共3步，第三步为完成后弹出
     const [title, setTitle] = useState("或者你需要AI Mark")
-    const [cudaChecked, setCudaChecked] = useState(true)
-
+    const [cudaChecked, setCudaChecked] = useState(context.gpuInfo.hasGPU)
 
     //渲染第一步
     const renderStep1 = () => {
@@ -61,7 +61,15 @@ const AIMarkDialog: React.FC<Props> = ({
             <Stack spacing={2}>
                 <Stack spacing={1}>
                     <FormControlLabel control={<Checkbox defaultChecked />} label="AI 模型" disabled />
-                    <FormControlLabel control={<Checkbox defaultChecked onChange={(_e, checked) => setCudaChecked(checked)} />} label="CUDA服务（可选：用于GPU加速，仅当你的电脑拥有GPU时可选）" />
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={cudaChecked}
+                                disabled={!context.gpuInfo.hasGPU}
+                                onChange={(_e, checked) => setCudaChecked(checked)}
+                            />}
+                        label="CUDA服务（可选：用于GPU加速，仅当你的电脑拥有GPU时可选）"
+                    />
                 </Stack>
                 <Typography variant="bodyMedium" sx={{
                     whiteSpace: "pre-line",
@@ -92,7 +100,6 @@ const AIMarkDialog: React.FC<Props> = ({
             setStep(2)
             setTitle("AI Mark 将需要以下组件")
         } else if (step === 2) {
-            console.log('cudaChecked', cudaChecked)
             //执行安装
             window.electronAPI.installAiServer(cudaChecked)
             onClose()

@@ -68,10 +68,12 @@ const Preload = () => {
             console.log('initRes', res)
             context.setGpuInfo({
                 hasGPU: res.data.hasGPU,
+                // hasGPU: false, //测试
                 memory: res.data.memory,
                 hasDiscreteGPU: res.data.hasDiscreteGPU,
             });
             context.setIsReadyAI(res.data.isReadyAI);
+            // context.setIsReadyAI(false); //测试
             // 跳转到首页
             navigate('/home');
         }
