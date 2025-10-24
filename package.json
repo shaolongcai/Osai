@@ -51,11 +51,13 @@
     "globby": "^15.0.0",
     "langchain": "^1.0.1",
     "mammoth": "^1.11.0",
+    "officeparser": "^5.2.1",
     "ollama": "^0.6.0",
     "pdf-parse": "^1.1.1",
     "systeminformation": "^5.27.9",
     "tesseract.js": "^6.0.1",
     "word-extractor": "^1.0.4",
+    "xlsx": "^0.18.5",
     "zod-to-json-schema": "^3.24.6"
   },
   "build": {

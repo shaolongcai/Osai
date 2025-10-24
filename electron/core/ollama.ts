@@ -2,7 +2,6 @@ import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
 import { logger } from './logger.js';
 import pathConfig from './pathConfigs.js';
-import ollama from 'ollama'
 import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 
@@ -175,7 +174,7 @@ class OllamaService {
             this.aiWorker.postMessage({
                 path: params.path,
                 prompt: params.prompt,
-                content: params.content,
+                content: params.content.slice(0, 4000), //只存入前4000字
                 isImage: params.isImage,
                 isJson: params.isJson,
                 jsonFormat: params.jsonFormat,

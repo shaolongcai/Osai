@@ -84,7 +84,7 @@ async function aiInWorker(data: GenerateRequest & { requestId: string }): Promis
 
         const response = await Promise.race([chatResponse, timeoutPromise]);
         clearTimeout(timeoutId);
-        // console.log('AI响应:', response.message.content)
+        console.log('AI响应:', response.message.content)
 
 
         return {
