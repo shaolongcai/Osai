@@ -1,16 +1,13 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { aiSearch, searchFiles } from '../core/search.js';
 import { init, sendToRenderer, startIndexTask } from '../main.js';
-import { openDir } from '../core/system.js';
+import { extractCUDA, openDir } from '../core/system.js';
 import { setOpenIndexImages } from '../core/appState.js';
 import { setConfig } from '../database/sqlite.js';
 import { fileURLToPath } from 'url';
-import * as fs from 'fs';
 import * as path from 'path';
-import { Worker } from 'worker_threads';
 import { logger } from '../core/logger.js';
 import { getFileTypeByExtension, FileType } from '../units/enum.js';
-import { ollamaService } from '../core/ollama.js';
 import { INotification } from '../types/system.js';
 import { ImageSever } from '../core/imageSever.js';
 import { DocumentSever } from '../core/documentSever.js';
@@ -48,6 +45,19 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
 
         const imageSever = new ImageSever() // 初始化图片处理服务（用完会自动释放）
         const documentSever = new DocumentSever() // 初始化文档服务（用完会自动释放）
+
+        // 尝试找到CUDA并解压
+        try {
+            await extractCUDA();
+        } catch (error) {
+            const notification: INotification = {
+                id: 'downloadGpuSever',
+                text: 'CUDA服务解压失败,请重试',
+                type: 'warning',
+                tooltip: `你可以重新使用AImark功能，会重新解压，错误信息：${error}`
+            }
+            sendToRenderer('system-info', notification)
+        }
 
         try {
             pendingRequests.add(filePath)

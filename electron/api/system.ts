@@ -30,22 +30,17 @@ export function initializeSystemApi() {
         //初始化模型（如果没有会自动拉取）
         await initializeModel();
 
-        // 开始定时拉取CUDA及模型的安装状态
+        // 开始定时拉取模型的安装状态(模型安装完毕时AI-mark即可用)
         const intervalId = setInterval(() => {
-            logger.info(`检查CUDA和模型安装状态`);
             // 检查CUDA是否安装
-            const cudaInstalled = getConfig('cuda_installed');
+            // const cudaInstalled = getConfig('cuda_installed');
             // 检查模型是否安装
             const modelInstalled = getConfig('aiModel_installed');
             if (modelInstalled) {
                 // 清除定时器
                 clearInterval(intervalId);
                 logger.info('模型已安装');
-                setConfig('ai_server_installed', true, 'boolean');
                 sendToRenderer('ai-sever-installed', true);
-            }
-            if (cudaInstalled && modelInstalled) {
-                logger.info('CUDA和模型均已安装');
             }
         }, 3000);
     });

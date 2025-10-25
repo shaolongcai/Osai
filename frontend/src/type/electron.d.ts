@@ -75,6 +75,7 @@ interface ElectronAPI {
     // 索引相关
     startIndex(): Promise<void>; // 开启索引
     toggleIndexImage(open: boolean): Promise<void>; //开启/关闭视觉索引服务
+    aiMark(filePath: string): Promise<void>; // 对文件进行AI Mark
 
     // 模型相关
     checkModelExists(): Promise<{ success: boolean }>;

@@ -14,6 +14,7 @@ import { getConfig, setConfig } from '../database/sqlite.js';
 import { execSync } from 'child_process';
 import * as fs from 'fs'
 import AdmZip from 'adm-zip';
+import path from 'path';
 
 /**
  * 检查系统是否有可用的GPU
@@ -234,6 +235,29 @@ export const extractZip = async (zipPath: string, extractPath: string) => {
     }
 }
 
+
+/**
+ * 检查CUDA解压包
+ * @returns 压缩包路径和解压路径
+ */
+//解压CUDA服务
+export const extractCUDA = async () => {
+  // 检查是否有cuda.zip文件
+  const cudaDir = path.join(pathConfig.get('resources'), 'Ollama', 'lib', 'ollama');
+  const v12ZipPath = path.join(cudaDir, 'cudaV12.zip');
+  const v13ZipPath = path.join(cudaDir, 'cudaV13.zip');
+  // 判断文件是否存在，而不是判断路径字符串是否存在
+  if (fs.existsSync(v12ZipPath)) {
+    logger.info(`发现CUDA V12压缩包: ${v12ZipPath}`);
+    await extractZip(v12ZipPath, cudaDir);
+  } else if (fs.existsSync(v13ZipPath)) {
+    logger.info(`发现CUDA V13压缩包: ${v13ZipPath}`);
+    await extractZip(v13ZipPath, cudaDir);
+  }
+  else {
+    logger.info(`未发现CUDA V12或V13压缩包`);
+  }
+}
 
 
 const buildMarkdownContent = (data: any) => {
