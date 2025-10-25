@@ -133,7 +133,7 @@ const Home = () => {
 
   const searchFiles = useCallback(async (keyword: string) => {
     const res = await window.electronAPI.searchFiles(keyword);
-    console.log('结果', res);
+    // console.log('结果', res);
     setData(res.data);
   }, []);
 

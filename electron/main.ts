@@ -87,6 +87,7 @@ export const init = async () => {
     const gpuInfo = await checkGPU();
     // 检查模型是否存在（AI功能是否准备好）
     const modelExists = await checkModelService();
+    console.log('模型是否存在', modelExists);
     setConfig('aiModel_installed', modelExists);
     // 检查CUDA安装包是否未解压
     // const cudaInfo = await checkCUDA();

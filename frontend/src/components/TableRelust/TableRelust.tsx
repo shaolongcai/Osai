@@ -1,5 +1,5 @@
-import { Box, ClickAwayListener, Menu, MenuItem, Paper, Tooltip } from "@mui/material"
-import React, { useEffect, useState } from "react";
+import { Box, Chip, ClickAwayListener, Menu, MenuItem, Paper, Tooltip } from "@mui/material"
+import React, { useEffect, useMemo, useState } from "react";
 import styles from './TableRelust.module.scss'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -81,7 +81,7 @@ const TableRelust: React.FC<Props> = ({
             case 'aiMark':
                 const isReadyAI = context.isReadyAI;
                 if (isReadyAI) {
-                    console.log('path', item.path)
+
                     window.electronAPI.aiMark(item.path);
                 }
                 else {
@@ -102,9 +102,7 @@ const TableRelust: React.FC<Props> = ({
             width: 60,
             label: '文件名称',
             dataKey: 'name',
-            styles: {
-                fontColor: '#00000085',
-            }
+
         },
         {
             width: 100,
@@ -145,6 +143,18 @@ const TableRelust: React.FC<Props> = ({
             render: (value) => getFileTypeByExtension(value as string),
             sortable: true // 标记该列可排序
         },
+        //  {
+        //     width: 50,
+        //     label: '标记',
+        //     dataKey: 'ai_mark',
+        //     // render: (value) => value === 1 && <Chip size='small' variant='outlined' color='primary' label='已标记' />,
+        //     render:value=> value ? <div style={{
+        //         backgroundColor: '#1976d2',
+        //         width: '16px',
+        //         height: '16px',
+        //         borderRadius:'32px'
+        //     }} />: null
+        // },
     ];
 
 
@@ -226,7 +236,7 @@ const TableRelust: React.FC<Props> = ({
     }
 
     // 表格内容
-    function rowContent(_index: number, row: SearchDataItem) {
+    function rowContent(index: number, row: SearchDataItem) {
         return (
             <React.Fragment>
                 {columns.map((column) => (
@@ -239,7 +249,7 @@ const TableRelust: React.FC<Props> = ({
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            color: column.styles?.fontColor,
+                            color: sortedData[index].ai_mark === 1 ? '#4F5494' : '#00000065',
                         }}
                     >
                         {column.render ? column.render(row[column.dataKey]) : row[column.dataKey]}
@@ -250,7 +260,8 @@ const TableRelust: React.FC<Props> = ({
     }
 
     //表格内容
-    const VirtuosoTableComponents: TableComponents<SearchDataItem> = {
+    // 使用 useMemo 缓存 VirtuosoTableComponents，避免每次渲染都重新创建
+    const VirtuosoTableComponents: TableComponents<SearchDataItem> = useMemo(() => ({
         Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
             <TableContainer component={Paper} {...props} ref={ref}
                 sx={{
@@ -313,16 +324,25 @@ const TableRelust: React.FC<Props> = ({
                 }}
             />
         )),
-    };
-
+    }), []); // 依赖为空数组，确保只在组件挂载时创建一次
 
     return <Box className={styles.table}>
         <AIMarkDialog
             open={aiMarkDialogOpen}
             onClose={() => setAIMarkDialogOpen(false)}
         />
+        <TableVirtuoso
+            className={styles.TableContainer}
+            fixedHeaderContent={fixedHeaderContent}
+            data={sortedData}
+            components={VirtuosoTableComponents}
+            itemContent={rowContent}
+        />
         <ClickAwayListener onClickAway={handleClose}>
             <Menu
+                disableAutoFocus={true}
+                disableEnforceFocus={true}
+                disableRestoreFocus={true}
                 open={contextMenu !== null}
                 onClose={handleClose}
                 anchorReference="anchorPosition"
@@ -355,13 +375,6 @@ const TableRelust: React.FC<Props> = ({
                 </MenuItem>
             </Menu>
         </ClickAwayListener>
-        <TableVirtuoso
-            className={styles.TableContainer}
-            fixedHeaderContent={fixedHeaderContent}
-            data={sortedData}
-            components={VirtuosoTableComponents}
-            itemContent={rowContent}
-        />
     </Box>
 }
 
