@@ -78,8 +78,8 @@ export class DocumentSever {
             isJson: true,
         })
         const result = JSON.parse(resultString)
-        console.log('简介:', result.summary)
-        console.log('标签:', result.tags)
+        // console.log('简介:', result.summary)
+        // console.log('标签:', result.tags)
         logger.info(`文档分析成功`)
 
         // 数据库操作

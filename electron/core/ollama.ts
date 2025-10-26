@@ -125,7 +125,7 @@ class OllamaService {
 
             // 监听Worker消息
             this.aiWorker.on('message', (response: any) => {
-                const { requestId, success, result, error } = response;
+                const { requestId, success, result, error, needRestartOllama } = response;
                 const pending = this.pendingAiRequests.get(requestId);
 
                 if (pending) {
@@ -134,7 +134,16 @@ class OllamaService {
                     if (success) {
                         pending.resolve(result);
                     } else {
-                        pending.reject(new Error(error)); //这里reject到file.ts 然后报错，后期在这里加上重试
+                        pending.reject(new Error(error)); //这里reject到file.ts 然后报错
+
+                        // 暂时废弃
+                        // if (needRestartOllama) {
+                        //     // this.restartOllamaService(pending, error);
+                        //     logger.error(`重试请求: ${error}`);
+                        //     // 重试处理，重新添加到队列
+                        //     this.pendingAiRequests.set(requestId, pending);
+                        //     this.handleQueue();
+                        // }
                     }
                 }
             });
@@ -241,6 +250,37 @@ class OllamaService {
     //     }
     // }
 
+    private async restartOllamaService(pending: { resolve: Function; reject: Function, params: GenerateRequest }, originalError: string): Promise<void> {
+        try {
+            logger.info('开始重启Ollama服务...');
+
+            // 停止当前服务
+            this.stop();
+
+            // 等待一段时间确保进程完全停止
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // 重新启动服务
+            await this.start();
+
+            logger.info('Ollama服务重启成功，重新处理请求...');
+
+            // 重新处理原始请求
+            try {
+                const result = await this.generate(pending.params);
+                pending.resolve(result);
+            } catch (retryError) {
+                const retryMsg = retryError instanceof Error ? retryError.message : '重试失败';
+                logger.error(`重启后重试失败: ${retryMsg}`);
+                pending.reject(new Error(`服务重启后重试失败: ${retryMsg}`));
+            }
+
+        } catch (restartError) {
+            const restartMsg = restartError instanceof Error ? restartError.message : '重启失败';
+            logger.error(`Ollama服务重启失败: ${restartMsg}`);
+            pending.reject(new Error(`原始错误: ${originalError}，重启失败: ${restartMsg}`));
+        }
+    }
 
     // 停止服务
     stop(): void {

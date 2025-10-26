@@ -91,9 +91,9 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
             pendingRequests.delete(filePath)
             const notification: INotification = {
                 id: 'ai-mark',
-                text: `AI 正在记录文档失败 剩余 ${pendingRequests.size}`,
+                text: `AI 记录文档失败 剩余 ${pendingRequests.size}`,
                 type: 'warning',
-                // tooltip: `失败原因：${error}`
+                tooltip: `失败原因：${error}`
             }
             sendToRenderer('system-info', notification)
         }
