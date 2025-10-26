@@ -69,19 +69,27 @@ const TableRelust: React.FC<Props> = ({
         if (!contextMenu?.item) return;
 
         const item = contextMenu.item;
+        const isAIMarkDialogOpen = Number(localStorage.getItem('isAIMarkDialogOpen')) || 0 //是否已经弹出过AI提示窗
         switch (action) {
             case 'openFile':
                 // 打开文件
                 window.electronAPI.openDir('openFile', item.path);
+                if (!context.isReadyAI && !isAIMarkDialogOpen) {
+                    localStorage.setItem('isAIMarkDialogOpen', '1');
+                    setAIMarkDialogOpen(true);
+                }
                 break;
             case 'openFolder':
                 // 打开所在文件夹
                 window.electronAPI.openDir('openFileDir', item.path);
+                if (!context.isReadyAI && !isAIMarkDialogOpen) {
+                    localStorage.setItem('isAIMarkDialogOpen', '1');
+                    setAIMarkDialogOpen(true);
+                }
                 break;
             case 'aiMark':
                 const isReadyAI = context.isReadyAI;
                 if (isReadyAI) {
-
                     window.electronAPI.aiMark(item.path);
                 }
                 else {
@@ -296,6 +304,12 @@ const TableRelust: React.FC<Props> = ({
             const handleRowClick = () => {
                 if (item) {
                     window.electronAPI.openDir('openFileDir', item.path);
+                    const isAIMarkDialogOpen = Number(localStorage.getItem('isAIMarkDialogOpen')) || 0
+                    // 没有准备AI功能则弹窗提示(没有弹过窗时)
+                    if (!context.isReadyAI && !isAIMarkDialogOpen) {
+                        localStorage.setItem('isAIMarkDialogOpen', '1');
+                        setAIMarkDialogOpen(true);
+                    }
                 }
             };
             // 处理右键菜单

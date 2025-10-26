@@ -55,15 +55,34 @@ async function pullOllamaModel(modelName: string): Promise<void> {
                 stream: true,
             })
 
-            let lastProgress: number
+            let lastProgress: number = 0;
+            let lastUpdateTime: number = Date.now(); //记录下本循环的时间
             // 步骤1：处理流式响应数据
             for await (const part of response) {
                 // 步骤2：显示下载进度
                 if (part.completed && part.total) {
+
+                    // 进路进度与时间
                     const progress = ((part.completed / part.total) * 100).toFixed(1);
-                    // 显示进度（每1%显示一次）
+                    const currentTime = Date.now();
+
+                    // 判断是否卡住，超过3分钟没有进度更新则视为卡住
+                    if (currentTime - lastUpdateTime > 180000) {
+                        logger.warn(`模型 ${modelName} 下载进度未更新，可能卡住`);
+                        // 报告到企业微信
+                        const errorData = {
+                            类型: '拉取模型卡住',
+                            模型名称: modelName,
+                            进度: `${progress}%`,
+                        };
+                        reportErrorToWechat(errorData)
+                        throw new Error(`模型 ${modelName} 下载进度未更新，可能卡住`);
+                    }
+
+                    // 显示进度（每2%显示一次）
                     if (Number(progress) % 2 === 0 && Number(progress) !== lastProgress) {
-                        lastProgress = Number(progress)
+                        lastProgress = Number(progress);
+                        lastUpdateTime = Date.now();
                         logger.info(`下载进度: ${progress}%`);
                         // 发送进度
                         const notification: INotification = {
@@ -116,7 +135,7 @@ async function pullOllamaModel(modelName: string): Promise<void> {
         id: 'downloadModel',
         text: `模型下载失败，已重试${maxRetries}次`,
         type: 'warning',
-        tooltip: '请检查网络连接或重启应用'
+        tooltip: '请重新安装或者自行使用ollama 拉取qwen2.5vl:3b模型'
     };
     sendToRenderer('system-info', notification);
     throw new Error(`模型拉取失败，已重试${maxRetries}次: ${finalMsg}`);

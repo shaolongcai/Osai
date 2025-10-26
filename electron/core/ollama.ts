@@ -57,7 +57,6 @@ class OllamaService {
                     env: {
                         ...process.env,
                         OLLAMA_HOST: '127.0.0.1:11434',
-                        OLLAMA_REGISTRY: 'https://docker.mirrors.ustc.edu.cn',   //国内专用中科大镜像
                         // 降低资源占用
                         OLLAMA_MAX_LOADED_MODELS: '1',
                         OLLAMA_NUM_PARALLEL: '1',
