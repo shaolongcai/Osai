@@ -1,7 +1,7 @@
 import { Box, Checkbox, Chip, FormControlLabel, LinearProgress, Paper, Stack, Tooltip, Typography } from "@mui/material"
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from './home.module.scss'
-import { Search, InfoCard, Setting, Contact, Dialog, TableRelust } from '@/components';
+import { Search, InfoCard, Setting, Contact, Dialog, TableRelust, UpdateTipsDialog } from '@/components';
 import { Progress } from "@/type/electron";
 import readySearchImage from '@/assets/images/search-ready.png'
 import { getFileTypeByExtension } from "@/utils/tools";
@@ -11,7 +11,7 @@ import {
 import searchNull from '@/assets/images/search-null.png'
 import AIMarkDialog from "@/components/AIMarkDialog/AIMarkDialog";
 import { useGlobalContext } from "@/context/globalContext";
-
+import packageJson from '../../../../package.json';
 
 
 const Home = () => {
@@ -28,11 +28,23 @@ const Home = () => {
   }>({ key: null, direction: null });
   const [sortedData, setSortedData] = useState<SearchDataItem[]>([]); // 排序后的数据
   const [openAiMarkDialog, setOpenAiMarkDialog] = useState(false); //是否打开AI mark功能引导弹窗
+  const [openUpdateTips, setOpenUpdateTips] = useState(false); //是否打开版本更新提示
 
   // 检查是否在Electron环境中
   const isElectron = typeof window !== 'undefined' && window.electronAPI;
   const effectRan = useRef(false); // 执行守卫
   const context = useGlobalContext(); // 全局上下文
+
+  //检查版本更新提醒
+  useEffect(() => {
+    const version = packageJson.version;
+    // console.log('当前版本:', version);
+    if (localStorage.getItem('lastVersion') !== version) {
+      // 版本更新提醒
+      setOpenUpdateTips(true);
+    }
+    localStorage.setItem('lastVersion', version);
+  }, [])
 
 
   useEffect(() => {
@@ -142,6 +154,12 @@ const Home = () => {
 
   return (
     <div className={styles.root}>
+      {/* 版本更新信息提示 */}
+      <UpdateTipsDialog
+        open={openUpdateTips}
+        onClose={() => setOpenUpdateTips(false)}
+      />
+      {/* AI Mark功能准备完毕提醒 */}
       <AIMarkDialog
         open={openAiMarkDialog}
         onClose={() => setOpenAiMarkDialog(false)}
