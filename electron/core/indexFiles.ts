@@ -341,7 +341,7 @@ const processImage = (imagePath: string): Promise<string> => {
 
     return new Promise(async (resolve, reject) => {
         try {
-            console.log(`开始处理：${imagePath}`)
+            // console.log(`开始处理：${imagePath}`)
             const worker = await createWorker(['chi_sim', 'chi_tra', 'eng'], 1, {
                 langPath: path.join(resourcesPath, 'traineddata'),
             });

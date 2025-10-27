@@ -107,10 +107,6 @@
         "to": "traineddata"
       },
       {
-        "from": "dist-electron/resources/",
-        "to": "ollama"
-      },
-      {
         "from": "dist-electron/resources/elevate.exe",
         "to": "elevate.exe"
       },
