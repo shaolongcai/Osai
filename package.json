@@ -40,20 +40,25 @@
   "license": "none",
   "private": true,
   "dependencies": {
-    "@langchain/community": "^0.3.56",
-    "@langchain/core": "^0.3.77",
+    "@langchain/community": "^1.0.0",
+    "@langchain/core": "^1.0.1",
     "adm-zip": "^0.5.16",
     "better-sqlite3": "^12.2.0",
     "dayjs": "^1.11.18",
     "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.6.2",
     "fast-glob": "^3.3.3",
-    "langchain": "^0.3.34",
+    "globby": "^15.0.0",
+    "langchain": "^1.0.1",
     "mammoth": "^1.11.0",
+    "officeparser": "^5.2.1",
     "ollama": "^0.6.0",
+    "pdf-parse": "^1.1.1",
     "systeminformation": "^5.27.9",
     "tesseract.js": "^6.0.1",
-    "word-extractor": "^1.0.4"
+    "word-extractor": "^1.0.4",
+    "xlsx": "^0.18.5",
+    "zod-to-json-schema": "^3.24.6"
   },
   "build": {
     "electronDownload": {
@@ -100,10 +105,6 @@
       {
         "from": "dist-electron/resources/traineddata",
         "to": "traineddata"
-      },
-      {
-        "from": "dist-electron/resources/",
-        "to": "ollama"
       },
       {
         "from": "dist-electron/resources/elevate.exe",

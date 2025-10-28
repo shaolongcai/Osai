@@ -36,10 +36,7 @@ async function findFiles(dir: string): Promise<string[]> {
     try {
         console.log(`🚀 使用 fast-glob 在 "${dir}" 中开始异步搜索...`);
 
-        // const pattern = `${dir}/**/*.{${Array.from(ALLOWED_EXTENSIONS).map(ext => ext.substring(1)).join(',')}}`;
-        const normalizedDir = dir.replace(/\\/g, '/');
-        const patterns = Array.from(ALLOWED_EXTENSIONS).map(ext => `${normalizedDir}/**/*${ext}`);
-
+        // const patterns = Array.from(ALLOWED_EXTENSIONS).map(ext => `**/*${ext}`);
         const dynamicIgnores = excludedDirNames.map(d => `**/${d}/**`);
 
         const ignorePatterns = [
@@ -50,34 +47,34 @@ async function findFiles(dir: string): Promise<string[]> {
             '**/.Trash/**'
         ];
 
-        const stream = fg.stream(patterns, {
+        const stream = fg.stream('/**/*.{png,jpg,jpeg,ppt,pptx,csv,doc,docx,txt,xlsx,xls,pdf}', {
+            cwd: drive,
             ignore: ignorePatterns,
             onlyFiles: true,
             dot: true,
             caseSensitiveMatch: false,
             suppressErrors: true, //跳过出错的文件
-            stats: true, // 请求返回 stat 对象
+            // stats: true, // 请求返回 stat 对象
+            absolute: true, // 返回绝对路径
             throwErrorOnBrokenSymbolicLink: false
         });
 
         const allFiles: string[] = [];
         let processedCount = 0;
 
-        for await (const entry of stream) {
+        //📌 stat加上后，无法返回实体
+        for await (const filePath of stream) {
+            // console.log('filePath', filePath)
+            // const filePath = (entry as any).path;
+            // const stats = (entry as any).stats;
+            const stat = fs.statSync(filePath);
+            // if (!stat) continue;
 
-            const filePath = (entry as any).path;
-            const stats = (entry as any).stats;
-
-            //   console.log('filePath',filePath)
-
-            if (!stats) continue;
-
-            allFiles.push(filePath);
-            processFile(filePath, stats);
+            allFiles.push(filePath as string);
+            processFile(filePath as string, stat);
             processedCount++;
 
             if (processedCount % BATCH_SIZE === 0) {
-                // console.log(`已处理 ${processedCount} 个文件...`)
                 // parentPort?.postMessage({
                 //     type: 'progress',
                 //     content: `已处理 ${processedCount} 个文件...`
@@ -95,7 +92,7 @@ async function findFiles(dir: string): Promise<string[]> {
 
 function processFile(filePath: string, stat: fs.Stats) {
     try {
-        const file = path.basename(filePath);
+        const file = path.basename(filePath).toLowerCase();
         const ext = path.extname(filePath).toLowerCase();
 
         const existingFile = selectStmt.get(filePath) as IndexFile | undefined;
@@ -107,6 +104,8 @@ function processFile(filePath: string, stat: fs.Stats) {
                 const metadataString = `${filePath}-${stat.size}-${stat.mtime.getTime()}`;
                 const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
                 updateStmt.run(md5, stat.size, dayjs(stat.mtime).format(), filePath);
+
+                //@todo: AI mark功能 重新摘要（放到线程）
             }
         } else {
             const metadataString = `${filePath}-${stat.size}-${stat.mtime.getTime()}`;

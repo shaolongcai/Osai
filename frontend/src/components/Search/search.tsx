@@ -32,7 +32,7 @@ const Search: React.FC<Props> = ({
             borderRadius: '8px',
             boxShadow: '0px 2px 4px rgba(25, 33, 61, 0.08)',
             border: '1px solid #F0F2F5',
-            // width: '100%',
+            width: '100%',
         }}
     >
         <Stack direction="row" spacing={2} alignItems="center">

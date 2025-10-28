@@ -2,6 +2,7 @@ import Database from 'better-sqlite3'
 import pathConfig from '../core/pathConfigs.js'
 import path from 'path'
 import { logger } from '../core/logger.js'
+import { ConfigName } from '../types/system.js'
 
 
 let db: Database.Database | null = null
@@ -36,11 +37,26 @@ export function initializeDatabase(): Database.Database {
               size INTEGER,
               created_at DATETIME,
               modified_at DATETIME,
-              summary TEXT
+              summary TEXT,
+              tags TEXT DEFAULT '[]'
             );
             CREATE UNIQUE INDEX IF NOT EXISTS idx_files_md5 ON files (md5);
             CREATE UNIQUE INDEX IF NOT EXISTS idx_files_path ON files (path);
           `)
+
+    // 为现有表添加tags字段（如果不存在）
+    try {
+      db.exec(`ALTER TABLE files ADD COLUMN skip_ocr BOOLEAN DEFAULT 0`) //是否跳过ocr
+      logger.info('成功添加skip_ocr字段到files表')
+      db.exec(`ALTER TABLE files ADD COLUMN ai_mark BOOLEAN DEFAULT 0`)
+      logger.info('成功添加ai_mark字段到files表')
+      db.exec(`ALTER TABLE files ADD COLUMN full_content TEXT DEFAULT ''`)
+      logger.info('成功添加full_content字段到files表')
+      db.exec(`ALTER TABLE files ADD COLUMN tags TEXT DEFAULT '[]'`)
+      logger.info('成功添加tags字段到files表')
+    } catch (error) {
+      // 字段已存在时会报错，忽略即可
+    }
 
     // 创建用户配置表
     db.exec(`
@@ -81,7 +97,7 @@ export function initializeDatabase(): Database.Database {
  * @param key 配置键名
  * @returns 配置值，如果不存在返回null
  */
-export function getConfig(key: string): any {
+export function getConfig(key: ConfigName | string): any {
   try {
     const db = getDatabase()
     const stmt = db.prepare('SELECT config_value, config_type FROM user_config WHERE config_key = ?')

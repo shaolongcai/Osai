@@ -1,26 +1,26 @@
-// 步骤1：创建Ollama管理器
 import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
 import { logger } from './logger.js';
-import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { Worker } from 'worker_threads';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
 class OllamaService {
     private process: ChildProcess | null = null;
     private isRunning = false;
     private ollamaPath: string;
-    private imageWorker: Worker | null = null;
-    private pendingRequests = new Map<string, { resolve: Function; reject: Function }>();
+    private aiWorker: Worker | null = null;
+    private pendingAiRequests: Map<string, { resolve: Function; reject: Function, params: GenerateRequest }>
+    private isProcessingQueue = false; // 用于标记是否正在处理队列中的请求
+
 
     constructor() {
-        // Ollama可执行文件路径
         this.ollamaPath = pathConfig.get('ollamaPath');
-        // this.initializeImageWorker();
+        this.pendingAiRequests = new Map()
+        this.initializeAiWorker()
     }
 
     // 启动Ollama服务
@@ -57,7 +57,6 @@ class OllamaService {
                     env: {
                         ...process.env,
                         OLLAMA_HOST: '127.0.0.1:11434',
-                        OLLAMA_REGISTRY: 'https://docker.mirrors.ustc.edu.cn',   //国内专用中科大镜像
                         // 降低资源占用
                         OLLAMA_MAX_LOADED_MODELS: '1',
                         OLLAMA_NUM_PARALLEL: '1',
@@ -119,125 +118,167 @@ class OllamaService {
         throw new Error('Ollama服务启动超时');
     }
 
-    // 重启 Worker
-    private restartImageWorker(): void {
+    //AI线程初始化
+    private initializeAiWorker() {
         try {
-            // 清理所有待处理的请求
-            for (const [requestId, pending] of this.pendingRequests) {
-                pending.reject(new Error('Worker重启，请求被取消'));
-            }
-            this.pendingRequests.clear();
+            this.aiWorker = new Worker(path.join(__dirname, '../workers/ai.worker.js'));
 
-            // 关闭旧的Worker
-            if (this.imageWorker) {
-                this.imageWorker.terminate();
-                this.imageWorker = null;
-            }
-
-            // 重新初始化Worker
-            setTimeout(() => {
-                this.initializeImageWorker();
-            }, 1000); // 延迟1秒重启
-
-        } catch (error) {
-            // logger.error(`重启图像处理 Worker 失败: ${error}`);
-        }
-    }
-
-    // 初始化图像处理 Worker
-    private initializeImageWorker(): void {
-        try {
-            const workerPath = path.join(__dirname, 'imageProcessor.worker.js');
-            this.imageWorker = new Worker(workerPath);
-
-            // 监听 Worker 消息
-            this.imageWorker.on('message', (response: any) => {
-                const { requestId, success, result, error } = response;
-                console.log('result', result)
-                const pending = this.pendingRequests.get(requestId);
+            // 监听Worker消息
+            this.aiWorker.on('message', (response: any) => {
+                const { requestId, success, result, error, needRestartOllama } = response;
+                const pending = this.pendingAiRequests.get(requestId);
 
                 if (pending) {
-                    this.pendingRequests.delete(requestId);
+                    this.pendingAiRequests.delete(requestId);
+                    this.isProcessingQueue = false;
                     if (success) {
                         pending.resolve(result);
                     } else {
-                        pending.reject(new Error(error));
+                        pending.reject(new Error(error)); //这里reject到file.ts 然后报错
+
+                        // 暂时废弃
+                        // if (needRestartOllama) {
+                        //     // this.restartOllamaService(pending, error);
+                        //     logger.error(`重试请求: ${error}`);
+                        //     // 重试处理，重新添加到队列
+                        //     this.pendingAiRequests.set(requestId, pending);
+                        //     this.handleQueue();
+                        // }
                     }
                 }
             });
 
-            // 监听 Worker 错误
-            this.imageWorker.on('error', (error) => {
-                // logger.error(`图像处理 Worker 错误: ${error.message}`);
-                // 重启 Worker
-                this.restartImageWorker();
+            // 监听Worker错误
+            this.aiWorker.on('error', (error) => {
+                console.error(`AI处理Worker错误: ${error.message}`);
+                // restartImageWorker();
             });
 
-            // 监听 Worker 退出
-            this.imageWorker.on('exit', (code) => {
+            // 监听Worker退出
+            this.aiWorker.on('exit', (code) => {
                 if (code !== 0) {
-                    // logger.warn(`图像处理 Worker 异常退出，代码: ${code}`);
-                    this.restartImageWorker();
+                    console.warn(`AI处理Worker异常退出，代码: ${code}`);
+                    // restartImageWorker();
                 }
             });
-
         } catch (error) {
-            // logger.error(`初始化图像处理 Worker 失败: ${error}`);
+            console.error(`初始化AI处理Worker失败: ${error}`);
         }
     }
 
 
-    //  使用线程来获取图片摘要
-    //    async processImage(imagePath: string, prompt: string = '请使用中文摘要这张图片，请简洁描述，不要重复内容，控制在300字以内'): Promise<string> {
-    //     return new Promise((resolve, reject) => {
-    //         const fileName = path.basename(imagePath);
-    //         //跳过名称
-    //         const skipNames = ['企业微信截图', '截图', '公司', '充值方案', '图片详情', '图片信息', '图片详情']
-    //         if (skipNames.some(name => fileName.includes(name))) {
-    //             console.log(`跳过名称: ${fileName}`)
-    //             resolve('');
-    //             return;
-    //         }
-
-    //         if (!this.imageWorker) {
-    //             reject(new Error('图像处理 Worker 未初始化'));
-    //             return;
-    //         }
-
-    //         const requestId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-    //         // 存储 Promise 的 resolve 和 reject
-    //         this.pendingRequests.set(requestId, { resolve, reject });
-
-    //         // 发送任务到 Worker
-    //         this.imageWorker.postMessage({
-    //             imagePath,
-    //             prompt,
-    //             requestId
-    //         });
-    //     });
-    // }
-
-    // 生成文本
-    async generate(model: string, prompt: string): Promise<string> {
-        try {
-            const response = await fetch('http://127.0.0.1:11434/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ model, prompt, stream: false })
-            });
-
-            if (!response.ok) {
-                throw new Error(`生成失败: ${response.statusText}`);
+    // 使用线程生成文本
+    async generate(params: GenerateRequest): Promise<string> {
+        return new Promise((resolve, reject) => {
+            if (!this.aiWorker) {
+                reject(new Error('文档处理Worker未初始化'));
+                return;
             }
 
-            const data = await response.json();
-            return data.response;
+            const requestId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+            // 添加到请求队列中
+            this.pendingAiRequests.set(requestId, { resolve, reject, params });
+
+            if (!this.isProcessingQueue) {
+                this.handleQueue();
+            }
+        });
+    }
+
+
+    // 处理队列中的请求
+    private async handleQueue() {
+        if (this.pendingAiRequests.size === 0) return
+        // 处理队列中的第一个请求
+        const firstRequestId = this.pendingAiRequests.keys().next().value;
+        const firstItem = this.pendingAiRequests.get(firstRequestId)!;
+        const { params, reject } = firstItem;
+        try {
+            if (this.isProcessingQueue) {
+                return;
+            }
+
+            logger.info(`处理队列中的第一个请求: ${firstRequestId}`);
+            this.isProcessingQueue = true; // 标记为正在处理队列中的请求
+
+            // 发送任务到Worker
+            this.aiWorker.postMessage({
+                path: params.path,
+                prompt: params.prompt,
+                content: params.content.slice(0, 4000), //只存入前4000字
+                isImage: params.isImage,
+                isJson: params.isJson,
+                jsonFormat: params.jsonFormat,
+                requestId: firstRequestId
+            });
 
         } catch (error) {
-            const msg = error instanceof Error ? error.message : '生成失败';
-            logger.error(`生成失败: ${msg}`);
-            throw new Error(msg);
+            this.isProcessingQueue = false;
+            reject(error);
+
+        } finally {
+            setTimeout(() => {
+                // 处理完第一个请求后，递归调用处理队列(相隔一段时间等待)
+                this.handleQueue(); //或者可以改成while循环
+            }, 3000);
+        }
+    }
+
+    // 重启 Worker
+    // private restartImageWorker(): void {
+    //     try {
+    //         // 清理所有待处理的请求
+    //         for (const [requestId, pending] of this.pendingRequests) {
+    //             pending.reject(new Error('Worker重启，请求被取消'));
+    //         }
+    //         this.pendingRequests.clear();
+
+    //         // 关闭旧的Worker
+    //         if (this.imageWorker) {
+    //             this.imageWorker.terminate();
+    //             this.imageWorker = null;
+    //         }
+
+    //         // 重新初始化Worker
+    //         setTimeout(() => {
+    //             this.initializeImageWorker();
+    //         }, 1000); // 延迟1秒重启
+
+    //     } catch (error) {
+    //         // logger.error(`重启图像处理 Worker 失败: ${error}`);
+    //     }
+    // }
+
+    private async restartOllamaService(pending: { resolve: Function; reject: Function, params: GenerateRequest }, originalError: string): Promise<void> {
+        try {
+            logger.info('开始重启Ollama服务...');
+
+            // 停止当前服务
+            this.stop();
+
+            // 等待一段时间确保进程完全停止
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // 重新启动服务
+            await this.start();
+
+            logger.info('Ollama服务重启成功，重新处理请求...');
+
+            // 重新处理原始请求
+            try {
+                const result = await this.generate(pending.params);
+                pending.resolve(result);
+            } catch (retryError) {
+                const retryMsg = retryError instanceof Error ? retryError.message : '重试失败';
+                logger.error(`重启后重试失败: ${retryMsg}`);
+                pending.reject(new Error(`服务重启后重试失败: ${retryMsg}`));
+            }
+
+        } catch (restartError) {
+            const restartMsg = restartError instanceof Error ? restartError.message : '重启失败';
+            logger.error(`Ollama服务重启失败: ${restartMsg}`);
+            pending.reject(new Error(`原始错误: ${originalError}，重启失败: ${restartMsg}`));
         }
     }
 
@@ -278,6 +319,8 @@ class OllamaService {
             // 不抛出错误，继续启动新进程
         }
     }
+
+
 }
 
-export const ollamaService = new OllamaService();
+export const ollamaService = new OllamaService(); //单例模式，永远都是同一个实例

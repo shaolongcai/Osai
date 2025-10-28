@@ -5,6 +5,7 @@ import initErrorImg from '@/assets/images/init-error.png'
 import styles from './Preload.module.scss'
 import { useNavigate } from 'react-router-dom';
 import { Dialog, ReportProtocol } from "@/components";
+import { useGlobalContext } from "@/context/globalContext";
 
 const Preload = () => {
 
@@ -18,6 +19,7 @@ const Preload = () => {
 
     const effectRan = useRef(false); // 执行守卫
     const navigate = useNavigate();
+    const context = useGlobalContext();
 
 
     // 检查是否有更新， 考虑用wait - promise 去处理三个事情： 1、检查更新版本，2、同意协议，3、初始化服务
@@ -63,6 +65,15 @@ const Preload = () => {
         effectRan.current = true;
         const res = await window.electronAPI.init();
         if (res.code === 0) {
+            console.log('initRes', res)
+            context.setGpuInfo({
+                hasGPU: res.data.hasGPU,
+                // hasGPU: false, //测试
+                memory: res.data.memory,
+                hasDiscreteGPU: res.data.hasDiscreteGPU,
+            });
+            context.setIsReadyAI(res.data.isReadyAI);
+            // context.setIsReadyAI(false); //测试
             // 跳转到首页
             navigate('/home');
         }

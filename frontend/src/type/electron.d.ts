@@ -50,12 +50,19 @@ export interface ConfigParams {
 }
 
 
-type OpenDirType = 'runLog' | 'openFileDir'
+type OpenDirType = 'runLog' | 'openFileDir' | 'openFile'
+
+//初始化返回的类型
+type InitData = GpuInfo & { 
+    isReadyAI:  boolean, //是否准备好AI Mark功能
+}
+
+
 
 interface ElectronAPI {
 
     // 告诉主线程可以初始化 （目的是为了，等监听器全部就绪完毕）
-    init(): Promise<BaseResponse>;
+    init(): Promise<BaseResponse<InitData>>;
 
     // 获取用户配置
     getConfig(key?: string): Promise<UserConfig>;
@@ -68,6 +75,7 @@ interface ElectronAPI {
     // 索引相关
     startIndex(): Promise<void>; // 开启索引
     toggleIndexImage(open: boolean): Promise<void>; //开启/关闭视觉索引服务
+    aiMark(filePath: string): Promise<void>; // 对文件进行AI Mark
 
     // 模型相关
     checkModelExists(): Promise<{ success: boolean }>;
@@ -77,6 +85,8 @@ interface ElectronAPI {
 
     // 安装GPU服务
     installGpuServer(): Promise<void>;
+    // 安装AI服务(AI Mark)
+    installAiServer(withCuda: boolean): Promise<void>;
 
     //更新接口
     checkForUpdates(): Promise<boolean>; //手动检查有没有更新
@@ -88,6 +98,7 @@ interface ElectronAPI {
     onVisualIndexProgress(callback: (data: Progress) => void): void;
     onSystemInfo(callback: (data: Notification) => void): void;
     onUpdateStatus(callback: (data: any) => void): void; // 检查更新状态,暂时用any占位
+    onAiSeverInstalled(callback: (data: boolean) => void): void; // AI服务是否安装
 
     // 移除事件监听
     removeAllListeners(channel: string): void;

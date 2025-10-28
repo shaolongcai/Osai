@@ -14,6 +14,7 @@ import { getConfig, setConfig } from '../database/sqlite.js';
 import { execSync } from 'child_process';
 import * as fs from 'fs'
 import AdmZip from 'adm-zip';
+import path from 'path';
 
 /**
  * 检查系统是否有可用的GPU
@@ -152,6 +153,7 @@ export const detectCudaVersion = (): 'cudaV13.zip' | 'cudaV12.zip' => {
  * @returns 
  */
 export const openDir = (type: string, filePath?: string) => {
+    logger.info(`打开目录: ${type}, ${filePath}`)
     switch (type) {
         // 打开运行日志
         case 'runLog':
@@ -162,14 +164,31 @@ export const openDir = (type: string, filePath?: string) => {
         case 'openFileDir':
             if (process.platform === 'win32') {
                 // 在 Windows 上，使用 explorer.exe 并通过 /select 参数来选中文件
-                exec(`explorer.exe /select,"${filePath}"`);
+                // 确保路径格式正确，将正斜杠转换为反斜杠
+                const windowsPath = filePath?.replace(/\//g, '\\') || filePath;
+                const command = `explorer.exe /select,"${windowsPath}"`;
+                exec(command, (error, stdout, stderr) => {
+                    if (error) {
+                        // 如果命令失败，使用备用方法
+                        shell.showItemInFolder(filePath);
+                    }
+                });
             } else if (process.platform === 'darwin') {
                 // 在 macOS 上，使用 open 命令并附带 -R 参数来在 Finder 中显示文件
-                exec(`open -R "${filePath}"`);
+                exec(`open -R "${filePath}"`, (error, stdout, stderr) => {
+                    if (error) {
+                        console.error('打开文件夹失败:', error);
+                        shell.showItemInFolder(filePath);
+                    }
+                });
             } else {
                 // 对于其他平台（如 Linux），继续使用 showItemInFolder 作为备选
                 shell.showItemInFolder(filePath);
             }
+            break;
+        // 直接打开文件
+        case 'openFile':
+            shell.openPath(filePath);
             break;
         default:
             break;
@@ -216,6 +235,29 @@ export const extractZip = async (zipPath: string, extractPath: string) => {
     }
 }
 
+
+/**
+ * 检查CUDA解压包
+ * @returns 压缩包路径和解压路径
+ */
+//解压CUDA服务
+export const extractCUDA = async () => {
+  // 检查是否有cuda.zip文件
+  const cudaDir = path.join(pathConfig.get('resources'), 'Ollama', 'lib', 'ollama');
+  const v12ZipPath = path.join(cudaDir, 'cudaV12.zip');
+  const v13ZipPath = path.join(cudaDir, 'cudaV13.zip');
+  // 判断文件是否存在，而不是判断路径字符串是否存在
+  if (fs.existsSync(v12ZipPath)) {
+    logger.info(`发现CUDA V12压缩包: ${v12ZipPath}`);
+    await extractZip(v12ZipPath, cudaDir);
+  } else if (fs.existsSync(v13ZipPath)) {
+    logger.info(`发现CUDA V13压缩包: ${v13ZipPath}`);
+    await extractZip(v13ZipPath, cudaDir);
+  }
+  else {
+    logger.info(`未发现CUDA V12或V13压缩包`);
+  }
+}
 
 
 const buildMarkdownContent = (data: any) => {

@@ -1,17 +1,16 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
-import * as fs from 'fs'
 import { fileURLToPath } from 'url';
-import { getConfig, initializeDatabase } from './database/sqlite.js';
+import { getConfig, initializeDatabase, setConfig } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
 import { indexAllFilesWithWorkers, indexImagesService } from './core/indexFiles.js';
 import { logger } from './core/logger.js';
-import { checkGPU, extractZip, reportErrorToWechat } from './core/system.js';
-import { initializeModel } from './core/model.js'
+import { checkGPU, reportErrorToWechat } from './core/system.js';
+import { checkModelService } from './core/model.js'
 import { ollamaService } from './core/ollama.js';
-import pathConfig from './core/pathConfigs.js';
 import { INotification } from './types/system.js';
 import { initializeUpdateApi } from './api/update.js';
+import { initializeSystemApi } from './api/system.js';
 
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
@@ -71,40 +70,36 @@ export const sendToRenderer = (channel: string, data: any) => {
 };
 
 
-//解压CUDA服务
-export const extractCUDA = async () => {
-  // 检查是否有cuda.zip文件
-  const cudaDir = path.join(pathConfig.get('resources'), 'Ollama', 'lib', 'ollama');
-  const v12ZipPath = path.join(cudaDir, 'cudaV12.zip');
-  const v13ZipPath = path.join(cudaDir, 'cudaV13.zip');
-  // 判断文件是否存在，而不是判断路径字符串是否存在
-  if (fs.existsSync(v12ZipPath)) {
-    logger.info(`发现CUDA V12压缩包: ${v12ZipPath}`);
-    await extractZip(v12ZipPath, cudaDir);
-  } else if (fs.existsSync(v13ZipPath)) {
-    logger.info(`发现CUDA V13压缩包: ${v13ZipPath}`);
-    await extractZip(v13ZipPath, cudaDir);
-  }
-  else {
-    logger.info(`未发现CUDA V12或V13压缩包`);
-  }
-}
-
 /**
  * 初始化所有必须条件
  * 1、初始化数据库
  * 2、启动ollama服务，初始化模型
+ * 3、检查硬件
+ * 4、检查是否已经准备好AI mark
  */
 export const init = async () => {
   try {
     // 初始化数据库
     initializeDatabase()
-    // 解压CUDA服务
-    await extractCUDA();
     // 启动Ollama服务
     await ollamaService.start();
+    // 检查硬件是否支持
+    const gpuInfo = await checkGPU();
+    // 检查模型是否存在（AI功能是否准备好）
+    const modelExists = await checkModelService();
+    console.log('模型是否存在', modelExists);
+    setConfig('aiModel_installed', modelExists);
+    // 检查CUDA安装包是否未解压
+    // const cudaInfo = await checkCUDA();
+    // const isInstallCuda = getConfig('cuda_installed');
+
+    // 检查是否准备好AI Mark功能
     return {
       code: 0,
+      data: {
+        ...gpuInfo,
+        isReadyAI: modelExists,
+      },
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : '未知原因'
@@ -128,14 +123,12 @@ export const init = async () => {
  */
 export const startIndexTask = async () => {
   try {
-    //检查GPU
-    await checkGPU()
     // 判断是否需要索引
     const lastIndexTime = getConfig('last_index_time');
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();
@@ -150,8 +143,6 @@ export const startIndexTask = async () => {
         count: last_index_file_count
       })
     }
-    //初始化模型（如果没有会自动拉取）
-    await initializeModel();
     // 开启视觉索引 （由appState控制继续还是关闭）
     indexImagesService();
   } catch (error) {
@@ -180,8 +171,8 @@ app.whenReady().then(() => {
   createWindow();
   // 初始化API
   initializeFileApi(mainWindow);
-  // 初始化更新APO
   initializeUpdateApi()
+  initializeSystemApi()
 });
 
 app.on('window-all-closed', () => {

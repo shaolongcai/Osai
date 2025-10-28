@@ -7,6 +7,7 @@ type SearchDataItem = {
     name: string;
     ext: string;
     modified_at: string;
+    ai_mark: number;
 }
 
 interface ColumnData {
