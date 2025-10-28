@@ -6,12 +6,11 @@ import Database from 'better-sqlite3';
 import dayjs from 'dayjs';
 import fg from 'fast-glob';
 import type { IndexFile } from '../types/database';
+import { execSync } from 'child_process';
+
 
 // ... (ALLOWED_EXTENSIONS and BATCH_SIZE remain the same)
-const ALLOWED_EXTENSIONS = new Set([
-    '.png', '.jpg', '.jpeg', '.ppt', '.pptx', '.csv',
-    '.doc', '.docx', '.txt', '.xlsx', '.xls', '.pdf'
-]);
+const ALLOWED_EXTENSIONS = 'png,jpg,jpeg,ppt,pptx,csv,doc,docx,txt,xlsx,xls,pdf'
 const BATCH_SIZE = 10000;
 
 // --- 1. 首先，获取 workerData 并初始化数据库 ---
@@ -47,7 +46,9 @@ async function findFiles(dir: string): Promise<string[]> {
             '**/.Trash/**'
         ];
 
-        const stream = fg.stream('/**/*.{png,jpg,jpeg,ppt,pptx,csv,doc,docx,txt,xlsx,xls,pdf}', {
+        const allFiles: string[] = [];
+        let processedCount = 0;
+        const stream = fg.stream(`/**/*.{${ALLOWED_EXTENSIONS}}`, {
             cwd: drive,
             ignore: ignorePatterns,
             onlyFiles: true,
@@ -56,20 +57,15 @@ async function findFiles(dir: string): Promise<string[]> {
             suppressErrors: true, //跳过出错的文件
             // stats: true, // 请求返回 stat 对象
             absolute: true, // 返回绝对路径
-            throwErrorOnBrokenSymbolicLink: false
+            throwErrorOnBrokenSymbolicLink: false,
+            // deep: 5 
         });
 
-        const allFiles: string[] = [];
-        let processedCount = 0;
+
 
         //📌 stat加上后，无法返回实体
         for await (const filePath of stream) {
-            // console.log('filePath', filePath)
-            // const filePath = (entry as any).path;
-            // const stats = (entry as any).stats;
             const stat = fs.statSync(filePath);
-            // if (!stat) continue;
-
             allFiles.push(filePath as string);
             processFile(filePath as string, stat);
             processedCount++;
@@ -82,6 +78,38 @@ async function findFiles(dir: string): Promise<string[]> {
             }
         }
 
+        console.log('📁 搜索文件夹中...');
+        const dirStream = fg.stream('/**/', {
+            cwd: drive,
+            ignore: ignorePatterns,
+            onlyDirectories: true,
+            dot: false,
+            caseSensitiveMatch: false,
+            suppressErrors: true,
+            absolute: true,
+            // 限制文件夹深度，避免搜索过深
+            // deep: 5
+        });
+
+        for await (const dirPath of dirStream) {
+            try {
+                //    console.log('dirPath', dirPath)
+                const stat = fs.statSync(dirPath);
+                allFiles.push(dirPath as string);
+                processFile(dirPath as string, stat);
+                processedCount++;
+
+                if (processedCount % BATCH_SIZE === 0) {
+                    // parentPort?.postMessage({
+                    //     type: 'progress',
+                    //     content: `已处理 ${processedCount} 个项目...`
+                    // });
+                }
+            } catch (error) {
+                console.error(`处理文件夹 ${dirPath} 时出错:`, error);
+            }
+        }
+
         console.log(`✅ fast-glob 搜索完成，共找到 ${allFiles.length} 个文件。`);
         return allFiles;
     } catch (error) {
@@ -89,6 +117,8 @@ async function findFiles(dir: string): Promise<string[]> {
         return []
     }
 }
+
+
 
 function processFile(filePath: string, stat: fs.Stats) {
     try {
@@ -104,10 +134,9 @@ function processFile(filePath: string, stat: fs.Stats) {
                 const metadataString = `${filePath}-${stat.size}-${stat.mtime.getTime()}`;
                 const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
                 updateStmt.run(md5, stat.size, dayjs(stat.mtime).format(), filePath);
-
-                //@todo: AI mark功能 重新摘要（放到线程）
             }
         } else {
+            // 没有则新增
             const metadataString = `${filePath}-${stat.size}-${stat.mtime.getTime()}`;
             const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
             insertStmt.run(md5, filePath, file, ext, stat.size, dayjs(stat.ctime).format(), dayjs(stat.mtime).format());

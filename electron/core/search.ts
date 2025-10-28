@@ -1,5 +1,5 @@
 import pathConfig from './pathConfigs.js';
-import { getDatabase } from '../database/sqlite.js';
+import { getDatabase, searchPrograms } from '../database/sqlite.js';
 import { logger } from './logger.js';
 import { waitForModelReady } from './appState.js';
 import { SearchPrompt } from '../data/prompt.js';
@@ -64,6 +64,10 @@ export function searchFiles(searchTerm: string): SearchResult {
         };
     }
     const db = getDatabase()
+
+     // 搜索应用程序
+    const programs =  searchPrograms(searchTerm);
+    console.log('搜索到的程序', programs);
 
     // 2. 从数据库中获取所有文件名
     // 注意：如果文件数量非常多（例如超过几十万），一次性加载到内存中可能会有性能问题。
@@ -204,6 +208,8 @@ export async function searchByKeywordsAndExt(keywords: string[], ext: string[]):
         }
         // 1. 获取数据库连接
         const db = getDatabase();
+
+     
 
         // 2. 准备动态构建SQL查询
         const params: any[] = [];

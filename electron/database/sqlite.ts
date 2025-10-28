@@ -44,6 +44,17 @@ export function initializeDatabase(): Database.Database {
             CREATE UNIQUE INDEX IF NOT EXISTS idx_files_path ON files (path);
           `)
 
+        // 创建程序信息表
+    db.exec(`
+            CREATE TABLE IF NOT EXISTS programs (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              display_name TEXT NOT NULL,
+              publisher TEXT,
+              path TEXT,
+              display_icon TEXT
+            );
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_programs_name ON programs (display_name);
+          `)
     // 为现有表添加tags字段（如果不存在）
     try {
       db.exec(`ALTER TABLE files ADD COLUMN skip_ocr BOOLEAN DEFAULT 0`) //是否跳过ocr
@@ -186,6 +197,69 @@ export function getAllConfigs(): Record<string, any> {
   }
 }
 
+
+/**
+ * 插入程序信息到数据库
+ * @param programInfo 程序信息
+ */
+export function insertProgramInfo(programInfo: {
+  DisplayName: string;
+  Publisher: string;
+  InstallLocation: string;
+  DisplayIcon: string;
+}): void {
+  try {
+    const database = getDatabase();
+    const stmt = database.prepare(`
+      INSERT OR REPLACE INTO programs 
+      (display_name, publisher, path, display_icon) 
+      VALUES (?, ?, ?, ?)
+    `);
+    
+    stmt.run(
+      programInfo.DisplayName,
+      programInfo.Publisher,
+      programInfo.InstallLocation,
+      programInfo.DisplayIcon,
+    );
+    
+    logger.debug(`程序信息已插入: ${programInfo.DisplayName}`);
+  } catch (error) {
+    logger.error(`插入程序信息失败: ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * 搜索程序（包括已安装程序和快捷方式）
+ * @param keyword 搜索关键词
+ * @returns 匹配的程序列表
+ */
+export function searchPrograms(keyword: string): any[] {
+  try {
+    const database = getDatabase();
+    const stmt = database.prepare(`
+      SELECT * FROM programs 
+      WHERE display_name LIKE ? OR publisher LIKE ?
+      ORDER BY 
+        CASE 
+          WHEN display_name LIKE ? THEN 1
+          WHEN display_name LIKE ? THEN 2
+          ELSE 3
+        END,
+        display_name
+      LIMIT 20
+    `);
+    
+    const searchPattern = `%${keyword}%`;
+    const exactPattern = `${keyword}%`;
+    
+    return stmt.all(searchPattern, searchPattern, exactPattern, searchPattern);
+  } catch (error) {
+    logger.error(`搜索程序失败: ${error}`);
+    return [];
+  }
+}
 
 /**
  * 获取数据库连接实例。

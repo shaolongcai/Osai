@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
-import { getDatabase, setConfig } from '../database/sqlite.js';
+import { getDatabase, insertProgramInfo, setConfig } from '../database/sqlite.js';
 import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
@@ -136,17 +136,17 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
     // 排除的目录名
     const excludedDirNames = new Set([
-        'node_modules',
-        '$Recycle.Bin',
-        'System Volume Information',
-        'AppData',
-        'ProgramData',
-        'Program Files',
-        'Program Files (x86)',
-        'Windows',
-        '.git',
-        '.vscode',
-        'Library' //mac忽略目录
+        // 'node_modules',
+        // '$Recycle.Bin',
+        // 'System Volume Information',
+        // 'AppData',
+        // 'ProgramData',
+        // 'Program Files',
+        // 'Program Files (x86)',
+        // 'Windows',
+        // '.git',
+        // '.vscode',
+        // 'Library' //mac忽略目录
     ]);
     // 将 Set 转换为数组以便通过 workerData 传递
     const excludedDirNamesArray = Array.from(excludedDirNames);
@@ -155,7 +155,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             // 明确指定 worker 脚本的路径
             // 我们需要指向编译后的 .js 文件
-            const workerPath = path.join(__dirname, 'indexer2.worker.js');
+            const workerPath = path.join(__dirname, '../workers/indexer.worker.js');
 
             const worker = new Worker(workerPath, {
                 workerData: { drive, dbPath, excludedDirNames: excludedDirNamesArray }
@@ -211,6 +211,15 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         const endTime = Date.now();
         logger.info(`所有 Worker 线程索引完成。共找到 ${allFiles.length} 个文件，耗时: ${endTime - startTime} 毫秒`);
 
+        // 获取已安装程序列表
+        const installedPrograms = getInstalledPrograms();
+        console.log('installedPrograms', installedPrograms);
+
+        // 插入程序信息到数据库
+        installedPrograms.forEach(program => {
+            insertProgramInfo(program);
+        });
+
         // 删除多余的数据库记录
         await deleteExtraFiles(allFiles);
         // 索引更新
@@ -228,7 +237,45 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
 
 /**
- * 第一步：开启视觉索引服务
+ * 获取Windows已安装程序列表
+ * @returns 已安装程序信息数组
+ */
+const getInstalledPrograms = () => {
+    try {
+        // logger.info('正在获取Windows已安装程序列表...');
+
+        console.log('正在获取Windows已安装程序列表...');
+
+        const ps1Path = path.join(__dirname, '../resources/get_programs.ps1');
+        // 兼容中文应用程序 chcp 65001
+        const output = execSync(`chcp 65001 | powershell -ExecutionPolicy Bypass -File "${ps1Path}"`, {
+            encoding: 'buffer'
+        });
+
+        const jsonStr = output.toString('utf8');   // 显式 UTF-8 解码
+        const programs = JSON.parse(jsonStr);
+        const programList = Array.isArray(programs) ? programs : [programs];
+
+        // logger.info(`找到 ${programList.length} 个已安装程序`);
+        console.log(`找到 ${programList.length} 个已安装程序`);
+        return programList.filter(program =>
+            program.DisplayName &&
+            program.DisplayName.trim() !== '' &&
+            !program.DisplayName.includes('Microsoft Visual C++') && // 过滤运行库
+            !program.DisplayName.includes('Microsoft .NET') &&
+            !program.DisplayName.includes('Update for') &&
+            !program.DisplayName.includes('Security Update')
+        );
+    } catch (error) {
+        console.error(error)
+        // logger.error(`获取已安装程序列表失败: ${error}`);
+        return [];
+    }
+};
+
+
+/**
+ * 开启视觉索引服务
  */
 export const indexImagesService = async (): Promise<void> => {
     logger.info('等待索引更新完毕')

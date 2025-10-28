@@ -1,3 +1,5 @@
+import { execSync } from 'child_process';
+execSync('chcp 65001', { stdio: 'inherit' });
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,6 +13,7 @@ import { ollamaService } from './core/ollama.js';
 import { INotification } from './types/system.js';
 import { initializeUpdateApi } from './api/update.js';
 import { initializeSystemApi } from './api/system.js';
+
 
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
@@ -128,7 +131,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) || true) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();

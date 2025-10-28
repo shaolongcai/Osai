@@ -17,7 +17,10 @@ const EXTENSION_TO_TYPE_MAP: Record<string, string> = {
     // 其他文档类型
     '.csv': 'CSV',
     '.txt': 'TEXT',
-    '.pdf': 'PDF'
+    '.pdf': 'PDF',
+
+    //应用程序
+    '.exe': 'EXE',
 };
 
 // 步骤2: 根据扩展名获取文件类型的函数
@@ -25,6 +28,6 @@ export const getFileTypeByExtension = (extension: string): string => {
     // 转换为小写以确保匹配
     const lowerExt = extension.toLowerCase();
 
-    // 返回对应的文件类型，如果没有找到则返回 'UNKNOWN'
-    return EXTENSION_TO_TYPE_MAP[lowerExt] || 'UNKNOWN';
+    // 返回对应的文件类型，如果没有找到，则视为文件夹
+    return EXTENSION_TO_TYPE_MAP[lowerExt] || '文件夹';
 }

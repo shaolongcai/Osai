@@ -143,7 +143,7 @@ const TableRelust: React.FC<Props> = ({
         },
         {
             width: 50,
-            label: '文件类型',
+            label: '类型',
             dataKey: 'ext',
             styles: {
                 fontColor: '#00000065',
