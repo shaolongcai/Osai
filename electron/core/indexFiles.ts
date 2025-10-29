@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
-import { getDatabase, insertProgramInfo, setConfig } from '../database/sqlite.js';
+import { getDatabase, setConfig, insertProgramInfo } from '../database/sqlite.js';
 import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
@@ -213,7 +213,6 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
         // 获取已安装程序列表
         const installedPrograms = getInstalledPrograms();
-        console.log('installedPrograms', installedPrograms);
 
         // 插入程序信息到数据库
         installedPrograms.forEach(program => {

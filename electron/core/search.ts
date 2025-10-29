@@ -1,46 +1,9 @@
 import pathConfig from './pathConfigs.js';
-import { getDatabase, searchPrograms } from '../database/sqlite.js';
+import { getDatabase } from '../database/sqlite.js';
 import { logger } from './logger.js';
 import { waitForModelReady } from './appState.js';
-import { SearchPrompt } from '../data/prompt.js';
 
 
-/**
- * 计算两个字符串之间的 Levenshtein 距离。
- * Levenshtein 距离是指两个字符串之间，由一个转成另一个所需的最少编辑操作次数。
- * 编辑操作包括：插入、删除、替换。
- * 这个函数可以用来实现模糊搜索，比如拼写错误修正。
- * @param s1 第一个字符串
- * @param s2 第二个字符串
- * @returns 两个字符串之间的 Levenshtein 距离
- */
-function levenshteinDistance(s1: string, s2: string): number {
-    s1 = s1.toLowerCase();
-    s2 = s2.toLowerCase();
-
-    const costs = new Array();
-    for (let i = 0; i <= s1.length; i++) {
-        let lastValue = i;
-        for (let j = 0; j <= s2.length; j++) {
-            if (i == 0) {
-                costs[j] = j;
-            } else {
-                if (j > 0) {
-                    let newValue = costs[j - 1];
-                    if (s1.charAt(i - 1) != s2.charAt(j - 1)) {
-                        newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-                    }
-                    costs[j - 1] = lastValue;
-                    lastValue = newValue;
-                }
-            }
-        }
-        if (i > 0) {
-            costs[s2.length] = lastValue;
-        }
-    }
-    return costs[s2.length];
-}
 
 /**
  * 搜索文件，支持模糊搜索和近似搜索。
@@ -65,8 +28,8 @@ export function searchFiles(searchTerm: string): SearchResult {
     }
     const db = getDatabase()
 
-     // 搜索应用程序
-    const programs =  searchPrograms(searchTerm);
+    // 搜索应用程序
+    const programs = searchPrograms(searchTerm);
     console.log('搜索到的程序', programs);
 
     // 2. 从数据库中获取所有文件名
@@ -80,24 +43,51 @@ export function searchFiles(searchTerm: string): SearchResult {
         data: allFiles,
         total: allFiles.length,
     };
-
-
-    // 3. 使用 Levenshtein 距离进行模糊匹配
-    // const results = allFiles
-    //     .map(file => {
-    //         // 我们只对文件名（不含扩展名）进行比较
-    //         const fileNameWithoutExt = path.parse(file.name).name;
-    //         const distance = levenshteinDistance(searchTerm, fileNameWithoutExt);
-    //         return { ...file, distance };
-    //     })
-    //     .filter(file => {
-    //         // 4. 设置一个阈值，距离越小表示匹配度越高
-    //         // 这里的策略是：允许的编辑距离最多为2，或者不超过搜索词长度的三分之一
-    //         const threshold = Math.floor(searchTerm.length / 3);
-    //         return file.distance <= Math.min(2, threshold);
-    //     })
-    //     .sort((a, b) => a.distance - b.distance); // 5. 按距离排序，最匹配的在前面
 }
+
+
+/**
+ * 搜索程序（包括已安装程序和快捷方式）
+ * @param keyword 搜索关键词
+ * @returns 匹配的程序列表
+ */
+export function searchPrograms(keyword: string): any[] {
+    try {
+        const database = getDatabase();
+        const stmt = database.prepare(`
+      SELECT * FROM programs 
+      WHERE display_name LIKE ? OR publisher LIKE ? OR full_pinyin LIKE ? OR head_pinyin LIKE ?
+      ORDER BY 
+        CASE 
+          WHEN display_name LIKE ? THEN 1
+          WHEN display_name LIKE ? THEN 2
+          ELSE 3
+        END,
+        display_name
+      LIMIT 20
+    `);
+
+        const searchPattern = `%${keyword}%`;
+        const exactPattern = `${keyword}%`; // WHEN display_name LIKE ? THEN 1 ：前面匹配优先
+
+        return stmt.all(searchPattern, searchPattern, exactPattern, exactPattern, exactPattern, searchPattern);
+    } catch (error) {
+        logger.error(`搜索程序失败: ${error}`);
+        return [];
+    }
+}
+
+
+
+
+// ------------------------ 以下代码暂时无用 ----------------------------
+
+
+
+
+
+
+
 
 
 /**
@@ -194,6 +184,8 @@ export async function aiSearch(query: string): Promise<SearchResult> {
 }
 
 
+
+
 /**
  * 步骤二：通关关键词及类型搜索
  */
@@ -209,7 +201,7 @@ export async function searchByKeywordsAndExt(keywords: string[], ext: string[]):
         // 1. 获取数据库连接
         const db = getDatabase();
 
-     
+
 
         // 2. 准备动态构建SQL查询
         const params: any[] = [];
@@ -265,6 +257,8 @@ export async function searchByKeywordsAndExt(keywords: string[], ext: string[]):
         throw new Error(msg);
     }
 }
+
+
 
 
 

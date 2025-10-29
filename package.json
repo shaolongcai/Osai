@@ -54,6 +54,7 @@
     "officeparser": "^5.2.1",
     "ollama": "^0.6.0",
     "pdf-parse": "^1.1.1",
+    "pinyin-pro": "^3.27.0",
     "systeminformation": "^5.27.9",
     "tesseract.js": "^6.0.1",
     "word-extractor": "^1.0.4",
