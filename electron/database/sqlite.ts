@@ -230,7 +230,7 @@ export function insertProgramInfo(programInfo: {
       pinyinArray.join(""),
       pinyinHead,
       programInfo.Publisher,
-      programInfo.InstallLocation,
+      programInfo.InstallLocation || programInfo.DisplayIcon,
       programInfo.DisplayIcon,
     );
 

@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 execSync('chcp 65001', { stdio: 'inherit' });
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, globalShortcut, screen, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getConfig, initializeDatabase, setConfig } from './database/sqlite.js';
@@ -27,6 +27,7 @@ const isDev = process.env.NODE_ENV === 'development';
  * F:\MyApp\resources\app.asar\electron
  */
 let mainWindow: BrowserWindow | null;
+let win = null;
 
 function createWindow() {
 
@@ -65,12 +66,36 @@ function createWindow() {
   });
 }
 
-
-
-//----- 触发事件 ---- 
-export const sendToRenderer = (channel: string, data: any) => {
-  mainWindow.webContents.send(channel, data);
-};
+// 创建快捷键的UI
+function createSearchBar() {
+  win = new BrowserWindow({
+    width: 480,
+    height: 600,
+    x: 0,               // 后面会计算居中
+    y: 0,
+    frame: false,       // 无边框
+    resizable: false,
+    movable: true,
+    alwaysOnTop: true,  // 总在最前
+    skipTaskbar: true,  // 不占用任务栏
+    show: false,        // 先不显示
+     transparent: true,
+     backgroundColor: '#00000000',
+       // hasShadow: false, // 如果想去掉系统阴影
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  });
+  // 加载搜索条HTML
+  if (isDev) {
+    win.loadURL('http://localhost:5173/search-bar.html');
+    win.webContents.openDevTools(); //打开开发者工具
+  } else {
+    win.loadFile(path.join(__dirname, '../frontend/dist/search-bar.html'));
+  }
+}
 
 
 /**
@@ -131,7 +156,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) || true) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();
@@ -172,10 +197,22 @@ export const startIndexTask = async () => {
 // 应用事件
 app.whenReady().then(() => {
   createWindow();
+  createSearchBar();
   // 初始化API
   initializeFileApi(mainWindow);
   initializeUpdateApi()
   initializeSystemApi()
+  // 注册全局快捷键
+  const shortcut = 'Alt+Space'; // 可改
+  registerGlobalShortcut(shortcut);
+
+  // 防止多开
+  app.on('second-instance', () => {
+    if (win) {
+      if (!win.isVisible()) win.show();
+      win.focus();
+    }
+  });
 });
 
 app.on('window-all-closed', () => {
@@ -191,5 +228,39 @@ app.on('activate', async () => {
 });
 
 app.on('before-quit', () => {
+  //注销快捷键
+  globalShortcut.unregisterAll()
   // 清理后端进程
 });
+
+
+
+//----- 触发事件 ---- 
+export const sendToRenderer = (channel: string, data: any) => {
+  mainWindow.webContents.send(channel, data);
+};
+
+
+// 注册全局快捷键
+const registerGlobalShortcut = (shortcut: string) => {
+  globalShortcut.register(shortcut, () => {
+    if (win.isVisible()) {
+      win.hide();
+    } else {
+      centerOnCurrentDisplay();
+      win.show();
+      win.focus(); // 让输入框直接获得焦点
+    }
+  });
+}
+
+// 计算屏幕居中
+const centerOnCurrentDisplay = () => {
+  const cursor = screen.getCursorScreenPoint();
+  const dist = screen.getDisplayNearestPoint(cursor).workArea;
+  const { width, height } = win.getBounds();
+  win.setBounds({
+    x: Math.round(dist.x + (dist.width - width) / 2),
+    y: Math.round(dist.y + dist.height * 0.25)   // 屏幕 1/4 处
+  });
+}

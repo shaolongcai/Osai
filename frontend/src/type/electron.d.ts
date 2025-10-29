@@ -53,8 +53,8 @@ export interface ConfigParams {
 type OpenDirType = 'runLog' | 'openFileDir' | 'openFile'
 
 //初始化返回的类型
-type InitData = GpuInfo & { 
-    isReadyAI:  boolean, //是否准备好AI Mark功能
+type InitData = GpuInfo & {
+    isReadyAI: boolean, //是否准备好AI Mark功能
 }
 
 
@@ -71,6 +71,8 @@ interface ElectronAPI {
 
     // 搜索相关
     searchFiles(query: string): Promise<SearchResult>
+    shortSearch(query: string): Promise<shortSearchResult>;  // 快捷搜索
+
 
     // 索引相关
     startIndex(): Promise<void>; // 开启索引

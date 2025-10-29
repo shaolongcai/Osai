@@ -21,3 +21,18 @@ interface ColumnData {
     sortable?: boolean; //是否允许排序
     render?: (value: SearchDataItem[keyof SearchDataItem]) => string | React.ReactNode; //自定义渲染组件
 }
+
+
+// 快捷搜索的类型
+type shortSearchDataItem = {
+    id: number;
+    icon?: string;
+    path: string;
+    name: string;
+}
+
+// 快捷搜索类型
+interface shortSearchResult {
+    data: shortSearchDataItem[];
+    total: number;
+}

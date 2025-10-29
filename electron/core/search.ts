@@ -10,7 +10,7 @@ import { waitForModelReady } from './appState.js';
  * @param searchTerm 搜索关键词
  * @returns 匹配到的文件列表，按匹配度排序
  */
-export function searchFiles(searchTerm: string): SearchResult {
+export function searchFiles(searchTerm: string, isAiMark?: boolean, limit?: number): SearchResult {
     if (!searchTerm) {
         return {
             data: [],
@@ -28,16 +28,29 @@ export function searchFiles(searchTerm: string): SearchResult {
     }
     const db = getDatabase()
 
-    // 搜索应用程序
-    const programs = searchPrograms(searchTerm);
-    console.log('搜索到的程序', programs);
-
     // 2. 从数据库中获取所有文件名
     // 注意：如果文件数量非常多（例如超过几十万），一次性加载到内存中可能会有性能问题。
     // 使用 SQL LIKE 进行模糊匹配，% 通配符表示匹配任意字符
-    const stmt = db.prepare('SELECT id,path, name,modified_at,ext,summary,ai_mark FROM files WHERE name LIKE ? OR summary LIKE ? OR tags LIKE ?');
+    const stmt = db.prepare(`
+        SELECT id,path, name,modified_at,ext,summary,ai_mark 
+        FROM files
+        WHERE name LIKE ? 
+        OR summary LIKE ? 
+        OR tags LIKE ?
+        ${isAiMark ? 'AND ai_mark = 1' : ''}
+        ORDER BY 
+        CASE 
+          WHEN ai_mark = 1 THEN 0 
+          WHEN name LIKE ? THEN 1
+          WHEN summary LIKE ? THEN 2
+          ELSE 3
+        END,
+        name
+        ${limit ? `LIMIT ${limit}` : ''}
+        `);
     const searchPattern = `%${searchTerm}%`;
-    const allFiles = stmt.all(searchPattern, searchPattern, searchPattern) as SearchDataItem[];
+    const exactPattern = `${searchTerm}%`; // WHEN display_name LIKE ? THEN 1 ：前面匹配优先
+    const allFiles = stmt.all(searchPattern, searchPattern, searchPattern, exactPattern, exactPattern) as SearchDataItem[];
 
     return {
         data: allFiles,
@@ -47,11 +60,50 @@ export function searchFiles(searchTerm: string): SearchResult {
 
 
 /**
+ * 快捷搜索
+ * @returns 1、匹配的应用程序，2、匹配的带有AI Mark的文件 3、普通文件
+ */
+export function shortSearch(keyword: string): shortSearchResult {
+    if (!keyword) {
+        return {
+            data: [],
+            total: 0,
+        };
+    }
+    // 搜索应用程序
+    const programs = searchPrograms(keyword);
+    // console.log('搜索到的程序', programs);
+    // 搜索拥有AI Mark的文件
+    const aiFiles = searchFiles(keyword, true, 5);
+    // 构造返回的data
+    const programsData = programs.map(item => ({
+        id: item.id,
+        icon: item.display_icon,
+        name: item.display_name,
+        path: item.path || '',
+    }));
+
+    // 构造返回的data
+    const aiFilesData = aiFiles.data.map(item => ({
+        id: item.id,
+        name: item.name,
+        path: item.path || '',
+    }));
+
+    return {
+        data: [...programsData, ...aiFilesData],
+        total: programsData.length + aiFiles.total,
+    };
+}
+
+
+
+/**
  * 搜索程序（包括已安装程序和快捷方式）
  * @param keyword 搜索关键词
  * @returns 匹配的程序列表
  */
-export function searchPrograms(keyword: string): any[] {
+export function searchPrograms(keyword: string, limit: number = 5): searchProgramItem[] {
     try {
         const database = getDatabase();
         const stmt = database.prepare(`
@@ -64,13 +116,13 @@ export function searchPrograms(keyword: string): any[] {
           ELSE 3
         END,
         display_name
-      LIMIT 20
+      LIMIT ?
     `);
 
         const searchPattern = `%${keyword}%`;
         const exactPattern = `${keyword}%`; // WHEN display_name LIKE ? THEN 1 ：前面匹配优先
 
-        return stmt.all(searchPattern, searchPattern, exactPattern, exactPattern, exactPattern, searchPattern);
+        return stmt.all(searchPattern, searchPattern, exactPattern, exactPattern, exactPattern, searchPattern, limit) as searchProgramItem[];
     } catch (error) {
         logger.error(`搜索程序失败: ${error}`);
         return [];
@@ -81,8 +133,6 @@ export function searchPrograms(keyword: string): any[] {
 
 
 // ------------------------ 以下代码暂时无用 ----------------------------
-
-
 
 
 
@@ -200,8 +250,6 @@ export async function searchByKeywordsAndExt(keywords: string[], ext: string[]):
         }
         // 1. 获取数据库连接
         const db = getDatabase();
-
-
 
         // 2. 准备动态构建SQL查询
         const params: any[] = [];
@@ -329,28 +377,6 @@ export async function checkRelevance(files: any[], query: string, keywords: stri
     } catch (error) {
         const msg = error instanceof Error ? error.message : '检查相关性失败';
         logger.error(`检查相关性失败:${msg}`);
-        throw new Error(msg);
-    }
-}
-
-
-// 根据文档类型读取文档内容
-async function readDocumentContent(file: any): Promise<any> {
-    try {
-        const { path, ext } = file;
-        switch (ext) {
-            case '.docx':
-
-            case '.xlsx':
-            case '.pptx':
-                // 使用langchain读取文档内容
-                break;
-            default:
-                throw new Error(`不支持的文档类型: ${ext}`);
-        }
-    } catch (error) {
-        const msg = error instanceof Error ? error.message : '读取文档内容失败';
-        logger.error(`读取文档内容失败:${msg}`);
         throw new Error(msg);
     }
 }

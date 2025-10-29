@@ -27,13 +27,6 @@ const Search: React.FC<Props> = ({
     return <Paper
         elevation={0}
         className={styles.root}
-        sx={{
-            padding: '16px',
-            borderRadius: '8px',
-            boxShadow: '0px 2px 4px rgba(25, 33, 61, 0.08)',
-            border: '1px solid #F0F2F5',
-            width: '100%',
-        }}
     >
         <Stack direction="row" spacing={2} alignItems="center">
             <TextField
@@ -65,8 +58,8 @@ const Search: React.FC<Props> = ({
             />
             <Button
                 onClick={aiSearch}
-            // loading={loading}
-            // variant="contained"
+                // loading={loading}
+                variant="contained"
             // color="primary"
             // disableElevation
             // onClick={() => { handleSendMessage(question) }}

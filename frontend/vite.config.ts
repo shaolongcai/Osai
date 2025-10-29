@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import path from 'path'
+import { resolve } from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -22,6 +23,10 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     rollupOptions: {
+       input: {
+        main: resolve(__dirname, 'index.html'),
+        searchBar: resolve(__dirname, 'search-bar.html')
+      },
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],

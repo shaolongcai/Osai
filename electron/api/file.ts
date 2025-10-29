@@ -1,5 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { aiSearch, searchFiles } from '../core/search.js';
+import { aiSearch, searchFiles, shortSearch } from '../core/search.js';
 import { init, sendToRenderer, startIndexTask } from '../main.js';
 import { extractCUDA, openDir } from '../core/system.js';
 import { setOpenIndexImages } from '../core/appState.js';
@@ -35,6 +35,8 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
 
     // 搜索文件
     ipcMain.handle('search-files', (_event, keyword: string) => searchFiles(keyword));
+    // 快捷搜索
+    ipcMain.handle('short-search', (_event, keyword: string) => shortSearch(keyword));
     // 执行AI搜索
     ipcMain.handle('ai-search', (_event, query: string) => aiSearch(query));
 

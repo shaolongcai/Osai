@@ -1,6 +1,3 @@
-
-
-
 .root {
     padding: 16px;
     border-radius: 16px !important;
@@ -8,4 +5,17 @@
     border: 1px solid #F0F2F5 !important;
     width: 100% !important;
     box-sizing: border-box;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.searchResultItem{
+    width: 100%;
+    cursor: pointer;
+
+    img{
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+    }
 }
