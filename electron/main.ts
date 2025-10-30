@@ -91,7 +91,7 @@ function createSearchBar() {
   // 加载搜索条HTML
   if (isDev) {
     win.loadURL('http://localhost:5173/search-bar.html');
-    win.webContents.openDevTools(); //打开开发者工具
+    // win.webContents.openDevTools(); //打开开发者工具
   } else {
     win.loadFile(path.join(__dirname, '../frontend/dist/search-bar.html'));
   }
@@ -156,7 +156,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) || true) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();
