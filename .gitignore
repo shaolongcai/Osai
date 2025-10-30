@@ -123,3 +123,9 @@ Thumbs.db
 venv/
 electron/resources/venv/
 electron/resources/venv/*
+
+# 忽略Ollama目录
+electron/resources/Ollama/
+
+#忽略解压OCR目录
+*.traineddata
