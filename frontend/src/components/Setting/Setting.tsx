@@ -1,11 +1,12 @@
-import { Drawer, Box, Typography, Card, CardContent, Switch, styled, Paper, Stack } from '@mui/material';
+import { Drawer, Box, Typography, Switch, styled, Paper, Stack, Button } from '@mui/material';
 import styles from './Setting.module.scss'
-import { useState } from 'react';
-import { Dialog } from '@/components';
-import { useGlobalContext } from '@/context/globalContext';
+import { useEffect, useState } from 'react';
+import { Contact, Dialog, ReportProtocol, SettingItem } from '@/components';
+import { UserConfig } from '@/type/system';
+import { ConfigParams } from '@/type/electron';
+import { useContext } from 'react';
+import { globalContext } from '@/context/globalContext';
 
-// 步骤1：定义组件的 Props 接口
-// 作用：让父组件可以控制侧边栏的打开（open）和关闭（onClose）状态。
 interface SettingProps {
     open: boolean;
     onClose: () => void;
@@ -24,13 +25,41 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
 
     const [openIndexImage, setOpenIndexImage] = useState(Boolean(Number(localStorage.getItem('openIndexImage') || 0)))
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false) //CPU下开启索引的弹窗
+    const [openReportProtocol, setOpenReportProtocol] = useState(false) //用户体验改进计划弹窗
+    const [hasGPU, setHasGPU] = useState(false)
+    const [gpuSeverOpen, setGpuSeverOpen] = useState(false) //GPU服务弹窗
+    const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
+    const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
 
-    const context = useGlobalContext()
+    const context = useContext(globalContext)
+
+
+
+    // 拉取用户配置
+    useEffect(() => {
+        if (open) {
+            window.electronAPI.getConfig().then((res: UserConfig) => {
+                console.log('config', res)
+                setOpenIndexImage(res.visual_index_enabled)
+                setHasGPU(res.hasGPU)
+                setIsInstallGpu(res.cuda_installed)
+                setReportAgreement(res.report_agreement)
+            })
+        }
+    }, [open])
+
+    // 安装GPU服务
+    const installGpu = async () => {
+        console.log('即将安装GPU服务')
+        setGpuSeverOpen(false)
+        onClose()
+        window.electronAPI.installGpuServer()
+        // setIsInstallGpu(true)
+    }
 
     // 切换视觉索引开关
-    const toggleVisualIndex = (checked: boolean) => {
-        localStorage.setItem('openIndexImage', checked ? '1' : '0')
-        const hasGPU = context.gpuInfo.hasGPU
+    const toggleVisualIndex = async (checked: boolean) => {
+        console.log('hasGPU', hasGPU)
         if (!hasGPU && checked) {
             // CPU下开启需要弹窗
             setConfirmDialogOpen(true)
@@ -41,8 +70,63 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
         window.electronAPI.toggleIndexImage(checked)
     }
 
+    // 切换用户体验改进计划
+    const toggleReportAgreement = async (checked: boolean) => {
+        if (checked) {
+            // 同意用户体验改进计划，需要弹窗
+            setOpenReportProtocol(true)
+            return
+        }
+        setReportAgreement(checked)
+        const params: ConfigParams = {
+            key: 'report_agreement',
+            value: checked,
+            type: 'boolean',
+        }
+        // 取消不再提醒
+        window.electronAPI.setConfig(params)
+        const params2: ConfigParams = {
+            key: 'not_remind_again',
+            value: false,
+            type: 'boolean',
+        }
+        window.electronAPI.setConfig(params2)
+    }
+
     return (
         <div>
+            {/* 同意协议弹窗 */}
+            <ReportProtocol
+                open={openReportProtocol}
+                onClose={() => setOpenReportProtocol(false)}
+                onConfirm={() => { setReportAgreement(true) }} // 同意协议的回调
+            />
+            {/* 开启GPU服务 */}
+            <Dialog
+                title={hasGPU ? '安装GPU加速服务' : '本机没有任何GPU'}
+                primaryButtonText={hasGPU ? '安装' : '关闭'}
+                onPrimaryButtonClick={() => {
+                    hasGPU ? installGpu() : setGpuSeverOpen(false)
+                }}
+                secondaryButtonText={hasGPU && '取消'}
+                open={gpuSeverOpen}
+                onClose={() => { setGpuSeverOpen(false) }}
+                maxWidth='xs'
+                fullWidth={false}
+            >
+                {
+                    hasGPU ? (
+                        <Typography className={styles.dialogTips} >
+                            即将安装 GPU 加速服务，可能需要几分钟，请耐心等候。安装完毕后，请重启应用。
+                        </Typography>
+                    ) : (
+                        <Typography className={styles.dialogTips}>
+                            本机没有GPU/显卡，无法安装 GPU 加速服务。应用将会启动 CPU 索引图片。
+                        </Typography>
+                    )
+                }
+            </Dialog>
+            {/* 视觉服务提示 */}
             <Dialog
                 title='开启视觉索引服务'
                 primaryButtonText='开启'
@@ -79,21 +163,89 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                     },
                 }}
             >
-                <Box role="presentation">
+                <Box
+                    role="presentation"
+                    sx={{
+                        flex: 1
+                    }}>
                     <StyledTitle variant="h5" >
                         设置
                     </StyledTitle>
-
-                    <Paper className={styles.settingItem} elevation={0} variant='outlined' >
-                        <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                            <Typography variant="body1" className={styles.label} >开启图片索引</Typography>
-                            <Switch
-                                checked={openIndexImage}
-                                onChange={(e) => { toggleVisualIndex(e.target.checked) }}
+                    <Stack spacing={1}>
+                        <SettingItem
+                            title='开启图片索引'
+                            type='switch'
+                            value={openIndexImage}
+                            onAction={toggleVisualIndex}
+                        />
+                        {
+                            context.os === 'win' &&
+                            <SettingItem
+                                title='GPU加速服务'
+                                type='custom'
+                                value={openIndexImage}
+                                onAction={toggleVisualIndex}
+                                action={<Button
+                                    sx={{
+                                        '&:focus': {
+                                            outline: 'none',
+                                            border: 'none',
+                                            boxShadow: 'none'
+                                        },
+                                        '&:active': {
+                                            outline: 'none',
+                                            border: 'none',
+                                            boxShadow: 'none'
+                                        },
+                                        '&:hover': {
+                                            border: 'none'
+                                        }
+                                    }}
+                                    variant='text'
+                                    onClick={() => { setGpuSeverOpen(true) }} >
+                                    {isInstallGpu ? '重新安装' : '安装'}
+                                </Button>
+                                }
                             />
-                        </Stack>
-                    </Paper>
+                        }
+                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
+                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                <Typography variant="body1" className={styles.label} >运行日志</Typography>
+                                <Button
+                                    sx={{
+                                        '&:focus': {
+                                            outline: 'none',
+                                            border: 'none',
+                                            boxShadow: 'none'
+                                        },
+                                        '&:active': {
+                                            outline: 'none',
+                                            border: 'none',
+                                            boxShadow: 'none'
+                                        },
+                                        '&:hover': {
+                                            border: 'none'
+                                        }
+                                    }}
+                                    variant='text'
+                                    onClick={() => {
+                                        window.electronAPI.openDir('runLog')
+                                    }}>
+                                    打开
+                                </Button>
+                            </Stack>
+                        </Paper>
+                        <SettingItem
+                            title='用户体验改进计划'
+                            type='switch'
+                            value={reportAgreement}
+                            onAction={toggleReportAgreement}
+                        />
+                    </Stack>
                 </Box>
+                <div className={styles.contact}>
+                    <Contact title='在社区中，给与我们反馈吧！' />
+                </div>
             </Drawer>
         </div>
     );

@@ -2,6 +2,7 @@ import Database from 'better-sqlite3'
 import pathConfig from '../core/pathConfigs.js'
 import path from 'path'
 import { logger } from '../core/logger.js'
+import { ConfigName } from '../types/system.js'
 
 
 let db: Database.Database | null = null
@@ -36,29 +37,154 @@ export function initializeDatabase(): Database.Database {
               size INTEGER,
               created_at DATETIME,
               modified_at DATETIME,
-              summary TEXT
+              summary TEXT,
+              tags TEXT DEFAULT '[]'
             );
             CREATE UNIQUE INDEX IF NOT EXISTS idx_files_md5 ON files (md5);
             CREATE UNIQUE INDEX IF NOT EXISTS idx_files_path ON files (path);
           `)
 
-    // 创建跟踪的
+    // 为现有表添加tags字段（如果不存在）
+    try {
+      db.exec(`ALTER TABLE files ADD COLUMN skip_ocr BOOLEAN DEFAULT 0`) //是否跳过ocr
+      logger.info('成功添加skip_ocr字段到files表')
+      db.exec(`ALTER TABLE files ADD COLUMN ai_mark BOOLEAN DEFAULT 0`)
+      logger.info('成功添加ai_mark字段到files表')
+      db.exec(`ALTER TABLE files ADD COLUMN full_content TEXT DEFAULT ''`)
+      logger.info('成功添加full_content字段到files表')
+      db.exec(`ALTER TABLE files ADD COLUMN tags TEXT DEFAULT '[]'`)
+      logger.info('成功添加tags字段到files表')
+    } catch (error) {
+      // 字段已存在时会报错，忽略即可
+    }
 
-    //创建插入语句
-    // const insert = db.prepare('INSERT INTO cats (name, age) VALUES (@name, @age)');
-    //插入一条记录
-    // insert.run({name:'Jack',age:2})
-    //读取记录
-    // const select_stmt=db.prepare('SELECT * FROM cats')
-    // var cats=select_stmt.all()
+    // 创建用户配置表
+    db.exec(`
+            CREATE TABLE IF NOT EXISTS user_config (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              config_key TEXT NOT NULL UNIQUE,
+              config_value TEXT,
+              config_type TEXT DEFAULT 'string',
+              description TEXT,
+              created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+              updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_config_key ON user_config (config_key);
+          `)
+
+    // 插入默认配置
+    const insertConfig = db.prepare(`
+      INSERT OR IGNORE INTO user_config (config_key, config_value, config_type, description) 
+      VALUES (?, ?, ?, ?)
+    `)
+    // 设置默认配置值
+    insertConfig.run('last_index_time', '0', 'number', '上次索引时间戳') // 配置key、值、类型、描述
+    insertConfig.run('index_interval', '3600000', 'number', '索引周期（毫秒，默认1小时）')
+    insertConfig.run('last_index_file_count', '0', 'number', '上次索引的文件数量')
+    insertConfig.run('ignored_folders', '[]', 'json', '忽略索引的文件夹列表')
+    insertConfig.run('ignore_hidden_files', 'false', 'boolean', '是否忽略隐藏文件')
 
     return db
   } catch (error) {
     logger.error(`数据库初始化失败:${JSON.stringify(error)}`)
+    throw new Error(`数据库初始化失败:${JSON.stringify(error)}`)
   }
 }
 
 
+/**
+ * 获取配置值
+ * @param key 配置键名
+ * @returns 配置值，如果不存在返回null
+ */
+export function getConfig(key: ConfigName | string): any {
+  try {
+    const db = getDatabase()
+    const stmt = db.prepare('SELECT config_value, config_type FROM user_config WHERE config_key = ?')
+    const result = stmt.get(key) as { config_value: string; config_type: string } | undefined
+
+    if (!result) return null
+
+    // 根据类型转换值
+    switch (result.config_type) {
+      case 'number':
+        return Number(result.config_value)
+      case 'boolean':
+        return result.config_value === 'true'
+      case 'json':
+        return JSON.parse(result.config_value)
+      default:
+        return result.config_value
+    }
+  } catch (error) {
+    logger.error(`获取配置失败: ${key}, ${error}`)
+    return null
+  }
+}
+
+/**
+ * 设置配置值
+ * @param key 配置键名
+ * @param value 配置值
+ * @param type 数据类型
+ */
+export function setConfig(key: string, value: any, type: string = 'string'): boolean {
+  try {
+    const db = getDatabase()
+    let configValue: string
+
+    // 根据类型转换值为字符串
+    switch (type) {
+      case 'json':
+        configValue = JSON.stringify(value)
+        break
+      default:
+        configValue = String(value)
+    }
+
+    const stmt = db.prepare(`
+      INSERT OR REPLACE INTO user_config (config_key, config_value, config_type, updated_at) 
+      VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+    `)
+    stmt.run(key, configValue, type)
+    return true
+  } catch (error) {
+    logger.error(`设置配置失败: ${key}, ${error}`)
+    return false
+  }
+}
+
+/**
+ * 获取所有配置
+ */
+export function getAllConfigs(): Record<string, any> {
+  try {
+    const db = getDatabase()
+    const stmt = db.prepare('SELECT config_key, config_value, config_type FROM user_config')
+    const results = stmt.all() as Array<{ config_key: string; config_value: string; config_type: string }>
+
+    const configs: Record<string, any> = {}
+    results.forEach(row => {
+      switch (row.config_type) {
+        case 'number':
+          configs[row.config_key] = Number(row.config_value)
+          break
+        case 'boolean':
+          configs[row.config_key] = row.config_value === 'true'
+          break
+        case 'json':
+          configs[row.config_key] = JSON.parse(row.config_value)
+          break
+        default:
+          configs[row.config_key] = row.config_value
+      }
+    })
+    return configs
+  } catch (error) {
+    logger.error(`获取所有配置失败: ${error}`)
+    return {}
+  }
+}
 
 
 /**

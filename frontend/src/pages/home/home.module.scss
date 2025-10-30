@@ -4,11 +4,7 @@
     // height: 100%;
 }
 
-.table {
-    margin-top: 16px;
-    height: 80vh;
-    // flex: 1;
-}
+
 
 
 // 索引示意图
@@ -29,9 +25,47 @@
     }
 }
 
-.settingsIcon {
+.settings {
+    width: 64px;
+    height: 64px;
+    cursor: pointer;
+
+    .text{
+        color: rgba(0, 0, 0, 0.65);
+    }
+
+    .settingsIcon {
+        width: 32px;
+        height: 32px;
+        color: rgba(0, 0, 0, 0.65);
+    }
+}
+
+.total {
+    display: block;
     position: absolute;
     bottom: 24px;
     right: 24px;
-    cursor: pointer;
+    font-size: 14px !important;
+    color: rgba(0, 0, 0, 0.65);
+}
+
+//搜索为空
+.searchNull {
+    margin-top: 160px;
+
+    img {
+        width: 180px;
+        height: 180px;
+    }
+
+    .text {
+        font-size: 14px !important;
+        color: rgba(0, 0, 0, 0.65);
+        font-weight: 600;
+    }
+}
+
+.contact {
+    margin-top: 24px;
 }

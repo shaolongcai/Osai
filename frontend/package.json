@@ -1,7 +1,7 @@
 {
   "name": "ai-search",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -17,6 +17,7 @@
     "@toolpad/core": "^0.16.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-router-dom": "^7.9.4",
     "react-virtuoso": "^4.14.0",
     "scss": "^0.2.4"
   },

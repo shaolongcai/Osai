@@ -1,14 +1,16 @@
-// require('ts-node/register'); //开发环境使用
-// const logger = require('./logger.ts').default;
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { initializeDatabase } from './database/sqlite.js';
+import { getConfig, initializeDatabase, setConfig } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
-import { indexAllFilesWithWorkers } from './core/indexFiles.js';
-import { shutdownVisionService } from './pythonScript/imageService.js';
-// import { initLanceDB } from './database/lanceDb.js';
+import { indexAllFilesWithWorkers, indexImagesService } from './core/indexFiles.js';
+import { logger } from './core/logger.js';
+import { checkGPU, reportErrorToWechat } from './core/system.js';
+import { checkModelService } from './core/model.js'
+import { ollamaService } from './core/ollama.js';
+import { INotification } from './types/system.js';
+import { initializeUpdateApi } from './api/update.js';
+import { initializeSystemApi } from './api/system.js';
 
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
@@ -61,38 +63,116 @@ function createWindow() {
 }
 
 
-// 打开upload目录
-const openUploadDir = (filePath: string) => {
-  // 确定目录路径
-  const uploadDir = app.isPackaged ? path.join(process.resourcesPath, 'uploads', filePath) : path.join(__dirname, '..', 'backend', 'uploads', filePath);
-  // logger.info(`打开目录:${uploadDir}`);
-  if (!fs.existsSync(uploadDir)) {
-    // logger.error(`目录不存在:${uploadDir}`);
-    return;
-  }
-  shell.openPath(uploadDir);
-}
 
 //----- 触发事件 ---- 
 export const sendToRenderer = (channel: string, data: any) => {
   mainWindow.webContents.send(channel, data);
 };
 
-// 打开文件所在位置，filePath为相对位置（即MD5）
-ipcMain.handle('open-file-location', (event, filePath) => { openUploadDir(filePath) });
+
+/**
+ * 初始化所有必须条件
+ * 1、初始化数据库
+ * 2、启动ollama服务，初始化模型
+ * 3、检查硬件
+ * 4、检查是否已经准备好AI mark
+ */
+export const init = async () => {
+  try {
+    // 初始化数据库
+    initializeDatabase()
+    // 启动Ollama服务
+    await ollamaService.start();
+    // 检查硬件是否支持
+    const gpuInfo = await checkGPU();
+    // 检查模型是否存在（AI功能是否准备好）
+    const modelExists = await checkModelService();
+    console.log('模型是否存在', modelExists);
+    setConfig('aiModel_installed', modelExists);
+    // 检查CUDA安装包是否未解压
+    // const cudaInfo = await checkCUDA();
+    // const isInstallCuda = getConfig('cuda_installed');
+
+    // 检查是否准备好AI Mark功能
+    return {
+      code: 0,
+      data: {
+        ...gpuInfo,
+        isReadyAI: modelExists,
+      },
+    }
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : '未知原因'
+    logger.error(`初始化失败:${JSON.stringify(msg)}`)
+    // 向企业微信报告
+    const errorData = {
+      类型: '初始化失败',
+      错误位置: error.stack,
+      错误信息: msg,
+    };
+    reportErrorToWechat(errorData)
+    return {
+      code: 1,
+      errMsg: msg + '请重启应用或联系开发者'
+    }
+  }
+}
+
+/**
+ * 开始索引任务
+ */
+export const startIndexTask = async () => {
+  try {
+    // 判断是否需要索引
+    const lastIndexTime = getConfig('last_index_time');
+    const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
+    const currentTime = Date.now();
+    // 是否超过1小时
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)) {
+      logger.info(`索引间隔超过1小时，重新索引`);
+      // 索引间隔超过1小时，重新索引
+      indexAllFilesWithWorkers();
+    }
+    else {
+      logger.info(`缓存期间无需索引`);
+      // 无需重新索引，直接获取数据库的数据返回
+      const last_index_file_count = getConfig('last_index_file_count');
+      sendToRenderer('index-progress', {
+        message: `已索引 ${last_index_file_count} 个文件`,
+        process: 'finish',
+        count: last_index_file_count
+      })
+    }
+    // 开启视觉索引 （由appState控制继续还是关闭）
+    indexImagesService();
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : '索引任务失败';
+    logger.error(`索引任务开始失败: ${msg}`);
+    const notification: INotification = {
+      id: 'indexTask',
+      text: '索引任务存在问题',
+      type: 'warning',
+      tooltip: msg
+    }
+    sendToRenderer('system-info', notification);
+    // 报告企业微信
+    const errorData = {
+      类型: '索引任务失败',
+      错误位置: error.stack,
+      错误信息: msg,
+    };
+    reportErrorToWechat(errorData)
+  }
+}
 
 
 // 应用事件
-app.whenReady().then(async () => {
+app.whenReady().then(() => {
   createWindow();
-  // 初始化数据库
-  initializeDatabase()
   // 初始化API
   initializeFileApi(mainWindow);
-  // 初始化向量数据库
-  // initLanceDB();
-  // 开启索引
-  indexAllFilesWithWorkers();
+  initializeUpdateApi()
+  initializeSystemApi()
 });
 
 app.on('window-all-closed', () => {
@@ -109,5 +189,4 @@ app.on('activate', async () => {
 
 app.on('before-quit', () => {
   // 清理后端进程
-  shutdownVisionService();
 });

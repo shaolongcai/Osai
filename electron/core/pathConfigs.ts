@@ -20,6 +20,7 @@ interface PathsConfig {
     database: string;
     resources: string;
     temp: string;
+    ollamaPath: string;
 }
 
 /**
@@ -37,9 +38,12 @@ class PathConfig {
     private appDataPath: string;
     private paths: PathsConfig;
     private resources: string;
+    private ollamaPath: string;
 
 
     constructor() {
+        const platform = process.platform;
+
         this.userHome = os.homedir();
 
         // 基础目录配置
@@ -47,6 +51,7 @@ class PathConfig {
         this.appDataPath = path.join(this.userHome, this.baseAppDir);
         this.resources = app && app.isPackaged ? process.resourcesPath : path.join(__dirname, '../../electron/', 'resources'),   // 资源文件
             this.paths = null;
+        this.ollamaPath = platform === 'win32' ? path.join(this.resources, 'ollama', 'ollama.exe') : path.join(this.resources, 'ollama','Resources', 'ollama');
 
         // 初始化所有路径
         this._initializePaths();
@@ -58,6 +63,9 @@ class PathConfig {
             // 主目录
             userHome: this.userHome,
             appData: this.appDataPath,
+
+            // Ollama可执行文件路径
+            ollamaPath: this.ollamaPath,
 
             // 资源文件
             resources: this.resources,

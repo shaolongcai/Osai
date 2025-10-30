@@ -1,16 +1,16 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
 import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
-import { getDatabase } from '../database/sqlite.js';
-import { summarizeImage } from './model.js';
-import { waitForIndexImage, waitForModelReady } from './appState.js';
+import { getDatabase, setConfig } from '../database/sqlite.js';
+import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 import { logger } from './logger.js';
+import { createWorker } from 'tesseract.js';
 import * as os from 'os';
+import * as fs from 'fs'
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
@@ -21,13 +21,8 @@ const __dirname = path.dirname(__filename);
  * 获取 Windows 系统上的所有逻辑驱动器（现代方法）
  * @returns 驱动器号列表 (例如, ['C:', 'D:'])
  */
-function getDrives(): string[] {
+const getDrivesByWindows = () => {
     try {
-        if (os.platform() !== 'win32') {
-            logger.warn('当前系统不是Windows，返回空驱动器列表');
-            return [];
-        }
-
         // 使用dir命令列出所有驱动器（兼容性最好）
         const output = execSync('dir /a:d C:\\ 2>nul & for %i in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do @if exist %i:\\ echo %i:', {
             encoding: 'utf8',
@@ -43,8 +38,54 @@ function getDrives(): string[] {
         return drives;
     } catch (error) {
         logger.error(`无法获取驱动器列表:${JSON.stringify(error)}`);
-        // 返回至少包含C盘的默认列表
-        return ['C:'];
+        throw error
+    }
+}
+
+/**
+ * 获取mac上的驱动
+ */
+const getDrivesByMac = () => {
+    try {
+        const commonPaths = [
+            os.homedir(), // 用户主目录
+            // '/Applications', // macOS应用程序目录
+            '/Desktop', // 如果存在
+        ];
+
+        // 过滤出实际存在的路径
+        const existingPaths = commonPaths.filter(p => {
+            try {
+                return fs.existsSync(p);
+            } catch {
+                return false;
+            }
+        });
+
+        logger.info(`发现的索引路径列表:${existingPaths}`);
+        return existingPaths;
+    } catch (error) {
+        logger.error(`无法获取驱动器列表:${JSON.stringify(error)}`);
+        throw error
+    }
+}
+
+/**
+ * 获取驱动盘，区分mac与windows
+ */
+function getDrives(): string[] {
+    try {
+        let drives: string[]
+        if (os.platform() === 'win32') {
+            drives = getDrivesByWindows()
+        }
+        else {
+            drives = getDrivesByMac()
+        }
+        return drives;
+    } catch (error) {
+        logger.error(`无法获取驱动器列表:${JSON.stringify(error)}`);
+        return []
     }
 }
 
@@ -105,6 +146,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         'Windows',
         '.git',
         '.vscode',
+        'Library' //mac忽略目录
     ]);
     // 将 Set 转换为数组以便通过 workerData 传递
     const excludedDirNamesArray = Array.from(excludedDirNames);
@@ -113,7 +155,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             // 明确指定 worker 脚本的路径
             // 我们需要指向编译后的 .js 文件
-            const workerPath = path.join(__dirname, 'indexer.worker.js');
+            const workerPath = path.join(__dirname, 'indexer2.worker.js');
 
             const worker = new Worker(workerPath, {
                 workerData: { drive, dbPath, excludedDirNames: excludedDirNamesArray }
@@ -125,7 +167,10 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
                     logger.info(`驱动器 ${drive} 索引完成，找到 ${message.files.length} 个文件。`);
                     completedDrives++;
                     completedFiles += message.files.length;
+                    // const formattedTotal = completedFiles.toLocaleString('en-US');
                     const formattedTotal = completedFiles.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); //加入千分位
+                    logger.info(`formattedTotal:${formattedTotal}`)
+                    // 加入千分位
                     sendToRenderer('index-progress', {
                         message: `已索引 ${formattedTotal} 个文件`,
                         process: completedDrives === drives.length ? 'finish' : 'pending',
@@ -169,15 +214,10 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         // 删除多余的数据库记录
         await deleteExtraFiles(allFiles);
         // 索引更新
-        // setIndexUpdate(true);
-
-        // 索引图片
-        indexImagesService()
-
-        // 对所有文件进行向量化,暂时不需要
-        // const startVectorTime = Date.now();
-        // await vectorFiles()
-        // const endVectorTime = Date.now();
+        setIndexUpdate(true);
+        // 记录索引时间，以及索引的文件数量
+        setConfig('last_index_time', Date.now());
+        setConfig('last_index_file_count', allFiles.length);
 
         return allFiles;
     } catch (error) {
@@ -188,58 +228,12 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
 
 /**
- * 第二部：索引图片应用
- */
-async function indexImageFiles() {
-
-    const db = getDatabase()
-    // 使用ext字段查询图片文件（ext字段存储的是带点的扩展名）
-    const selectStmt = db.prepare(
-        'SELECT path FROM files WHERE ext IN (\'.jpg\', \'.png\', \'.jpeg\') AND size > 50 * 1024 AND summary IS NULL'
-    )
-    const files = selectStmt.all() as Array<{ path: string }>;
-    // 总共需要视觉处理的文件数量
-    let totalFiles = files.length;
-    logger.info(`一共找到 ${files.length} 个图片，准备视觉索引服务`)
-
-    for (const file of files) {
-        try {
-            const summary = await summarizeImage(file.path);
-
-            await waitForIndexImage();
-            // logger.info(`图片摘要: ${summary}`);
-            // 更新数据库
-            const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);
-            const res = updateStmt.run(summary, file.path);
-            if (res.changes > 0) {
-                const notification: INotification = {
-                    id: 'visual-index',
-                    text: `视觉索引服务已启动 剩余 ${totalFiles}`,
-                    type: 'loadingQuestion',
-                    tooltip: '视觉服务：你可以直接搜索图片中的内容，而不仅是名称。你可前往【设置】手动关闭'
-                }
-                sendToRenderer('system-info', notification)
-                totalFiles--
-            }
-
-        } catch (error) {
-            logger.error(`图片索引服务失败:${JSON.stringify(error)}`)
-        }
-    }
-}
-
-
-/**
  * 第一步：开启视觉索引服务
  */
 export const indexImagesService = async (): Promise<void> => {
-    // console.log('等待索引更新完毕')
-    // await waitForIndexUpdate();
-    // console.log('索引更新完毕')
-
-    logger.info('等待AI模型准备就绪...');
-    await waitForModelReady();
-    logger.info('AI模型已就绪，开始索引图片。');
+    logger.info('等待索引更新完毕')
+    await waitForIndexUpdate();
+    logger.info('索引更新完毕')
 
     // 对所有图片文件，都使用vl应用读取摘要
     const startIndexImageTime = Date.now();
@@ -248,8 +242,117 @@ export const indexImagesService = async (): Promise<void> => {
     logger.info(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
     const notification: INotification = {
         id: 'visual-index',
-        text: '视觉索引已全部完成',
+        text: 'OCR 索引已全部完成',
         type: 'success',
     }
     sendToRenderer('system-info', notification);
+}
+
+/**
+ * 第二步：索引所有图片
+ */
+async function indexImageFiles() {
+
+    const db = getDatabase()
+    // 使用ext字段查询图片文件（ext字段存储的是带点的扩展名）
+    const selectStmt = db.prepare(
+        'SELECT path FROM files WHERE ext IN (\'.jpg\', \'.png\', \'.jpeg\') AND size > 50 * 1024 AND summary IS NULL AND skip_ocr = 0'
+    )
+    const files = selectStmt.all() as Array<{ path: string }>;
+    // 总共需要视觉处理的文件数量
+    let totalFiles = files.length;
+    logger.info(`一共找到 ${files.length} 个图片，准备视觉索引服务`)
+
+
+    // 编程for await 循环，每个文件都等待视觉索引服务完成
+    for await (const file of files) {
+        try {
+            await waitForIndexImage();
+            const notification: INotification = {
+                id: 'visual-index',
+                text: `OCR 服务已启动 剩余 ${totalFiles}`,
+                type: 'loadingQuestion',
+                tooltip: 'OCR 服务：AI会识别图片中的文字，你可以直接搜索图片中的文字，而不仅是名称。你可前往【设置】手动关闭'
+            }
+            sendToRenderer('system-info', notification)
+            const summary = await summarizeImage(file.path);
+            // logger.info(`图片摘要: ${summary}`);
+            // 更新数据库
+            const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);
+            const res = updateStmt.run(summary, file.path);
+            if (res.changes > 0) {
+                logger.info(`剩余处理图片数: ${totalFiles}`);
+                totalFiles--
+                continue
+            }
+
+        } catch (error) {
+            // 更新数据库记录无需再OCR
+            const updateStmt = db.prepare(`UPDATE files SET skip_ocr = 1 WHERE path = ?`);
+            const res = updateStmt.run(file.path);
+            if (res.changes > 0) {
+                logger.info(`已经记录跳过OCR`)
+            }
+            const msg = error instanceof Error ? error.message : '图片索引服务失败';
+            logger.error(`图片索引服务失败:${msg}；文件路径:${file.path}`)
+        }
+    }
+}
+
+/**
+ * 第三步：单个图片摘要函数 
+ * @param imagePath 图片路径
+ * @returns 图片摘要
+ */
+export async function summarizeImage(imagePath: string): Promise<string> {
+    let timeoutId: NodeJS.Timeout;
+    try {
+        const timeout = new Promise<never>((_, reject) => {
+            timeoutId = setTimeout(() => {
+                reject(new Error('OCR 处理超时（60秒）'));
+            }, 60000);
+        })
+
+        const summary = await Promise.race([
+            processImage(imagePath),
+            timeout
+        ]);
+
+        clearTimeout(timeoutId);
+        return summary;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        // 被reject（失败）后，走这里，会 立即将这个 Promise 的拒绝原因作为异常抛出 。
+        const msg = error instanceof Error ? error.message : '图片摘要生成失败';
+        // logger.error(`图片摘要生成失败:${msg}；文件路径:${imagePath}`)
+        throw new Error(msg);
+    }
+}
+
+
+/**
+ * OCR索引
+ * @param imagePath 
+ * @returns 
+ */
+const processImage = (imagePath: string): Promise<string> => {
+
+    const resourcesPath = pathConfig.get('resources')
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            // console.log(`开始处理：${imagePath}`)
+            const worker = await createWorker(['chi_sim', 'chi_tra', 'eng'], 1, {
+                langPath: path.join(resourcesPath, 'traineddata'),
+            });
+            const ret = await worker.recognize(imagePath);
+            // console.log(ret.data.text);
+            await worker.terminate();
+            resolve(ret.data.text)
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : '图片处理失败';
+            logger.error(`图片处理失败: ${msg}`);
+            reject(new Error(msg));
+        }
+    });
 }

@@ -1,9 +1,14 @@
 import { useState } from 'react'
-import Home from './pages/home/home'
 import './App.css'
-import { NotificationsProvider, } from '@toolpad/core/useNotifications';
+import { NotificationsProvider } from '@toolpad/core/useNotifications';
 import { globalContext } from '@/context/globalContext';
 import { GpuInfo } from './type/electron';
+import Preload from './pages/preload/Preload';
+import Home from './pages/home/Home';
+import { ThemeProvider } from '@mui/material'
+import { theme } from './theme'
+import { Routes, Route, HashRouter } from 'react-router-dom';
+import { OsType } from './type/system';
 
 function App() {
 
@@ -12,6 +17,18 @@ function App() {
     memory: 0,
     hasDiscreteGPU: false,
   })
+  const [isReadyAI, setIsReadyAI] = useState<boolean>(false);
+
+  const getOs = (): OsType => {
+    const platform = navigator.platform.toLowerCase();
+    if (platform.startsWith('mac')) {
+      return 'mac';
+    }
+    if (platform.startsWith('win')) {
+      return 'win';
+    }
+    return 'unknown';
+  };
 
   return (
     <NotificationsProvider slotProps={{
@@ -19,12 +36,22 @@ function App() {
         anchorOrigin: { vertical: 'top', horizontal: 'center' },
       },
     }}>
-      <globalContext.Provider value={{
-        gpuInfo,
-        setGpuInfo
-      }}>
-        <Home />
-      </globalContext.Provider>
+      <ThemeProvider theme={theme}>
+        <globalContext.Provider value={{
+          os: getOs(),
+          gpuInfo,
+          setGpuInfo,
+          isReadyAI,
+          setIsReadyAI,
+        }}>
+          <HashRouter>
+            <Routes>
+              <Route path='/' element={<Preload />} />
+              <Route path="/home" element={<Home />} />
+            </Routes>
+          </HashRouter>
+        </globalContext.Provider>
+      </ThemeProvider>
     </NotificationsProvider>
   )
 }

@@ -91,12 +91,12 @@ echo [INFO] Making Electron application with Forge...
 echo This may take several minutes...
 echo.
 
-call npm run package
-if %errorlevel% neq 0 (
-    echo [ERROR] Electron Forge make failed
-    pause
-    exit /b 1
-)
+@REM call npm run package
+@REM if %errorlevel% neq 0 (
+@REM     echo [ERROR] Electron Forge make failed
+@REM     pause
+@REM     exit /b 1
+@REM )
 
 @REM call npm run make
 @REM call npm run package
@@ -105,6 +105,18 @@ if %errorlevel% neq 0 (
 @REM     pause
 @REM     exit /b 1
 @REM )
+
+REM --- Build with electron-builder ---
+echo [INFO] Building Electron application with electron-builder...
+echo This may take several minutes...
+echo.
+
+call npx electron-builder --win --x64
+if %errorlevel% neq 0 (
+    echo [ERROR] electron-builder build failed
+    pause
+    exit /b 1
+)
 
 echo.
 echo [SUCCESS] Build completed successfully!

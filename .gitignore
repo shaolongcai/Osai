@@ -124,8 +124,17 @@ venv/
 electron/resources/venv/
 electron/resources/venv/*
 
-# 忽略Ollama目录
-electron/resources/Ollama/
+# python
+electron/resources/python/
+electron/resources/python/*
+electron/resources/Ollama/*
+# Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.py[cod]
+*$py.class
 
-#忽略解压OCR目录
+#忽略训练文件
 *.traineddata

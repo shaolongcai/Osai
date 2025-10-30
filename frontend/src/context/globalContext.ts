@@ -1,21 +1,28 @@
 import { GpuInfo } from '@/type/electron';
+import { OsType } from '@/type/system';
 import { createContext, useContext } from 'react';
 
 
 
 export interface IGlobalContext {
+    os: OsType,
     gpuInfo: GpuInfo,
-    setGpuInfo: React.Dispatch<React.SetStateAction<GpuInfo>>
+    setGpuInfo: (gpuInfo: GpuInfo) => void,
+    isReadyAI: boolean,
+    setIsReadyAI: (isReadyAI: boolean) => void,
 }
 
 // 创建全局上下文
 export const globalContext = createContext<IGlobalContext>({
+    os: 'unknown',
     gpuInfo: {
         hasGPU: false,
         memory: 0,
         hasDiscreteGPU: false,
-    } as GpuInfo,
+    },
     setGpuInfo: () => { },
+    isReadyAI: false,
+    setIsReadyAI: () => { },
 });
 
 
