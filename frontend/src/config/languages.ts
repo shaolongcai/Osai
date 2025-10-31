@@ -34,7 +34,6 @@ const LANGUAGE_DATA = [
   ['de-DE', 'de', 'Deutsch'],     // Germany
   ['ja-JP', 'jp', '日本語'],       // Japan
   ['ko-KR', 'kr', '한국어'],       // Korea
-  ['vi-VN', 'vn', 'Tiếng Việt'],  // Vietnam
 ] as const;
 
 // 動態生成完整的語言配置
