@@ -1,0 +1,130 @@
+{
+  "app": {
+    "title": "Osai - KI-Suche",
+    "search": {
+      "placeholder": "Dateinamen oder Bildzusammenfassungen suchen",
+      "button": "Suchen",
+      "results": "{{count}} Ergebnisse gefunden",
+      "noResults": "Keine Ergebnisse",
+      "noKeyword": "Bitte geben Sie ein Stichwort ein",
+      "start": "Geben Sie ein Stichwort ein, um die KI-Suche zu starten"
+    },
+    "settings": {
+      "install": "Installieren",
+      "reInstall": "Erneut installieren",
+      "title": "Einstellungen",
+      "visualIndex": "Bildindexierung aktivieren",
+      "gpuService": "GPU-Beschleunigungsdienst",
+      "userExperience": "Programm zur Verbesserung der Benutzererfahrung",
+      "language": "Sprache",
+      "logFolder": "Ausführungsprotokolle",
+      "open": "Öffnen",
+      "community": "In der Community, geben Sie uns Ihr Feedback!",
+      "feedback": "Feedback",
+      "checkUpdate": "Nach Updates suchen",
+      "check": "Überprüfen",
+      "checkingUpdate": "Suche nach Updates…",
+      "latestVersion": "Sie haben die neueste Version",
+      "updateAvailable": "Neue Version gefunden: {{version}}"
+    },
+    "common": {
+      "confirm": "Bestätigen",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "close": "Schließen",
+      "on": "Ein",
+      "off": "Aus",
+      "settings": "Einstellungen"
+    },
+    "language": {
+      "title": "Sprache auswählen",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ko-KR": "한국어",
+      "ja-JP": "日本語",
+      "de-DE": "Deutsch",
+      "vi-VN": "Tiếng Việt"
+    },
+    "indexing": {
+      "indexed": "{{count}} Dateien indexiert",
+      "pending": "Indexierung läuft"
+    },
+    "visualIndexStatus": {
+      "paused": "Visueller Indexierungsdienst pausiert",
+      "running": "OCR-Dienst gestartet, {{count}} verbleibend",
+      "finished": "OCR-Indexierung vollständig abgeschlossen"
+    },
+    "aiMarkStatus": {
+      "completed": "AI Mark abgeschlossen",
+      "analyzing": "Analysiere",
+      "recording": "Aufzeichnung"
+    },
+    "preload": {
+      "loading": "Notwendige Komponenten werden vorbereitet, bitte warten",
+      "updateTitle": "Versions-Update",
+      "updateContent": "Neue Version gefunden, möchten Sie aktualisieren?",
+      "updatePrimary": "Aktualisieren",
+      "updateSecondary": "Später",
+      "initFailed": "Initialisierung fehlgeschlagen",
+      "openLog": "Protokoll öffnen"
+    },
+    "reportProtocol": {
+      "title": "Programm zur Verbesserung der Benutzererfahrung",
+      "primaryButtonText": "Zustimmen",
+      "secondaryButtonText": "Später",
+      "content": "Zur besseren Verbesserung Ihrer Erfahrung und kontinuierlichen Entdeckung und Behebung von Problemen wird diese Funktion automatisch anonyme Informationen hochladen. Diese Informationen enthalten nur:\n\n📌 Programm-Anomalien: wie Abstürze, Fehlercodes usw.\n📌 Leistungsdaten: wie Download-Geschwindigkeit, Reaktionszeit von Operationen, Häufigkeit der Funktionsnutzung (anonym) usw.\n\nDieser Prozess sammelt oder lädt niemals Ihre persönlichen Identifikationsinformationen, Dateiinhalte, Chat-Verlauf, Passwörter oder Browser-Verlauf hoch.\n\nSie können dieses Protokoll jederzeit in den [Einstellungen] deaktivieren",
+      "notRemindLabel": "Nicht mehr anzeigen"
+    },
+    "updateTips": {
+      "title": "Einführung in das Versions-Update",
+      "primaryButtonText": "Verstanden",
+      "content": "📌 Neue AI Mark-Funktion: Sie können die KI dazu bringen, sich an jede Datei zu erinnern, damit Sie die Datei später schneller finden oder Fragen dazu stellen können.\n📌 OCR-Funktion: Um Computerressourcen zu sparen, wird die visuelle Indexierung jetzt vom OCR-Dienst bereitgestellt: Es wird nur Text aus Bildern extrahiert, ohne KI-Modelle zur Bildzusammenfassung zu verwenden. Bei Bedarf können Sie AI Mark für Bilder verwenden.\n📌 Kontextmenü hinzugefügt: Sie können mit der rechten Maustaste auf Suchergebnisse klicken, um die AI Mark-Funktion zu verwenden."
+    },
+    "aiMark": {
+      "title": "Oder Sie benötigen AI Mark",
+      "requireTitle": "AI Mark benötigt die folgenden Komponenten",
+      "successTitle": "Herzlichen Glückwunsch! Die AI Mark-Funktion ist jetzt aktiv",
+      "step1": {
+        "entry": "AI Mark über Kontextmenü starten",
+        "desc": "Sie können die KI diese Datei markieren lassen, die KI wird diese Datei verstehen und analysieren. Anschließend können Sie durch das Verständnis der KI diese Datei leichter finden:",
+        "understand": "🧠 KI-Dateiversteher: Durch das Verständnis der KI können Sie diese Datei schneller und einfacher finden.",
+        "summaryImage": "🖼️ Bildzusammenfassung: Wirkliches Verstehen des Bildinhalts, nicht nur OCR.",
+        "ask": "📖 Fragen stellen: Sie können Fragen zu dieser Datei stellen (späteres Update)."
+      },
+      "step2": {
+        "model": "KI-Modell",
+        "cuda": "CUDA-Dienst (optional: für GPU-Beschleunigung, nur wenn Ihr Computer über eine GPU verfügt)",
+        "tips": "📌 Der Download dauert etwa 5~10 Minuten (je nach Netzwerk), während des Downloads können Sie weiterhin andere Funktionen der Anwendung nutzen.\n📌 Internetverbindung erforderlich für Download"
+      },
+      "step3": {
+        "done": "Sie können versuchen, mit der rechten Maustaste auf eine Datei zu klicken und AI Mark zu wählen, jetzt wird sich die KI an Ihre Dateien erinnern! (CUDA-Dienst erfordert Neustart zur Aktivierung)"
+      },
+      "buttons": {
+        "next": "Weiter",
+        "install": "Installieren",
+        "finish": "Fertig",
+        "later": "Später"
+      }
+    },
+    "contact": {
+      "title": "Es sollte Ergebnisse geben, aber es gibt keine? Bitte informieren Sie uns für kontinuierliche Verbesserungen.",
+      "joinDiscord": "Discord beitreten",
+      "addWechat": "WeChat hinzufügen"
+    },
+    "table": {
+      "columns": {
+        "name": "Dateiname",
+        "path": "Pfad",
+        "modifiedAt": "Änderungszeit",
+        "fileType": "Dateityp"
+      },
+      "menu": {
+        "openFile": "Datei öffnen",
+        "openFolder": "Ordner öffnen",
+        "aiMark": "🔥 AI Mark"
+      }
+    }
+  }
+}

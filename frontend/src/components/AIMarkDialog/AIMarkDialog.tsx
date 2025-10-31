@@ -4,7 +4,7 @@ import styles from "./AIMarkDialog.module.scss"
 import { useState } from "react"
 import { Checkbox, FormControlLabel, Stack, Typography } from "@mui/material"
 import { useGlobalContext } from "@/context/globalContext"
-
+import { useTranslation } from "@/contexts/I18nContext"
 
 interface Props {
     onClose: () => void
@@ -21,9 +21,10 @@ const AIMarkDialog: React.FC<Props> = ({
 }) => {
 
     const context = useGlobalContext()
+    const { t } = useTranslation()
 
     const [step, setStep] = useState<1 | 2 | 3>(currentStep || 1) //一共3步，第三步为完成后弹出
-    const [title, setTitle] = useState("或者你需要AI Mark")
+    const [title, setTitle] = useState(t('app.aiMark.title'))
     const [cudaChecked, setCudaChecked] = useState(context.gpuInfo.hasGPU)
 
     //渲染第一步
@@ -33,34 +34,33 @@ const AIMarkDialog: React.FC<Props> = ({
                 <Stack spacing={1} alignItems="center">
                     <img src={aiMarkImage} alt="" className={styles.aiMarkDialogImage} />
                     <Typography variant="bodyMedium" sx={{ color: 'rgba(0, 0, 0, 0.45)' }}>
-                        右键菜单启动AI Mark
+                        {t('app.aiMark.step1.entry')}
                     </Typography>
                 </Stack>
                 <Stack spacing={1} className={styles.tips}>
                     <Typography variant="bodyMedium">
-                        你可以让AI 帮你mark这份文件，AI会对理解与分析这份文件。后续通过AI的理解，你可以更容易找到这份文件：
+                        {t('app.aiMark.step1.desc')}
                     </Typography>
                     <Typography variant="bodyMedium">
-                        🧠 AI理解文件：通过AI的理解，你可以更快也更容易地找到这份文件。
+                        {t('app.aiMark.step1.understand')}
                     </Typography>
                     <Typography variant="bodyMedium">
-                        🖼️ 摘要图片：真正理解图片的内容，而不仅仅只有OCR。
+                        {t('app.aiMark.step1.summaryImage')}
                     </Typography>
                     <Typography variant="bodyMedium">
-                        📖 询问问题：你可以询问关于这份文件的问题（稍后更新）。
+                        {t('app.aiMark.step1.ask')}
                     </Typography>
                 </Stack>
             </Stack>
         )
     }
 
-
     //渲染第二步
     const renderStep2 = () => {
         return (
             <Stack spacing={2}>
                 <Stack spacing={1}>
-                    <FormControlLabel control={<Checkbox defaultChecked />} label="AI 模型" disabled />
+                    <FormControlLabel control={<Checkbox defaultChecked />} label={t('app.aiMark.step2.model')} disabled />
                     <FormControlLabel
                         control={
                             <Checkbox
@@ -68,15 +68,14 @@ const AIMarkDialog: React.FC<Props> = ({
                                 disabled={!context.gpuInfo.hasGPU}
                                 onChange={(_e, checked) => setCudaChecked(checked)}
                             />}
-                        label="CUDA服务（可选：用于GPU加速，仅当你的电脑拥有GPU时可选）"
+                        label={t('app.aiMark.step2.cuda')}
                     />
                 </Stack>
                 <Typography variant="bodyMedium" sx={{
                     whiteSpace: "pre-line",
                     color: 'rgba(0, 0, 0, 0.65) !important'
                 }}>
-                    {`📌 下载大概耗时5~10分钟（似乎你的网络），下载时你仍可使用应用的其他功能。
-                    📌 下载时需要联网`}
+                    {t('app.aiMark.step2.tips')}
                 </Typography>
             </Stack>
         )
@@ -88,7 +87,7 @@ const AIMarkDialog: React.FC<Props> = ({
             <Stack spacing={1} alignItems="center">
                 <img src={aiMarkImage} alt="" className={styles.aiMarkDialogImage} />
                 <Typography variant="bodyMedium">
-                    你可以试试对着文件右键，点击AI Mark，现在AI会记忆你的文件！(CUDA服务，需要重启后生效)
+                    {t('app.aiMark.step3.done')}
                 </Typography>
             </Stack>
         )
@@ -98,7 +97,7 @@ const AIMarkDialog: React.FC<Props> = ({
     const handleAiMarkInstall = () => {
         if (step === 1) {
             setStep(2)
-            setTitle("AI Mark 将需要以下组件")
+            setTitle(t('app.aiMark.requireTitle'))
         } else if (step === 2) {
             //执行安装
             window.electronAPI.installAiServer(cudaChecked)
@@ -109,13 +108,12 @@ const AIMarkDialog: React.FC<Props> = ({
         }
     }
 
-
     return <Dialog
         open={open}
         onClose={onClose}
-        title={step === 3 ? '恭喜你！ AI Mark 功能已生效' : title}
-        primaryButtonText={step === 1 ? "下一步" : step === 2 ? "安装" : "完成"}
-        secondaryButtonText={step === 3 ? "" : "稍后"}
+        title={step === 3 ? t('app.aiMark.successTitle') : title}
+        primaryButtonText={step === 1 ? t('app.aiMark.buttons.next') : step === 2 ? t('app.aiMark.buttons.install') : t('app.aiMark.buttons.finish')}
+        secondaryButtonText={step === 3 ? "" : t('app.aiMark.buttons.later')}
         onPrimaryButtonClick={handleAiMarkInstall}
     >
         {step === 1 && renderStep1()}

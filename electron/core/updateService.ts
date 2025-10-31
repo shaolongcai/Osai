@@ -48,7 +48,7 @@ class UpdateService {
         // 设置日志
         autoUpdater.logger = logger;
         // 禁用差异更新，强制完整下载(暂时)
-        autoUpdater.disableDifferentialDownload = true;
+        // autoUpdater.disableDifferentialDownload = true;
         // 禁用自动下载，只检查更新
         autoUpdater.autoDownload = false;
         // mac测试

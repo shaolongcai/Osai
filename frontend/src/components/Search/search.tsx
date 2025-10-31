@@ -1,6 +1,7 @@
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material"
 import styles from './search.module.scss'
 import { useState } from "react";
+import { useTranslation } from '@/contexts/I18nContext';
 
 
 interface Props {
@@ -12,6 +13,7 @@ const Search: React.FC<Props> = ({
 }) => {
 
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
+    const { t } = useTranslation();
 
     const aiSearch = async () => {
         // const result = await window.electronAPI.aiSearch(searchValue);
@@ -39,7 +41,7 @@ const Search: React.FC<Props> = ({
             <TextField
                 className={styles.input}
                 fullWidth
-                placeholder="搜索文件名称或者图片摘要"
+                placeholder={t('app.search.placeholder')}
                 variant="outlined"
                 // value={question}
                 onChange={(event) => handleSearch(event.target.value)}
@@ -73,7 +75,7 @@ const Search: React.FC<Props> = ({
             // startIcon={<img className='' src={sendIcon} alt='' />}
             // sx={{ minWidth: '100px' }}
             >
-                搜索
+                {t('app.search.button')}
             </Button>
         </Stack>
     </Paper>

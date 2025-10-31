@@ -1,0 +1,130 @@
+{
+  "app": {
+    "title": "Osai - AI検索",
+    "search": {
+      "placeholder": "ファイル名や画像の要約を検索",
+      "button": "検索",
+      "results": "{{count}}件の結果が見つかりました",
+      "noResults": "結果なし",
+      "noKeyword": "キーワードを入力してください",
+      "start": "キーワードを入力してAI検索を開始"
+    },
+    "settings": {
+      "install": "インストール",
+      "reInstall": "再インストール",
+      "title": "設定",
+      "visualIndex": "画像インデックスを有効にする",
+      "gpuService": "GPU加速サービス",
+      "userExperience": "ユーザーエクスペリエンス改善プログラム",
+      "language": "言語",
+      "logFolder": "実行ログ",
+      "open": "開く",
+      "community": "コミュニティでフィードバックをお寄せください！",
+      "feedback": "フィードバック",
+      "checkUpdate": "更新をチェック",
+      "check": "チェック",
+      "checkingUpdate": "更新をチェック中…",
+      "latestVersion": "最新バージョンです",
+      "updateAvailable": "新しいバージョンが見つかりました: {{version}}"
+    },
+    "common": {
+      "confirm": "確認",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "close": "閉じる",
+      "on": "オン",
+      "off": "オフ",
+      "settings": "設定"
+    },
+    "language": {
+      "title": "言語を選択",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ko-KR": "한국어",
+      "ja-JP": "日本語",
+      "de-DE": "Deutsch",
+      "vi-VN": "Tiếng Việt"
+    },
+    "indexing": {
+      "indexed": "{{count}}個のファイルをインデックス済み",
+      "pending": "インデックス中"
+    },
+    "visualIndexStatus": {
+      "paused": "ビジュアルインデックスサービスが一時停止されました",
+      "running": "OCRサービスが開始されました、残り{{count}}個",
+      "finished": "OCRインデックスが完全に完了しました"
+    },
+    "aiMarkStatus": {
+      "completed": "AI Mark完了",
+      "analyzing": "分析中",
+      "recording": "記録中"
+    },
+    "preload": {
+      "loading": "必要なコンポーネントを準備中です。しばらくお待ちください",
+      "updateTitle": "バージョン更新",
+      "updateContent": "最新バージョンが見つかりました。更新しますか？",
+      "updatePrimary": "更新",
+      "updateSecondary": "後で",
+      "initFailed": "初期化に失敗しました",
+      "openLog": "ログを開く"
+    },
+    "reportProtocol": {
+      "title": "ユーザーエクスペリエンス改善プログラム",
+      "primaryButtonText": "同意する",
+      "secondaryButtonText": "後で",
+      "content": "より良い体験の改善と継続的な問題の発見・修正のため、この機能は匿名情報を自動的にアップロードします。これらの情報には以下のみが含まれます：\n\n📌 プログラムの異常：クラッシュ、エラーコードなど\n📌 パフォーマンスデータ：ダウンロード速度、操作応答時間、機能使用頻度（匿名）など\n\nこのプロセスでは、個人識別情報、ファイル内容、チャット履歴、パスワード、ブラウジング履歴などの機密データを収集またはアップロードすることはありません。\n\nいつでも【設定】でこのプロトコルを無効にできます",
+      "notRemindLabel": "今後表示しない"
+    },
+    "updateTips": {
+      "title": "バージョン更新の紹介",
+      "primaryButtonText": "了解しました",
+      "content": "📌 新しいAI Mark機能：AIにファイルを記憶させることで、後でファイルをより速く見つけたり、質問したりできます。\n📌 OCR機能：コンピューターリソースを節約するため、ビジュアルインデックスはOCRサービスによって提供されるようになりました：画像内のテキストのみを抽出し、AIモデルを使用した画像の要約は行いません。必要に応じて、画像にAI Markを使用できます。\n📌 右クリックメニューの追加：検索結果でマウスを右クリックして、AI Mark機能を使用できます。"
+    },
+    "aiMark": {
+      "title": "またはAI Markが必要です",
+      "requireTitle": "AI Markには以下のコンポーネントが必要です",
+      "successTitle": "おめでとうございます！AI Mark機能が有効になりました",
+      "step1": {
+        "entry": "右クリックメニューでAI Markを起動",
+        "desc": "AIにこのファイルをマークさせることができ、AIがこのファイルを理解・分析します。その後、AIの理解により、このファイルをより簡単に見つけることができます：",
+        "understand": "🧠 AIファイル理解：AIの理解により、このファイルをより速く、より簡単に見つけることができます。",
+        "summaryImage": "🖼️ 画像要約：OCRだけでなく、画像の内容を本当に理解します。",
+        "ask": "📖 質問する：このファイルについて質問できます（後日更新）。"
+      },
+      "step2": {
+        "model": "AIモデル",
+        "cuda": "CUDAサービス（オプション：GPU加速用、GPUを搭載したコンピューターでのみ選択可能）",
+        "tips": "📌 ダウンロードには約5〜10分かかります（ネットワークによる）。ダウンロード中でもアプリケーションの他の機能を引き続き使用できます。\n📌 ダウンロード時にはインターネット接続が必要です"
+      },
+      "step3": {
+        "done": "ファイルを右クリックしてAI Markをクリックしてみてください。これでAIがあなたのファイルを記憶します！（CUDAサービスは再起動後に有効になります）"
+      },
+      "buttons": {
+        "next": "次へ",
+        "install": "インストール",
+        "finish": "完了",
+        "later": "後で"
+      }
+    },
+    "contact": {
+      "title": "結果があるはずなのにありませんか？継続的な改善のためにお知らせください。",
+      "joinDiscord": "Discordに参加",
+      "addWechat": "WeChatを追加"
+    },
+    "table": {
+      "columns": {
+        "name": "ファイル名",
+        "path": "パス",
+        "modifiedAt": "更新時刻",
+        "fileType": "ファイルタイプ"
+      },
+      "menu": {
+        "openFile": "ファイルを開く",
+        "openFolder": "フォルダを開く",
+        "aiMark": "🔥 AI Mark"
+      }
+    }
+  }
+}

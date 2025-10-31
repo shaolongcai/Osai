@@ -4,11 +4,12 @@ import { NotificationsProvider } from '@toolpad/core/useNotifications';
 import { globalContext } from '@/context/globalContext';
 import { GpuInfo } from './type/electron';
 import Preload from './pages/preload/Preload';
-import Home from './pages/home/Home';
+import Home from './pages/home/Home2';
 import { ThemeProvider } from '@mui/material'
 import { theme } from './theme'
 import { Routes, Route, HashRouter } from 'react-router-dom';
 import { OsType } from './type/system';
+import { I18nProvider } from './contexts/I18nContext';
 
 function App() {
 
@@ -31,28 +32,30 @@ function App() {
   };
 
   return (
-    <NotificationsProvider slotProps={{
-      snackbar: {
-        anchorOrigin: { vertical: 'top', horizontal: 'center' },
-      },
-    }}>
-      <ThemeProvider theme={theme}>
-        <globalContext.Provider value={{
-          os: getOs(),
-          gpuInfo,
-          setGpuInfo,
-          isReadyAI,
-          setIsReadyAI,
-        }}>
-          <HashRouter>
-            <Routes>
-              <Route path='/' element={<Preload />} />
-              <Route path="/home" element={<Home />} />
-            </Routes>
-          </HashRouter>
-        </globalContext.Provider>
-      </ThemeProvider>
-    </NotificationsProvider>
+    <I18nProvider defaultLanguage="zh-CN">
+      <NotificationsProvider slotProps={{
+        snackbar: {
+          anchorOrigin: { vertical: 'top', horizontal: 'center' },
+        },
+      }}>
+        <ThemeProvider theme={theme}>
+          <globalContext.Provider value={{
+            os: getOs(),
+            gpuInfo,
+            setGpuInfo,
+            isReadyAI,
+            setIsReadyAI,
+          }}>
+            <HashRouter>
+              <Routes>
+                <Route path='/' element={<Preload />} />
+                <Route path="/home" element={<Home />} />
+              </Routes>
+            </HashRouter>
+          </globalContext.Provider>
+        </ThemeProvider>
+      </NotificationsProvider>
+    </I18nProvider>
   )
 }
 

@@ -16,6 +16,7 @@ import {
 } from "@mui/icons-material";
 import AIMarkDialog from "../AIMarkDialog/AIMarkDialog";
 import { useGlobalContext } from "@/context/globalContext";
+import { useTranslation } from '@/contexts/I18nContext'
 
 
 interface Props {
@@ -47,6 +48,7 @@ const TableRelust: React.FC<Props> = ({
     const [aiMarkDialogOpen, setAIMarkDialogOpen] = useState(false);
 
     const context = useGlobalContext(); //使用在内存的配置
+    const { t } = useTranslation();
 
 
     // 处理右键点击事件
@@ -108,13 +110,13 @@ const TableRelust: React.FC<Props> = ({
     const columns: ColumnData[] = [
         {
             width: 60,
-            label: '文件名称',
+            label: t('app.table.columns.name'),
             dataKey: 'name',
 
         },
         {
             width: 100,
-            label: '路径',
+            label: t('app.table.columns.path'),
             dataKey: 'path',
             styles: {
                 fontColor: '#00000065',
@@ -133,7 +135,7 @@ const TableRelust: React.FC<Props> = ({
         },
         {
             width: 50,
-            label: '修改时间',
+            label: t('app.table.columns.modifiedAt'),
             dataKey: 'modified_at',
             styles: {
                 fontColor: '#00000065',
@@ -143,7 +145,7 @@ const TableRelust: React.FC<Props> = ({
         },
         {
             width: 50,
-            label: '文件类型',
+            label: t('app.table.columns.fileType'),
             dataKey: 'ext',
             styles: {
                 fontColor: '#00000065',
@@ -151,18 +153,6 @@ const TableRelust: React.FC<Props> = ({
             render: (value) => getFileTypeByExtension(value as string),
             sortable: true // 标记该列可排序
         },
-        //  {
-        //     width: 50,
-        //     label: '标记',
-        //     dataKey: 'ai_mark',
-        //     // render: (value) => value === 1 && <Chip size='small' variant='outlined' color='primary' label='已标记' />,
-        //     render:value=> value ? <div style={{
-        //         backgroundColor: '#1976d2',
-        //         width: '16px',
-        //         height: '16px',
-        //         borderRadius:'32px'
-        //     }} />: null
-        // },
     ];
 
 
@@ -382,10 +372,10 @@ const TableRelust: React.FC<Props> = ({
                 }}
                 hideBackdrop={true}
             >
-                <MenuItem sx={{ fontSize: '14px' }} onClick={() => handleMenuItemClick('openFile')}>打开文件</MenuItem>
-                <MenuItem sx={{ fontSize: '14px' }} onClick={() => handleMenuItemClick('openFolder')}>打开文件夹</MenuItem>
+                <MenuItem sx={{ fontSize: '14px' }} onClick={() => handleMenuItemClick('openFile')}>{t('app.table.menu.openFile')}</MenuItem>
+                <MenuItem sx={{ fontSize: '14px' }} onClick={() => handleMenuItemClick('openFolder')}>{t('app.table.menu.openFolder')}</MenuItem>
                 <MenuItem sx={{ fontSize: '14px', color: '#FF4D4F' }} onClick={() => handleMenuItemClick('aiMark')}>
-                    🔥 AI Mark
+                    {t('app.table.menu.aiMark')}
                 </MenuItem>
             </Menu>
         </ClickAwayListener>

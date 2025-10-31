@@ -6,6 +6,7 @@ import styles from './Preload.module.scss'
 import { useNavigate } from 'react-router-dom';
 import { Dialog, ReportProtocol } from "@/components";
 import { useGlobalContext } from "@/context/globalContext";
+import { useTranslation } from '@/contexts/I18nContext';
 
 const Preload = () => {
 
@@ -20,10 +21,19 @@ const Preload = () => {
     const effectRan = useRef(false); // 执行守卫
     const navigate = useNavigate();
     const context = useGlobalContext();
+    const { t } = useTranslation();
 
+    // 新增：是否为 Electron 环境
+    const isElectron = typeof window !== 'undefined' && (window as any).electronAPI;
 
     // 检查是否有更新， 考虑用wait - promise 去处理三个事情： 1、检查更新版本，2、同意协议，3、初始化服务
     useEffect(() => {
+        // 在非 Electron 环境下直接跳过更新检查
+        if (!isElectron) {
+            setIsCheckUpdate(true);
+            return;
+        }
+
         // 监听更新
         window.electronAPI.onUpdateStatus(async (data) => {
             console.log('更新信息', data)
@@ -40,7 +50,7 @@ const Preload = () => {
             // 移除监听
             window.electronAPI.removeAllListeners('update-status');
         };
-    }, []);
+    }, [isElectron]);
 
     // 检查是否是否同意报告协议
     useEffect(() => {
@@ -127,17 +137,17 @@ const Preload = () => {
         <>
             {/* 新版本更新 */}
             <Dialog
-                title="更新版本"
+                title={t('app.preload.updateTitle')}
                 open={updateOpen}
                 onClose={handleCloseUpdate}
-                primaryButtonText="更新"
-                secondaryButtonText="稍后"
+                primaryButtonText={t('app.preload.updatePrimary')}
+                secondaryButtonText={t('app.preload.updateSecondary')}
                 onSecondaryButtonClick={handleCloseUpdate}
                 onPrimaryButtonClick={handleUpdate}
                 maxWidth='xs'
             >
                 <Typography variant="body1" align='left'>
-                    发现最新版本，是否进行更新
+                    {t('app.preload.updateContent')}
                 </Typography>
             </Dialog>
             {/* 弹窗同意条款 */}
@@ -154,13 +164,13 @@ const Preload = () => {
                         <Stack spacing={1} alignItems="center">
                             <img src={initErrorImg} className={styles.image} />
                             <Typography variant="body1" color="error" align="center">
-                                初始化失败
+                                {t('app.preload.initFailed')}
                             </Typography>
                             <Typography variant="body1" color="error" align="center">
                                 {initError}
                             </Typography>
-                            <Button variant='outlined' onClick={() => window.electronAPI.openDir('runLog')}>
-                                打开日志
+                            <Button variant='outlined' onClick={() => isElectron ? (window as any).electronAPI.openDir('runLog') : undefined}>
+                                {t('app.preload.openLog')}
                             </Button>
                         </Stack>
                     ) :
@@ -173,7 +183,7 @@ const Preload = () => {
                                 sx={{
                                     fontWeight: 700,
                                 }}>
-                                正在准备必要的组件，请稍后
+                                {t('app.preload.loading')}
                             </Typography>
                         </>
                 }

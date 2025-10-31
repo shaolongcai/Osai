@@ -1,0 +1,130 @@
+{
+  "app": {
+    "title": "Osai - Recherche IA",
+    "search": {
+      "placeholder": "Rechercher des noms de fichiers ou des résumés d'images",
+      "button": "Rechercher",
+      "results": "{{count}} résultats trouvés",
+      "noResults": "Aucun résultat",
+      "noKeyword": "Veuillez saisir un mot-clé",
+      "start": "Saisissez un mot-clé pour commencer la recherche IA"
+    },
+    "settings": {
+      "install": "Installer",
+      "reInstall": "Reinstaller",
+      "title": "Paramètres",
+      "visualIndex": "Activer l'indexation d'images",
+      "gpuService": "Service d'accélération GPU",
+      "userExperience": "Programme d'amélioration de l'expérience utilisateur",
+      "language": "Langue",
+      "logFolder": "Journaux d'exécution",
+      "open": "Ouvrir",
+      "community": "Dans la communauté, donnez-nous vos commentaires !",
+      "feedback": "Commentaires",
+      "checkUpdate": "Vérifier les mises à jour",
+      "check": "Vérifier",
+      "checkingUpdate": "Vérification des mises à jour…",
+      "latestVersion": "Vous avez la dernière version",
+      "updateAvailable": "Nouvelle version trouvée : {{version}}"
+    },
+    "common": {
+      "confirm": "Confirmer",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "close": "Fermer",
+      "on": "Activé",
+      "off": "Désactivé",
+      "settings": "Paramètres"
+    },
+    "language": {
+      "title": "Sélectionner la langue",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ko-KR": "한국어",
+      "ja-JP": "日本語",
+      "de-DE": "Deutsch",
+      "vi-VN": "Tiếng Việt"
+    },
+    "indexing": {
+      "indexed": "{{count}} fichiers indexés",
+      "pending": "Indexation en cours"
+    },
+    "visualIndexStatus": {
+      "paused": "Service d'indexation visuelle suspendu",
+      "running": "Service OCR démarré, {{count}} restants",
+      "finished": "Indexation OCR entièrement terminée"
+    },
+    "aiMarkStatus": {
+      "completed": "AI Mark terminé",
+      "analyzing": "Analyse en cours",
+      "recording": "Enregistrement en cours"
+    },
+    "preload": {
+      "loading": "Préparation des composants nécessaires, veuillez patienter",
+      "updateTitle": "Mise à jour de version",
+      "updateContent": "Nouvelle version disponible, souhaitez-vous mettre à jour ?",
+      "updatePrimary": "Mettre à jour",
+      "updateSecondary": "Plus tard",
+      "initFailed": "Échec de l'initialisation",
+      "openLog": "Ouvrir le journal"
+    },
+    "reportProtocol": {
+      "title": "Programme d'amélioration de l'expérience utilisateur",
+      "primaryButtonText": "Accepter",
+      "secondaryButtonText": "Plus tard",
+      "content": "Pour mieux améliorer votre expérience et découvrir et corriger continuellement les problèmes, cette fonctionnalité téléchargera automatiquement des informations anonymes. Ces informations incluent uniquement :\n\n📌 Anomalies du programme : comme les plantages, codes d'erreur, etc.\n📌 Données de performance : comme la vitesse de téléchargement, temps de réponse des opérations, fréquence d'utilisation des fonctionnalités (anonyme), etc.\n\nCe processus ne collectera ni ne téléchargera jamais vos informations personnelles, contenu de fichiers, historique de chat, mots de passe ou historique de navigation.\n\nVous pouvez désactiver ce protocole à tout moment dans les [Paramètres]",
+      "notRemindLabel": "Ne plus afficher"
+    },
+    "updateTips": {
+      "title": "Introduction de la mise à jour de version",
+      "primaryButtonText": "Compris",
+      "content": "📌 Nouvelle fonctionnalité AI Mark : vous pouvez laisser l'IA se souvenir de n'importe quel fichier, afin de pouvoir le retrouver plus rapidement ou poser des questions à son sujet.\n📌 Fonctionnalité OCR : pour économiser les ressources informatiques, l'indexation visuelle est maintenant fournie par le service OCR : seul le texte des images sera extrait, sans plus utiliser de modèle IA pour résumer les images. Si nécessaire, vous pouvez utiliser AI Mark sur les images.\n📌 Ajout du menu contextuel : vous pouvez faire un clic droit sur les résultats de recherche pour utiliser la fonctionnalité AI Mark."
+    },
+    "aiMark": {
+      "title": "Ou vous avez besoin d'AI Mark",
+      "requireTitle": "AI Mark nécessitera les composants suivants",
+      "successTitle": "Félicitations ! La fonctionnalité AI Mark est maintenant active",
+      "step1": {
+        "entry": "Lancer AI Mark via le menu contextuel",
+        "desc": "Vous pouvez laisser l'IA marquer ce fichier, l'IA comprendra et analysera ce fichier. Par la suite, grâce à la compréhension de l'IA, vous pourrez trouver ce fichier plus facilement :",
+        "understand": "🧠 Compréhension IA du fichier : grâce à la compréhension de l'IA, vous pouvez trouver ce fichier plus rapidement et plus facilement.",
+        "summaryImage": "🖼️ Résumé d'image : comprendre vraiment le contenu de l'image, pas seulement l'OCR.",
+        "ask": "📖 Poser des questions : vous pouvez poser des questions sur ce fichier (mise à jour ultérieure)."
+      },
+      "step2": {
+        "model": "Modèle IA",
+        "cuda": "Service CUDA (optionnel : pour l'accélération GPU, uniquement si votre ordinateur dispose d'un GPU)",
+        "tips": "📌 Le téléchargement prend environ 5~10 minutes (selon le réseau), vous pouvez continuer à utiliser les autres fonctionnalités de l'application pendant le téléchargement.\n📌 Une connexion Internet est requise pour le téléchargement"
+      },
+      "step3": {
+        "done": "Vous pouvez essayer de faire un clic droit sur un fichier et cliquer sur AI Mark, maintenant l'IA se souviendra de vos fichiers ! (Le service CUDA nécessite un redémarrage pour prendre effet)"
+      },
+      "buttons": {
+        "next": "Suivant",
+        "install": "Installer",
+        "finish": "Terminer",
+        "later": "Plus tard"
+      }
+    },
+    "contact": {
+      "title": "Il devrait y avoir des résultats, mais il n'y en a pas ? Veuillez nous informer pour une amélioration continue.",
+      "joinDiscord": "Rejoindre Discord",
+      "addWechat": "Ajouter WeChat"
+    },
+    "table": {
+      "columns": {
+        "name": "Nom du fichier",
+        "path": "Chemin",
+        "modifiedAt": "Heure de modification",
+        "fileType": "Type de fichier"
+      },
+      "menu": {
+        "openFile": "Ouvrir le fichier",
+        "openFolder": "Ouvrir le dossier",
+        "aiMark": "🔥 AI Mark"
+      }
+    }
+  }
+}
