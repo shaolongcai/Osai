@@ -42,7 +42,8 @@ const Home = () => {
   //检查版本更新提醒
   useEffect(() => {
     const version = packageJson.version;
-    // console.log('当前版本:', version);
+    console.log('当前版本:', version);
+    console.log('上一次版本:', localStorage.getItem('lastVersion'));
     if (localStorage.getItem('lastVersion') !== version) {
       // 版本更新提醒
       setOpenUpdateTips(true);

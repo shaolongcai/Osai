@@ -79,9 +79,9 @@ function createSearchBar() {
     alwaysOnTop: true,  // 总在最前
     skipTaskbar: true,  // 不占用任务栏
     show: false,        // 先不显示
-     transparent: true,
-     backgroundColor: '#00000000',
-       // hasShadow: false, // 如果想去掉系统阴影
+    transparent: true,
+    backgroundColor: '#00000000',
+    // hasShadow: false, // 如果想去掉系统阴影
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -156,7 +156,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();
@@ -205,6 +205,12 @@ app.whenReady().then(() => {
   // 注册全局快捷键
   const shortcut = 'Alt+Space'; // 可改
   registerGlobalShortcut(shortcut);
+  // 注册Esc关闭
+  globalShortcut.register('Escape', () => {
+    if (win.isVisible()) {
+      win.hide();
+    }
+  });
 
   // 防止多开
   app.on('second-instance', () => {

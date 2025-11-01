@@ -57,6 +57,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
         ipcRenderer.on('ai-sever-installed', (event, data) => callback(data));
     },
 
+    
     // 移除事件监听
     removeAllListeners: (channel) => {
         ipcRenderer.removeAllListeners(channel);

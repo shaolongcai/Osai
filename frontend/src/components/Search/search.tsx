@@ -9,7 +9,7 @@ interface Props {
 }
 
 const Search: React.FC<Props> = ({
-    onSearch
+    onSearch,
 }) => {
 
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
@@ -39,6 +39,12 @@ const Search: React.FC<Props> = ({
     >
         <Stack direction="row" spacing={2} alignItems="center">
             <TextField
+                slotProps={{
+                    htmlInput: {
+                        autoComplete: 'off',
+                        autoFocus: true,
+                    }
+                }}
                 className={styles.input}
                 fullWidth
                 placeholder={t('app.search.placeholder')}
