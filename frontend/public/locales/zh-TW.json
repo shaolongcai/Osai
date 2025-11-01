@@ -1,0 +1,125 @@
+{
+  "app": {
+    "title": "Osai - AI 搜尋",
+    "search": {
+      "placeholder": "搜尋檔名或圖片摘要",
+      "button": "搜尋",
+      "results": "共找到 {{count}} 筆結果",
+      "noResults": "沒有相關結果",
+      "noKeyword": "請輸入關鍵字",
+      "start": "輸入關鍵字，開始 AI 搜尋"
+    },
+    "settings": {
+      "install": "安裝",
+      "reInstall": "重新安裝",
+      "title": "設定",
+      "visualIndex": "開啟圖片索引",
+      "gpuService": "GPU 加速服務",
+      "userExperience": "使用者體驗改進計畫",
+      "language": "語言",
+      "logFolder": "執行記錄",
+      "open": "開啟",
+      "community": "在社群中，給予我們回饋吧！",
+      "feedback": "回饋"
+    },
+    "common": {
+      "confirm": "確認",
+      "cancel": "取消",
+      "save": "儲存",
+      "close": "關閉",
+      "on": "開啟",
+      "off": "關閉",
+      "settings": "設定"
+    },
+    "language": {
+      "title": "選擇語言",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ko-KR": "한국어",
+      "ja-JP": "日本語",
+      "de-DE": "Deutsch",
+      "vi-VN": "Tiếng Việt"
+    },
+    "indexing": {
+      "indexed": "已索引 {{count}} 個檔案",
+      "pending": "正在索引"
+    },
+    "visualIndexStatus": {
+      "paused": "視覺索引服務已暫停",
+      "running": "OCR 服務已啟動，剩餘 {{count}}",
+      "finished": "OCR 索引已全部完成"
+    },
+    "aiMarkStatus": {
+      "completed": "AI Mark 已完成",
+      "analyzing": "正在分析",
+      "recording": "正在記錄"
+    },
+    "preload": {
+      "loading": "正在準備必要的組件，請稍後",
+      "updateTitle": "更新版本",
+      "updateContent": "發現新版本，是否進行更新？",
+      "updatePrimary": "更新",
+      "updateSecondary": "稍後",
+      "initFailed": "初始化失敗",
+      "openLog": "打開日誌"
+    },
+    "reportProtocol": {
+      "title": "使用者體驗改進計畫",
+      "primaryButtonText": "同意",
+      "secondaryButtonText": "稍後",
+      "content": "為更好改進你的體驗，持續發現並修復問題，本功能將自動上傳匿名資訊。這些資訊僅包含：\n\n📌 程式異常：如閃退、錯誤代碼等。\n📌 效能資料：如下載速度、操作回應時間、功能使用頻率（匿名）等。\n\n此過程絕不會收集或上傳你的任何個人身分資訊、檔案內容、聊天記錄、密碼或瀏覽歷史等敏感資料。\n\n你可以隨時在【設定】中關閉該協議",
+      "notRemindLabel": "不再顯示"
+    },
+    "updateTips": {
+      "title": "版本更新介紹",
+      "primaryButtonText": "知道了",
+      "content": "📌 新增 AI Mark 功能：你可以讓 AI 幫你記住任何檔案，以便讓你後續可以更快地找到檔案，或者詢問問題。\n📌 OCR 功能：為了節省電腦資源，現在視覺索引會由 OCR 服務提供：只會擷取圖片中的文字，不再使用 AI 模型摘要圖片。若有需要，可以對圖片使用 AI Mark。\n📌 增加右鍵選單：你可以使用滑鼠對著搜尋結果敲擊右鍵，可以使用 AI Mark 功能。"
+    },
+    "aiMark": {
+      "title": "或者你需要 AI Mark",
+      "requireTitle": "AI Mark 將需要以下元件",
+      "successTitle": "恭喜！AI Mark 功能已生效",
+      "step1": {
+        "entry": "在右鍵選單啟動 AI Mark",
+        "desc": "你可以讓 AI 幫你標記這份文件，AI 會理解與分析這份文件。透過 AI 的理解，你可以更容易找到這份文件：",
+        "understand": "🧠 AI 理解文件：透過 AI 的理解，你可以更快也更容易地找到這份文件。",
+        "summaryImage": "🖼️ 圖片摘要：真正理解圖片內容，而不只是 OCR。",
+        "ask": "📖 詢問問題：你可以詢問關於這份文件的問題（稍後更新）。"
+      },
+      "step2": {
+        "model": "AI 模型",
+        "cuda": "CUDA 服務（可選：用於 GPU 加速，僅當你的電腦擁有 GPU 時可選）",
+        "tips": "📌 下載大約耗時 5~10 分鐘（取決於網路），下載時你仍可使用應用的其他功能。\n📌 下載時需要連網"
+      },
+      "step3": {
+        "done": "你可以試試對著檔案按右鍵，點選 AI Mark，現在 AI 會記住你的檔案！（CUDA 服務需重啟後生效）"
+      },
+      "buttons": {
+        "next": "下一步",
+        "install": "安裝",
+        "finish": "完成",
+        "later": "稍後"
+      }
+    },
+    "contact": {
+      "title": "應該有結果，但卻沒有？請告知我們持續改進。",
+      "joinDiscord": "加入 Discord",
+      "addWechat": "添加微信"
+    },
+    "table": {
+      "columns": {
+        "name": "檔案名稱",
+        "path": "路徑",
+        "modifiedAt": "修改時間",
+        "fileType": "檔案類型"
+      },
+      "menu": {
+        "openFile": "打開檔案",
+        "openFolder": "打開資料夾",
+        "aiMark": "🔥 AI Mark"
+      }
+    }
+  }
+}

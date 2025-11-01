@@ -1,0 +1,125 @@
+{
+  "app": {
+    "title": "Osai - AI Search",
+    "search": {
+      "placeholder": "Search file name or image summary",
+      "button": "Search",
+      "results": "Found {{count}} results",
+      "noResults": "No related results found",
+      "noKeyword": "Please enter search keywords",
+      "start": "Enter keywords to start AI search"
+    },
+    "settings": {
+      "install": "Install",
+      "reInstall": "Reinstall",
+      "title": "Settings",
+      "visualIndex": "Enable Image Indexing",
+      "gpuService": "GPU Acceleration Service",
+      "userExperience": "User Experience Improvement Plan",
+      "language": "Language",
+      "logFolder": "Log Folder",
+      "open": "Open",
+      "community": "Give us your feedback in the community!",
+      "feedback": "Feedback"
+    },
+    "common": {
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "save": "Save",
+      "close": "Close",
+      "on": "On",
+      "off": "Off",
+      "settings": "Settings"
+    },
+    "language": {
+      "title": "Select Language",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ko-KR": "한국어",
+      "ja-JP": "日本語",
+      "de-DE": "Deutsch",
+      "vi-VN": "Tiếng Việt"
+    },
+    "indexing": {
+      "indexed": "Indexed {{count}} files",
+      "pending": "Indexing"
+    },
+    "visualIndexStatus": {
+      "paused": "Visual indexing is paused",
+      "running": "OCR service started, remaining {{count}}",
+      "finished": "OCR indexing completed"
+    },
+    "aiMarkStatus": {
+      "completed": "AI Mark completed",
+      "analyzing": "Analyzing",
+      "recording": "Recording"
+    },
+    "preload": {
+      "loading": "Preparing necessary components, please wait",
+      "updateTitle": "Update Version",
+      "updateContent": "A new version is available. Do you want to update?",
+      "updatePrimary": "Update",
+      "updateSecondary": "Later",
+      "initFailed": "Initialization Failed",
+      "openLog": "Open Log"
+    },
+    "reportProtocol": {
+      "title": "User Experience Improvement Plan",
+      "primaryButtonText": "Agree",
+      "secondaryButtonText": "Later",
+      "content": "To improve your experience, continuously discover and fix issues, this feature will automatically upload anonymous information. These include:\n\n📌 Program exceptions: such as crashes, error codes, etc.\n📌 Performance data: such as download speed, operation response time, and feature usage frequency (anonymous).\n\nThis process never collects or uploads any personally identifiable information, file contents, chat records, passwords, or browsing history.\n\nYou can disable this protocol at any time in Settings.",
+      "notRemindLabel": "Do not show again"
+    },
+    "updateTips": {
+      "title": "Version Update Introduction",
+      "primaryButtonText": "Got it",
+      "content": "📌 New AI Mark feature: Let AI remember any file for you, so you can find files faster later, or ask questions.\n📌 OCR feature: To save computer resources, visual indexing is now provided by OCR service: it only extracts text from images, no longer uses AI models to summarize images. If needed, you can use AI Mark on images.\n📌 Added right-click menu: You can right-click on search results to use AI Mark."
+    },
+    "aiMark": {
+      "title": "Or you need AI Mark",
+      "requireTitle": "AI Mark requires the following components",
+      "successTitle": "Congratulations! AI Mark is now enabled",
+      "step1": {
+        "entry": "Open AI Mark from right-click menu",
+        "desc": "You can let AI mark this file. AI understands and analyzes the document. With AI's understanding, you can find this file more easily:",
+        "understand": "🧠 Understand: With AI understanding, you can locate this file faster and more easily.",
+        "summaryImage": "🖼️ Image summary: Truly understand image content, not just OCR.",
+        "ask": "📖 Ask questions: You can ask questions about the document (coming soon)."
+      },
+      "step2": {
+        "model": "AI Model",
+        "cuda": "CUDA Service (optional: GPU acceleration, available if your PC has GPU)",
+        "tips": "📌 Download takes about 5–10 minutes (depending on your network). You can still use other features during download.\n📌 Internet connection required during download"
+      },
+      "step3": {
+        "done": "Try right-clicking the file and choose AI Mark. AI will now remember your file! (CUDA service takes effect after restart)"
+      },
+      "buttons": {
+        "next": "Next",
+        "install": "Install",
+        "finish": "Finish",
+        "later": "Later"
+      }
+    },
+    "contact": {
+      "title": "Expected results but got none? Tell us to improve.",
+      "joinDiscord": "Join Discord",
+      "addWechat": "Add WeChat"
+    },
+    "table": {
+      "columns": {
+        "name": "File Name",
+        "path": "Path",
+        "modifiedAt": "Modified Time",
+        "fileType": "File Type"
+      },
+      "menu": {
+        "openFile": "Open File",
+        "openFolder": "Open Folder",
+        "aiMark": "🔥 AI Mark"
+      }
+    }
+  }
+}

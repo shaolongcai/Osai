@@ -1,7 +1,7 @@
-import { Box, Checkbox, Chip, FormControlLabel, LinearProgress, Paper, Stack, Tooltip, Typography } from "@mui/material"
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import styles from './home.module.scss'
-import { Search, InfoCard, Setting, Contact, Dialog, TableRelust, UpdateTipsDialog } from '@/components';
+import { Box, Chip, LinearProgress, Stack, Typography } from "@mui/material"
+import { useCallback, useEffect, useRef, useState } from "react";
+import styles from './Home2.module.scss'
+import { Search, InfoCard, Setting, Contact, TableRelust, UpdateTipsDialog } from '@/components';
 import { Progress } from "@/type/electron";
 import readySearchImage from '@/assets/images/search-ready.png'
 import { getFileTypeByExtension } from "@/utils/tools";
@@ -11,11 +11,15 @@ import {
 import searchNull from '@/assets/images/search-null.png'
 import AIMarkDialog from "@/components/AIMarkDialog/AIMarkDialog";
 import { useGlobalContext } from "@/context/globalContext";
+import { useTranslation } from '@/contexts/I18nContext';
 import packageJson from '../../../../package.json';
 
+// 版本號常量，方便統一管理
+const APP_VERSION = 'Beta 0.3.1';
 
 const Home = () => {
 
+  const { t } = useTranslation();
   const [indexProgress, setIndexProgress] = useState<Progress | null>(); //索引的进度信息
   const [needIndexImageCount, setNeedIndexImageCount] = useState<string | null>(''); //剩下需要索引的图片
   const [keyword, setKeyword] = useState<string>(''); //搜索的关键词
@@ -172,7 +176,7 @@ const Home = () => {
         >
           <SettingsIcon className={styles.settingsIcon} />
           <Typography variant='body2' className={styles.text}>
-            设置
+            {t('app.common.settings')}
           </Typography>
         </Stack>
       </Stack>
@@ -180,7 +184,7 @@ const Home = () => {
       {
         data.length > 0 &&
         <Typography className={styles.total}>
-          共搜索到 {data?.length} 条结果
+          {t('app.search.results', { count: data.length })}
         </Typography>
       }
       <Setting open={openSetting} onClose={() => setOpenSetting(false)} />
@@ -198,7 +202,7 @@ const Home = () => {
               <Stack className={styles.searchNull} alignItems='center'>
                 <img src={searchNull} />
                 <Typography variant='body1' className={styles.text}>
-                  没搜索到任何结果
+                  {t('app.search.noResults')}
                 </Typography>
               </Stack>
               <div className={styles.contact}>
@@ -213,21 +217,25 @@ const Home = () => {
                 <LinearProgress className={styles.progress} />
               }
               <Typography className={styles.text} variant='body1'>
-                {indexProgress ? indexProgress.message : '正在索引'}
+                {indexProgress
+                  ? ((indexProgress.process === 'finish' || (indexProgress.message && indexProgress.message.includes('已索引')))
+                    ? t('app.indexing.indexed', { count: indexProgress.count })
+                    : t('app.indexing.pending'))
+                  : t('app.indexing.pending')}
               </Typography>
               <Typography className={styles.text} variant='body1'>
-                你可以随时进行搜索
+                {t('app.search.start')}
               </Typography>
               <Chip
                 color='primary'
-                label='Beta 0.3.0'
+                label={APP_VERSION}
                 size='medium'
                 variant='outlined'
               />
             </Stack>
       }
       <Typography>
-        {needIndexImageCount}
+        {needIndexImageCount ? t('app.visualIndexStatus.running', { count: needIndexImageCount }) : ''}
       </Typography>
       <Box sx={{
         position: 'absolute',

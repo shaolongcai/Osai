@@ -2,6 +2,7 @@ import { Checkbox, FormControlLabel, Typography } from "@mui/material"
 import Dialog from "../Dialog/Dialog"
 import { useState } from "react";
 import { ConfigParams } from "@/type/electron";
+import { useTranslation } from "../../contexts/I18nContext";
 
 
 interface Props {
@@ -20,6 +21,7 @@ const ReportProtocol: React.FC<Props> = ({
 }) => {
 
     const [isRemind, setIsRemind] = useState(false);
+    const { t } = useTranslation();
 
     // 同意协议
     const agree = async () => {
@@ -55,9 +57,9 @@ const ReportProtocol: React.FC<Props> = ({
         <Dialog
             open={open}
             onClose={onClose}
-            title="用户体验改进计划"
-            primaryButtonText="同意"
-            secondaryButtonText="稍后"
+            title={t('app.reportProtocol.title')}
+            primaryButtonText={t('app.reportProtocol.primaryButtonText')}
+            secondaryButtonText={t('app.reportProtocol.secondaryButtonText')}
             onPrimaryButtonClick={agree}
             onSecondaryButtonClick={handleClose}
         >
@@ -68,23 +70,14 @@ const ReportProtocol: React.FC<Props> = ({
                     fontSize: '14px'
                 }}
                 >
-                    {
-                        `为更好改进你的体验，持续发现并修复问题，本功能将自动上传匿名信息。这些信息仅包含：
-
-                📌 程序异常：如闪退、错误代码等。
-                📌 性能数据：如下载速度、操作响应时间、功能使用频率（匿名）等。
-
-          此过程绝不会收集或上传您的任何个人身份信息、文件内容、聊天记录、密码或浏览历史等敏感数据。
-          
-          你可以随时在【设置】中关闭该协议`
-                    }
+                    {t('app.reportProtocol.content')}
                 </Typography>
                 <FormControlLabel
                     sx={{
                         marginTop: '16px'
                     }}
                     control={<Checkbox checked={isRemind} onChange={(_e, check) => setIsRemind(check)} />}
-                    label={<Typography sx={{ color: 'rgba(0,0,0,0.45)', fontSize: '14px' }}>不再显示</Typography>}
+                    label={<Typography sx={{ color: 'rgba(0,0,0,0.45)', fontSize: '14px' }}>{t('app.reportProtocol.notRemindLabel')}</Typography>}
                 />
             </>
         </Dialog>

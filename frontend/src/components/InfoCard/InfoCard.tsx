@@ -13,6 +13,7 @@ import { NOTIFICATION_TYPE, NotificationType } from "@/utils/enum";
 import { Notification } from "@/type/electron";
 import { useEffect, useState } from "react";
 import { useGlobalContext } from "@/context/globalContext";
+import { useTranslation } from '@/contexts/I18nContext';
 
 interface Props {
 
@@ -25,6 +26,7 @@ const InfoCard: React.FC<Props> = ({
     const [notifications, setNotifications] = useState<Notification[]>([]);
 
     const context = useGlobalContext();
+    const { t } = useTranslation();
 
     // 接收后台的消息推送
     useEffect(() => {
@@ -89,7 +91,42 @@ const InfoCard: React.FC<Props> = ({
                                 justifyContent='space-between'
                             >
                                 <Typography variant="body2" component="div" className={styles.text}>
-                                    {item.text}
+                                    {(() => {
+                                        // 根據通知 id 與文本做翻譯映射
+                                        if (item.id === 'visual-index') {
+                                            if (item.text?.includes('暂停')) {
+                                                return t('app.visualIndexStatus.paused');
+                                            }
+                                            if (item.text?.includes('自动关闭')) {
+                                                return t('app.visualIndexStatus.paused');
+                                            }
+                                            if (item.text?.includes('已全部完成')) {
+                                                return t('app.visualIndexStatus.finished');
+                                            }
+                                        }
+                                        if (item.id === 'download-progress') {
+                                            // 下載進度類型，text 已是百分比，直接顯示
+                                            return item.text;
+                                        }
+                                        if (item.id === 'ai-mark') {
+                                            if (item.text?.includes('已完成')) {
+                                                return t('app.aiMarkStatus.completed');
+                                            }
+                                            if (item.text?.includes('正在分析')) {
+                                                return t('app.aiMarkStatus.analyzing');
+                                            }
+                                            if (item.text?.includes('正在记录')) {
+                                                return t('app.aiMarkStatus.recording');
+                                            }
+                                            return item.text;
+                                        }
+                                        // 索引任務問題
+                                        if (item.id === 'indexTask') {
+                                            return item.text;
+                                        }
+                                        // 默認直接顯示
+                                        return item.text;
+                                    })()}
                                 </Typography>
                                 <Tooltip title={item.tooltip} arrow className={styles.tooltip} >
                                     <div style={{ height: '24px' }}>
@@ -105,6 +142,5 @@ const InfoCard: React.FC<Props> = ({
         </Card>
     )
 }
-
 
 export default InfoCard;

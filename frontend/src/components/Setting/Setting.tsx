@@ -6,6 +6,8 @@ import { UserConfig } from '@/type/system';
 import { ConfigParams } from '@/type/electron';
 import { useContext } from 'react';
 import { globalContext } from '@/context/globalContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useTranslation } from '@/contexts/I18nContext';
 
 interface SettingProps {
     open: boolean;
@@ -32,6 +34,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
 
     const context = useContext(globalContext)
+    const { t } = useTranslation()
 
 
 
@@ -103,12 +106,12 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             />
             {/* 开启GPU服务 */}
             <Dialog
-                title={hasGPU ? '安装GPU加速服务' : '本机没有任何GPU'}
-                primaryButtonText={hasGPU ? '安装' : '关闭'}
+                title={hasGPU ? t('app.settings.gpuService') : '本机没有任何GPU'}
+                primaryButtonText={hasGPU ? t('app.common.confirm') : t('app.common.close')}
                 onPrimaryButtonClick={() => {
                     hasGPU ? installGpu() : setGpuSeverOpen(false)
                 }}
-                secondaryButtonText={hasGPU && '取消'}
+                secondaryButtonText={hasGPU && t('app.common.cancel')}
                 open={gpuSeverOpen}
                 onClose={() => { setGpuSeverOpen(false) }}
                 maxWidth='xs'
@@ -128,14 +131,14 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             </Dialog>
             {/* 视觉服务提示 */}
             <Dialog
-                title='开启视觉索引服务'
-                primaryButtonText='开启'
+                title={t('app.settings.visualIndex')}
+                primaryButtonText={t('app.common.confirm')}
                 onPrimaryButtonClick={() => {
                     setConfirmDialogOpen(false)
                     setOpenIndexImage(true)
                     window.electronAPI.toggleIndexImage(true)
                 }}
-                secondaryButtonText='取消'
+                secondaryButtonText={t('app.common.cancel')}
                 open={confirmDialogOpen}
                 onClose={() => { setConfirmDialogOpen(false) }}
                 fullWidth={false}
@@ -169,11 +172,11 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                         flex: 1
                     }}>
                     <StyledTitle variant="h5" >
-                        设置
+                        {t('app.settings.title')}
                     </StyledTitle>
                     <Stack spacing={1}>
                         <SettingItem
-                            title='开启图片索引'
+                            title={t('app.settings.visualIndex')}
                             type='switch'
                             value={openIndexImage}
                             onAction={toggleVisualIndex}
@@ -181,7 +184,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                         {
                             context.os === 'win' &&
                             <SettingItem
-                                title='GPU加速服务'
+                                title={t('app.settings.gpuService')}
                                 type='custom'
                                 value={openIndexImage}
                                 onAction={toggleVisualIndex}
@@ -203,14 +206,14 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                     }}
                                     variant='text'
                                     onClick={() => { setGpuSeverOpen(true) }} >
-                                    {isInstallGpu ? '重新安装' : '安装'}
+                                    {isInstallGpu ? t('app.settings.reInstall') : t('app.settings.install')}
                                 </Button>
                                 }
                             />
                         }
                         <Paper className={styles.settingItem} elevation={0} variant='outlined' >
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >运行日志</Typography>
+                                <Typography variant="body1" className={styles.label} >{t('app.settings.logFolder')}</Typography>
                                 <Button
                                     sx={{
                                         '&:focus': {
@@ -231,20 +234,26 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                     onClick={() => {
                                         window.electronAPI.openDir('runLog')
                                     }}>
-                                    打开
+                                    {t('app.settings.open')}
                                 </Button>
                             </Stack>
                         </Paper>
                         <SettingItem
-                            title='用户体验改进计划'
+                            title={t('app.settings.userExperience')}
                             type='switch'
                             value={reportAgreement}
                             onAction={toggleReportAgreement}
                         />
+                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
+                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                <Typography variant="body1" className={styles.label} >{t('app.settings.language')}</Typography>
+                                <LanguageSwitcher variant='select' size='small' showLabel={false} />
+                            </Stack>
+                        </Paper>
                     </Stack>
                 </Box>
                 <div className={styles.contact}>
-                    <Contact title='在社区中，给与我们反馈吧！' />
+                    <Contact title={t('app.settings.community')} />
                 </div>
             </Drawer>
         </div>

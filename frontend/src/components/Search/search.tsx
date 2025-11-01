@@ -1,6 +1,7 @@
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material"
 import styles from './search.module.scss'
 import { useState } from "react";
+import { useTranslation } from '@/contexts/I18nContext';
 
 
 interface Props {
@@ -12,6 +13,7 @@ const Search: React.FC<Props> = ({
 }) => {
 
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
+    const { t } = useTranslation();
 
     const aiSearch = async () => {
         // const result = await window.electronAPI.aiSearch(searchValue);
@@ -27,12 +29,19 @@ const Search: React.FC<Props> = ({
     return <Paper
         elevation={0}
         className={styles.root}
+        sx={{
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0px 2px 4px rgba(25, 33, 61, 0.08)',
+            border: '1px solid #F0F2F5',
+            width: '100%',
+        }}
     >
         <Stack direction="row" spacing={2} alignItems="center">
             <TextField
                 className={styles.input}
                 fullWidth
-                placeholder="搜索文件名称或者图片摘要"
+                placeholder={t('app.search.placeholder')}
                 variant="outlined"
                 // value={question}
                 onChange={(event) => handleSearch(event.target.value)}
@@ -58,15 +67,15 @@ const Search: React.FC<Props> = ({
             />
             <Button
                 onClick={aiSearch}
-                // loading={loading}
-                variant="contained"
+            // loading={loading}
+            // variant="contained"
             // color="primary"
             // disableElevation
             // onClick={() => { handleSendMessage(question) }}
             // startIcon={<img className='' src={sendIcon} alt='' />}
             // sx={{ minWidth: '100px' }}
             >
-                搜索
+                {t('app.search.button')}
             </Button>
         </Stack>
     </Paper>
