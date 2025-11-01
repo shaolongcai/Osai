@@ -15,7 +15,7 @@ import {
     ArrowDropDown as DownwardIcon,
 } from "@mui/icons-material";
 import AIMarkDialog from "../AIMarkDialog/AIMarkDialog";
-import { useGlobalContext } from "@/context/globalContext";
+import { useGlobalContext } from "@/contexts/globalContext";
 import { useTranslation } from '@/contexts/I18nContext'
 
 

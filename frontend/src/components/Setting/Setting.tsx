@@ -2,10 +2,10 @@ import { Drawer, Box, Typography, Switch, styled, Paper, Stack, Button } from '@
 import styles from './Setting.module.scss'
 import { useEffect, useState } from 'react';
 import { Contact, Dialog, ReportProtocol, SettingItem } from '@/components';
-import { UserConfig } from '@/type/system';
-import { ConfigParams } from '@/type/electron';
+import { UserConfig } from '@/types/system';
+import { ConfigParams } from '@/types/electron';
 import { useContext } from 'react';
-import { globalContext } from '@/context/globalContext';
+import { globalContext } from '@/contexts/globalContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useTranslation } from '@/contexts/I18nContext';
 

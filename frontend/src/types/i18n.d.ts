@@ -61,7 +61,7 @@ export type TranslationResources = Record<Language, TranslationKeys>;
 type LanguagePaths = `app.language.${Language}`;
 
 // 翻譯鍵路徑類型 - 支援點分隔的巢狀鍵值
-export type TranslationKeyPath = 
+export type TranslationKeyPath =
   | 'app.title'
   | 'app.search.placeholder'
   | 'app.search.button'

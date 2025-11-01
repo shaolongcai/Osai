@@ -5,7 +5,7 @@ import initErrorImg from '@/assets/images/init-error.png'
 import styles from './Preload.module.scss'
 import { useNavigate } from 'react-router-dom';
 import { Dialog, ReportProtocol } from "@/components";
-import { useGlobalContext } from "@/context/globalContext";
+import { useGlobalContext } from "@/contexts/globalContext";
 import { useTranslation } from '@/contexts/I18nContext';
 
 const Preload = () => {

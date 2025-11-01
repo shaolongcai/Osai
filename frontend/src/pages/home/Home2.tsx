@@ -2,7 +2,7 @@ import { Box, Chip, LinearProgress, Stack, Typography } from "@mui/material"
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from './Home2.module.scss'
 import { Search, InfoCard, Setting, Contact, TableRelust, UpdateTipsDialog } from '@/components';
-import { Progress } from "@/type/electron";
+import { Progress } from "@/types/electron";
 import readySearchImage from '@/assets/images/search-ready.png'
 import { getFileTypeByExtension } from "@/utils/tools";
 import {
@@ -10,7 +10,7 @@ import {
 } from "@mui/icons-material";
 import searchNull from '@/assets/images/search-null.png'
 import AIMarkDialog from "@/components/AIMarkDialog/AIMarkDialog";
-import { useGlobalContext } from "@/context/globalContext";
+import { useGlobalContext } from "@/contexts/globalContext";
 import { useTranslation } from '@/contexts/I18nContext';
 import packageJson from '../../../../package.json';
 

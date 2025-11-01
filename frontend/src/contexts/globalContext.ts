@@ -1,5 +1,5 @@
-import { GpuInfo } from '@/type/electron';
-import { OsType } from '@/type/system';
+import { GpuInfo } from '@/types/electron';
+import { OsType } from '@/types/system';
 import { createContext, useContext } from 'react';
 
 

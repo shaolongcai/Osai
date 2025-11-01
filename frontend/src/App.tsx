@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import './App.css'
 import { NotificationsProvider } from '@toolpad/core/useNotifications';
-import { globalContext } from '@/context/globalContext';
-import { GpuInfo } from './type/electron';
+import { globalContext } from '@/contexts/globalContext';
+import { GpuInfo } from './types/electron';
 import Preload from './pages/preload/Preload';
 import Home from './pages/home/Home2';
 import { ThemeProvider } from '@mui/material'
 import { theme } from './theme'
 import { Routes, Route, HashRouter } from 'react-router-dom';
-import { OsType } from './type/system';
+import { OsType } from './types/system';
 import { I18nProvider } from './contexts/I18nContext';
 
 function App() {

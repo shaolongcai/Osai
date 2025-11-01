@@ -1,7 +1,7 @@
 import { Checkbox, FormControlLabel, Typography } from "@mui/material"
 import Dialog from "../Dialog/Dialog"
 import { useState } from "react";
-import { ConfigParams } from "@/type/electron";
+import { ConfigParams } from "@/types/electron";
 import { useTranslation } from "../../contexts/I18nContext";
 
 

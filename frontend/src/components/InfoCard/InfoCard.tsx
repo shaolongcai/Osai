@@ -10,9 +10,9 @@ import {
 
 import styles from './InfoCard.module.scss'
 import { NOTIFICATION_TYPE, NotificationType } from "@/utils/enum";
-import { Notification } from "@/type/electron";
+import { Notification } from "@/types/electron";
 import { useEffect, useState } from "react";
-import { useGlobalContext } from "@/context/globalContext";
+import { useGlobalContext } from "@/contexts/globalContext";
 import { useTranslation } from '@/contexts/I18nContext';
 
 interface Props {
