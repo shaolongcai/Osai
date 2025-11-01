@@ -1,4 +1,5 @@
 import { Paper, Stack, Typography } from "@mui/material";
+import { useEffect, useRef } from "react";
 import styles from './SearchPanel.module.scss'
 import placeholder from '@/assets/images/weChat.png'
 
@@ -6,6 +7,10 @@ import placeholder from '@/assets/images/weChat.png'
 interface SearchResultItemProps {
     name: string;
     icon?: string;
+    isSelected?: boolean; // 是否被选中
+    onClick?: () => void; // 点击事件
+    onMouseEnter?: () => void; // 鼠标进入事件
+    onMouseLeave?: () => void; // 鼠标离开事件
 }
 /**
  * 搜索的结果项目
@@ -13,10 +18,17 @@ interface SearchResultItemProps {
 const SearchResultItem: React.FC<SearchResultItemProps> = ({
     name,
     icon,
+    isSelected = false,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
 }) => {
     return <Paper
+        onClick={onClick}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
         elevation={0}
-        className={styles.searchResultItem}
+        className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
     >
         <Stack direction='row' spacing={1} alignItems="center">
             <img src={placeholder} />
@@ -39,23 +51,101 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
 
 interface Props {
     data: shortSearchDataItem[];
+    selectedIndex?: number; // 当前选中的索引
+    onSelectedIndexChange?: (index: number) => void; // 选中索引变化回调
 }
 const SearchPanel: React.FC<Props> = ({
     data,
+    selectedIndex = -1,
+    onSelectedIndexChange,
 }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+    // 当选中索引变化时，滚动到对应项目
+    useEffect(() => {
+        if (selectedIndex >= 0 && selectedIndex < data.length && containerRef.current && itemRefs.current[selectedIndex]) {
+            const container = containerRef.current;
+            const selectedItem = itemRefs.current[selectedIndex];
+            
+            if (selectedItem) {
+                // 计算相对于容器的位置
+                const containerRect = container.getBoundingClientRect();
+                const itemRect = selectedItem.getBoundingClientRect();
+                
+                // 计算项目相对于容器内容的位置
+                const itemTop = itemRect.top - containerRect.top + container.scrollTop;
+                const itemBottom = itemTop + selectedItem.offsetHeight;
+                const containerScrollTop = container.scrollTop;
+                const containerHeight = container.clientHeight;
+                const containerScrollBottom = containerScrollTop + containerHeight;
+                
+                // 添加一些缓冲区，让滚动更流畅
+                const buffer = 10; // 10px缓冲区
+                   console.log(itemTop, containerScrollTop)
+                // 如果项目顶部接近或超出可视区域上方，滚动到项目顶部
+                if (itemTop <= containerScrollTop) {
+                    console.log('超出区域')
+                 
+                    // 如果是第一个项目，滚动到容器顶部
+                    if (selectedIndex === 0) {
+                        container.scrollTop = 0;
+                    } else {
+                        container.scrollTop = container.scrollTop - 64;
+                    }
+                }
+                // 如果项目底部接近或超出可视区域下方，滚动到项目底部可见
+                else if (itemBottom >= containerScrollBottom ) {
+                    // 如果是最后一个项目，滚动到容器底部
+                    if (selectedIndex === data.length - 1) {
+                        container.scrollTop = container.scrollHeight - containerHeight;
+                    } else {
+                        container.scrollTop = container.scrollTop + 64;
+                    }
+                }
+                // 如果项目在可视区域内且有足够空间，不需要滚动
+            }
+        }
+    }, [selectedIndex, data.length]);
+
+    // 处理鼠标悬停
+    const handleMouseEnter = (index: number) => {
+        if (onSelectedIndexChange) {
+            onSelectedIndexChange(index);
+        }
+    };
+
+    // 处理鼠标离开
+    const handleMouseLeave = () => {
+        // 鼠标离开时不改变选中状态，保持当前选中
+        // 如果需要清除选中状态，可以调用 onSelectedIndexChange(-1)
+    };
+
     return <Paper
         elevation={3}
         className={styles.root}
+        ref={containerRef}
     >
-        <Stack spacing={2} alignItems='flex-start'>
-            {data.map((item) => (
-                <div key={item.id} 
-                className={styles.searchResultItem}
-                onClick={() => {
-                    console.log('点击了', item.path);
-                    window.electronAPI.openDir('openFile', item.path);
-                }}>
-                    <SearchResultItem name={item.name} icon={item.icon} />
+        <Stack alignItems='flex-start'>
+            {data.map((item, index) => (
+                <div
+                    style={{
+                        width:'100%'
+                    }}
+                    key={item.id}
+                    ref={(el) => (itemRefs.current[index] = el)}
+                >
+                    <SearchResultItem
+                        name={item.name}
+                        icon={item.icon}
+                        isSelected={selectedIndex === index}
+                        onMouseEnter={() => handleMouseEnter(index)}
+                        onMouseLeave={handleMouseLeave}
+                        onClick={() => {
+                            console.log('点击了', item.path);
+                            window.electronAPI.openDir('openFile', item.path);
+                        }}
+                    />
                 </div>
             ))}
         </Stack>

@@ -6,10 +6,12 @@ import { useTranslation } from '@/contexts/I18nContext';
 
 interface Props {
     onSearch: (keyword: string) => void;
+    selectedIndex?: number; // 当前选中的索引，-1表示在搜索框
 }
 
 const Search: React.FC<Props> = ({
     onSearch,
+    selectedIndex = -1,
 }) => {
 
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
@@ -28,7 +30,7 @@ const Search: React.FC<Props> = ({
 
     return <Paper
         elevation={0}
-        className={styles.root}
+        className={`${styles.root} ${selectedIndex === -1 ? styles.focused : ''}`}
         sx={{
             padding: '16px',
             borderRadius: '8px',
@@ -49,7 +51,7 @@ const Search: React.FC<Props> = ({
                 fullWidth
                 placeholder={t('app.search.placeholder')}
                 variant="outlined"
-                // value={question}
+                value={searchValue}
                 onChange={(event) => handleSearch(event.target.value)}
                 // onKeyDown={handleKeyDown}
                 sx={{

@@ -91,7 +91,7 @@ function createSearchBar() {
   // 加载搜索条HTML
   if (isDev) {
     win.loadURL('http://localhost:5173/search-bar.html');
-    // win.webContents.openDevTools(); //打开开发者工具
+    win.webContents.openDevTools(); //打开开发者工具
   } else {
     win.loadFile(path.join(__dirname, '../frontend/dist/search-bar.html'));
   }

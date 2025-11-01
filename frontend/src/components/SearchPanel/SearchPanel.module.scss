@@ -1,5 +1,5 @@
 .root {
-    padding: 16px;
+    padding: 8px;
     border-radius: 16px !important;
     box-shadow: 0px 2px 4px rgba(25, 33, 61, 0.25);
     border: 1px solid #F0F2F5 !important;
@@ -12,10 +12,25 @@
 .searchResultItem{
     width: 100%;
     cursor: pointer;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease;
+    padding: 8px;
+    margin-bottom: 4px;
 
     img{
         width: 48px;
         height: 48px;
         border-radius: 8px;
+    }
+
+    // 选中状态样式（包含hover和keyboard选中）
+    &.selected {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        color: white;
+        
+        .MuiTypography-root {
+            color: white !important;
+        }
     }
 }
