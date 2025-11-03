@@ -9,10 +9,4 @@
     width: 100% !important;
     box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-    // 当搜索框被选中时的样式
-    &.focused {
-        border: 2px solid #1976d2 !important;
-        box-shadow: 0px 2px 8px rgba(25, 118, 210, 0.3);
-    }
 }

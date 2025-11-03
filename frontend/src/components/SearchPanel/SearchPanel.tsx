@@ -33,10 +33,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
         <Stack direction='row' spacing={1} alignItems="center">
             <img src={placeholder} />
             <Stack justifyContent='space-between'>
-                <Typography variant="titleLarge" sx={{
-                    fontWeight: 'bold',
-                    color: 'rgba(0, 0, 0,0.85)'
-                }}>
+                <Typography variant="titleLarge" className={styles.name}>
                     {name}
                 </Typography>
                 {/* <Typography>
@@ -67,26 +64,23 @@ const SearchPanel: React.FC<Props> = ({
         if (selectedIndex >= 0 && selectedIndex < data.length && containerRef.current && itemRefs.current[selectedIndex]) {
             const container = containerRef.current;
             const selectedItem = itemRefs.current[selectedIndex];
-            
+
             if (selectedItem) {
                 // 计算相对于容器的位置
                 const containerRect = container.getBoundingClientRect();
                 const itemRect = selectedItem.getBoundingClientRect();
-                
+
                 // 计算项目相对于容器内容的位置
                 const itemTop = itemRect.top - containerRect.top + container.scrollTop;
                 const itemBottom = itemTop + selectedItem.offsetHeight;
                 const containerScrollTop = container.scrollTop;
                 const containerHeight = container.clientHeight;
                 const containerScrollBottom = containerScrollTop + containerHeight;
-                
-                // 添加一些缓冲区，让滚动更流畅
-                const buffer = 10; // 10px缓冲区
-                   console.log(itemTop, containerScrollTop)
+
                 // 如果项目顶部接近或超出可视区域上方，滚动到项目顶部
                 if (itemTop <= containerScrollTop) {
                     console.log('超出区域')
-                 
+
                     // 如果是第一个项目，滚动到容器顶部
                     if (selectedIndex === 0) {
                         container.scrollTop = 0;
@@ -95,7 +89,7 @@ const SearchPanel: React.FC<Props> = ({
                     }
                 }
                 // 如果项目底部接近或超出可视区域下方，滚动到项目底部可见
-                else if (itemBottom >= containerScrollBottom ) {
+                else if (itemBottom >= containerScrollBottom) {
                     // 如果是最后一个项目，滚动到容器底部
                     if (selectedIndex === data.length - 1) {
                         container.scrollTop = container.scrollHeight - containerHeight;
@@ -130,10 +124,10 @@ const SearchPanel: React.FC<Props> = ({
             {data.map((item, index) => (
                 <div
                     style={{
-                        width:'100%'
+                        width: '100%'
                     }}
                     key={item.id}
-                    ref={(el) => (itemRefs.current[index] = el)}
+                    ref={(el) => { itemRefs.current[index] = el; }}
                 >
                     <SearchResultItem
                         name={item.name}

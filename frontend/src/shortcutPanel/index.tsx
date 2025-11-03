@@ -8,7 +8,7 @@ import { I18nProvider } from '../contexts/I18nContext';
 const SearchBar = () => {
 
     const [data, setData] = useState<shortSearchDataItem[]>([]); //搜索的结果
-    const [selectedIndex, setSelectedIndex] = useState<number>(-1); // 当前选中的项目索引，-1表示在搜索框
+    const [selectedIndex, setSelectedIndex] = useState<number>(0); // 当前选中的项目索引
 
 
     // 快捷搜索
@@ -42,8 +42,8 @@ const SearchBar = () => {
             case 'ArrowUp':
                 event.preventDefault();
                 setSelectedIndex(prev => {
-                    // 向上移动，最小到搜索框(-1)
-                    if (prev > -1) {
+                    // 向上移动，最小到第一个项目(0)
+                    if (prev > 0) {
                         return prev - 1;
                     }
                     return prev; // 已经在搜索框，保持不变
@@ -56,11 +56,6 @@ const SearchBar = () => {
                     console.log('回车选择了', selectedItem.path);
                     window.electronAPI.openDir('openFile', selectedItem.path);
                 }
-                break;
-            case 'Escape':
-                // ESC键重置到搜索框
-                event.preventDefault();
-                setSelectedIndex(-1);
                 break;
         }
     }, [data, selectedIndex]);
@@ -81,13 +76,13 @@ const SearchBar = () => {
     }, [data.length]);
 
     return <I18nProvider defaultLanguage="zh-CN">
-        <Search onSearch={onSearch} selectedIndex={selectedIndex} />
+        <Search onSearch={onSearch} />
         {
             data.length > 0 &&
             <div className={styles.searchPanel}>
-                <SearchPanel 
-                    data={data} 
-                    selectedIndex={selectedIndex} 
+                <SearchPanel
+                    data={data}
+                    selectedIndex={selectedIndex}
                     onSelectedIndexChange={handleSelectedIndexChange}
                 />
             </div>
