@@ -2,6 +2,7 @@ import { Paper, Stack, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
 import styles from './SearchPanel.module.scss'
 import placeholder from '@/assets/images/weChat.png'
+import { useIcon } from '@/hooks/useIcon';
 
 
 interface SearchResultItemProps {
@@ -23,6 +24,8 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     onMouseEnter,
     onMouseLeave,
 }) => {
+    const { iconSrc } = useIcon(icon);
+
     return <Paper
         onClick={onClick}
         onMouseEnter={onMouseEnter}
@@ -31,7 +34,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
         className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
     >
         <Stack direction='row' spacing={1} alignItems="center">
-            <img src={placeholder} />
+            <img src={iconSrc} alt={name} />
             <Stack justifyContent='space-between'>
                 <Typography variant="titleLarge" className={styles.name}>
                     {name}

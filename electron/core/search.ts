@@ -88,6 +88,7 @@ export function shortSearch(keyword: string): shortSearchResult {
         id: item.id,
         name: item.name,
         path: item.path || '',
+        ext: item.ext || '',
     }));
 
     return {

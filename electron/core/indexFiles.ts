@@ -11,6 +11,8 @@ import { logger } from './logger.js';
 import { createWorker } from 'tesseract.js';
 import * as os from 'os';
 import * as fs from 'fs'
+import fileIcon from 'extract-file-icon';
+import { extractIcon, savePngBuffer } from './iconExtractor.js';
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
@@ -207,6 +209,18 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
         const results = await Promise.all(promises);
         const allFiles = results.flat(); // flat方法展开二维数组
+
+
+        const iconBuffer = await extractIcon('F:\\合同\\0703AI知识库开发合同【2期】.docx', 256);
+        if(iconBuffer){
+            savePngBuffer(iconBuffer, path.join(pathConfig.get('iconsCache'), '合同.png'));
+            logger.info('合同图标已保存');
+        }
+        else{
+            console.warn('找不到buffer')
+        }
+
+        return allFiles
 
         const endTime = Date.now();
         logger.info(`所有 Worker 线程索引完成。共找到 ${allFiles.length} 个文件，耗时: ${endTime - startTime} 毫秒`);

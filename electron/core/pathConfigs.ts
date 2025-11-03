@@ -21,6 +21,7 @@ interface PathsConfig {
     resources: string;
     temp: string;
     ollamaPath: string;
+    iconsCache: string;
 }
 
 /**
@@ -39,6 +40,7 @@ class PathConfig {
     private paths: PathsConfig;
     private resources: string;
     private ollamaPath: string;
+    private iconsCache: string;
 
 
     constructor() {
@@ -82,6 +84,9 @@ class PathConfig {
 
             // 上传的文件/临时文件
             temp: path.join(this.appDataPath, 'uploads', 'temp'),
+
+            // 图标缓存目录
+            iconsCache: path.join(this.appDataPath, 'iconsCache'),
         };
 
         //确保所有目录都存在

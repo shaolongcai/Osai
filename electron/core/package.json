@@ -1,0 +1,20 @@
+{
+  "name": "toicon-native",
+  "version": "1.0.0",
+  "description": "Native icon extraction module",
+  "main": "index.js",
+  "scripts": {
+    "build": "node-gyp rebuild",
+    "build:electron": "electron-rebuild",
+    "install": "node-gyp rebuild",
+    "postinstall": "electron-rebuild"
+  },
+  "dependencies": {
+    "node-addon-api": "^7.0.0"
+  },
+  "devDependencies": {
+    "node-gyp": "^10.0.0",
+    "electron-rebuild": "^3.2.9"
+  },
+  "gypfile": true
+}

@@ -17,6 +17,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     searchFiles: (keyword: string) => ipcRenderer.invoke('search-files', keyword), // 搜索文件
     shortSearch: (keyword: string) => ipcRenderer.invoke('short-search', keyword), // 快捷搜索(快捷键的搜索，仅返回少量数据)
 
+    // 获取图标文件
+    getIcon: (iconPath: string) => ipcRenderer.invoke('get-icon', iconPath), // 获取图标文件的 base64 数据
+
     // 系统相关
     openDir: (type: string, path: string) => ipcRenderer.send('open-dir', type, path), // 打开目录
     setConfig: (params: ConfigParams) => ipcRenderer.invoke('set-config', params.key, params.value, params.type), // 设置用户配置
