@@ -211,6 +211,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         const allFiles = results.flat(); // flat方法展开二维数组
 
 
+        // 📌 如果有问题，请手工从build/release复制icon_extractor.node到dist/win32-x64-139
         const iconBuffer = await extractIcon('F:\\合同\\0703AI知识库开发合同【2期】.docx', 256);
         if(iconBuffer){
             savePngBuffer(iconBuffer, path.join(pathConfig.get('iconsCache'), '合同.png'));

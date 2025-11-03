@@ -17,38 +17,37 @@ let nativeModule: NativeIconModule | null = null;
  * @returns 加载成功的原生模块实例，失败返回null
  */
 async function loadNativeModule(): Promise<NativeIconModule | null> {
+  if (nativeModule) {
+    return nativeModule;
+  }
+
   try {
-    console.log('尝试加载原生模块...');
-    const {createRequire} = await import('module');
+    console.log('正在加载原生图标提取模块...');
+    const { createRequire } = await import('module');
     const require = createRequire(import.meta.url);
-    
-    // 优先尝试使用 electron-rebuild 生成的模块
-    const electronModulePath = path.join(__dirname, 'bin', 'win32-x64-139', 'core.node');
-    const fallbackModulePath = path.join(__dirname, '../resources/build/Release/toIcon.node');
-    
-    let modulePath = electronModulePath;
-    
-    // 检查 electron-rebuild 生成的模块是否存在
-    if (!fs.existsSync(electronModulePath)) {
-      console.log('Electron 模块不存在，使用备用路径');
-      modulePath = fallbackModulePath;
+
+    // 新的模块路径 (推荐使用)
+    const modulePath = path.join(__dirname, '../native/dist/win32-x64-139/icon_extractor.node');
+
+    try {
+      if (fs.existsSync(modulePath)) {
+        nativeModule = require(modulePath);
+        console.log('成功加载原生模块:', modulePath);
+        console.log('可用方法:', Object.keys(nativeModule || {}));
+        return nativeModule;
+      }
+    } catch (error) {
+      console.log(`模块路径 ${modulePath} 加载失败，尝试下一个...`);
     }
-    
-    console.log('模块路径:', modulePath);
-    console.log('模块文件是否存在:', fs.existsSync(modulePath));
-    
-    if (fs.existsSync(modulePath)) {
-      console.log('开始加载原生模块...');
-      
-      nativeModule = require(modulePath);
-      console.log('原生模块加载成功:', !!nativeModule);
-      console.log('可用方法:', Object.keys(nativeModule || {}));
-      return nativeModule;
-    } else {
-      console.warn('原生模块文件不存在:', modulePath);
-    }
+
+    throw new Error('所有模块路径都加载失败');
   } catch (error) {
-    console.error('加载原生图标提取模块失败:', error);
+    const msg = error instanceof Error ? error.message : '模块加载失败';
+    console.error('原生图标提取模块加载失败:', msg);
+    console.error('请确保已正确编译原生模块：');
+    console.error('1. cd electron/native');
+    console.error('2. npm install');
+    console.error('3. npm run build:electron');
   }
   return null;
 }
@@ -62,12 +61,12 @@ async function loadNativeModule(): Promise<NativeIconModule | null> {
 export async function extractIcon(filePath: string, size: number = 256): Promise<Buffer | null> {
   try {
     console.log('extractIcon 被调用，文件路径:', filePath);
-    
+
     if (!nativeModule) {
       console.log('原生模块未加载，尝试加载...');
       nativeModule = await loadNativeModule();
     }
-    
+
     if (nativeModule) {
       console.log('调用原生模块的 extractIcon 方法...');
       // 将同步调用包装为异步，避免阻塞主线程
@@ -80,7 +79,7 @@ export async function extractIcon(filePath: string, size: number = 256): Promise
           resolve(null);
         }
       });
-      
+
       console.log('原生模块返回结果:', result ? `Buffer(${result.length} bytes)` : 'null');
       return result;
     } else {
@@ -103,7 +102,7 @@ export async function batchExtractIcons(filePaths: string[], size: number = 256)
     if (!nativeModule) {
       nativeModule = await loadNativeModule();
     }
-    
+
     if (nativeModule) {
       // 将同步调用包装为异步
       const result = await new Promise<(Buffer | null)[]>((resolve) => {

@@ -141,6 +141,5 @@ __pycache__/
 
 
 # 忽略编译产物
-electron/resources/build/
-electron/resources/bin/
-electron/core/build/
+electron/native/build/
+electron/native/bin/

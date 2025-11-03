@@ -1,23 +1,24 @@
 {
   "targets": [
     {
-      "target_name": "toIcon",
+      "target_name": "icon_extractor",
       "sources": [
-        "toIcon.cpp"
+        "src/toIcon.cpp"
       ],
       "include_dirs": [
-        "<!(node -e \"console.log(require('node-addon-api').include)\")"
+        "<!@(node -p \"require('node-addon-api').include\")"
       ],
       "libraries": [
         "gdiplus.lib",
-        "shell32.lib"
+        "shell32.lib",
+        "ole32.lib"
       ],
       "defines": [
         "NAPI_DISABLE_CPP_EXCEPTIONS"
       ],
       "msvs_settings": {
         "VCCLCompilerTool": {
-          "ExceptionHandling": 1
+          "AdditionalOptions": ["/utf-8"]
         }
       }
     }
