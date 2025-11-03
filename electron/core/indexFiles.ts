@@ -210,21 +210,58 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         const results = await Promise.all(promises);
         const allFiles = results.flat(); // flat方法展开二维数组
 
-
-        // 📌 如果有问题，请手工从build/release复制icon_extractor.node到dist/win32-x64-139
-        const iconBuffer = await extractIcon('F:\\合同\\0703AI知识库开发合同【2期】.docx', 256);
-        if(iconBuffer){
-            savePngBuffer(iconBuffer, path.join(pathConfig.get('iconsCache'), '合同.png'));
-            logger.info('合同图标已保存');
+        // 寻找所有扩展名,并对应第一个文件
+        const extToFileMap = new Map();
+        allFiles.forEach(file => {
+            const ext = path.extname(file).toLowerCase();
+            if (!extToFileMap.has(ext)) {
+                extToFileMap.set(ext, file);
+            }
+        });
+        const extensions = new Set(extToFileMap.keys());
+        logger.info(`找到 ${extensions.size} 个不同的扩展名: ${Array.from(extensions).join(', ')}`);
+        // 对每个扩展名,提取图标
+        for (const ext of extensions) {
+            const filePath = extToFileMap.get(ext);
+            console.log(`执行,filePath:${filePath}`)
+            if (!filePath) {
+                continue;
+            }
+            const normalizedPath = filePath.replace(/\//g, '\\');
+            const iconBuffer = await extractIcon(normalizedPath, 48);
+            if (iconBuffer) {
+                logger.info(`添加新的图标： ${ext}`);
+                savePngBuffer(iconBuffer, path.join(pathConfig.get('iconsCache'), `${ext}.png`));
+            }
+            else {
+                return
+            }
         }
-        else{
-            console.warn('找不到buffer')
-        }
 
-        return allFiles
+
+        //     // 📌 如果有问题，请手工从build/release复制icon_extractor.node到dist/win32-x64-139
+        //     // 使用ext 去获取对应的图标
+        //     for (const filePath of allFiles) {
+        //         const ext = path.extname(filePath).toLowerCase();
+        //         // 检查ext对应的图标是否存在
+        //         const iconCachePath = path.join(pathConfig.get('iconsCache'), `${ext}.png`);
+        //         if(fs.existsSync(iconCachePath)){
+        //             continue;
+        //         }
+        //         const iconBuffer = await extractIcon(filePath, 48);
+        //         if(iconBuffer){
+        //             logger.info(`添加新的图标： ${ext}`);
+        //             savePngBuffer(iconBuffer, path.join(pathConfig.get('iconsCache'), `${ext}.png`));
+        //         }
+        //         else{
+        //         console.warn('找不到buffer')
+        //     }
+        // };
 
         const endTime = Date.now();
         logger.info(`所有 Worker 线程索引完成。共找到 ${allFiles.length} 个文件，耗时: ${endTime - startTime} 毫秒`);
+
+        return allFiles
 
         // 获取已安装程序列表
         const installedPrograms = getInstalledPrograms();

@@ -60,7 +60,6 @@ async function loadNativeModule(): Promise<NativeIconModule | null> {
  */
 export async function extractIcon(filePath: string, size: number = 256): Promise<Buffer | null> {
   try {
-    console.log('extractIcon 被调用，文件路径:', filePath);
 
     if (!nativeModule) {
       console.log('原生模块未加载，尝试加载...');
@@ -68,7 +67,7 @@ export async function extractIcon(filePath: string, size: number = 256): Promise
     }
 
     if (nativeModule) {
-      console.log('调用原生模块的 extractIcon 方法...');
+      // console.log('调用原生模块的 extractIcon 方法...');
       // 将同步调用包装为异步，避免阻塞主线程
       const result = await new Promise<Buffer | null>((resolve) => {
         try {
