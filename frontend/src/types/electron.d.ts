@@ -74,7 +74,7 @@ interface ElectronAPI {
     shortSearch(query: string): Promise<shortSearchResult>;  // 快捷搜索
 
     // 获取图标文件
-    getIcon(iconPath: string): Promise<string | null>; // 获取图标文件的 base64 数据
+    getIcon(iconPath?: string, ext?: string): Promise<string | null>; // 获取图标文件的 base64 数据
 
 
     // 索引相关

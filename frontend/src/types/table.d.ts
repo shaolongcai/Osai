@@ -29,6 +29,7 @@ type shortSearchDataItem = {
     icon?: string;
     path: string;
     name: string;
+    ext?: string;
 }
 
 // 快捷搜索类型

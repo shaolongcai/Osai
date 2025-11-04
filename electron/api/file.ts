@@ -113,13 +113,20 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
     })
 
     // 获取图标文件
-    ipcMain.handle('get-icon', async (_event, iconPath: string) => {
+    ipcMain.handle('get-icon', async (_event, iconPath?: string, ext?: string) => {
         try {
+            // 检查是否有iconPath，没有则使用ext获取默认图标
+            if (!iconPath && ext) {
+                // 去掉ext的点号
+                const extNoDot = ext.slice(1);
+                iconPath = path.join(pathConfig.get('iconsCache'), `${extNoDot}.png`);
+            }
+
             // 安全检查：确保请求的文件在 iconsCache 目录内
             const iconsCache = pathConfig.get('iconsCache');
             const resolvedPath = path.resolve(iconPath);
             const resolvedCacheDir = path.resolve(iconsCache);
-            
+
             if (!resolvedPath.startsWith(resolvedCacheDir)) {
                 logger.warn(`非法的图标路径访问: ${iconPath}`);
                 return null;
@@ -134,19 +141,8 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
             // 读取文件并转换为 base64
             const fileBuffer = fs.readFileSync(resolvedPath);
             const base64Data = fileBuffer.toString('base64');
-            const ext = path.extname(resolvedPath).toLowerCase();
-            
-            // 根据文件扩展名确定 MIME 类型
-            let mimeType = 'image/png'; // 默认
-            if (ext === '.ico') {
-                mimeType = 'image/x-icon';
-            } else if (ext === '.jpg' || ext === '.jpeg') {
-                mimeType = 'image/jpeg';
-            } else if (ext === '.gif') {
-                mimeType = 'image/gif';
-            }
 
-            return `data:${mimeType};base64,${base64Data}`;
+            return `data:'image/png';base64,${base64Data}`;
         } catch (error) {
             logger.error(`获取图标文件失败: ${iconPath}, 错误: ${error}`);
             return null;

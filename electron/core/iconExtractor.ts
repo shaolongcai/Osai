@@ -79,7 +79,6 @@ export async function extractIcon(filePath: string, size: number = 256): Promise
         }
       });
 
-      console.log('原生模块返回结果:', result ? `Buffer(${result.length} bytes)` : 'null');
       return result;
     } else {
       console.warn('原生模块不可用');

@@ -81,6 +81,7 @@ export function shortSearch(keyword: string): shortSearchResult {
         icon: item.display_icon,
         name: item.display_name,
         path: item.path || '',
+        ext: '.exe'
     }));
 
     // 构造返回的data
@@ -88,7 +89,7 @@ export function shortSearch(keyword: string): shortSearchResult {
         id: item.id,
         name: item.name,
         path: item.path || '',
-        ext: item.ext || '',
+        ext: item.ext || '', //没有ext则为文件夹
     }));
 
     return {

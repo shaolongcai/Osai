@@ -8,6 +8,7 @@ import { useIcon } from '@/hooks/useIcon';
 interface SearchResultItemProps {
     name: string;
     icon?: string;
+    ext?: string;
     isSelected?: boolean; // 是否被选中
     onClick?: () => void; // 点击事件
     onMouseEnter?: () => void; // 鼠标进入事件
@@ -19,12 +20,16 @@ interface SearchResultItemProps {
 const SearchResultItem: React.FC<SearchResultItemProps> = ({
     name,
     icon,
+    ext,
     isSelected = false,
     onClick,
     onMouseEnter,
     onMouseLeave,
 }) => {
-    const { iconSrc } = useIcon(icon);
+
+
+
+    const { iconSrc } = useIcon(icon, ext);
 
     return <Paper
         onClick={onClick}
@@ -135,6 +140,7 @@ const SearchPanel: React.FC<Props> = ({
                     <SearchResultItem
                         name={item.name}
                         icon={item.icon}
+                        ext={item.ext}
                         isSelected={selectedIndex === index}
                         onMouseEnter={() => handleMouseEnter(index)}
                         onMouseLeave={handleMouseLeave}

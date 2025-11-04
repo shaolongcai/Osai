@@ -14,9 +14,8 @@ const SearchBar = () => {
     // 快捷搜索
     const onSearch = async (keyword: string) => {
         const res = await window.electronAPI.shortSearch(keyword);
-        console.log('快捷搜索', res);
         setData(res.data);
-        setSelectedIndex(-1); // 重置选中状态到搜索框
+        setSelectedIndex(0); // 重置选中状态到搜索框
     }
 
     // 处理选中索引变化（来自hover或其他交互）

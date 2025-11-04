@@ -123,7 +123,7 @@ async function findFiles(dir: string): Promise<string[]> {
 function processFile(filePath: string, stat: fs.Stats) {
     try {
         const file = path.basename(filePath).toLowerCase();
-        const ext = path.extname(filePath).toLowerCase();
+        const ext = path.extname(filePath).toLowerCase()
 
         const existingFile = selectStmt.get(filePath) as IndexFile | undefined;
 
