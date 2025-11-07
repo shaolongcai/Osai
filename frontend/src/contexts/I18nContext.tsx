@@ -225,6 +225,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
       await Promise.all(SUPPORTED_LANGUAGES.map(lang => loadTranslation(lang)));
       
       // 同步語言設置到數據庫（確保托盤菜單顯示正確的語言）
+      // 注意：必須在前端完全初始化前就同步，確保托盤菜單使用正確的語言
       if (typeof window !== 'undefined' && window.electronAPI) {
         try {
           await window.electronAPI.setConfig({
@@ -234,15 +235,14 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
           });
           // 更新托盤菜單語言
           window.electronAPI.updateTrayLanguage(initialLanguage);
+          console.log(`已將語言設置同步到數據庫: ${initialLanguage}`);
         } catch (error) {
           console.error('初始化語言設置到數據庫失敗:', error);
         }
       }
       
-      // 設置初始語言（如果與默認不同）
-      if (initialLanguage !== defaultLanguage) {
-        await setLanguage(initialLanguage);
-      }
+      // 更新 HTML 元素的 lang 屬性
+      document.documentElement.lang = initialLanguage;
     };
 
     initTranslations();
