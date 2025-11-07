@@ -4,7 +4,7 @@ import path from 'path'
 import { logger } from '../core/logger.js'
 import { ConfigName } from '../types/system.js'
 import { pinyin } from "pinyin-pro";
-import fileIcon from 'extract-file-icon';
+import { extractIcon as extractIconNative, savePngBuffer } from '../core/iconExtractor.js';
 import * as fs from 'fs'
 import { execSync } from 'child_process';
 
@@ -12,41 +12,7 @@ let db: Database.Database | null = null
 
 
 
-/**
- * 使用 PowerShell 直接提取 EXE 图标
- */
-function extractIconWithPowerShell(exePath: string, outputPath: string): boolean {
-  try {
-    const script = `
-Add-Type -AssemblyName System.Drawing
-try {
-    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon('${exePath.replace(/\\/g, '\\\\')}')
-    if ($icon -ne $null) {
-        $bmp = $icon.ToBitmap()
-        $bmp.Save('${outputPath.replace(/\\/g, '\\\\')}', [System.Drawing.Imaging.ImageFormat]::Png)
-        $bmp.Dispose()
-        $icon.Dispose()
-        Write-Output "SUCCESS"
-    } else {
-        Write-Output "FAILED: No icon found"
-    }
-} catch {
-    Write-Output "FAILED: $_"
-}
-`;
 
-    const result = execSync(`powershell -Command "${script}"`, {
-      timeout: 15000,
-      encoding: 'utf8',
-      stdio: 'pipe'
-    });
-
-    return result.toString().trim().startsWith('SUCCESS') && fs.existsSync(outputPath);
-  } catch (error) {
-    console.error('PowerShell 图标提取失败:', error);
-    return false;
-  }
-}
 
 /**
  * 初始化数据库并返回一个连接实例。
@@ -245,12 +211,12 @@ export function getAllConfigs(): Record<string, any> {
  * 插入程序信息到数据库
  * @param programInfo 程序信息
  */
-export function insertProgramInfo(programInfo: {
+export async function insertProgramInfo(programInfo: {
   DisplayName: string;
   Publisher: string;
   InstallLocation: string;
   DisplayIcon: string;
-}): void {
+}): Promise<void> {
   try {
     const database = getDatabase();
     const stmt = database.prepare(`
@@ -267,7 +233,7 @@ export function insertProgramInfo(programInfo: {
     // console.log(pinyinHead);
 
     // 解析图标
-    const programIcon = extractIcon(
+    const programIcon = await extractIcon(
       programInfo.DisplayIcon,          // 可能 null / "C:\\xxx.exe,0"
       programInfo.InstallLocation,      // 备用目录
     );
@@ -290,186 +256,77 @@ export function insertProgramInfo(programInfo: {
 
 
 /**
- * 使用 PowerShell 将 ICO 转换为 PNG
- */
-function convertIcoToPngWithPowerShell(icoPath: string, pngPath: string): boolean {
-  try {
-    const script = `
-Add-Type -AssemblyName System.Drawing
-$ico = [System.Drawing.Icon]::new('${icoPath.replace(/\\/g, '\\\\')}')
-$bmp = $ico.ToBitmap()
-$bmp.Save('${pngPath.replace(/\\/g, '\\\\')}', [System.Drawing.Imaging.ImageFormat]::Png)
-$bmp.Dispose()
-$ico.Dispose()
-`;
-
-    execSync(`powershell -Command "${script}"`, {
-      timeout: 10000,
-      stdio: 'pipe'
-    });
-
-    return fs.existsSync(pngPath);
-  } catch (error) {
-    console.error('PowerShell ICO转PNG失败:', error);
-    return false;
-  }
-}
-
-
-/**
- * 解析windows应用的icon
- * @param displayIcon 
- * @param installLoc 
- * @param cacheDir 
+ * 解析windows应用的icon（文件ICON是另外的）
+ * @param displayIcon
+ * @param installLoc
  * @returns 返回图片png形式
  */
-function extractIcon(
-  displayIcon: string | null,
-  installLoc: string,
-): string {
-
+async function extractIcon(displayIcon: string | null, installLoc: string): Promise<string> {
   const cacheDir = pathConfig.get('iconsCache')
-
-  if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
-
-  /* ---------- 1. 拿到“候选 exe/ico 路径” ---------- */
-  let srcPath = '';
-  if (displayIcon) {
-    // 拆 “path[,index]” 我们只取路径，index 忽略（库固定 0）
-    srcPath = displayIcon.split(',')[0].trim().replace(/^"|"$/g, '');
+  if (!fs.existsSync(cacheDir)) {
+    fs.mkdirSync(cacheDir, { recursive: true })
   }
 
-  // 2. 空或不存在 → 用 InstallLocation 下第一个 exe
-  if (!srcPath || !fs.existsSync(srcPath)) {
-    console.log(`原始路径不存在，尝试查找备用路径: ${srcPath}`);
+  let srcPath = ''
+  if (displayIcon) {
+    srcPath = displayIcon.split(',')[0].trim().replace(/^"|"$/g, '')
+  }
 
+  if (!srcPath || !fs.existsSync(srcPath)) {
     if (installLoc && fs.existsSync(installLoc)) {
       try {
-        // 查找所有可执行文件（exe, dll）
         const executables = fs
           .readdirSync(installLoc, { withFileTypes: true })
-          .filter(d => d.isFile() &&
-            (d.name.toLowerCase().endsWith('.exe') ||
-              d.name.toLowerCase().endsWith('.dll')))
-          .map(d => path.join(installLoc, d.name));
+          .filter(
+            (d) =>
+              d.isFile() &&
+              (d.name.toLowerCase().endsWith('.exe') || d.name.toLowerCase().endsWith('.dll'))
+          )
+          .map((d) => path.join(installLoc, d.name))
 
-        // 优先选择主程序（通常与目录名相似）
-        const dirName = path.basename(installLoc).toLowerCase();
-        const mainExe = executables.find(exe => {
-          const exeName = path.basename(exe, path.extname(exe)).toLowerCase();
-          return exeName.includes(dirName) || dirName.includes(exeName);
-        });
+        const dirName = path.basename(installLoc).toLowerCase()
+        const mainExe = executables.find((exe) => {
+          const exeName = path.basename(exe, path.extname(exe)).toLowerCase()
+          return exeName === dirName || dirName.includes(exeName)
+        })
 
-        srcPath = mainExe || executables[0] || '';
-        if (srcPath) {
-          console.log(`找到备用可执行文件: ${srcPath}`);
-        }
-      } catch (error) {
-        console.warn(`读取安装目录失败: ${installLoc}`, error);
-      }
-    }
-
-    // 如果还是没找到，尝试从 DisplayIcon 路径推断
-    if (!srcPath && displayIcon) {
-      const iconDir = path.dirname(displayIcon.split(',')[0].trim().replace(/^"|"$/g, ''));
-      if (fs.existsSync(iconDir)) {
-        try {
-          const executables = fs
-            .readdirSync(iconDir, { withFileTypes: true })
-            .filter(d => d.isFile() && d.name.toLowerCase().endsWith('.exe'))
-            .map(d => path.join(iconDir, d.name));
-
-          srcPath = executables[0] || '';
-          if (srcPath) {
-            console.log(`从图标路径找到可执行文件: ${srcPath}`);
-          }
-        } catch (error) {
-          console.warn(`读取图标目录失败: ${iconDir}`, error);
-        }
+        srcPath = mainExe || executables[0] || ''
+      } catch (e) {
+        console.error(`读取安装目录失败: ${installLoc}`, e)
+        srcPath = ''
       }
     }
   }
 
-  if (!srcPath) {
-    console.warn('无法找到有效的源文件路径');
-    return '';
+  if (!srcPath || !fs.existsSync(srcPath)) {
+    console.warn(`最终无法确定图标源路径: displayIcon=${displayIcon}, installLoc=${installLoc}`)
+    return ''
   }
-
-  /* ---------- 3. 区分 ico / exe|dll ---------- */
-  const ext = path.extname(srcPath).toLowerCase();
-  const pngName = `${path.parse(srcPath).name}.png`;
-  const pngPath = path.join(cacheDir, pngName);
 
   try {
-    if (ext === '.ico') {
-      // ico → 直接复制（或 sharp 转 png）
-      fs.copyFileSync(srcPath, pngPath);
-    } else if (ext === '.exe' || ext === '.dll') {
-      // 方案1：使用 extract-file-icon 库
-      const buf: Buffer = fileIcon(srcPath, 64);
+    const stat = fs.statSync(srcPath)
+    const key = `${path.parse(srcPath).name}_${stat.size}_${stat.mtimeMs}`.replace(
+      /[^a-zA-Z0-9_]/g,
+      ''
+    )
+    const pngPath = path.join(cacheDir, `${key}.png`)
 
-      if (!buf || buf.length === 0) {
-        console.warn('extract-file-icon 提取失败，尝试 PowerShell 方案:', srcPath);
-
-        // 方案2：使用 PowerShell 直接提取
-        const success = extractIconWithPowerShell(srcPath, pngPath);
-        if (success) {
-          console.log('PowerShell 图标提取成功:', srcPath);
-          return pngPath;
-        }
-
-        console.warn('所有图标提取方案都失败:', srcPath);
-        return '';
-      }
-
-      // extract-file-icon 成功，继续处理 Buffer
-      // 检查 Buffer 是否是 PNG 格式（PNG 文件头：89 50 4E 47）
-      const isPNG = buf.length >= 4 &&
-        buf[0] === 0x89 && buf[1] === 0x50 &&
-        buf[2] === 0x4E && buf[3] === 0x47;
-
-      if (isPNG) {
-        // 已经是 PNG 格式，直接保存
-        fs.writeFileSync(pngPath, buf);
-      } else {
-        // 保存为临时 ICO 文件，然后转换为 PNG
-        const tempIcoPath = path.join(cacheDir, `temp_${path.parse(srcPath).name}.ico`);
-        fs.writeFileSync(tempIcoPath, buf);
-
-        // 尝试转换为 PNG
-        const converted = convertIcoToPngWithPowerShell(tempIcoPath, pngPath);
-
-        // 清理临时文件
-        try {
-          fs.unlinkSync(tempIcoPath);
-        } catch (e) {
-          // 忽略清理错误
-        }
-
-        if (!converted) {
-          console.warn('ICO转PNG失败，尝试 PowerShell 直接提取:', srcPath);
-
-          // 备用方案：PowerShell 直接提取
-          const success = extractIconWithPowerShell(srcPath, pngPath);
-          if (success) {
-            console.log('PowerShell 备用提取成功:', srcPath);
-            return pngPath;
-          }
-
-          // 最后保留 ICO 格式
-          const icoPath = path.join(cacheDir, `${path.parse(srcPath).name}.ico`);
-          fs.writeFileSync(icoPath, buf);
-          return icoPath;
-        }
-      }
-    } else {
-      // 非常规扩展名当 ico 处理
-      fs.copyFileSync(srcPath, pngPath);
+    if (fs.existsSync(pngPath)) {
+      return pngPath
     }
-    return pngPath;
+
+    const iconBuffer = await extractIconNative(srcPath, 256)
+
+    if (iconBuffer) {
+      savePngBuffer(iconBuffer, pngPath)
+      return pngPath
+    } else {
+      console.warn(`使用原生模块提取图标失败: ${srcPath}`)
+      return ''
+    }
   } catch (e) {
-    console.error('extract-file-icon 失败', srcPath, e);
-    return '';
+    console.error('提取图标过程中发生错误', srcPath, e)
+    return ''
   }
 }
 

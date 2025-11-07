@@ -11,7 +11,6 @@ import { logger } from './logger.js';
 import { createWorker } from 'tesseract.js';
 import * as os from 'os';
 import * as fs from 'fs'
-import fileIcon from 'extract-file-icon';
 import { extractIcon, savePngBuffer } from './iconExtractor.js';
 
 // 获取当前文件路径（ES模块兼容）

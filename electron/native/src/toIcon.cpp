@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <objbase.h>
 #include <shellapi.h>
+#include <Shlobj.h>
 #include <gdiplus.h>
 #include <vector>
 #include <string>
@@ -15,6 +16,7 @@
 #pragma comment(lib, "gdiplus.lib")
 #pragma comment(lib, "shell32.lib")
 #pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "shlwapi.lib")
 
 using namespace Gdiplus;
 
@@ -25,40 +27,116 @@ std::vector<BYTE> FileToShellPNG(const wchar_t* path, int size = 256) {
     GdiplusStartup(&tok, &inp, nullptr);
     std::vector<BYTE> png;
 
-    SHFILEINFOW sfi{};
-    // 获取高质量图标: SHGFI_ICON + SHGFI_LARGEICON
-    SHGetFileInfoW(path, 0, &sfi, sizeof(sfi),
-                   SHGFI_ICON | (size > 32 ? SHGFI_LARGEICON : SHGFI_SMALLICON));
-    if (sfi.hIcon) {
-        Bitmap bmp(size, size);
-        Graphics g(&bmp);
+    // 方法1: 优先使用 ExtractIconEx 获取高质量图标
+    HICON hLargeIcon = nullptr;
+    HICON hSmallIcon = nullptr;
+    UINT iconCount = ExtractIconExW(path, 0, &hLargeIcon, &hSmallIcon, 1);
+    
+    if (iconCount > 0) {
+        HICON hIconToUse = (size >= 32) ? hLargeIcon : hSmallIcon;
+        if (hIconToUse) {
+            // 创建高质量位图
+            Bitmap* bmp = new Bitmap(size, size, PixelFormat32bppARGB);
+            Graphics* g = new Graphics(bmp);
+            
+            // 设置高质量渲染
+            g->SetSmoothingMode(SmoothingModeAntiAlias);
+            g->SetInterpolationMode(InterpolationModeHighQualityBicubic);
+            g->SetCompositingMode(CompositingModeSourceOver);
+            g->Clear(Color(0, 0, 0, 0)); // 透明背景
+            
+            // 直接绘制图标，保持透明度
+            // 使用 DrawIconEx 通过 HDC 绘制，保持透明度
+            HDC hdc = g->GetHDC();
+            DrawIconEx(hdc, 0, 0, hIconToUse, size, size, 0, nullptr, DI_NORMAL);
+            g->ReleaseHDC(hdc);
+            
+            // 保存为PNG
+            IStream* stm = nullptr;
+            if (SUCCEEDED(CreateStreamOnHGlobal(nullptr, TRUE, &stm))) {
+                CLSID pngClsid;
+                CLSIDFromString(L"{557CF406-1A04-11D3-9A73-0000F81EF32E}", &pngClsid);
+                
+                // 设置高质量编码
+                EncoderParameters encoderParams;
+                encoderParams.Count = 1;
+                encoderParams.Parameter[0].Guid = EncoderQuality;
+                encoderParams.Parameter[0].Type = EncoderParameterValueTypeLong;
+                encoderParams.Parameter[0].NumberOfValues = 1;
+                ULONG quality = 100;
+                encoderParams.Parameter[0].Value = &quality;
+                
+                if (bmp->Save(stm, &pngClsid, &encoderParams) == Ok) {
+                    STATSTG stg{};
+                    stm->Stat(&stg, STATFLAG_DEFAULT);
+                    png.resize(stg.cbSize.LowPart);
+                    LARGE_INTEGER li{ 0 };
+                    stm->Seek(li, STREAM_SEEK_SET, nullptr);
+                    ULONG read;
+                    stm->Read(png.data(), stg.cbSize.LowPart, &read);
+                }
+                stm->Release();
+            }
+            
+            delete g;
+            delete bmp;
+        }
         
-        // 将HICON转换为Bitmap并绘制
-        ICONINFO iconInfo;
-        GetIconInfo(sfi.hIcon, &iconInfo);
-        Bitmap iconBmp(iconInfo.hbmColor, nullptr);
-        g.DrawImage(&iconBmp, 0, 0, size, size);
-        
-        // 保存到PNG内存流
-        IStream* stm = nullptr;
-        CreateStreamOnHGlobal(nullptr, TRUE, &stm);
-        CLSID pngClsid;
-        CLSIDFromString(L"{557CF406-1A04-11D3-9A73-0000F81EF32E}", &pngClsid);
-        bmp.Save(stm, &pngClsid, nullptr);
-        
-        STATSTG stg{};
-        stm->Stat(&stg, STATFLAG_DEFAULT);
-        png.resize(stg.cbSize.LowPart);
-        LARGE_INTEGER li{ 0 };
-        stm->Seek(li, STREAM_SEEK_SET, nullptr);
-        ULONG read;
-        stm->Read(png.data(), stg.cbSize.LowPart, &read);
-        stm->Release();
-        
-        DeleteObject(iconInfo.hbmColor);
-        DeleteObject(iconInfo.hbmMask);
-        DestroyIcon(sfi.hIcon);
+        if (hLargeIcon) DestroyIcon(hLargeIcon);
+        if (hSmallIcon) DestroyIcon(hSmallIcon);
     }
+    
+    // 方法2: 如果ExtractIconEx失败，使用SHGetFileInfo
+    if (png.empty()) {
+        SHFILEINFOW sfi{};
+        DWORD flags = SHGFI_ICON | (size >= 32 ? SHGFI_LARGEICON : SHGFI_SMALLICON);
+        if (SHGetFileInfoW(path, 0, &sfi, sizeof(sfi), flags)) {
+            if (sfi.hIcon) {
+                Bitmap* bmp = new Bitmap(size, size, PixelFormat32bppARGB);
+                Graphics* g = new Graphics(bmp);
+                
+                g->SetSmoothingMode(SmoothingModeAntiAlias);
+                g->SetInterpolationMode(InterpolationModeHighQualityBicubic);
+                g->SetCompositingMode(CompositingModeSourceOver);
+                g->Clear(Color(0, 0, 0, 0));
+                
+                // 使用 DrawIconEx 通过 HDC 绘制，保持透明度
+                HDC hdc = g->GetHDC();
+                DrawIconEx(hdc, 0, 0, sfi.hIcon, size, size, 0, nullptr, DI_NORMAL);
+                g->ReleaseHDC(hdc);
+                
+                IStream* stm = nullptr;
+                if (SUCCEEDED(CreateStreamOnHGlobal(nullptr, TRUE, &stm))) {
+                    CLSID pngClsid;
+                    CLSIDFromString(L"{557CF406-1A04-11D3-9A73-0000F81EF32E}", &pngClsid);
+                    
+                    EncoderParameters encoderParams;
+                    encoderParams.Count = 1;
+                    encoderParams.Parameter[0].Guid = EncoderQuality;
+                    encoderParams.Parameter[0].Type = EncoderParameterValueTypeLong;
+                    encoderParams.Parameter[0].NumberOfValues = 1;
+                    ULONG quality = 100;
+                    encoderParams.Parameter[0].Value = &quality;
+                    
+                    if (bmp->Save(stm, &pngClsid, &encoderParams) == Ok) {
+                        STATSTG stg{};
+                        stm->Stat(&stg, STATFLAG_DEFAULT);
+                        png.resize(stg.cbSize.LowPart);
+                        LARGE_INTEGER li{ 0 };
+                        stm->Seek(li, STREAM_SEEK_SET, nullptr);
+                        ULONG read;
+                        stm->Read(png.data(), stg.cbSize.LowPart, &read);
+                    }
+                    stm->Release();
+                }
+                
+                delete g;
+                delete bmp;
+                DestroyIcon(sfi.hIcon);
+            }
+        }
+    }
+    
     GdiplusShutdown(tok);
     return png;
 }
