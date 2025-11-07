@@ -37,6 +37,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     'aiMark',
     'contact',
     'table',
+    'tray',
   ] as const;
 
   // 動態載入翻譯文件
@@ -177,6 +178,21 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     // 保存語言偏好到本地存儲
     localStorage.setItem('app-language', language);
     
+    // 如果在 Electron 環境中，也保存到數據庫並通知後端更新托盤菜單
+    if (typeof window !== 'undefined' && window.electronAPI) {
+      try {
+        await window.electronAPI.setConfig({
+          key: 'app_language',
+          value: language,
+          type: 'string'
+        });
+        // 通知後端更新托盤菜單語言
+        window.electronAPI.updateTrayLanguage(language);
+      } catch (error) {
+        console.error('保存語言設置到數據庫失敗:', error);
+      }
+    }
+    
     console.log(`語言已切換到: ${language}`);
   };
 
@@ -207,6 +223,21 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
       
       // 預載入所有支援的語言
       await Promise.all(SUPPORTED_LANGUAGES.map(lang => loadTranslation(lang)));
+      
+      // 同步語言設置到數據庫（確保托盤菜單顯示正確的語言）
+      if (typeof window !== 'undefined' && window.electronAPI) {
+        try {
+          await window.electronAPI.setConfig({
+            key: 'app_language',
+            value: initialLanguage,
+            type: 'string'
+          });
+          // 更新托盤菜單語言
+          window.electronAPI.updateTrayLanguage(initialLanguage);
+        } catch (error) {
+          console.error('初始化語言設置到數據庫失敗:', error);
+        }
+      }
       
       // 設置初始語言（如果與默認不同）
       if (initialLanguage !== defaultLanguage) {

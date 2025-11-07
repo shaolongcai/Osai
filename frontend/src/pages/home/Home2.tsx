@@ -66,11 +66,16 @@ const Home = () => {
       setOpenAiMarkDialog(true)
       context.setIsReadyAI(true); //告诉全局AI功能已经准备好
     });
+    // 监听从托盘菜单打开设定的事件
+    window.electronAPI.onNavigateToSettings(() => {
+      setOpenSetting(true);
+    });
     return () => {
       // 移除监听
       window.electronAPI.removeAllListeners('index-progress');
       window.electronAPI.removeAllListeners('visual-index-progress');
       window.electronAPI.removeAllListeners('ai-server-installed');
+      window.electronAPI.removeAllListeners('navigate-to-settings');
     };
   }, []);
 
