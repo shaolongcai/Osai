@@ -42,7 +42,7 @@ std::vector<BYTE> IconExtractor::ExtractIconToPNG(const std::wstring& filePath, 
             HICON hIcon = nullptr;
 
             // 按优先级尝试不同的图像列表：EXTRALARGE -> JUMBO -> LARGE -> SMALL
-            int imageLists[] = { SHIL_EXTRALARGE, SHIL_JUMBO, SHIL_LARGE, SHIL_SMALL };
+            int imageLists[] = { SHIL_JUMBO,SHIL_EXTRALARGE, SHIL_LARGE, SHIL_SMALL };
             IImageList* pImageList = nullptr;
             
             for (int listType : imageLists) {
@@ -137,15 +137,17 @@ std::vector<BYTE> IconExtractor::ConvertIconToPNG(HICON hIcon, int size) {
         g->SetCompositingQuality(CompositingQualityHighQuality);
 
         // 清除背景为完全透明
-        g->Clear(Color(0, 0, 0, 0));
+        g->Clear(Color(255, 255, 255, 0));
 
         // 如果图标尺寸与目标尺寸不同，使用高质量缩放
         if (bmpInfo.bmWidth != size || bmpInfo.bmHeight != size) {
             // 使用 DrawImage 进行高质量缩放
-            g->DrawImage(hIcon, 0, 0, size, size);
+            std::unique_ptr<Bitmap> iconBitmap(Bitmap::FromHICON(hIcon));
+            if (iconBitmap) {
+                g->DrawImage(iconBitmap.get(), Rect(0, 0, size, size), 0, 0, iconBitmap->GetWidth(), iconBitmap->GetHeight(), UnitPixel);
+            }
         } else {
             // 尺寸相同，直接绘制
-            // 使用 DrawIconEx 通过 HDC 绘制，保持透明度
             HDC hdc = g->GetHDC();
             DrawIconEx(hdc, 0, 0, hIcon, size, size, 0, nullptr, DI_NORMAL);
             g->ReleaseHDC(hdc);

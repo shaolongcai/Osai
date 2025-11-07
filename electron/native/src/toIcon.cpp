@@ -10,129 +10,116 @@
 #include <gdiplus.h>
 #include <vector>
 #include <string>
+#include <memory>
 #include <node.h>
 #include <node_buffer.h>
+#include <commoncontrols.h>
 
 #pragma comment(lib, "gdiplus.lib")
 #pragma comment(lib, "shell32.lib")
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "shlwapi.lib")
+#pragma comment(lib, "comctl32.lib") // For IImageList
 
 using namespace Gdiplus;
 
-// 从文件路径提取PNG字节数组，失败时返回空数组
+// Helper function to convert HICON to PNG bytes
+std::vector<BYTE> ConvertHIconToPng(HICON hIcon, int size) {
+    std::vector<BYTE> pngData;
+    
+    // Create a high-quality bitmap
+    Bitmap* bmp = new Bitmap(size, size, PixelFormat32bppARGB);
+    Graphics* g = new Graphics(bmp);
+
+    // Set high-quality rendering options
+    g->SetSmoothingMode(SmoothingModeAntiAlias);
+    g->SetInterpolationMode(InterpolationModeHighQualityBicubic);
+    g->SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    g->SetCompositingMode(CompositingModeSourceOver);
+    g->SetCompositingQuality(CompositingQualityHighQuality);
+    g->Clear(Color(0, 0, 0, 0)); // Use a transparent background
+
+    // Use DrawImage for high-quality scaling
+    std::unique_ptr<Bitmap> iconBitmap(Bitmap::FromHICON(hIcon));
+    if (iconBitmap) {
+        g->DrawImage(iconBitmap.get(), Rect(0, 0, size, size), 0, 0, iconBitmap->GetWidth(), iconBitmap->GetHeight(), UnitPixel);
+    }
+
+    // Save the bitmap to a PNG stream
+    IStream* stm = nullptr;
+    if (SUCCEEDED(CreateStreamOnHGlobal(nullptr, TRUE, &stm))) {
+        CLSID pngClsid;
+        CLSIDFromString(L"{557CF406-1A04-11D3-9A73-0000F81EF32E}", &pngClsid);
+        
+        if (bmp->Save(stm, &pngClsid, nullptr) == Ok) {
+            STATSTG stg{};
+            stm->Stat(&stg, STATFLAG_DEFAULT);
+            pngData.resize(stg.cbSize.LowPart);
+            LARGE_INTEGER li{ 0 };
+            stm->Seek(li, STREAM_SEEK_SET, nullptr);
+            ULONG read;
+            stm->Read(pngData.data(), stg.cbSize.LowPart, &read);
+        }
+        stm->Release();
+    }
+
+    delete g;
+    delete bmp;
+    return pngData;
+}
+
+// Extracts an icon from a file path and returns it as PNG bytes. Returns an empty vector on failure.
 std::vector<BYTE> FileToShellPNG(const wchar_t* path, int size = 256) {
     GdiplusStartupInput inp;
     ULONG_PTR tok;
     GdiplusStartup(&tok, &inp, nullptr);
+    
     std::vector<BYTE> png;
+    HICON hIcon = nullptr;
 
-    // 方法1: 优先使用 ExtractIconEx 获取高质量图标
-    HICON hLargeIcon = nullptr;
-    HICON hSmallIcon = nullptr;
-    UINT iconCount = ExtractIconExW(path, 0, &hLargeIcon, &hSmallIcon, 1);
-    
-    if (iconCount > 0) {
-        HICON hIconToUse = (size >= 32) ? hLargeIcon : hSmallIcon;
-        if (hIconToUse) {
-            // 创建高质量位图
-            Bitmap* bmp = new Bitmap(size, size, PixelFormat32bppARGB);
-            Graphics* g = new Graphics(bmp);
-            
-            // 设置高质量渲染
-            g->SetSmoothingMode(SmoothingModeAntiAlias);
-            g->SetInterpolationMode(InterpolationModeHighQualityBicubic);
-            g->SetCompositingMode(CompositingModeSourceOver);
-            g->Clear(Color(0, 0, 0, 0)); // 透明背景
-            
-            // 直接绘制图标，保持透明度
-            // 使用 DrawIconEx 通过 HDC 绘制，保持透明度
-            HDC hdc = g->GetHDC();
-            DrawIconEx(hdc, 0, 0, hIconToUse, size, size, 0, nullptr, DI_NORMAL);
-            g->ReleaseHDC(hdc);
-            
-            // 保存为PNG
-            IStream* stm = nullptr;
-            if (SUCCEEDED(CreateStreamOnHGlobal(nullptr, TRUE, &stm))) {
-                CLSID pngClsid;
-                CLSIDFromString(L"{557CF406-1A04-11D3-9A73-0000F81EF32E}", &pngClsid);
-                
-                // 设置高质量编码
-                EncoderParameters encoderParams;
-                encoderParams.Count = 1;
-                encoderParams.Parameter[0].Guid = EncoderQuality;
-                encoderParams.Parameter[0].Type = EncoderParameterValueTypeLong;
-                encoderParams.Parameter[0].NumberOfValues = 1;
-                ULONG quality = 100;
-                encoderParams.Parameter[0].Value = &quality;
-                
-                if (bmp->Save(stm, &pngClsid, &encoderParams) == Ok) {
-                    STATSTG stg{};
-                    stm->Stat(&stg, STATFLAG_DEFAULT);
-                    png.resize(stg.cbSize.LowPart);
-                    LARGE_INTEGER li{ 0 };
-                    stm->Seek(li, STREAM_SEEK_SET, nullptr);
-                    ULONG read;
-                    stm->Read(png.data(), stg.cbSize.LowPart, &read);
+    // Method 1: Use SHGetImageList (user's suggestion) for the highest quality icons.
+    SHFILEINFOW sfi;
+    if (SHGetFileInfoW(path, FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi), SHGFI_SYSICONINDEX | SHGFI_USEFILEATTRIBUTES)) {
+        IImageList* piml = nullptr;
+        int imageLists[] = { SHIL_JUMBO, SHIL_EXTRALARGE, SHIL_LARGE }; // Try from largest to smallest
+        for (int listType : imageLists) {
+            if (SUCCEEDED(SHGetImageList(listType, IID_PPV_ARGS(&piml))) && piml) {
+                if (SUCCEEDED(piml->GetIcon(sfi.iIcon, ILD_TRANSPARENT, &hIcon)) && hIcon) {
+                    piml->Release();
+                    break; // Icon found, break the loop
                 }
-                stm->Release();
+                piml->Release();
             }
-            
-            delete g;
-            delete bmp;
         }
-        
-        if (hLargeIcon) DestroyIcon(hLargeIcon);
-        if (hSmallIcon) DestroyIcon(hSmallIcon);
     }
-    
-    // 方法2: 如果ExtractIconEx失败，使用SHGetFileInfo
+
+    if (hIcon) {
+        png = ConvertHIconToPng(hIcon, size);
+        DestroyIcon(hIcon);
+    }
+
+    // Method 2: Fallback to ExtractIconEx if the first method fails.
     if (png.empty()) {
-        SHFILEINFOW sfi{};
+        HICON hLargeIcon = nullptr;
+        HICON hSmallIcon = nullptr;
+        if (ExtractIconExW(path, 0, &hLargeIcon, &hSmallIcon, 1) > 0) {
+            HICON hIconToUse = (size >= 32 && hLargeIcon) ? hLargeIcon : hSmallIcon;
+            if (hIconToUse) {
+                png = ConvertHIconToPng(hIconToUse, size);
+            }
+            if (hLargeIcon) DestroyIcon(hLargeIcon);
+            if (hSmallIcon) DestroyIcon(hSmallIcon);
+        }
+    }
+
+    // Method 3: Final fallback to the basic SHGetFileInfo.
+    if (png.empty()) {
+        SHFILEINFOW sfiFallback{};
         DWORD flags = SHGFI_ICON | (size >= 32 ? SHGFI_LARGEICON : SHGFI_SMALLICON);
-        if (SHGetFileInfoW(path, 0, &sfi, sizeof(sfi), flags)) {
-            if (sfi.hIcon) {
-                Bitmap* bmp = new Bitmap(size, size, PixelFormat32bppARGB);
-                Graphics* g = new Graphics(bmp);
-                
-                g->SetSmoothingMode(SmoothingModeAntiAlias);
-                g->SetInterpolationMode(InterpolationModeHighQualityBicubic);
-                g->SetCompositingMode(CompositingModeSourceOver);
-                g->Clear(Color(0, 0, 0, 0));
-                
-                // 使用 DrawIconEx 通过 HDC 绘制，保持透明度
-                HDC hdc = g->GetHDC();
-                DrawIconEx(hdc, 0, 0, sfi.hIcon, size, size, 0, nullptr, DI_NORMAL);
-                g->ReleaseHDC(hdc);
-                
-                IStream* stm = nullptr;
-                if (SUCCEEDED(CreateStreamOnHGlobal(nullptr, TRUE, &stm))) {
-                    CLSID pngClsid;
-                    CLSIDFromString(L"{557CF406-1A04-11D3-9A73-0000F81EF32E}", &pngClsid);
-                    
-                    EncoderParameters encoderParams;
-                    encoderParams.Count = 1;
-                    encoderParams.Parameter[0].Guid = EncoderQuality;
-                    encoderParams.Parameter[0].Type = EncoderParameterValueTypeLong;
-                    encoderParams.Parameter[0].NumberOfValues = 1;
-                    ULONG quality = 100;
-                    encoderParams.Parameter[0].Value = &quality;
-                    
-                    if (bmp->Save(stm, &pngClsid, &encoderParams) == Ok) {
-                        STATSTG stg{};
-                        stm->Stat(&stg, STATFLAG_DEFAULT);
-                        png.resize(stg.cbSize.LowPart);
-                        LARGE_INTEGER li{ 0 };
-                        stm->Seek(li, STREAM_SEEK_SET, nullptr);
-                        ULONG read;
-                        stm->Read(png.data(), stg.cbSize.LowPart, &read);
-                    }
-                    stm->Release();
-                }
-                
-                delete g;
-                delete bmp;
-                DestroyIcon(sfi.hIcon);
+        if (SHGetFileInfoW(path, 0, &sfiFallback, sizeof(sfiFallback), flags)) {
+            if (sfiFallback.hIcon) {
+                png = ConvertHIconToPng(sfiFallback.hIcon, size);
+                DestroyIcon(sfiFallback.hIcon);
             }
         }
     }
