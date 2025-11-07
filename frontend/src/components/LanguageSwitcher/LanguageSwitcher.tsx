@@ -7,12 +7,32 @@ import { Language } from '../../types/i18n';
 import { LANGUAGE_CONFIGS, getLanguageConfig } from '../../config/languages';
 // 導入 Material-UI 組件
 import { Button, ButtonGroup, Box, Select, MenuItem, FormControl } from '@mui/material';
+// 導入國旗 React 組件
+import {
+  ChinaFlag,
+  FranceFlag,
+  GermanyFlag,
+  JapanFlag,
+  SouthKoreaFlag,
+  TaiwanFlag,
+  UnitedStatesFlag,
+  VietnamFlag,
+} from '@/flags/FlagIcons';
 
-// 動態導入國旗圖片的輔助函數
-// 使用 Vite 的動態導入功能，根據國旗名稱動態載入對應的 SVG 圖片
-const importFlag = (flagName: string) => {
-  return new URL(`../../assets/flags/svg/${flagName}.svg`, import.meta.url).href;
+// 建立 flagName 與 React 國旗組件的映射
+const FLAG_COMPONENTS: Record<string, React.FC<{ width?: number; height?: number; className?: string }>> = {
+  cn: ChinaFlag,
+  fr: FranceFlag,
+  de: GermanyFlag,
+  jp: JapanFlag,
+  kr: SouthKoreaFlag,
+  tw: TaiwanFlag,
+  us: UnitedStatesFlag,
+  vn: VietnamFlag,
 };
+
+// 根據 flagName 取得對應的 React 國旗組件
+const getFlagComponentByName = (flagName: string) => FLAG_COMPONENTS[flagName];
 
 /**
  * 語言切換器組件的屬性接口
@@ -49,11 +69,12 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
    * @param languageCode 語言代碼
    * @returns 國旗圖片的 URL 路徑
    */
-  const getFlagByLanguage = (languageCode: Language): string => {
+  const getFlagByLanguage = (languageCode: Language): React.ReactNode => {
     // 從統一配置中獲取對應的語言配置
     const config = getLanguageConfig(languageCode);
-    // 如果找到配置則返回國旗圖片路徑，否則返回空字串
-    return config ? importFlag(config.flagName) : '';
+    if (!config) return null;
+    const Flag = getFlagComponentByName(config.flagName);
+    return Flag ? <Flag width={16} height={16} /> : null;
   };
 
   /**
@@ -116,7 +137,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
       >
         {/* 按鈕內容：國旗圖示 + 語言名稱 */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <img src={getFlagByLanguage(lang)} alt={`${lang} flag`} style={{ width: 16, height: 16 }} />
+          {getFlagByLanguage(lang)}
           <span>{getLanguageText(lang)}</span>
         </Box>
       </Button>
@@ -152,11 +173,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
             // 自定義選中值的顯示方式：國旗 + 語言名稱
             renderValue={(value) => (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <img 
-                  src={getFlagByLanguage(value as Language)} 
-                  alt={`${value} flag`}
-                  style={{ width: 16, height: 16, objectFit: 'contain' }}
-                />
+                {getFlagByLanguage(value as Language)}
                 <span>{getLanguageText(value as Language)}</span>
               </Box>
             )}
@@ -176,11 +193,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
             {LANGUAGE_CONFIGS.map((config) => (
               <MenuItem key={config.code} value={config.code}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <img 
-                    src={getFlagByLanguage(config.code as Language)} 
-                    alt={config.altText}
-                    style={{ width: 18, height: 18, objectFit: 'contain' }}
-                  />
+                  {getFlagByLanguage(config.code as Language)}
                   <span>{getLanguageText(config.code as Language)}</span>
                 </Box>
               </MenuItem>

@@ -143,6 +143,3 @@ __pycache__/
 # 忽略编译产物
 electron/native/build/
 electron/native/bin/
-
-
-old-ai-search/
