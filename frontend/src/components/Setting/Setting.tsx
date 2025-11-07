@@ -288,18 +288,18 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                 </Button>
                             </Stack>
                         </Paper>
-                        <SettingItem
-                            title={t('app.settings.userExperience')}
-                            type='switch'
-                            value={reportAgreement}
-                            onAction={toggleReportAgreement}
-                        />
                         <Paper className={styles.settingItem} elevation={0} variant='outlined' >
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
                                 <Typography variant="body1" className={styles.label} >{t('app.settings.language')}</Typography>
                                 <LanguageSwitcher variant='select' size='small' showLabel={false} />
                             </Stack>
                         </Paper>
+                        <SettingItem
+                            title={t('app.settings.userExperience')}
+                            type='switch'
+                            value={reportAgreement}
+                            onAction={toggleReportAgreement}
+                        />
                         {/* 檢查更新 */}
                         <Paper className={styles.settingItem} elevation={0} variant='outlined' >
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
