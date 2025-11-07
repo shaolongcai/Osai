@@ -1,0 +1,7 @@
+{
+  "title": "Programme d'amélioration de l'expérience utilisateur",
+  "primaryButtonText": "Accepter",
+  "secondaryButtonText": "Plus tard",
+  "content": "Pour mieux améliorer votre expérience et découvrir et corriger continuellement les problèmes, cette fonctionnalité téléchargera automatiquement des informations anonymes. Ces informations incluent uniquement :\n\n📌 Anomalies du programme : comme les plantages, codes d'erreur, etc.\n📌 Données de performance : comme la vitesse de téléchargement, temps de réponse des opérations, fréquence d'utilisation des fonctionnalités (anonyme), etc.\n\nCe processus ne collectera ni ne téléchargera jamais vos informations personnelles, contenu de fichiers, historique de chat, mots de passe ou historique de navigation.\n\nVous pouvez désactiver ce protocole à tout moment dans les [Paramètres]",
+  "notRemindLabel": "Ne plus afficher"
+}

@@ -1,0 +1,9 @@
+{
+  "loading": "Preparing necessary components, please wait",
+  "updateTitle": "Update Version",
+  "updateContent": "A new version is available. Do you want to update?",
+  "updatePrimary": "Update",
+  "updateSecondary": "Later",
+  "initFailed": "Initialization Failed",
+  "openLog": "Open Log"
+}

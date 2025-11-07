@@ -1,0 +1,26 @@
+{
+  "title": "或者你需要AI Mark",
+  "requireTitle": "AI Mark 将需要以下组件",
+  "successTitle": "恭喜你！ AI Mark 功能已生效",
+  "step1": {
+    "entry": "右键菜单启动AI Mark",
+    "desc": "你可以让 AI 帮你 mark 这份文件，AI 会理解与分析这份文件。后续通过 AI 的理解，你可以更容易找到这份文件：",
+    "understand": "🧠 AI理解文件：通过 AI 的理解，你可以更快也更容易地找到这份文件。",
+    "summaryImage": "🖼️ 摘要图片：真正理解图片的内容，而不仅仅只有 OCR。",
+    "ask": "📖 询问问题：你可以询问关于这份文件的问题（稍后更新）。"
+  },
+  "step2": {
+    "model": "AI 模型",
+    "cuda": "CUDA 服务（可选：用于 GPU 加速，仅当你的电脑拥有 GPU 时可选）",
+    "tips": "📌 下载大概耗时 5~10 分钟（取决于网络），下载时你仍可使用应用的其他功能。\n📌 下载时需要联网"
+  },
+  "step3": {
+    "done": "你可以试试对着文件右键，点击 AI Mark，现在 AI 会记忆你的文件！(CUDA 服务，需要重启后生效)"
+  },
+  "buttons": {
+    "next": "下一步",
+    "install": "安装",
+    "finish": "完成",
+    "later": "稍后"
+  }
+}

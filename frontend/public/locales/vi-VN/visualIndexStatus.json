@@ -1,0 +1,5 @@
+{
+  "paused": "Dịch vụ chỉ mục hình ảnh đã tạm dừng",
+  "running": "Dịch vụ OCR đã khởi động, còn lại {{count}}",
+  "finished": "Chỉ mục OCR đã hoàn thành"
+}

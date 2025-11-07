@@ -1,0 +1,8 @@
+{
+  "placeholder": "Dateinamen oder Bildzusammenfassungen suchen",
+  "button": "Suchen",
+  "results": "{{count}} Ergebnisse gefunden",
+  "noResults": "Keine Ergebnisse",
+  "noKeyword": "Bitte geben Sie ein Stichwort ein",
+  "start": "Geben Sie ein Stichwort ein, um die KI-Suche zu starten"
+}

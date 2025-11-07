@@ -53,7 +53,8 @@ class UpdateService {
         autoUpdater.autoDownload = false;
         // mac测试
         autoUpdater.allowPrerelease = true;
-        autoUpdater.allowDowngrade = true;
+        // 禁用降级更新：不允许从高版本降级到低版本
+        autoUpdater.allowDowngrade = false;
 
         // 设置架构特定的更新文件
         const updateFileName = this.getArchSpecificUpdateFile();

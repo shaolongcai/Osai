@@ -1,7 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron'); //沙箱环境，这份文件只能使用这个导入方式
 
-
-
 // 暴露安全的API给渲染进程
 contextBridge.exposeInMainWorld('electronAPI', {
     // 执行AI搜索

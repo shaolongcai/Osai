@@ -1,0 +1,18 @@
+{
+  "install": "インストール",
+  "reInstall": "再インストール",
+  "title": "設定",
+  "visualIndex": "画像インデックスを有効にする",
+  "gpuService": "GPU加速サービス",
+  "userExperience": "ユーザーエクスペリエンス改善プログラム",
+  "language": "言語",
+  "logFolder": "実行ログ",
+  "open": "開く",
+  "community": "コミュニティでフィードバックをお寄せください！",
+  "feedback": "フィードバック",
+  "checkUpdate": "更新を確認",
+  "check": "確認",
+  "checking": "確認中...",
+  "checkUpdateStatusLatest": "最新バージョンを使用しています",
+  "checkUpdateStatusNewVersion": "新しいバージョンが見つかりました{{version}}"
+}

@@ -1,0 +1,18 @@
+{
+  "install": "설치",
+  "reInstall": "재설치",
+  "title": "설정",
+  "visualIndex": "이미지 인덱싱 활성화",
+  "gpuService": "GPU 가속 서비스",
+  "userExperience": "사용자 경험 개선 프로그램",
+  "language": "언어",
+  "logFolder": "실행 로그",
+  "open": "열기",
+  "community": "커뮤니티에서 피드백을 주세요!",
+  "feedback": "피드백",
+  "checkUpdate": "업데이트 확인",
+  "check": "확인",
+  "checking": "확인 중...",
+  "checkUpdateStatusLatest": "현재 최신 버전입니다",
+  "checkUpdateStatusNewVersion": "새 버전 발견: {{version}}"
+}

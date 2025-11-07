@@ -32,6 +32,11 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [gpuSeverOpen, setGpuSeverOpen] = useState(false) //GPU服务弹窗
     const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
     const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
+    // 更新檢查相關狀態
+    const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
+    const [isCheckingUpdate, setIsCheckingUpdate] = useState(false)
+    const [latestVersion, setLatestVersion] = useState<string | null>(null)
+    const [updateStatusText, setUpdateStatusText] = useState('')
 
     const context = useContext(globalContext)
     const { t } = useTranslation()
@@ -50,6 +55,51 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             })
         }
     }, [open])
+
+    // 監聽更新狀態並在抽屜開啟時自動檢查（在非 Electron 環境下跳過）
+    useEffect(() => {
+        if (!open) {
+            window.electronAPI.removeAllListeners('update-status')
+            return
+        }
+        if (!(window as any).electronAPI) {
+            // 非 Electron 預覽環境：直接顯示最新版本提示
+            setIsCheckingUpdate(false)
+            setIsUpdateAvailable(false)
+            setLatestVersion(null)
+            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as any))
+            return
+        }
+        // 僅訂閱事件，不在此自動觸發檢查
+        window.electronAPI.onUpdateStatus((data: any) => {
+            setIsCheckingUpdate(false)
+            if (data && data.isUpdateAvailable) {
+                setIsUpdateAvailable(true)
+                setLatestVersion(String(data.version || ''))
+                setUpdateStatusText(t('app.settings.checkUpdateStatusNewVersion' as any, { version: data.version || '' }))
+            } else {
+                setIsUpdateAvailable(false)
+                setLatestVersion(null)
+                const msg = data?.message || t('app.settings.checkUpdateStatusLatest' as any)
+                setUpdateStatusText(msg)
+            }
+        })
+        return () => {
+            window.electronAPI.removeAllListeners('update-status')
+        }
+    }, [open, t])
+
+    const manualCheckUpdate = async () => {
+        if (!(window as any).electronAPI) {
+            // 非 Electron 環境：模擬檢查完成
+            setIsCheckingUpdate(false)
+            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as any))
+            return
+        }
+        setIsCheckingUpdate(true)
+        setUpdateStatusText(t('app.settings.checking' as any))
+        await window.electronAPI.checkForUpdates()
+    }
 
     // 安装GPU服务
     const installGpu = async () => {
@@ -248,6 +298,29 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
                                 <Typography variant="body1" className={styles.label} >{t('app.settings.language')}</Typography>
                                 <LanguageSwitcher variant='select' size='small' showLabel={false} />
+                            </Stack>
+                        </Paper>
+                        {/* 檢查更新 */}
+                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
+                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                <Typography variant="body1" className={styles.label} >{t('app.settings.checkUpdate' as any)}</Typography>
+                                <Stack direction='row' alignItems='center' spacing={2}>
+                                    <Typography variant="body2" color={'text.secondary'}>
+                                        {updateStatusText || t('app.settings.checkUpdateStatusLatest' as any)}
+                                    </Typography>
+                                    <Button
+                                        sx={{
+                                            '&:focus': { outline: 'none', border: 'none', boxShadow: 'none' },
+                                            '&:active': { outline: 'none', border: 'none', boxShadow: 'none' },
+                                            '&:hover': { border: 'none' }
+                                        }}
+                                        disabled={isCheckingUpdate}
+                                        variant='text'
+                                        onClick={manualCheckUpdate}
+                                    >
+                                        {t('app.settings.check' as any)}
+                                    </Button>
+                                </Stack>
                             </Stack>
                         </Paper>
                     </Stack>

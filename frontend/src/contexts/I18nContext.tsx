@@ -21,6 +21,24 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
   const [loadedLanguages, setLoadedLanguages] = useState<Set<Language>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
 
+  // 支援的模塊文件列表（對應 app 下的各子鍵）
+  const MODULE_FILES = [
+    'app',
+    'search',
+    'settings',
+    'common',
+    'language',
+    'indexing',
+    'visualIndexStatus',
+    'aiMarkStatus',
+    'preload',
+    'reportProtocol',
+    'updateTips',
+    'aiMark',
+    'contact',
+    'table',
+  ] as const;
+
   // 動態載入翻譯文件
   const loadTranslation = async (language: Language): Promise<void> => {
     if (loadedLanguages.has(language)) {
@@ -29,16 +47,74 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
 
     setIsLoading(true);
     try {
-      const response = await fetch(`./locales/${language}.json`);
-      if (response.ok) {
-        const data: TranslationKeys = await response.json();
+      // 優先嘗試新的語言/模塊目錄結構
+      const base = `./locales/${language}`;
+      const moduleResponses = await Promise.all(
+        MODULE_FILES.map(async (m) => {
+          try {
+            const r = await fetch(`${base}/${m}.json`);
+            if (r.ok) {
+              return await r.json();
+            }
+            return null;
+          } catch {
+            return null;
+          }
+        })
+      );
+
+      const hasAnyModule = moduleResponses.some((r) => r !== null);
+
+      if (hasAnyModule) {
+        // 組裝為 TranslationKeys 結構
+        const combined: any = { app: {} };
+        MODULE_FILES.forEach((m, idx) => {
+          const content = moduleResponses[idx];
+          if (!content) return;
+          if (m === 'app') {
+            combined.app = { ...combined.app, ...content };
+          } else {
+            combined.app[m] = content;
+          }
+        });
+        // 若有缺失模塊，嘗試載入舊的單檔 JSON 並做補全
+        try {
+          const legacyResp = await fetch(`./locales/${language}.json`);
+          if (legacyResp.ok) {
+            const legacy: any = await legacyResp.json();
+            const deepMerge = (target: any, source: any) => {
+              Object.keys(source).forEach((key) => {
+                if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                  if (!target[key]) target[key] = {};
+                  deepMerge(target[key], source[key]);
+                } else {
+                  if (target[key] === undefined) target[key] = source[key];
+                }
+              });
+              return target;
+            };
+            deepMerge(combined, legacy);
+          }
+        } catch {}
+
         setTranslations(prev => ({
           ...prev,
-          [language]: data
+          [language]: combined as TranslationKeys,
         }));
         setLoadedLanguages(prev => new Set([...prev, language]));
       } else {
-        console.warn(`無法載入 ${language} 翻譯文件`);
+        // 兼容舊結構：單檔 JSON
+        const response = await fetch(`./locales/${language}.json`);
+        if (response.ok) {
+          const data: TranslationKeys = await response.json();
+          setTranslations(prev => ({
+            ...prev,
+            [language]: data
+          }));
+          setLoadedLanguages(prev => new Set([...prev, language]));
+        } else {
+          console.warn(`無法載入 ${language} 翻譯文件`);
+        }
       }
     } catch (error) {
       console.error(`載入 ${language} 翻譯文件時出錯:`, error);
