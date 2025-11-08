@@ -6,12 +6,8 @@ import { ConfigName } from '../types/system.js'
 import { pinyin } from "pinyin-pro";
 import { extractIcon as extractIconNative, savePngBuffer } from '../core/iconExtractor.js';
 import * as fs from 'fs'
-import { execSync } from 'child_process';
 
 let db: Database.Database | null = null
-
-
-
 
 
 /**
@@ -260,6 +256,7 @@ export async function insertProgramInfo(programInfo: {
  * @param displayIcon
  * @param installLoc
  * @returns 返回图片png形式
+ * @todo 移动去iconExtractor文件
  */
 async function extractIcon(displayIcon: string | null, installLoc: string): Promise<string> {
   const cacheDir = pathConfig.get('iconsCache')

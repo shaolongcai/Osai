@@ -37,12 +37,13 @@ std::vector<BYTE> ConvertHIconToPng(HICON hIcon, int size) {
     g->SetPixelOffsetMode(PixelOffsetModeHighQuality);
     g->SetCompositingMode(CompositingModeSourceOver);
     g->SetCompositingQuality(CompositingQualityHighQuality);
-    g->Clear(Color(0, 0, 0, 0)); // Use a transparent background
+    g->Clear(Color(0, 0, 0, 0)); // Use a transparent white background
 
-    // Use DrawImage for high-quality scaling
-    std::unique_ptr<Bitmap> iconBitmap(Bitmap::FromHICON(hIcon));
-    if (iconBitmap) {
-        g->DrawImage(iconBitmap.get(), Rect(0, 0, size, size), 0, 0, iconBitmap->GetWidth(), iconBitmap->GetHeight(), UnitPixel);
+    // Use DrawIconEx for robust icon drawing with transparency
+    HDC hdc = g->GetHDC();
+    if (hdc) {
+        DrawIconEx(hdc, 0, 0, hIcon, size, size, 0, NULL, DI_NORMAL);
+        g->ReleaseHDC(hdc);
     }
 
     // Save the bitmap to a PNG stream
