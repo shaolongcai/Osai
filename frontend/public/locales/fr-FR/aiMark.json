@@ -1,0 +1,26 @@
+{
+  "title": "Ou peut-être avez-vous besoin d'AI Mark",
+  "requireTitle": "AI Mark nécessitera les composants suivants",
+  "successTitle": "Félicitations ! La fonction AI Mark est activée",
+  "step1": {
+    "entry": "Lancer AI Mark depuis le menu contextuel",
+    "desc": "Vous pouvez laisser l'IA marquer ce document pour vous. L'IA comprendra et analysera ce document. Grâce à la compréhension de l'IA, vous pouvez trouver ce document plus facilement :",
+    "understand": "🧠 IA comprend le document : Grâce à la compréhension de l'IA, vous pouvez trouver ce document plus rapidement et plus facilement.",
+    "summaryImage": "🖼️ Résumé d'image : Comprend réellement le contenu de l'image, pas seulement l'OCR.",
+    "ask": "📖 Poser des questions : Vous pouvez poser des questions sur ce document (mise à jour ultérieure)."
+  },
+  "step2": {
+    "model": "Modèle IA",
+    "cuda": "Service CUDA (optionnel : pour l'accélération GPU, uniquement si votre ordinateur possède un GPU)",
+    "tips": "📌 Le téléchargement prend environ 5 à 10 minutes (selon le réseau), vous pouvez toujours utiliser d'autres fonctions de l'application pendant le téléchargement.\n📌 Une connexion réseau est requise pendant le téléchargement."
+  },
+  "step3": {
+    "done": "Vous pouvez essayer de faire un clic droit sur le fichier, sélectionner AI Mark, maintenant l'IA se souviendra de votre fichier ! (Le service CUDA nécessite un redémarrage pour être effectif)"
+  },
+  "buttons": {
+    "next": "Suivant",
+    "install": "Installer",
+    "finish": "Terminer",
+    "later": "Plus tard"
+  }
+}

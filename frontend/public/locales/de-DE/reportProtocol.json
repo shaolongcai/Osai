@@ -1,0 +1,7 @@
+{
+  "title": "Programm zur Verbesserung der Benutzererfahrung",
+  "primaryButtonText": "Zustimmen",
+  "secondaryButtonText": "Später",
+  "content": "Zur besseren Verbesserung Ihrer Erfahrung und kontinuierlichen Entdeckung und Behebung von Problemen wird diese Funktion automatisch anonyme Informationen hochladen. Diese Informationen enthalten nur:\n\n📌 Programm-Anomalien: wie Abstürze, Fehlercodes usw.\n📌 Leistungsdaten: wie Download-Geschwindigkeit, Reaktionszeit von Operationen, Häufigkeit der Funktionsnutzung (anonym) usw.\n\nDieser Prozess sammelt oder lädt niemals Ihre persönlichen Identifikationsinformationen, Dateiinhalte, Chat-Verlauf, Passwörter oder Browser-Verlauf hoch.\n\nSie können dieses Protokoll jederzeit in den [Einstellungen] deaktivieren",
+  "notRemindLabel": "Nicht mehr anzeigen"
+}

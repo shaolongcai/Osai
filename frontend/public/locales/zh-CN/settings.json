@@ -1,0 +1,18 @@
+{
+  "install": "安装",
+  "reInstall": "重新安装",
+  "title": "设置",
+  "visualIndex": "开启图片索引",
+  "gpuService": "GPU加速服务",
+  "userExperience": "用户体验改进计划",
+  "language": "语言",
+  "logFolder": "运行日志",
+  "open": "打开",
+  "community": "在社区中，给予我们反馈吧！",
+  "feedback": "反馈",
+  "checkUpdate": "检查更新",
+  "check": "检查",
+  "checking": "检查中...",
+  "checkUpdateStatusLatest": "目前已是最新版本",
+  "checkUpdateStatusNewVersion": "发现新版本：{{version}}"
+}

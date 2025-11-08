@@ -1,0 +1,13 @@
+{
+  "columns": {
+    "name": "Tên tệp",
+    "path": "Đường dẫn",
+    "modifiedAt": "Thời gian sửa đổi",
+    "fileType": "Loại tệp"
+  },
+  "menu": {
+    "openFile": "Mở tệp",
+    "openFolder": "Mở thư mục",
+    "aiMark": "🔥 AI Mark"
+  }
+}

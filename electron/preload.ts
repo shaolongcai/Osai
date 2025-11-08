@@ -1,7 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron'); //沙箱环境，这份文件只能使用这个导入方式
 
-
-
 // 暴露安全的API给渲染进程
 contextBridge.exposeInMainWorld('electronAPI', {
     // 执行AI搜索
@@ -26,6 +24,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getConfig: (key?: string) => ipcRenderer.invoke('get-config', key),  // 获取用户配置
     installGpuServer: () => ipcRenderer.invoke('install-gpu-server'), // 安装GPU服务
     installAiServer: (withCuda: boolean) => ipcRenderer.invoke('install-ai-server', withCuda), // 安装AI服务(AI Mark),whiteCuda:是否安装CUDA
+    updateTrayLanguage: (language: string) => ipcRenderer.send('update-tray-language', language), // 更新托盘菜单语言
 
     // 更新相关
     checkForUpdates: () => ipcRenderer.invoke('check-for-updates'), // 检查
@@ -58,6 +57,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // AImark组件安装监听
     onAiSeverInstalled: (callback) => {
         ipcRenderer.on('ai-sever-installed', (event, data) => callback(data));
+    },
+    // 導航到設定頁面監聽
+    onNavigateToSettings: (callback) => {
+        ipcRenderer.on('navigate-to-settings', (event, data) => callback(data));
+    },
+    // 語言更改監聽
+    onLanguageChanged: (callback) => {
+        ipcRenderer.on('language-changed', (event, language) => callback(language));
     },
 
     

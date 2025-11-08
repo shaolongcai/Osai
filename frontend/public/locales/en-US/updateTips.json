@@ -1,0 +1,5 @@
+{
+  "title": "Version Update Introduction",
+  "primaryButtonText": "Got it",
+  "content": "📌 New AI Mark feature: Let AI remember any file for you, so you can find files faster later, or ask questions.\n📌 OCR feature: To save computer resources, visual indexing is now provided by OCR service: it only extracts text from images, no longer uses AI models to summarize images. If needed, you can use AI Mark on images.\n📌 Added right-click menu: You can right-click on search results to use AI Mark."
+}

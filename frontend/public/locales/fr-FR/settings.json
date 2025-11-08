@@ -1,0 +1,18 @@
+{
+  "install": "Installer",
+  "reInstall": "Réinstaller",
+  "title": "Paramètres",
+  "visualIndex": "Activer l'indexation d'images",
+  "gpuService": "Service d'accélération GPU",
+  "userExperience": "Programme d'amélioration de l'expérience utilisateur",
+  "language": "Langue",
+  "logFolder": "Journaux d'exécution",
+  "open": "Ouvrir",
+  "community": "Donnez-nous votre avis dans la communauté !",
+  "feedback": "Retour",
+  "checkUpdate": "Vérifier les mises à jour",
+  "check": "Vérifier",
+  "checking": "Vérification...",
+  "checkUpdateStatusLatest": "Vous avez la dernière version",
+  "checkUpdateStatusNewVersion": "Nouvelle version disponible : {{version}}"
+}

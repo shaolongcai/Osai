@@ -1,0 +1,13 @@
+{
+  "columns": {
+    "name": "Dateiname",
+    "path": "Pfad",
+    "modifiedAt": "Änderungszeit",
+    "fileType": "Dateityp"
+  },
+  "menu": {
+    "openFile": "Datei öffnen",
+    "openFolder": "Ordner öffnen",
+    "aiMark": "🔥 AI Mark"
+  }
+}

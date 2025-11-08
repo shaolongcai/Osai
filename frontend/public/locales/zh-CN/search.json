@@ -1,0 +1,8 @@
+{
+  "placeholder": "搜索文件名称或者图片摘要",
+  "button": "搜索",
+  "results": "共搜索到 {{count}} 条结果",
+  "noResults": "没有结果",
+  "noKeyword": "请输入关键词",
+  "start": "输入关键词，开始AI搜索"
+}

@@ -26,8 +26,13 @@ const Preload = () => {
     // 新增：是否为 Electron 环境
     const isElectron = typeof window !== 'undefined' && (window as any).electronAPI;
 
-    // 检查是否有更新， 考虑用wait - promise 去处理三个事情： 1、检查更新版本，2、同意协议，3、初始化服务
+    // 检查是否有更新（兼容非 Electron 环境）
     useEffect(() => {
+        if (!(window as any).electronAPI) {
+            // 非 Electron 环境：跳过更新检查，直接进入协议判断
+            setIsCheckUpdate(true);
+            return;
+        }
         // 监听更新
         window.electronAPI.onUpdateStatus(async (data) => {
             console.log('更新信息', data)

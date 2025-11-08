@@ -1,0 +1,18 @@
+{
+  "install": "安裝",
+  "reInstall": "重新安裝",
+  "title": "設定",
+  "visualIndex": "開啟圖片索引",
+  "gpuService": "GPU 加速服務",
+  "userExperience": "使用者體驗改進計畫",
+  "language": "語言",
+  "logFolder": "執行記錄",
+  "open": "開啟",
+  "community": "在社群中，給予我們回饋吧！",
+  "feedback": "回饋",
+  "checkUpdate": "檢查更新",
+  "check": "檢查",
+  "checking": "檢查中...",
+  "checkUpdateStatusLatest": "目前已是最新版本",
+  "checkUpdateStatusNewVersion": "發現新版本：{{version}}"
+}
