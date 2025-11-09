@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
+import pathConfig from './pathConfigs.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,7 +28,7 @@ async function loadNativeModule(): Promise<NativeIconModule | null> {
     const require = createRequire(import.meta.url);
 
     // 新的模块路径 (推荐使用)
-    const modulePath = path.join(__dirname, '../native/dist/win32-x64-139/icon_extractor.node');
+    const modulePath = pathConfig.get('iconExtractor')
 
     try {
       if (fs.existsSync(modulePath)) {

@@ -57,7 +57,7 @@ function createWindow() {
     mainWindow.webContents.openDevTools(); //打开开发者工具
   } else {
     mainWindow.loadFile(path.join(__dirname, '../frontend/dist/index.html'));
-    
+
     // 生產環境：屏蔽開發者工具快捷鍵
     mainWindow.webContents.on('before-input-event', (event, input) => {
       // 屏蔽 Ctrl+Shift+I (Windows/Linux) 和 Cmd+Option+I (macOS)
@@ -124,7 +124,7 @@ function createSearchBar() {
     win.webContents.openDevTools(); //打开开发者工具
   } else {
     win.loadFile(path.join(__dirname, '../frontend/dist/search-bar.html'));
-    
+
     // 生產環境：屏蔽開發者工具快捷鍵
     win.webContents.on('before-input-event', (event, input) => {
       // 屏蔽 Ctrl+Shift+I (Windows/Linux) 和 Cmd+Option+I (macOS)
@@ -155,14 +155,14 @@ function createSearchBar() {
 // 更新托盤菜單語言
 function updateTrayMenu(language?: string) {
   if (!tray) return;
-  
+
   // 如果沒有提供語言，則獲取當前語言設置
   const currentLanguage = language || getAppLanguage();
   const t = loadTrayTranslations(currentLanguage);
-  
+
   // 更新托盤提示文本
   tray.setToolTip(t.tooltip);
-  
+
   // 重新創建托盤菜單
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -215,7 +215,7 @@ function updateTrayMenu(language?: string) {
       }
     }
   ]);
-  
+
   tray.setContextMenu(contextMenu);
   logger.info(`托盤菜單已更新為語言: ${currentLanguage}`);
 }
@@ -242,7 +242,7 @@ function loadTrayTranslations(language: string): any {
     const localesPath = isDev
       ? path.join(__dirname, '../frontend/public/locales', language, 'tray.json')
       : path.join(__dirname, '../frontend/dist/locales', language, 'tray.json');
-    
+
     const translationData = readFileSync(localesPath, 'utf-8');
     return JSON.parse(translationData);
   } catch (error) {
@@ -275,19 +275,19 @@ function createTray() {
   const language = getAppLanguage();
   // 加載翻譯
   const t = loadTrayTranslations(language);
-  
+
   // 獲取托盤圖標路徑
-  const iconPath = isDev 
+  const iconPath = isDev
     ? path.join(__dirname, '../electron/resources/assets/icon.png')
     : path.join(__dirname, 'resources/assets/icon.png');
-  
+
   // 創建托盤圖標
   const icon = nativeImage.createFromPath(iconPath);
   tray = new Tray(icon.resize({ width: 16, height: 16 }));
-  
+
   // 設置托盤提示文本
   tray.setToolTip(t.tooltip);
-  
+
   // 創建托盤菜單
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -343,16 +343,16 @@ function createTray() {
       }
     }
   ]);
-  
+
   // 設置托盤菜單
   tray.setContextMenu(contextMenu);
-  
+
   // 雙擊托盤圖標顯示主窗口
   tray.on('double-click', () => {
     mainWindow?.show();
     mainWindow?.focus();
   });
-  
+
   // 單擊托盤圖標顯示搜索框（Windows系統）
   if (process.platform === 'win32') {
     tray.on('click', () => {
@@ -428,7 +428,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) || true) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();
@@ -475,7 +475,7 @@ app.whenReady().then(() => {
   initializeFileApi(mainWindow);
   initializeUpdateApi()
   initializeSystemApi()
-  
+
   // 監聽托盤菜單語言更新
   ipcMain.on('update-tray-language', (_event, language: string) => {
     updateTrayMenu(language);
@@ -487,7 +487,7 @@ app.whenReady().then(() => {
       mainWindow.webContents.send('language-changed', language);
     }
   });
-  
+
   // 注册全局快捷键
   const shortcut = 'Alt+Space'; // 可改
   registerGlobalShortcut(shortcut);
@@ -534,6 +534,7 @@ app.on('before-quit', () => {
     tray.destroy();
   }
   // 清理后端进程
+  ollamaService.stop();
 });
 
 

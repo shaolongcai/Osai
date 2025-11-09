@@ -22,6 +22,8 @@ interface PathsConfig {
     temp: string;
     ollamaPath: string;
     iconsCache: string;
+    iconExtractor: string;
+    getPrograms: string;
 }
 
 /**
@@ -40,7 +42,7 @@ class PathConfig {
     private paths: PathsConfig;
     private resources: string;
     private ollamaPath: string;
-    private iconsCache: string;
+    private iconExtractor: string;
 
 
     constructor() {
@@ -53,7 +55,11 @@ class PathConfig {
         this.appDataPath = path.join(this.userHome, this.baseAppDir);
         this.resources = app && app.isPackaged ? process.resourcesPath : path.join(__dirname, '../../electron/', 'resources'),   // 资源文件
             this.paths = null;
-        this.ollamaPath = platform === 'win32' ? path.join(this.resources, 'ollama', 'ollama.exe') : path.join(this.resources, 'ollama','Resources', 'ollama');
+        this.ollamaPath = platform === 'win32' ? path.join(this.resources, 'ollama', 'ollama.exe') : path.join(this.resources, 'ollama', 'Resources', 'ollama');
+        // C++ 提取图标执行文件
+        this.iconExtractor = app.isPackaged ?
+            path.join(this.resources, 'native', 'dist', 'win32-x64-139', 'icon_extractor.node')
+            : path.join(__dirname, '..', 'native', 'dist', 'win32-x64-139', 'icon_extractor.node')
 
         // 初始化所有路径
         this._initializePaths();
@@ -87,6 +93,13 @@ class PathConfig {
 
             // 图标缓存目录
             iconsCache: path.join(this.appDataPath, 'iconsCache'),
+
+            // 图标提取器
+            iconExtractor: this.iconExtractor,
+
+            // 程序列表脚本(后期归到服务脚本文件夹)
+            getPrograms: path.join(this.resources, 'get_programs.ps1'),
+
         };
 
         //确保所有目录都存在

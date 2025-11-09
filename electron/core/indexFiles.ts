@@ -224,6 +224,8 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         });
         const extensions = new Set(extToFileMap.keys());
         logger.info(`找到 ${extensions.size} 个不同的扩展名`);
+
+        
         // 对每个扩展名,提取图标
         for (const ext of extensions) {
             // 检查扩展名是否在支持的格式中
@@ -274,6 +276,37 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 }
 
 
+// 获取图标线程 （暂时不用）
+async function extractIconsInWorker(extToFileMap: Map<string, string>): Promise<void> {
+  return new Promise((resolve, reject) => {
+
+    const workerPath = path.join(__dirname, '../workers/icon.worker.js');
+    const worker = new Worker(workerPath,  {
+                // workerData: { drive, dbPath, excludedDirNames: excludedDirNamesArray }
+            });
+
+    worker.on('message', (msg: any) => {
+      if (msg?.type === 'done') {
+        worker.terminate();
+        resolve();
+      }
+      if (msg?.type === 'error') {
+        // 记录错误，不阻塞其他扩展的处理
+        console.error('图标提取线程错误:', msg.error);
+      }
+    });
+
+    worker.on('error', (err) => {
+      console.error('图标提取线程崩溃:', err);
+      worker.terminate();
+      reject(err);
+    });
+
+    worker.postMessage({ extToFileMap: Object.fromEntries(extToFileMap) });
+  });
+}
+
+
 /**
  * 获取Windows已安装程序列表
  * @returns 已安装程序信息数组
@@ -281,7 +314,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 const getInstalledPrograms = () => {
     try {
         logger.info('正在获取Windows已安装程序列表...');
-        const ps1Path = path.join(__dirname, '../resources/get_programs.ps1');
+        const ps1Path = pathConfig.get('getPrograms');
         // 兼容中文应用程序 chcp 65001
         const output = execSync(`chcp 65001 | powershell -ExecutionPolicy Bypass -File "${ps1Path}"`, {
             encoding: 'buffer'

@@ -115,6 +115,14 @@
       {
         "from": "dist-electron/resources/app-update.yml",
         "to": "app-update.yml"
+      },
+      {
+        "from": "dist-electron/resources/get_programs.ps1",
+        "to": "get_programs.ps1"
+      },
+      {
+        "from": "electron/native/dist",
+        "to": "native/dist"
       }
     ],
     "directories": {
@@ -188,80 +196,5 @@
   "author": {
     "name": "蔡包",
     "email": "your.email@example.com"
-  },
-  "config": {
-    "forge": {
-      "packagerConfig": {
-        "name": "Osai",
-        "executableName": "Osai",
-        "prune": true,
-        "quiet": false,
-        "icon": "./dist-electron/resources/assets/logo-256",
-        "extraFiles": [
-          {
-            "from": "electron/resources/redist",
-            "to": ".",
-            "filter": [
-              "**/*"
-            ]
-          }
-        ],
-        "asar": {
-          "unpack": "**/node_modules/@lancedb/**"
-        },
-        "extraResource": [
-          "dist-electron/resources/Ollama",
-          "dist-electron/resources/elevate.exe",
-          "dist-electron/resources/app-update.yml"
-        ],
-        "ignore": [
-          "dev-app-update.yml",
-          "updatePack",
-          "electron/resources/pythonScript",
-          "electron/resources/check_gpu.py",
-          "electron/resources/get-pip.py",
-          "electron/resources/Ollama",
-          "dist-electron/resources/Ollama/lib/ollama/cuda_v12",
-          "frontend/node_modules",
-          "frontend/src",
-          "^/electron($|/)",
-          "^/frontend/(?!dist($|/))",
-          "^/\\.git($|/)",
-          "^/\\.vscode($|/)",
-          "\\.log$",
-          "^/node_modules/\\.cache($|/)",
-          "__pycache__",
-          "^/venv($|/)"
-        ]
-      },
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "Osai"
-          }
-        }
-      ],
-      "publishers": [],
-      "plugins": [
-        {
-          "name": "@electron-forge/plugin-auto-unpack-natives",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/plugin-fuses",
-          "config": {
-            "version": "1",
-            "resetAdHocDarwinSignature": false,
-            "[FuseV1Options.RunAsNode]": false,
-            "[FuseV1Options.EnableCookieEncryption]": true,
-            "[FuseV1Options.EnableNodeOptionsEnvironmentVariable]": false,
-            "[FuseV1Options.EnableNodeCliInspectArguments]": false,
-            "[FuseV1Options.EnableEmbeddedAsarIntegrityValidation]": true,
-            "[FuseV1Options.OnlyLoadAppFromAsar]": true
-          }
-        }
-      ]
-    }
   }
 }
