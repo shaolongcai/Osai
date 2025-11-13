@@ -1,5 +1,5 @@
 {
   "title": "Version Update Introduction",
   "primaryButtonText": "Got it",
-  "content": "📌 New AI Mark feature: Let AI remember any file for you, so you can find files faster later, or ask questions.\n📌 OCR feature: To save computer resources, visual indexing is now provided by OCR service: it only extracts text from images, no longer uses AI models to summarize images. If needed, you can use AI Mark on images.\n📌 Added right-click menu: You can right-click on search results to use AI Mark."
+  "content": "📌 New hotkey: You can now press Alt+Space to summon the hotkey and find files more easily; press ESC or the hotkey again to hide.\n📌 New system tray: Closing the app now minimizes it to the system tray in the bottom-right corner. You can find the osai icon there and right-click to exit. While minimized to tray, you can still summon the hotkey anytime.\n📌 Expanded search categories: You can now search for folders and applications in the search bar summoned by the hotkey."
 }

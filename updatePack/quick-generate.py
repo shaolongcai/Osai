@@ -40,48 +40,64 @@ def find_exe_files():
     return found_files
 
 
+def compute_sha512(file_path: str) -> str:
+    """计算指定文件的 sha512（base64）"""
+    sha512_hash = hashlib.sha512()
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b''):
+            sha512_hash.update(chunk)
+    return base64.b64encode(sha512_hash.digest()).decode('utf-8')
+
+
 def generate_update_info():
     """快速生成更新信息"""
-    
     exe_files = find_exe_files()
     if not exe_files:
         print("❌ 未找到任何 EXE 文件")
         return
 
     target_file = exe_files[0]
-    
-    # 计算SHA512
-    print("🔄 计算SHA512...")
-    sha512_hash = hashlib.sha512()
-    with open(target_file, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha512_hash.update(chunk)
-    
-    sha512 = base64.b64encode(sha512_hash.digest()).decode('utf-8')
-    file_size = os.path.getsize(target_file)
     file_name = os.path.basename(target_file)
+
+    # 计算安装包 sha512
+    sha512 = compute_sha512(target_file)
+    file_size = os.path.getsize(target_file)
     current_time = datetime.utcnow().isoformat() + 'Z'
-    
-    # 生成YAML内容
+
+    # 可选差分：如果有 .blockmap，则也加入 latest.yml
+    blockmap_path = target_file + '.blockmap'
+    blockmap_entry = ""
+    if os.path.exists(blockmap_path):
+        blockmap_sha512 = compute_sha512(blockmap_path)
+        blockmap_size = os.path.getsize(blockmap_path)
+        blockmap_name = os.path.basename(blockmap_path)
+        blockmap_entry = f"""
+    - url: {blockmap_name}
+      sha512: {blockmap_sha512}
+      size: {blockmap_size}"""
+
+    # 生成YAML内容（包含 .exe 与可选 .blockmap）
     yml_content = f"""version: {NEW_VERSION}
 files:
     - url: {file_name}
       sha512: {sha512}
-      size: {file_size}
+      size: {file_size}{blockmap_entry}
 path: {file_name}
 sha512: {sha512}
 releaseDate: '{current_time}'"""
-    
+
     # 写入文件
     yml_path = os.path.join(out_dir, 'latest.yml')
     with open(yml_path, 'w', encoding='utf-8') as f:
         f.write(yml_content)
-    
+
     print("✅ 生成完成!")
     print(f"📦 文件: {file_name}")
     print(f"🏷️  版本: {NEW_VERSION}")
     print(f"📏 大小: {file_size:,} bytes")
     print(f"🔐 SHA512: {sha512[:32]}...")
+    if os.path.exists(blockmap_path):
+        print(f"🧩 差分: {os.path.basename(blockmap_path)} 已写入")
 
 if __name__ == "__main__":
     generate_update_info()

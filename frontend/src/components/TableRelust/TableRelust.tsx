@@ -40,6 +40,7 @@ const TableRelust: React.FC<Props> = ({
     setSortConfig,
 }) => {
 
+    const [isShowAIMark, setIsShowAIMark] = useState(true); // 是否显示AImark功能
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
@@ -316,6 +317,11 @@ const TableRelust: React.FC<Props> = ({
             };
             // 处理右键菜单
             const handleRowContextMenu = (event: React.MouseEvent) => {
+                setIsShowAIMark(true);
+                // 文件夹不显示AI mark
+                if (!item.ext) {
+                    setIsShowAIMark(false);
+                }
                 handleContextMenu(event, item);
             };
             return <TableRow {...rest} onClick={handleRowClick} onContextMenu={handleRowContextMenu} />;
@@ -386,9 +392,12 @@ const TableRelust: React.FC<Props> = ({
             >
                 <MenuItem sx={{ fontSize: '14px' }} onClick={() => handleMenuItemClick('openFile')}>{t('app.table.menu.openFile')}</MenuItem>
                 <MenuItem sx={{ fontSize: '14px' }} onClick={() => handleMenuItemClick('openFolder')}>{t('app.table.menu.openFolder')}</MenuItem>
-                <MenuItem sx={{ fontSize: '14px', color: '#FF4D4F' }} onClick={() => handleMenuItemClick('aiMark')}>
-                    {t('app.table.menu.aiMark')}
-                </MenuItem>
+                {
+                    isShowAIMark &&
+                    <MenuItem sx={{ fontSize: '14px', color: '#FF4D4F' }} onClick={() => handleMenuItemClick('aiMark')}>
+                        {t('app.table.menu.aiMark')}
+                    </MenuItem>
+                }
             </Menu>
         </ClickAwayListener>
     </Box>

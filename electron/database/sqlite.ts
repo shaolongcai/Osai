@@ -225,21 +225,23 @@ export async function insertProgramInfo(programInfo: {
     const pinyinArray = pinyin(programInfo.DisplayName, { toneType: "none", type: "array" }); // ["han", "yu", "pin", "yin"]
     const pinyinHead = pinyinArray.map((item) => item[0]).join("");
 
-    // console.log(pinyinArray);
-    // console.log(pinyinHead);
-
     // 解析图标
     const programIcon = await extractIcon(
       programInfo.DisplayIcon,          // 可能 null / "C:\\xxx.exe,0"
       programInfo.InstallLocation,      // 备用目录
     );
 
+    //  这里需要加一个判断，如果有 C:\PROGRA~1\DIFX\0169CE3A95F06636\DPInst64.exe,0 ，这种形式的需要取第一个
+    if (programInfo.DisplayIcon?.includes(',')) {
+      programInfo.DisplayIcon = programInfo.DisplayIcon.split(',')[0].trim()
+    }
+
     stmt.run(
       programInfo.DisplayName,
       pinyinArray.join(""),
       pinyinHead,
       programInfo.Publisher,
-      programInfo.InstallLocation || programInfo.DisplayIcon,
+      programInfo.DisplayIcon || programInfo.InstallLocation,
       programIcon,
     );
 

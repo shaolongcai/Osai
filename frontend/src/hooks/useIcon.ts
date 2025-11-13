@@ -8,13 +8,14 @@ import folderIcon from '@/assets/icons/folder.svg';
  * @returns 图标的 base64 数据 URL 或占位符
  */
 export const useIcon = (iconPath?: string, ext?: string) => {
-    const [iconSrc, setIconSrc] = useState<string>(placeholder);
+    const [iconSrc, setIconSrc] = useState<string>(folderIcon);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
 
         const loadIcon = async () => {
+            // 例如这种 首相.Yes.Prime.Minister.S01.1986.2160p.WEB-DL.H265.AAC-SeeWEB ，扩展名会变成 .AAC-SeeWEB
             // 默认图标
             if (!iconPath && ext === '.exe') {
                 setIconSrc(placeholder);
@@ -34,7 +35,7 @@ export const useIcon = (iconPath?: string, ext?: string) => {
                 if (base64Data) {
                     setIconSrc(base64Data);
                 } else {
-                    setIconSrc(placeholder);
+                    setIconSrc(folderIcon); // 成功，但是没有base64Data为文件夹
                     setError('图标加载失败');
                 }
             } catch (err) {

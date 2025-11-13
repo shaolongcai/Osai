@@ -1,8 +1,0 @@
-version: 0.3.0
-files:
-  - url: Osai-0.3.0-arm64-mac.zip
-    sha512: cnLZVqksipF2azlBByaG3EI6uLlziSJwjkEvruTGAOS8ff0yQRAWIR5Rt9stvEJ8d+YixcaNluE0PibRMR4AKw==
-    size: 181905779
-path: Osai-0.3.0-arm64-mac.zip
-sha512: cnLZVqksipF2azlBByaG3EI6uLlziSJwjkEvruTGAOS8ff0yQRAWIR5Rt9stvEJ8d+YixcaNluE0PibRMR4AKw==
-releaseDate: '2025-10-19T10:22:49.109225Z'
