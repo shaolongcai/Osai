@@ -1,0 +1,9 @@
+{
+  "loading": "必要なコンポーネントを準備しています、しばらくお待ちください",
+  "updateTitle": "バージョン更新",
+  "updateContent": "新しいバージョンが見つかりました。更新しますか？",
+  "updatePrimary": "更新",
+  "updateSecondary": "後で",
+  "initFailed": "初期化に失敗しました",
+  "openLog": "ログを開く"
+}

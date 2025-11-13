@@ -1,0 +1,18 @@
+{
+  "install": "Cài đặt",
+  "reInstall": "Cài đặt lại",
+  "title": "Cài đặt",
+  "visualIndex": "Kích hoạt lập chỉ mục hình ảnh",
+  "gpuService": "Dịch vụ tăng tốc GPU",
+  "userExperience": "Chương trình cải thiện trải nghiệm người dùng",
+  "language": "Ngôn ngữ",
+  "logFolder": "Nhật ký thực thi",
+  "open": "Mở",
+  "community": "Trong cộng đồng, hãy cho chúng tôi phản hồi!",
+  "feedback": "Phản hồi",
+  "checkUpdate": "Kiểm tra cập nhật",
+  "check": "Kiểm tra",
+  "checking": "Đang kiểm tra...",
+  "checkUpdateStatusLatest": "Bạn đang dùng phiên bản mới nhất",
+  "checkUpdateStatusNewVersion": "Đã tìm thấy phiên bản mới:{{version}}"
+}

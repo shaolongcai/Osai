@@ -18,7 +18,7 @@ const Contact: React.FC<Props> = ({ title }) => {
         {displayTitle}
       </Typography>
       <Link
-        href='https://discord.gg/JadKcXmN'
+        href='https://discord.gg/qJHfsGXTzP'
         target='_blank'
         className={styles.link}
         underline='none'

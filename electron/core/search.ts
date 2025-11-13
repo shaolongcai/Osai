@@ -2,52 +2,15 @@ import pathConfig from './pathConfigs.js';
 import { getDatabase } from '../database/sqlite.js';
 import { logger } from './logger.js';
 import { waitForModelReady } from './appState.js';
-import { SearchPrompt } from '../data/prompt.js';
 
 
-/**
- * 计算两个字符串之间的 Levenshtein 距离。
- * Levenshtein 距离是指两个字符串之间，由一个转成另一个所需的最少编辑操作次数。
- * 编辑操作包括：插入、删除、替换。
- * 这个函数可以用来实现模糊搜索，比如拼写错误修正。
- * @param s1 第一个字符串
- * @param s2 第二个字符串
- * @returns 两个字符串之间的 Levenshtein 距离
- */
-function levenshteinDistance(s1: string, s2: string): number {
-    s1 = s1.toLowerCase();
-    s2 = s2.toLowerCase();
-
-    const costs = new Array();
-    for (let i = 0; i <= s1.length; i++) {
-        let lastValue = i;
-        for (let j = 0; j <= s2.length; j++) {
-            if (i == 0) {
-                costs[j] = j;
-            } else {
-                if (j > 0) {
-                    let newValue = costs[j - 1];
-                    if (s1.charAt(i - 1) != s2.charAt(j - 1)) {
-                        newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-                    }
-                    costs[j - 1] = lastValue;
-                    lastValue = newValue;
-                }
-            }
-        }
-        if (i > 0) {
-            costs[s2.length] = lastValue;
-        }
-    }
-    return costs[s2.length];
-}
 
 /**
  * 搜索文件，支持模糊搜索和近似搜索。
  * @param searchTerm 搜索关键词
  * @returns 匹配到的文件列表，按匹配度排序
  */
-export function searchFiles(searchTerm: string): SearchResult {
+export function searchFiles(searchTerm: string, isAiMark?: boolean, limit?: number): SearchResult {
     if (!searchTerm) {
         return {
             data: [],
@@ -68,32 +31,115 @@ export function searchFiles(searchTerm: string): SearchResult {
     // 2. 从数据库中获取所有文件名
     // 注意：如果文件数量非常多（例如超过几十万），一次性加载到内存中可能会有性能问题。
     // 使用 SQL LIKE 进行模糊匹配，% 通配符表示匹配任意字符
-    const stmt = db.prepare('SELECT id,path, name,modified_at,ext,summary,ai_mark FROM files WHERE name LIKE ? OR summary LIKE ? OR tags LIKE ?');
+    const stmt = db.prepare(`
+        SELECT id,path, name,modified_at,ext,summary,ai_mark 
+        FROM files
+        WHERE name LIKE ? 
+        OR summary LIKE ? 
+        OR tags LIKE ?
+        ${isAiMark ? 'AND ai_mark = 1' : ''}
+        ORDER BY 
+        CASE 
+          WHEN ai_mark = 1 THEN 0 
+          WHEN name LIKE ? THEN 1
+          WHEN summary LIKE ? THEN 2
+          ELSE 3
+        END,
+        name
+        ${limit ? `LIMIT ${limit}` : ''}
+        `);
     const searchPattern = `%${searchTerm}%`;
-    const allFiles = stmt.all(searchPattern, searchPattern, searchPattern) as SearchDataItem[];
+    const exactPattern = `${searchTerm}%`; // WHEN display_name LIKE ? THEN 1 ：前面匹配优先
+    const allFiles = stmt.all(searchPattern, searchPattern, searchPattern, exactPattern, exactPattern) as SearchDataItem[];
 
     return {
         data: allFiles,
         total: allFiles.length,
     };
-
-
-    // 3. 使用 Levenshtein 距离进行模糊匹配
-    // const results = allFiles
-    //     .map(file => {
-    //         // 我们只对文件名（不含扩展名）进行比较
-    //         const fileNameWithoutExt = path.parse(file.name).name;
-    //         const distance = levenshteinDistance(searchTerm, fileNameWithoutExt);
-    //         return { ...file, distance };
-    //     })
-    //     .filter(file => {
-    //         // 4. 设置一个阈值，距离越小表示匹配度越高
-    //         // 这里的策略是：允许的编辑距离最多为2，或者不超过搜索词长度的三分之一
-    //         const threshold = Math.floor(searchTerm.length / 3);
-    //         return file.distance <= Math.min(2, threshold);
-    //     })
-    //     .sort((a, b) => a.distance - b.distance); // 5. 按距离排序，最匹配的在前面
 }
+
+
+/**
+ * 快捷搜索
+ * @returns 1、匹配的应用程序，2、匹配的带有AI Mark的文件 3、普通文件
+ */
+export function shortSearch(keyword: string): shortSearchResult {
+    if (!keyword) {
+        return {
+            data: [],
+            total: 0,
+        };
+    }
+    // 搜索应用程序
+    const programs = searchPrograms(keyword);
+    // console.log('搜索到的程序', programs);
+    // 搜索拥有AI Mark的文件
+    const aiFiles = searchFiles(keyword, true, 5);
+    // 构造返回的data
+    const programsData = programs.map(item => ({
+        id: item.id,
+        icon: item.display_icon,
+        name: item.display_name,
+        path: item.path || '',
+        ext: '.exe'
+    }));
+
+    // 构造返回的data
+    const aiFilesData = aiFiles.data.map(item => ({
+        id: item.id,
+        name: item.name,
+        path: item.path || '',
+        ext: item.ext || '', //没有ext则为文件夹
+    }));
+
+    return {
+        data: [...programsData, ...aiFilesData],
+        total: programsData.length + aiFiles.total,
+    };
+}
+
+
+
+/**
+ * 搜索程序（包括已安装程序和快捷方式）
+ * @param keyword 搜索关键词
+ * @returns 匹配的程序列表
+ */
+export function searchPrograms(keyword: string, limit: number = 5): searchProgramItem[] {
+    try {
+        const database = getDatabase();
+        const stmt = database.prepare(`
+      SELECT * FROM programs 
+      WHERE display_name LIKE ? OR publisher LIKE ? OR full_pinyin LIKE ? OR head_pinyin LIKE ?
+      ORDER BY 
+        CASE 
+          WHEN display_name LIKE ? THEN 1
+          WHEN display_name LIKE ? THEN 2
+          ELSE 3
+        END,
+        display_name
+      LIMIT ?
+    `);
+
+        const searchPattern = `%${keyword}%`;
+        const exactPattern = `${keyword}%`; // WHEN display_name LIKE ? THEN 1 ：前面匹配优先
+
+        return stmt.all(searchPattern, searchPattern, exactPattern, exactPattern, exactPattern, searchPattern, limit) as searchProgramItem[];
+    } catch (error) {
+        logger.error(`搜索程序失败: ${error}`);
+        return [];
+    }
+}
+
+
+
+
+// ------------------------ 以下代码暂时无用 ----------------------------
+
+
+
+
+
 
 
 /**
@@ -190,6 +236,8 @@ export async function aiSearch(query: string): Promise<SearchResult> {
 }
 
 
+
+
 /**
  * 步骤二：通关关键词及类型搜索
  */
@@ -262,6 +310,8 @@ export async function searchByKeywordsAndExt(keywords: string[], ext: string[]):
 
 
 
+
+
 // 辅助函数：转义正则表达式中的特殊字符，防止关键词本身包含如“+”、“.”等符号时出错
 const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /**
@@ -329,28 +379,6 @@ export async function checkRelevance(files: any[], query: string, keywords: stri
     } catch (error) {
         const msg = error instanceof Error ? error.message : '检查相关性失败';
         logger.error(`检查相关性失败:${msg}`);
-        throw new Error(msg);
-    }
-}
-
-
-// 根据文档类型读取文档内容
-async function readDocumentContent(file: any): Promise<any> {
-    try {
-        const { path, ext } = file;
-        switch (ext) {
-            case '.docx':
-
-            case '.xlsx':
-            case '.pptx':
-                // 使用langchain读取文档内容
-                break;
-            default:
-                throw new Error(`不支持的文档类型: ${ext}`);
-        }
-    } catch (error) {
-        const msg = error instanceof Error ? error.message : '读取文档内容失败';
-        logger.error(`读取文档内容失败:${msg}`);
         throw new Error(msg);
     }
 }

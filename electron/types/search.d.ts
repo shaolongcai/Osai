@@ -1,5 +1,5 @@
 
-type SearchDataItem  = {
+type SearchDataItem = {
     id: number;
     path: string;
     name: string;
@@ -9,5 +9,27 @@ type SearchDataItem  = {
 
 interface SearchResult {
     data: SearchDataItem[];
+    total: number;
+}
+
+//搜索应用程序结果
+type searchProgramItem = {
+    display_icon?: string;
+    display_name: string;
+    full_pinyin: string;
+    head_pinyin: string;
+    id: number;
+    path?: string;
+    publisher: string;
+}
+
+
+interface shortSearchResult {
+    data: {
+        id: number;
+        icon?: string;
+        path: string;
+        name: string;
+    }[];
     total: number;
 }

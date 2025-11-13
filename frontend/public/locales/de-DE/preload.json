@@ -1,0 +1,9 @@
+{
+  "loading": "Notwendige Komponenten werden vorbereitet, bitte warten",
+  "updateTitle": "Versions-Update",
+  "updateContent": "Neue Version gefunden, möchten Sie aktualisieren?",
+  "updatePrimary": "Aktualisieren",
+  "updateSecondary": "Später",
+  "initFailed": "Initialisierung fehlgeschlagen",
+  "openLog": "Protokoll öffnen"
+}

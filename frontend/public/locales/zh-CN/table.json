@@ -1,0 +1,13 @@
+{
+  "columns": {
+    "name": "文件名称",
+    "path": "路径",
+    "modifiedAt": "修改时间",
+    "fileType": "文件类型"
+  },
+  "menu": {
+    "openFile": "打开文件",
+    "openFolder": "打开文件夹",
+    "aiMark": "🔥 AI Mark"
+  }
+}

@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
-import { getDatabase, setConfig } from '../database/sqlite.js';
+import { getDatabase, setConfig, insertProgramInfo } from '../database/sqlite.js';
 import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
@@ -11,11 +11,17 @@ import { logger } from './logger.js';
 import { createWorker } from 'tesseract.js';
 import * as os from 'os';
 import * as fs from 'fs'
+import { extractIcon, savePngBuffer } from './iconExtractor.js';
 
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 支持获取图标的格式
+const supportedIconFormats = [
+    '.exe', '.xslx', '.wps', '.csv', '.xls', '.doc', '.docx', '.pptx',
+    '.ppt', '.txt', '.lnk', '.pdf', '.md', '.jpg', '.jpeg', '.png', '.gif'
+];
 
 /**
  * 获取 Windows 系统上的所有逻辑驱动器（现代方法）
@@ -136,17 +142,17 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
     // 排除的目录名
     const excludedDirNames = new Set([
-        'node_modules',
-        '$Recycle.Bin',
-        'System Volume Information',
-        'AppData',
-        'ProgramData',
-        'Program Files',
-        'Program Files (x86)',
-        'Windows',
-        '.git',
-        '.vscode',
-        'Library' //mac忽略目录
+        // 'node_modules',
+        // '$Recycle.Bin',
+        // 'System Volume Information',
+        // 'AppData',
+        // 'ProgramData',
+        // 'Program Files',
+        // 'Program Files (x86)',
+        // 'Windows',
+        // '.git',
+        // '.vscode',
+        // 'Library' //mac忽略目录
     ]);
     // 将 Set 转换为数组以便通过 workerData 传递
     const excludedDirNamesArray = Array.from(excludedDirNames);
@@ -155,7 +161,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             // 明确指定 worker 脚本的路径
             // 我们需要指向编译后的 .js 文件
-            const workerPath = path.join(__dirname, 'indexer2.worker.js');
+            const workerPath = path.join(__dirname, '../workers/indexer.worker.js');
 
             const worker = new Worker(workerPath, {
                 workerData: { drive, dbPath, excludedDirNames: excludedDirNamesArray }
@@ -208,8 +214,51 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         const results = await Promise.all(promises);
         const allFiles = results.flat(); // flat方法展开二维数组
 
+        // 寻找所有扩展名,并对应第一个文件
+        const extToFileMap = new Map();
+        allFiles.forEach(file => {
+            const ext = path.extname(file).toLowerCase();
+            if (!extToFileMap.has(ext)) {
+                extToFileMap.set(ext, file);
+            }
+        });
+        const extensions = new Set(extToFileMap.keys());
+        logger.info(`找到 ${extensions.size} 个不同的扩展名`);
+
+        
+        // 对每个扩展名,提取图标
+        for (const ext of extensions) {
+            // 检查扩展名是否在支持的格式中
+            if (!supportedIconFormats.includes(ext)) {
+                continue;
+            }
+            const filePath = extToFileMap.get(ext);
+            if (!filePath) {
+                continue;
+            }
+            const normalizedPath = filePath.replace(/\//g, '\\');
+            const iconBuffer = await extractIcon(normalizedPath, 256);
+            if (iconBuffer) {
+                logger.info(`添加新的图标： ${ext}`);
+                // ext 去掉.
+                const extWithoutDot = ext.slice(1);
+                savePngBuffer(iconBuffer, path.join(pathConfig.get('iconsCache'), `${extWithoutDot}.png`));
+            }
+            else {
+                return
+            }
+        }
+
         const endTime = Date.now();
         logger.info(`所有 Worker 线程索引完成。共找到 ${allFiles.length} 个文件，耗时: ${endTime - startTime} 毫秒`);
+
+        // 获取已安装程序列表
+        const installedPrograms = getInstalledPrograms();
+
+        // 插入程序信息到数据库
+        installedPrograms.forEach(program => {
+            insertProgramInfo(program);
+        });
 
         // 删除多余的数据库记录
         await deleteExtraFiles(allFiles);
@@ -227,8 +276,73 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 }
 
 
+// 获取图标线程 （暂时不用）
+async function extractIconsInWorker(extToFileMap: Map<string, string>): Promise<void> {
+  return new Promise((resolve, reject) => {
+
+    const workerPath = path.join(__dirname, '../workers/icon.worker.js');
+    const worker = new Worker(workerPath,  {
+                // workerData: { drive, dbPath, excludedDirNames: excludedDirNamesArray }
+            });
+
+    worker.on('message', (msg: any) => {
+      if (msg?.type === 'done') {
+        worker.terminate();
+        resolve();
+      }
+      if (msg?.type === 'error') {
+        // 记录错误，不阻塞其他扩展的处理
+        console.error('图标提取线程错误:', msg.error);
+      }
+    });
+
+    worker.on('error', (err) => {
+      console.error('图标提取线程崩溃:', err);
+      worker.terminate();
+      reject(err);
+    });
+
+    worker.postMessage({ extToFileMap: Object.fromEntries(extToFileMap) });
+  });
+}
+
+
 /**
- * 第一步：开启视觉索引服务
+ * 获取Windows已安装程序列表
+ * @returns 已安装程序信息数组
+ */
+const getInstalledPrograms = () => {
+    try {
+        logger.info('正在获取Windows已安装程序列表...');
+        const ps1Path = pathConfig.get('getPrograms');
+        // 兼容中文应用程序 chcp 65001
+        const output = execSync(`chcp 65001 | powershell -ExecutionPolicy Bypass -File "${ps1Path}"`, {
+            encoding: 'buffer'
+        });
+
+        const jsonStr = output.toString('utf8');   // 显式 UTF-8 解码
+        const programs = JSON.parse(jsonStr);
+        const programList = Array.isArray(programs) ? programs : [programs];
+
+        logger.info(`找到 ${programList.length} 个已安装程序`);
+        return programList.filter(program =>
+            program.DisplayName &&
+            program.DisplayName.trim() !== '' &&
+            !program.DisplayName.includes('Microsoft Visual C++') && // 过滤运行库
+            !program.DisplayName.includes('Microsoft .NET') &&
+            !program.DisplayName.includes('Update for') &&
+            !program.DisplayName.includes('Security Update')
+        );
+    } catch (error) {
+        console.error(error)
+        // logger.error(`获取已安装程序列表失败: ${error}`);
+        return [];
+    }
+};
+
+
+/**
+ * 开启视觉索引服务
  */
 export const indexImagesService = async (): Promise<void> => {
     logger.info('等待索引更新完毕')

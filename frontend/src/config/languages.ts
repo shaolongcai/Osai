@@ -28,12 +28,13 @@ export interface LanguageConfig {
 // 簡化的語言數據：[語言代碼, 國旗名稱, 顯示名稱]
 const LANGUAGE_DATA = [
   ['zh-CN', 'cn', '简体中文'],    // China
-  ['en-US', 'us', 'English'],     // United States
-  ['zh-TW', 'tw', '繁體中文'],    // Taiwan
   ['fr-FR', 'fr', 'Français'],    // France
   ['de-DE', 'de', 'Deutsch'],     // Germany
   ['ja-JP', 'jp', '日本語'],       // Japan
   ['ko-KR', 'kr', '한국어'],       // Korea
+  ['zh-TW', 'tw', '繁體中文'],    // Taiwan
+  ['en-US', 'us', 'English'],     // United States
+  ['vi-VN', 'vn', 'Tiếng Việt'],  // Vietnam
 ] as const;
 
 // 動態生成完整的語言配置

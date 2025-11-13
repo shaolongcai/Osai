@@ -1,0 +1,5 @@
+{
+  "title": "Giới thiệu cập nhật phiên bản",
+  "primaryButtonText": "Đã hiểu",
+  "content": "📌 Tính năng AI Mark mới: Bạn có thể để AI ghi nhớ bất kỳ tệp nào để tìm lại nhanh hơn hoặc đặt câu hỏi sau này.\n📌 OCR: Để tiết kiệm tài nguyên máy tính, lập chỉ mục hình ảnh sẽ sử dụng OCR: chỉ trích xuất văn bản, không dùng mô hình AI tóm tắt hình ảnh. Nếu cần, hãy dùng AI Mark cho hình ảnh.\n📌 Menu chuột phải: Bạn có thể nhấp chuột phải trên kết quả tìm kiếm để sử dụng AI Mark."
+}

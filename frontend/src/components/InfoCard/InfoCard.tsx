@@ -10,9 +10,9 @@ import {
 
 import styles from './InfoCard.module.scss'
 import { NOTIFICATION_TYPE, NotificationType } from "@/utils/enum";
-import { Notification } from "@/type/electron";
+import { Notification } from "@/types/electron";
 import { useEffect, useState } from "react";
-import { useGlobalContext } from "@/context/globalContext";
+import { useGlobalContext } from "@/contexts/globalContext";
 import { useTranslation } from '@/contexts/I18nContext';
 
 interface Props {
@@ -102,6 +102,13 @@ const InfoCard: React.FC<Props> = ({
                                             }
                                             if (item.text?.includes('已全部完成')) {
                                                 return t('app.visualIndexStatus.finished');
+                                            }
+                                            // 處理 "OCR 服务已启动 剩余 X" 的情況
+                                            if (item.text?.includes('剩余') || item.text?.includes('剩餘')) {
+                                                // 提取數字
+                                                const match = item.text.match(/\d+/);
+                                                const count = match ? parseInt(match[0]) : 0;
+                                                return t('app.visualIndexStatus.running', { count });
                                             }
                                         }
                                         if (item.id === 'download-progress') {

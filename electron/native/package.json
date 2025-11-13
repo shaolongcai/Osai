@@ -1,0 +1,26 @@
+{
+  "name": "icon-extractor-native",
+  "version": "1.0.0",
+  "description": "Native icon extractor module for Electron",
+  "main": "dist/win32-x64-139/icon_extractor.node",
+  "scripts": {
+    "build:electron": "electron-rebuild --arch=x64 --dist-url=https://electronjs.org/headers",
+    "build": "node-gyp rebuild",
+    "clean": "node-gyp clean",
+    "rebuild": "npm run clean && npm run build",
+    "rebuild:electron": "npm run clean && npm run build:electron",
+    "copy-dist": "node -e \"const fs=require('fs'),path=require('path'); const src=path.join(__dirname,'build','Release','icon_extractor.node'); const distDir=path.join(__dirname,'dist','win32-x64-139'); const dst=path.join(distDir,'icon_extractor.node'); if(!fs.existsSync(distDir)) fs.mkdirSync(distDir,{recursive:true}); if(fs.existsSync(src)) fs.copyFileSync(src,dst); console.log('已复制到:',dst);\"",
+    "install": "npm run build && npm run copy-dist",
+    "postinstall": "echo Build completed"
+  },
+  "dependencies": {
+    "node-addon-api": "^7.0.0"
+  },
+  "devDependencies": {
+    "electron-rebuild": "^3.2.9"
+  },
+  "keywords": ["electron", "native", "icon", "extractor"],
+  "author": "Your Name",
+  "license": "MIT",
+  "gypfile": true
+}

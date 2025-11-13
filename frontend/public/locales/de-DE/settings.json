@@ -1,0 +1,18 @@
+{
+  "install": "Installieren",
+  "reInstall": "Neu installieren",
+  "title": "Einstellungen",
+  "visualIndex": "Bildindexierung aktivieren",
+  "gpuService": "GPU-Beschleunigungsdienst",
+  "userExperience": "Programm zur Verbesserung der Benutzererfahrung",
+  "language": "Sprache",
+  "logFolder": "Ausführungsprotokolle",
+  "open": "Öffnen",
+  "community": "In der Community, geben Sie uns Ihr Feedback!",
+  "feedback": "Feedback",
+  "checkUpdate": "Nach Updates suchen",
+  "check": "Prüfen",
+  "checking": "Wird geprüft...",
+  "checkUpdateStatusLatest": "Sie verwenden die neueste Version",
+  "checkUpdateStatusNewVersion": "Neue Version gefunden: {{version}}"
+}

@@ -47,13 +47,14 @@ class UpdateService {
     private setupAutoUpdater(): void {
         // 设置日志
         autoUpdater.logger = logger;
-        // 禁用差异更新，强制完整下载(暂时)
+        // 禁用差异更新，强制完整下载
         // autoUpdater.disableDifferentialDownload = true;
         // 禁用自动下载，只检查更新
         autoUpdater.autoDownload = false;
         // mac测试
         autoUpdater.allowPrerelease = true;
-        autoUpdater.allowDowngrade = true;
+        // 禁用降级更新：不允许从高版本降级到低版本
+        autoUpdater.allowDowngrade = false;
 
         // 设置架构特定的更新文件
         const updateFileName = this.getArchSpecificUpdateFile();

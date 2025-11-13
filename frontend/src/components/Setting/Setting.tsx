@@ -2,12 +2,10 @@ import { Drawer, Box, Typography, Switch, styled, Paper, Stack, Button } from '@
 import styles from './Setting.module.scss'
 import { useEffect, useState } from 'react';
 import { Contact, Dialog, ReportProtocol, SettingItem } from '@/components';
-import { UserConfig } from '@/type/system';
-import { ConfigParams } from '@/type/electron';
+import { UserConfig } from '@/types/system';
+import { ConfigParams } from '@/types/electron';
 import { useContext } from 'react';
 import { globalContext } from '@/context/globalContext';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { useTranslation } from '@/contexts/I18nContext';
 
 interface SettingProps {
     open: boolean;
@@ -32,16 +30,8 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [gpuSeverOpen, setGpuSeverOpen] = useState(false) //GPU服务弹窗
     const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
     const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
-    // 检查更新相关状态
-    const [updateChecking, setUpdateChecking] = useState(false)
-    const [updateAvailable, setUpdateAvailable] = useState<boolean | null>(null)
-    const [updateVersion, setUpdateVersion] = useState<string | null>(null)
 
     const context = useContext(globalContext)
-    const { t } = useTranslation()
-
-    // 是否为 Electron 环境
-    const isElectron = typeof window !== 'undefined' && (window as any).electronAPI;
 
 
 
@@ -57,26 +47,6 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             })
         }
     }, [open])
-
-    // 当抽屜打開時自動檢查更新
-    useEffect(() => {
-        if (!open || !isElectron) return;
-        const handler = (data: any) => {
-            if (data?.isUpdateAvailable) {
-                setUpdateAvailable(true);
-                setUpdateVersion(data.version || null);
-            } else {
-                setUpdateAvailable(false);
-            }
-            setUpdateChecking(false);
-        };
-        (window as any).electronAPI.onUpdateStatus(handler);
-        setUpdateChecking(true);
-        (window as any).electronAPI.checkForUpdates();
-        return () => {
-            (window as any).electronAPI.removeAllListeners('update-status');
-        };
-    }, [open, isElectron])
 
     // 安装GPU服务
     const installGpu = async () => {
@@ -241,7 +211,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                     }}
                                     variant='text'
                                     onClick={() => { setGpuSeverOpen(true) }} >
-                                    {isInstallGpu ? t('app.settings.install') : t('app.settings.reInstall')}
+                                    {isInstallGpu ? '重新安装' : '安装'}
                                 </Button>
                                 }
                             />
@@ -285,29 +255,6 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                             value={reportAgreement}
                             onAction={toggleReportAgreement}
                         />
-                        {/* 檢查更新 */}
-                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
-                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >{t('app.settings.checkUpdate')}</Typography>
-                                <Stack direction='row' spacing={1} alignItems='center'>
-                                    <Typography variant='body2' color='text.secondary'>
-                                        {updateChecking ? t('app.settings.checkingUpdate') : (updateAvailable === null ? '' : (updateAvailable ? t('app.settings.updateAvailable', { version: updateVersion || '' }) : t('app.settings.latestVersion')))}
-                                    </Typography>
-                                    <Button
-                                        sx={{
-                                            '&:focus': { outline: 'none', border: 'none', boxShadow: 'none' },
-                                            '&:active': { outline: 'none', border: 'none', boxShadow: 'none' },
-                                            '&:hover': { border: 'none' }
-                                        }}
-                                        variant='text'
-                                        onClick={handleCheckUpdate}
-                                        disabled={updateChecking}
-                                    >
-                                        {t('app.settings.check')}
-                                    </Button>
-                                </Stack>
-                            </Stack>
-                        </Paper>
                     </Stack>
                 </Box>
                 <div className={styles.contact}>

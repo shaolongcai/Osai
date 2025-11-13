@@ -1,0 +1,8 @@
+{
+  "placeholder": "Tìm kiếm tên tệp hoặc tóm tắt hình ảnh",
+  "button": "Tìm kiếm",
+  "results": "Tìm thấy {{count}} kết quả",
+  "noResults": "Không có kết quả",
+  "noKeyword": "Vui lòng nhập từ khóa",
+  "start": "Nhập từ khóa để bắt đầu tìm kiếm AI"
+}

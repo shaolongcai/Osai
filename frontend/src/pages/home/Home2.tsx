@@ -1,8 +1,8 @@
-import { Box, Checkbox, Chip, FormControlLabel, LinearProgress, Paper, Stack, Tooltip, Typography } from "@mui/material"
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Box, Chip, LinearProgress, Stack, Typography } from "@mui/material"
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from './Home2.module.scss'
-import { Search, InfoCard, Setting, Contact, Dialog, TableRelust, UpdateTipsDialog } from '@/components';
-import { Progress } from "@/type/electron";
+import { Search, InfoCard, Setting, Contact, TableRelust, UpdateTipsDialog } from '@/components';
+import { Progress } from "@/types/electron";
 import readySearchImage from '@/assets/images/search-ready.png'
 import { getFileTypeByExtension } from "@/utils/tools";
 import {
@@ -10,12 +10,12 @@ import {
 } from "@mui/icons-material";
 import searchNull from '@/assets/images/search-null.png'
 import AIMarkDialog from "@/components/AIMarkDialog/AIMarkDialog";
-import { useGlobalContext } from "@/context/globalContext";
+import { useGlobalContext } from "@/contexts/globalContext";
 import { useTranslation } from '@/contexts/I18nContext';
 import packageJson from '../../../../package.json';
 
 // 版本號常量，方便統一管理
-const APP_VERSION = 'Beta 0.3.1';
+const APP_VERSION = 'Beta 0.4.0';
 
 const Home = () => {
 
@@ -42,7 +42,8 @@ const Home = () => {
   //检查版本更新提醒
   useEffect(() => {
     const version = packageJson.version;
-    // console.log('当前版本:', version);
+    console.log('当前版本:', version);
+    console.log('上一次版本:', localStorage.getItem('lastVersion'));
     if (localStorage.getItem('lastVersion') !== version) {
       // 版本更新提醒
       setOpenUpdateTips(true);
@@ -65,11 +66,16 @@ const Home = () => {
       setOpenAiMarkDialog(true)
       context.setIsReadyAI(true); //告诉全局AI功能已经准备好
     });
+    // 监听从托盘菜单打开设定的事件
+    window.electronAPI.onNavigateToSettings(() => {
+      setOpenSetting(true);
+    });
     return () => {
       // 移除监听
       window.electronAPI.removeAllListeners('index-progress');
       window.electronAPI.removeAllListeners('visual-index-progress');
       window.electronAPI.removeAllListeners('ai-server-installed');
+      window.electronAPI.removeAllListeners('navigate-to-settings');
     };
   }, []);
 
@@ -219,8 +225,8 @@ const Home = () => {
               <Typography className={styles.text} variant='body1'>
                 {indexProgress
                   ? ((indexProgress.process === 'finish' || (indexProgress.message && indexProgress.message.includes('已索引')))
-                      ? t('app.indexing.indexed', { count: indexProgress.count })
-                      : t('app.indexing.pending'))
+                    ? t('app.indexing.indexed', { count: indexProgress.count })
+                    : t('app.indexing.pending'))
                   : t('app.indexing.pending')}
               </Typography>
               <Typography className={styles.text} variant='body1'>

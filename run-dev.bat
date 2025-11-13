@@ -118,6 +118,30 @@ if %errorlevel% equ 0 (
         ) else (
             %log_warning% electron/resources directory not found, skipping copy
         )
+        
+        REM --- 复制native目录到dist-electron ---
+        %log_info% Copying native to dist-electron...
+        
+        REM 复制整个native目录
+        if exist "electron\native" (
+            %log_info% Copying electron/native to dist-electron/native...
+            
+            REM 如果目标目录存在，先删除
+            if exist "dist-electron\native" (
+                rmdir /s /q "dist-electron\native"
+            )
+            
+            REM 复制整个native目录
+            xcopy "electron\native" "dist-electron\native" /E /I /Y >nul
+            
+            if %errorlevel% equ 0 (
+                %log_success% Native directory copied successfully
+            ) else (
+                %log_warning% Failed to copy some native files, but continuing...
+            )
+        ) else (
+            %log_warning% electron/native directory not found, skipping copy
+        )
     ) else (
         %log_info% No TypeScript files found in electron directory
     )

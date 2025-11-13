@@ -138,3 +138,8 @@ __pycache__/
 
 #忽略训练文件
 *.traineddata
+
+
+# 忽略编译产物
+electron/native/build/
+electron/native/bin/

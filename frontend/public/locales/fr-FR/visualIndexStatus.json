@@ -1,0 +1,5 @@
+{
+  "paused": "Service d'indexation visuelle suspendu",
+  "running": "Service OCR démarré, {{count}} restants",
+  "finished": "Indexation OCR entièrement terminée"
+}

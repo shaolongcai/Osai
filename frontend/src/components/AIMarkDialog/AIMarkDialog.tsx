@@ -3,7 +3,7 @@ import aiMarkImage from "@/assets/images/ai-mark.png"
 import styles from "./AIMarkDialog.module.scss"
 import { useState } from "react"
 import { Checkbox, FormControlLabel, Stack, Typography } from "@mui/material"
-import { useGlobalContext } from "@/context/globalContext"
+import { useGlobalContext } from "@/contexts/globalContext"
 import { useTranslation } from "@/contexts/I18nContext"
 
 interface Props {
