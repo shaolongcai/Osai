@@ -25,7 +25,7 @@ const supportedIconFormats = [
 
 /**
  * 获取 Windows 系统上的所有逻辑驱动器（现代方法）
- * @returns 驱动器号列表 (例如, ['C:', 'D:'])
+ * @returns 驆动器号列表 (例如, ['C:', 'D:'])
  */
 const getDrivesByWindows = () => {
     try {
@@ -343,11 +343,81 @@ const getInstalledPrograms = () => {
 
 /**
  * 开启视觉索引服务
+ * OCR Worker 單例：避免重複初始化導致內存暴漲與崩潰
+ */
+let ocrWorker: Awaited<ReturnType<typeof createWorker>> | null = null;
+
+async function getOCRWorker() {
+    if (ocrWorker) return ocrWorker;
+
+    const resourcesPath = pathConfig.get('resources');
+    const cacheRoot = path.join(pathConfig.get('cache'), 'tesseract');
+    // 確保緩存目錄存在
+    try {
+        if (!fs.existsSync(cacheRoot)) fs.mkdirSync(cacheRoot, { recursive: true });
+    } catch (e) {
+        logger.error(`创建 Tesseract 缓存目录失败: ${String(e)}`);
+    }
+
+    try {
+        ocrWorker = await createWorker(['chi_sim', 'chi_tra', 'eng'], 1, {
+            langPath: path.join(resourcesPath, 'traineddata'),
+            cachePath: cacheRoot,
+            gzip: true,
+            // 錯誤處理：捕獲 worker 線程錯誤，避免應用直接崩潰
+            errorHandler: (err: unknown) => {
+                const msg = err instanceof Error ? err.message : String(err);
+                logger.error(`OCR Worker 错误: ${msg}`);
+            },
+            logger: (m: unknown) => {
+                // 只保留初始化階段的關鍵日誌，避免刷屏
+                const s = typeof m === 'string' ? m : JSON.stringify(m);
+                if (s.includes('initialized') || s.includes('loaded_lang_model')) {
+                    logger.info(`OCR: ${s}`);
+                }
+            }
+        });
+        return ocrWorker;
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : 'OCR Worker 初始化失败';
+        logger.error(`OCR 初始化失败: ${msg}`);
+        // 降級策略：僅使用英語模型再次嘗試
+        try {
+            ocrWorker = await createWorker(['eng'], 1, {
+                langPath: path.join(resourcesPath, 'traineddata'),
+                cachePath: cacheRoot,
+                gzip: true,
+            });
+            return ocrWorker;
+        } catch (e2) {
+            const m2 = e2 instanceof Error ? e2.message : String(e2);
+            logger.error(`OCR 英語模型降級仍失敗: ${m2}`);
+            throw new Error(msg);
+        }
+    }
+}
+
+async function terminateOCRWorker() {
+    if (ocrWorker) {
+        try {
+            await ocrWorker.terminate();
+        } catch (e) {
+            logger.error(`OCR Worker 终止失败: ${String(e)}`);
+        }
+        ocrWorker = null;
+    }
+}
+
+/**
+ * 第一步：开启视觉索引服务
  */
 export const indexImagesService = async (): Promise<void> => {
     logger.info('等待索引更新完毕')
     await waitForIndexUpdate();
     logger.info('索引更新完毕')
+
+    // 尝试提前初始化 OCR Worker，提高首張圖片的響應速度
+    try { await getOCRWorker(); } catch { /* 初始化失敗時在使用時再處理 */ }
 
     // 对所有图片文件，都使用vl应用读取摘要
     const startIndexImageTime = Date.now();
@@ -360,6 +430,9 @@ export const indexImagesService = async (): Promise<void> => {
         type: 'success',
     }
     sendToRenderer('system-info', notification);
+
+    // 任務結束後釋放 OCR Worker
+    await terminateOCRWorker();
 }
 
 /**
@@ -370,7 +443,7 @@ async function indexImageFiles() {
     const db = getDatabase()
     // 使用ext字段查询图片文件（ext字段存储的是带点的扩展名）
     const selectStmt = db.prepare(
-        'SELECT path FROM files WHERE ext IN (\'.jpg\', \'.png\', \'.jpeg\') AND size > 50 * 1024 AND summary IS NULL AND skip_ocr = 0'
+        'SELECT path FROM files WHERE ext IN (\'.jpg\', \' .png\', \' .jpeg\') AND size > 50 * 1024 AND summary IS NULL AND skip_ocr = 0'
     )
     const files = selectStmt.all() as Array<{ path: string }>;
     // 总共需要视觉处理的文件数量
@@ -452,16 +525,20 @@ export async function summarizeImage(imagePath: string): Promise<string> {
 const processImage = (imagePath: string): Promise<string> => {
 
     const resourcesPath = pathConfig.get('resources')
+    const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // 20MB：過大的圖片容易導致 wasm 报错
 
     return new Promise(async (resolve, reject) => {
         try {
-            // console.log(`开始处理：${imagePath}`)
-            const worker = await createWorker(['chi_sim', 'chi_tra', 'eng'], 1, {
-                langPath: path.join(resourcesPath, 'traineddata'),
-            });
+            // 基本校验：過大文件直接跳過，避免 Aborted(-1)
+            try {
+                const stat = fs.statSync(imagePath);
+                if (stat.size > MAX_IMAGE_SIZE) {
+                    return reject(new Error('图片过大，已跳过（>20MB）'));
+                }
+            } catch { /* 忽略 stat 失败 */ }
+
+            const worker = await getOCRWorker();
             const ret = await worker.recognize(imagePath);
-            // console.log(ret.data.text);
-            await worker.terminate();
             resolve(ret.data.text)
         } catch (error) {
             const msg = error instanceof Error ? error.message : '图片处理失败';
