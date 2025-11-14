@@ -71,6 +71,10 @@ export function initializeDatabase(): Database.Database {
       logger.info('成功添加full_content字段到files表')
       db.exec(`ALTER TABLE files ADD COLUMN tags TEXT DEFAULT '[]'`)
       logger.info('成功添加tags字段到files表')
+      db.exec(`ALTER TABLE programs ADD COLUMN tags TEXT DEFAULT '[]'`)
+      logger.info('成功添加tags字段到programs表')
+      db.exec(`ALTER TABLE files ADD COLUMN click_count INTEGER DEFAULT 0`)
+      logger.info('成功添加click_count字段到files表')
     } catch (error) {
       // 字段已存在时会报错，忽略即可
     }
@@ -225,24 +229,35 @@ export async function insertProgramInfo(programInfo: {
     const pinyinArray = pinyin(programInfo.DisplayName, { toneType: "none", type: "array" }); // ["han", "yu", "pin", "yin"]
     const pinyinHead = pinyinArray.map((item) => item[0]).join("");
 
-    // 解析图标
-    const programIcon = await extractIcon(
-      programInfo.DisplayIcon,          // 可能 null / "C:\\xxx.exe,0"
-      programInfo.InstallLocation,      // 备用目录
-    );
+    // 解析图标(windows)
+    // const programIcon = await extractIcon(
+    //   programInfo.DisplayIcon,          // 可能 null / "C:\\xxx.exe,0"
+    //   programInfo.InstallLocation,      // 备用目录
+    // );
 
-    //  这里需要加一个判断，如果有 C:\PROGRA~1\DIFX\0169CE3A95F06636\DPInst64.exe,0 ，这种形式的需要取第一个
-    if (programInfo.DisplayIcon?.includes(',')) {
-      programInfo.DisplayIcon = programInfo.DisplayIcon.split(',')[0].trim()
-    }
+    // //  这里需要加一个判断，如果有 C:\PROGRA~1\DIFX\0169CE3A95F06636\DPInst64.exe,0 ，这种形式的需要取第一个
+    // if (programInfo.DisplayIcon?.includes(',')) {
+    //   programInfo.DisplayIcon = programInfo.DisplayIcon.split(',')[0].trim()
+    // }
 
+    // windows
+    // stmt.run(
+    //   programInfo.DisplayName,
+    //   pinyinArray.join(""),
+    //   pinyinHead,
+    //   programInfo.Publisher,
+    //   programInfo.DisplayIcon || programInfo.InstallLocation,
+    //   programIcon,
+    // );
+
+    // mac
     stmt.run(
       programInfo.DisplayName,
       pinyinArray.join(""),
       pinyinHead,
       programInfo.Publisher,
-      programInfo.DisplayIcon || programInfo.InstallLocation,
-      programIcon,
+      programInfo.InstallLocation,
+      programInfo.DisplayIcon,
     );
 
     logger.debug(`程序信息已插入: ${programInfo.DisplayName}`);

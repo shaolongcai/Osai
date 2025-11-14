@@ -58,6 +58,7 @@
     "pinyin-pro": "^3.27.0",
     "systeminformation": "^5.27.9",
     "tesseract.js": "^6.0.1",
+    "vite-plugin-static-copy": "^3.1.4",
     "word-extractor": "^1.0.4",
     "xlsx": "^0.18.5",
     "zod-to-json-schema": "^3.24.6"

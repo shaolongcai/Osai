@@ -9,6 +9,7 @@ import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 import { logger } from './logger.js';
 import { createWorker } from 'tesseract.js';
+import { app, nativeImage } from 'electron';
 import * as os from 'os';
 import * as fs from 'fs'
 import { extractIcon, savePngBuffer } from './iconExtractor.js';
@@ -140,31 +141,30 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
     const dbDirectory = pathConfig.get('database');
     const dbPath = path.join(dbDirectory, 'metaData.db')
 
-    // 排除的目录名
-    const excludedDirNames = new Set([
-        // 'node_modules',
-        // '$Recycle.Bin',
-        // 'System Volume Information',
-        // 'AppData',
-        // 'ProgramData',
-        // 'Program Files',
-        // 'Program Files (x86)',
-        // 'Windows',
-        // '.git',
-        // '.vscode',
-        // 'Library' //mac忽略目录
-    ]);
-    // 将 Set 转换为数组以便通过 workerData 传递
-    const excludedDirNamesArray = Array.from(excludedDirNames);
-
     const promises = drives.map(drive => {
         return new Promise<string[]>((resolve, reject) => {
             // 明确指定 worker 脚本的路径
             // 我们需要指向编译后的 .js 文件
             const workerPath = path.join(__dirname, '../workers/indexer.worker.js');
 
+            const excludedDirNames = new Set([
+                // 'node_modules',
+                // '$Recycle.Bin',
+                // 'System Volume Information',
+                // 'AppData',
+                // 'ProgramData',
+                // 'Program Files',
+                // 'Program Files (x86)',
+                // 'Windows',
+                // '.git',
+                // '.vscode',
+                // 'Library' //mac忽略目录
+            ]);
+            // 将 Set 转换为数组以便通过 workerData 传递
+            const excludedDirNamesArray = Array.from(excludedDirNames);
+
             const worker = new Worker(workerPath, {
-                workerData: { drive, dbPath, excludedDirNames: excludedDirNamesArray }
+                workerData: { drive, dbPath, excludedDirNamesArray }
             });
 
 
@@ -225,7 +225,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
         const extensions = new Set(extToFileMap.keys());
         logger.info(`找到 ${extensions.size} 个不同的扩展名`);
 
-        
+
         // 对每个扩展名,提取图标
         for (const ext of extensions) {
             // 检查扩展名是否在支持的格式中
@@ -236,24 +236,63 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
             if (!filePath) {
                 continue;
             }
-            const normalizedPath = filePath.replace(/\//g, '\\');
-            const iconBuffer = await extractIcon(normalizedPath, 256);
-            if (iconBuffer) {
-                logger.info(`添加新的图标： ${ext}`);
-                // ext 去掉.
-                const extWithoutDot = ext.slice(1);
-                savePngBuffer(iconBuffer, path.join(pathConfig.get('iconsCache'), `${extWithoutDot}.png`));
+           
+            // 判断平台
+            if (process.platform === 'win32') {
+                //
+                 const normalizedPath = filePath.replace(/\//g, '\\');
+                const iconBuffer = await extractIcon(normalizedPath, 256);
+                if (iconBuffer) {
+                    logger.info(`添加新的图标： ${ext}`);
+                    // ext 去掉.
+                    const extWithoutDot = ext.slice(1);
+                    savePngBuffer(iconBuffer, path.join(pathConfig.get('iconsCache'), `${extWithoutDot}.png`));
+                }
+                else {
+                    continue;
+                }
             }
             else {
-                return
+                try {
+                      // 获取图标
+                const nativeImage = await app.getFileIcon(filePath,{size:'normal'});
+                if (nativeImage) {
+                    const { width, height } = nativeImage.getSize();
+                    const outBuf = Math.max(width, height) > 256
+                        ? nativeImage.resize({ width: 256, height: 256 }).toPNG({scaleFactor:4})
+                        : nativeImage.toPNG({scaleFactor:4});
+                       const extWithoutDot = ext.slice(1);
+                    savePngBuffer(outBuf, path.join(pathConfig.get('iconsCache'), `${extWithoutDot}.png`));
+                    logger.info(`添加新的图标(macOS)： ${ext}`);
+                }
+                else {
+                    continue
+                }
+                } catch (error) {
+                    logger.error(`获取 ${ext} 图标失败:${JSON.stringify(error)}`);
+                    continue;
+                }
+              
             }
+
         }
 
         const endTime = Date.now();
         logger.info(`所有 Worker 线程索引完成。共找到 ${allFiles.length} 个文件，耗时: ${endTime - startTime} 毫秒`);
 
+        let installedPrograms: Array<{
+            DisplayName: string;
+            Publisher: string;
+            InstallLocation: string;
+            DisplayIcon: string;
+        }> = [];
         // 获取已安装程序列表
-        const installedPrograms = getInstalledPrograms();
+        if (process.platform === 'win32') {
+            installedPrograms = getInstalledPrograms();
+        }
+        else {
+            installedPrograms = getMacProgramsAndImages().programs;
+        }
 
         // 插入程序信息到数据库
         installedPrograms.forEach(program => {
@@ -278,32 +317,32 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
 // 获取图标线程 （暂时不用）
 async function extractIconsInWorker(extToFileMap: Map<string, string>): Promise<void> {
-  return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
 
-    const workerPath = path.join(__dirname, '../workers/icon.worker.js');
-    const worker = new Worker(workerPath,  {
-                // workerData: { drive, dbPath, excludedDirNames: excludedDirNamesArray }
-            });
+        const workerPath = path.join(__dirname, '../workers/icon.worker.js');
+        const worker = new Worker(workerPath, {
+            // workerData: { drive, dbPath, excludedDirNames: excludedDirNamesArray }
+        });
 
-    worker.on('message', (msg: any) => {
-      if (msg?.type === 'done') {
-        worker.terminate();
-        resolve();
-      }
-      if (msg?.type === 'error') {
-        // 记录错误，不阻塞其他扩展的处理
-        console.error('图标提取线程错误:', msg.error);
-      }
+        worker.on('message', (msg: any) => {
+            if (msg?.type === 'done') {
+                worker.terminate();
+                resolve();
+            }
+            if (msg?.type === 'error') {
+                // 记录错误，不阻塞其他扩展的处理
+                console.error('图标提取线程错误:', msg.error);
+            }
+        });
+
+        worker.on('error', (err) => {
+            console.error('图标提取线程崩溃:', err);
+            worker.terminate();
+            reject(err);
+        });
+
+        worker.postMessage({ extToFileMap: Object.fromEntries(extToFileMap) });
     });
-
-    worker.on('error', (err) => {
-      console.error('图标提取线程崩溃:', err);
-      worker.terminate();
-      reject(err);
-    });
-
-    worker.postMessage({ extToFileMap: Object.fromEntries(extToFileMap) });
-  });
 }
 
 
@@ -337,6 +376,168 @@ const getInstalledPrograms = () => {
         console.error(error)
         // logger.error(`获取已安装程序列表失败: ${error}`);
         return [];
+    }
+};
+
+
+/**
+ * 获取 macOS 端的「已安装应用」与「常见目录图片」
+ * 1) 应用来源：/Applications 与 ~/Applications 下的 .app 包
+ * 2) 图片来源：~/Pictures、~/Desktop、~/Downloads 下的常见图片格式
+ * 返回结构与 Windows 程序入库所需字段保持一致，便于后续复用
+ */
+const getMacProgramsAndImages = (): {
+    programs: Array<{
+        DisplayName: string;
+        Publisher: string;
+        InstallLocation: string;
+        DisplayIcon: string;
+    }>;
+} => {
+    try {
+        // 仅在 macOS 执行
+        if (os.platform() !== 'darwin') {
+            logger.info('当前非 macOS，跳过获取 Mac 程序与图片');
+            return { programs: [] };
+        }
+
+        logger.info('正在获取 macOS 应用与图片列表...');
+
+        // 1) 扫描应用目录，收集 .app
+        const appDirs = [
+            '/Applications',
+            path.join(os.homedir(), 'Applications'),
+        ];
+
+        const appBundles: string[] = [];
+        for (const dir of appDirs) {
+            try {
+                if (!fs.existsSync(dir)) continue;
+                const entries = fs.readdirSync(dir, { withFileTypes: true });
+                for (const entry of entries) {
+                    if (entry.isDirectory() && entry.name.toLowerCase().endsWith('.app')) {
+                        appBundles.push(path.join(dir, entry.name));
+                    }
+                }
+            } catch (e) {
+                logger.error(`扫描应用目录失败: ${dir}, ${String(e)}`);
+            }
+        }
+
+        // 解析 Info.plist，生成与入库一致的字段
+        const programs = appBundles.map(appPath => {
+            const infoPlist = path.join(appPath, 'Contents', 'Info.plist');
+            let displayName = path.basename(appPath, '.app');
+            let identifier = '';
+            let version = '';
+            let iconFile = '';
+
+            try {
+                if (fs.existsSync(infoPlist)) {
+                    // 使用系统自带 plutil 转为 JSON 并解析
+                    const plistJson = execSync(`plutil -convert json -o - "${infoPlist}"`, { encoding: 'utf8', shell: '/bin/bash' });
+                    const info = JSON.parse(plistJson);
+
+                    displayName = info.CFBundleDisplayName || info.CFBundleName || displayName;
+                    identifier = info.CFBundleIdentifier || '';
+                    version = info.CFBundleShortVersionString || info.CFBundleVersion || '';
+
+                    // 优先从 CFBundleIconFile/CFBundleIcons 推断图标文件
+                    if (typeof info.CFBundleIconFile === 'string') {
+                        iconFile = info.CFBundleIconFile.endsWith('.icns')
+                            ? info.CFBundleIconFile
+                            : `${info.CFBundleIconFile}.icns`;
+                    } else if (info.CFBundleIcons?.CFBundlePrimaryIcon?.CFBundleIconName) {
+                        const iconName = info.CFBundleIcons.CFBundlePrimaryIcon.CFBundleIconName;
+                        iconFile = typeof iconName === 'string'
+                            ? (iconName.endsWith('.icns') ? iconName : `${iconName}.icns`)
+                            : '';
+                    }
+                }
+            } catch (e) {
+                logger.error(`解析 Info.plist 失败: ${infoPlist}, ${String(e)}`);
+            }
+
+            // 计算图标绝对路径（若存在）
+            let displayIconSrc = '';
+            if (iconFile) {
+                const iconPath = path.join(appPath, 'Contents', 'Resources', iconFile);
+                if (fs.existsSync(iconPath)) {
+                    displayIconSrc = iconPath;
+                }
+            }
+
+            // 将 .icns 转为 PNG 并缓存到 iconsCache/apps
+            let displayIcon = '';
+            try {
+                const cacheRoot = pathConfig.get('iconsCache');
+                const appIconDir = path.join(cacheRoot, 'apps');
+                if (!fs.existsSync(appIconDir)) fs.mkdirSync(appIconDir, { recursive: true });
+
+                if (displayIconSrc && path.extname(displayIconSrc).toLowerCase() === '.icns') {
+                    const image = nativeImage.createFromPath(displayIconSrc);
+                    if (!image.isEmpty()) {
+                        const pngBuf = image.resize({ width: 256, height: 256 }).toPNG();
+                        const stat = fs.statSync(displayIconSrc);
+                        const key = `${path.parse(appPath).name}_${stat.size}_${Math.floor(stat.mtimeMs)}`.replace(/[^a-zA-Z0-9_]/g, '');
+                        const outPath = path.join(appIconDir, `${key}.png`);
+                        fs.writeFileSync(outPath, pngBuf);
+                        logger.info(`macOS 图标转换成功(nativeImage): ${displayIconSrc} -> ${outPath}`);
+                        displayIcon = outPath;
+                    } else {
+                        // logger.warn(`nativeImage 解析 .icns 失败或返回空图像: ${displayIconSrc}`);
+                        try {
+                            const stat = fs.statSync(displayIconSrc);
+                            const key = `${path.parse(appPath).name}_${stat.size}_${Math.floor(stat.mtimeMs)}`.replace(/[^a-zA-Z0-9_]/g, '');
+                            const outPath = path.join(appIconDir, `${key}.png`);
+                            execSync(`sips -s format png \"${displayIconSrc}\" --out \"${outPath}\"`, { shell: '/bin/bash', stdio: 'pipe' });
+                            if (fs.existsSync(outPath)) {
+                                logger.info(`macOS 图标转换成功(sips): ${displayIconSrc} -> ${outPath}`);
+                                displayIcon = outPath;
+                            } else {
+                                logger.warn(`sips 转换后未生成 PNG 文件: ${outPath}`);
+                            }
+                        } catch (se) {
+                            logger.error(`sips 转换 .icns 失败: ${displayIconSrc}, ${String(se)}`);
+                        }
+                    }
+                }
+            } catch (e) {
+                logger.warn(`macOS 图标转换失败: ${displayIconSrc}, ${String(e)}`);
+            }
+
+            // 依据标识推断 Publisher（com.vendor.product -> Vendor）
+            let publisher = 'Unknown';
+            try {
+                const parts = identifier.split('.');
+                if (parts.length >= 2) {
+                    const vendor = parts[1];
+                    publisher = vendor.charAt(0).toUpperCase() + vendor.slice(1);
+                }
+                if (identifier.startsWith('com.apple')) publisher = 'Apple';
+            } catch { }
+
+            return {
+                DisplayName: displayName,
+                Publisher: publisher || identifier || 'Unknown',
+                InstallLocation: appPath,
+                DisplayIcon: displayIcon,
+            };
+        }).filter(p => p.DisplayName && p.DisplayName.trim() !== '');
+
+        logger.info(`找到 ${programs.length} 个 macOS 应用`);
+
+        // 2) 收集常见目录下的图片文件（jpg/jpeg/png/gif）
+        // const imageDirs = [
+        //     path.join(os.homedir(), 'Pictures'),
+        //     path.join(os.homedir(), 'Desktop'),
+        //     path.join(os.homedir(), 'Downloads'),
+        // ];
+
+        return { programs };
+    } catch (error) {
+        logger.error(`获取 macOS 程序与图片失败: ${String(error)}`);
+        return { programs: [] };
     }
 };
 

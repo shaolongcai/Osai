@@ -14,10 +14,10 @@ const ALLOWED_EXTENSIONS = 'png,jpg,jpeg,ppt,pptx,csv,doc,docx,txt,xlsx,xls,pdf'
 const BATCH_SIZE = 10000;
 
 // --- 1. 首先，获取 workerData 并初始化数据库 ---
-const { drive, dbPath, excludedDirNames } = workerData as {
+const { drive, dbPath, excludedDirNamesArray } = workerData as {
     drive: string;
     dbPath: string;
-    excludedDirNames: string[];
+    excludedDirNamesArray: string[];
 };
 const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
@@ -34,21 +34,23 @@ const insertStmt = db.prepare(
 async function findFiles(dir: string): Promise<string[]> {
     try {
         console.log(`🚀 使用 fast-glob 在 "${dir}" 中开始异步搜索...`);
-
-        // const patterns = Array.from(ALLOWED_EXTENSIONS).map(ext => `**/*${ext}`);
-        const dynamicIgnores = excludedDirNames.map(d => `**/${d}/**`);
+        const dynamicIgnores = excludedDirNamesArray.map(d => `**/${d}/**`);
 
         const ignorePatterns = [
             ...dynamicIgnores,
             '**/.?*',
-            '**/{node_modules,.$*,System Volume Information,AppData,ProgramData,Program Files,Program Files (x86),Windows,.git,.vscode,.idea,temp,tmp,cache,logs,build,dist,out,target,__pycache__}/**',
+            '**/{node_modules,.$*,System Volume  Information,AppData,ProgramData,Program Files,Program Files (x86),Windows,.git,.vscode,.idea,temp,tmp,cache,logs,build,dist,out,target,__pycache__}/**',
             '**/*.{asar,DS_Store,thumbs.db,desktop.ini}',
-            '**/.Trash/**'
+            '**/.Trash/**',
+            '**/Library/**', // mac忽略目录
+            '**/.*/**', // 去掉所有以点开头的文件夹
+            '**/*.app/**', // 去掉所有以.app结尾的文件夹
         ];
 
         const allFiles: string[] = [];
         let processedCount = 0;
-        const stream = fg.stream(`/**/*.{${ALLOWED_EXTENSIONS}}`, {
+        // 📌 注意：win本来为 /**/*.{${ALLOWED_EXTENSIONS}} ，需要测试windwos下，能否匹配 （包括目录）
+        const stream = fg.stream(`**/*.{${ALLOWED_EXTENSIONS}}`, {
             cwd: drive,
             ignore: ignorePatterns,
             onlyFiles: true,
@@ -79,7 +81,7 @@ async function findFiles(dir: string): Promise<string[]> {
         }
 
         console.log('📁 搜索文件夹中...');
-        const dirStream = fg.stream('/**/', {
+        const dirStream = fg.stream('**/', {
             cwd: drive,
             ignore: ignorePatterns,
             onlyDirectories: true,
