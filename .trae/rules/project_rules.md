@@ -1,0 +1,1 @@
+- 項目運行的命令是 `npm run electron:dev`
