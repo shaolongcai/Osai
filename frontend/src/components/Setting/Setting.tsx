@@ -170,7 +170,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                 onConfirm={() => { setReportAgreement(true) }} // 同意协议的回调
             />
             {/* 开启GPU服务 */}
-            <Dialog
+            <CustomDialog
                 title={hasGPU ? t('app.settings.gpuService') : '本机没有任何GPU'}
                 primaryButtonText={hasGPU ? t('app.common.confirm') : t('app.common.close')}
                 onPrimaryButtonClick={() => {
@@ -180,7 +180,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                         setGpuSeverOpen(false)
                     }
                 }}
-                secondaryButtonText={hasGPU && t('app.common.cancel')}
+                secondaryButtonText={hasGPU ? t('app.common.cancel') : undefined}
                 open={gpuSeverOpen}
                 onClose={() => { setGpuSeverOpen(false) }}
                 maxWidth='xs'
@@ -197,7 +197,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                         </Typography>
                     )
                 }
-            </Dialog>
+            </CustomDialog>
             {/* 视觉服务提示 */}
             <CustomDialog
                 title={t('app.settings.visualIndex')}
