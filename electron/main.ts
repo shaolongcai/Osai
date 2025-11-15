@@ -466,61 +466,81 @@ export const startIndexTask = async () => {
 }
 
 
-// 应用事件
-app.whenReady().then(() => {
-  createWindow();
-  createSearchBar();
-  createTray(); // 創建系統托盤
-  // 初始化API
-  initializeFileApi(mainWindow);
-  initializeUpdateApi()
-  initializeSystemApi()
+// 防止多開：請求單實例鎖
+const gotTheLock = app.requestSingleInstanceLock();
 
-  // 檢查並應用自啟動配置
-  const autoLaunchEnabled = getConfig('autoLaunch');
-  if (autoLaunchEnabled === true) {
-    app.setLoginItemSettings({
-      openAtLogin: true,
-      openAsHidden: false,
-    });
-    logger.info('應用啟動時已設置自啟動');
-  }
-
-  // 監聽托盤菜單語言更新
-  ipcMain.on('update-tray-language', (_event, language: string) => {
-    updateTrayMenu(language);
-    // 廣播語言更改到所有窗口（包括搜索框）
-    if (win && !win.isDestroyed()) {
-      win.webContents.send('language-changed', language);
-    }
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('language-changed', language);
-    }
-  });
-
-  // 注册全局快捷键
-  const shortcut = 'Alt+Space'; // 可改
-  registerGlobalShortcut(shortcut);
-  // 注册Esc关闭搜索框
-  globalShortcut.register('Escape', () => {
-    if (win && win.isVisible()) {
-      win.hide();
-    }
-  });
-  // 注册Ctrl+Q退出应用
-  globalShortcut.register('CommandOrControl+Q', () => {
-    isQuitting = true;
-    app.quit();
-  });
-
-  // 防止多开
+if (!gotTheLock) {
+  // 如果獲取鎖失敗，說明已經有另一個實例在運行
+  logger.info('應用已在運行，退出當前實例');
+  app.quit();
+} else {
+  // 監聽第二個實例啟動事件
   app.on('second-instance', () => {
+    logger.info('檢測到第二個實例啟動，激活現有窗口');
+    // 如果主窗口存在，顯示並聚焦
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    }
+    // 如果搜索框存在，顯示並聚焦（先居中再顯示）
     if (win) {
-      if (!win.isVisible()) win.show();
+      if (!win.isVisible()) {
+        centerOnCurrentDisplay();
+        win.show();
+      }
       win.focus();
     }
   });
-});
+
+  // 应用事件
+  app.whenReady().then(() => {
+    createWindow();
+    createSearchBar();
+    createTray(); // 創建系統托盤
+    // 初始化API
+    initializeFileApi(mainWindow);
+    initializeUpdateApi()
+    initializeSystemApi()
+
+    // 檢查並應用自啟動配置
+    const autoLaunchEnabled = getConfig('autoLaunch');
+    if (autoLaunchEnabled === true) {
+      app.setLoginItemSettings({
+        openAtLogin: true,
+        openAsHidden: false,
+      });
+      logger.info('應用啟動時已設置自啟動');
+    }
+
+    // 監聽托盤菜單語言更新
+    ipcMain.on('update-tray-language', (_event, language: string) => {
+      updateTrayMenu(language);
+      // 廣播語言更改到所有窗口（包括搜索框）
+      if (win && !win.isDestroyed()) {
+        win.webContents.send('language-changed', language);
+      }
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('language-changed', language);
+      }
+    });
+
+    // 注册全局快捷键
+    const shortcut = 'Alt+Space'; // 可改
+    registerGlobalShortcut(shortcut);
+    // 注册Esc关闭搜索框
+    globalShortcut.register('Escape', () => {
+      if (win && win.isVisible()) {
+        win.hide();
+      }
+    });
+    // 注册Ctrl+Q退出应用
+    globalShortcut.register('CommandOrControl+Q', () => {
+      isQuitting = true;
+      app.quit();
+    });
+  });
+}
 
 app.on('window-all-closed', () => {
   // 當所有窗口關閉時，不退出應用（因為有系統托盤）
