@@ -5,7 +5,9 @@ import { Contact, Dialog, ReportProtocol, SettingItem } from '@/components';
 import { UserConfig } from '@/types/system';
 import { ConfigParams } from '@/types/electron';
 import { useContext } from 'react';
-import { globalContext } from '@/context/globalContext';
+import { globalContext } from '@/contexts/globalContext';
+import { useTranslation } from '@/contexts/I18nContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher/LanguageSwitcher';
 
 interface SettingProps {
     open: boolean;
@@ -32,6 +34,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
 
     const context = useContext(globalContext)
+    const { t } = useTranslation();
 
 
 
@@ -58,12 +61,10 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     }
 
     // 手動檢查更新
-    const handleCheckUpdate = async () => {
-        if (!isElectron) return;
-        setUpdateChecking(true);
-        setUpdateAvailable(null);
-        (window as any).electronAPI.checkForUpdates();
-    }
+    // const handleCheckUpdate = async () => {
+    //     if (!window.electronAPI) return;
+    //     (window as any).electronAPI.checkForUpdates();
+    // }
 
     // 切换视觉索引开关
     const toggleVisualIndex = async (checked: boolean) => {
