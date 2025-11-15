@@ -170,8 +170,7 @@
       "uninstallerIcon": "./dist-electron/resources/assets/logo-256.ico",
       "installerHeaderIcon": "./dist-electron/resources/assets/logo-256.ico",
       "deleteAppDataOnUninstall": false,
-      "runAfterFinish": true,
-      "allowDowngrade": true
+      "runAfterFinish": true
     },
     "dmg": {
       "iconSize": 100,
