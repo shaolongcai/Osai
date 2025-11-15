@@ -1,7 +1,8 @@
-import { Drawer, Box, Typography, styled, Paper, Stack, Button } from '@mui/material';
+import { Dialog, Box, Typography, Paper, Stack, Button, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import styles from './Setting.module.scss'
 import { useEffect, useState } from 'react';
-import { Contact, Dialog, ReportProtocol, SettingItem } from '@/components';
+import { Contact, Dialog as CustomDialog, ReportProtocol, SettingItem } from '@/components';
 import { UserConfig } from '@/types/system';
 import { ConfigParams } from '@/types/electron';
 import { useContext } from 'react';
@@ -21,17 +22,12 @@ interface SettingProps {
     onClose: () => void;
 }
 
-// 步骤2：创建一个带样式的标题组件
-// 作用：将标题样式（字号、粗细、颜色）封装起来，使代码更清晰。
-const StyledTitle = styled(Typography)(({ theme }) => ({
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#00000085',
-    marginBottom: theme.spacing(2),
-}));
+// 設置類別類型
+type SettingCategory = 'general' | 'ai' | 'update' | 'about';
 
 const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
 
+    const [selectedCategory, setSelectedCategory] = useState<SettingCategory>('general')
     const [openIndexImage, setOpenIndexImage] = useState(Boolean(Number(localStorage.getItem('openIndexImage') || 0)))
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false) //CPU下开启索引的弹窗
     const [openReportProtocol, setOpenReportProtocol] = useState(false) //用户体验改进计划弹窗
@@ -203,7 +199,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                 }
             </Dialog>
             {/* 视觉服务提示 */}
-            <Dialog
+            <CustomDialog
                 title={t('app.settings.visualIndex')}
                 primaryButtonText={t('app.common.confirm')}
                 onPrimaryButtonClick={() => {
@@ -225,158 +221,270 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                 <Typography className={styles.dialogTips}>
                     📌 索引操作会在后台进行，你可以随时在设置中关闭视觉索引。
                 </Typography>
-            </Dialog>
-            <Drawer
-                anchor="right" // 从右侧滑出
+            </CustomDialog>
+            <Dialog
                 open={open}
                 onClose={onClose}
-                sx={{
-                    '& .MuiDrawer-paper': {
+                maxWidth={false}
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        width: '90%',
+                        maxWidth: '900px',
+                        height: '80%',
+                        maxHeight: '700px',
+                        borderRadius: '8px',
                         backgroundColor: '#FAFDFC',
-                        width: 360, // 设置一个合适的宽度
-                        padding: '16px', // 增加内边距
-                        boxSizing: 'border-box',
-                    },
+                    }
                 }}
             >
-                <Box
-                    role="presentation"
-                    sx={{
-                        flex: 1
-                    }}>
-                    <StyledTitle variant="h5" >
-                        {t('app.settings.title')}
-                    </StyledTitle>
-                    <Stack spacing={1}>
-                        <SettingItem
-                            title={t('app.settings.visualIndex')}
-                            type='switch'
-                            value={openIndexImage}
-                            onAction={toggleVisualIndex}
-                        />
-                        {
-                            context.os === 'win' &&
-                            <SettingItem
-                                title={t('app.settings.gpuService')}
-                                type='custom'
-                                value={openIndexImage}
-                                onAction={toggleVisualIndex}
-                                action={<Button
-                                    sx={{
-                                        '&:focus': {
-                                            outline: 'none',
-                                            border: 'none',
-                                            boxShadow: 'none'
-                                        },
-                                        '&:active': {
-                                            outline: 'none',
-                                            border: 'none',
-                                            boxShadow: 'none'
-                                        },
-                                        '&:hover': {
-                                            border: 'none'
-                                        }
-                                    }}
-                                    variant='text'
-                                    onClick={() => { setGpuSeverOpen(true) }} >
-                                    {isInstallGpu ? '重新安装' : '安装'}
-                                </Button>
+                <Box className={styles.settingContainer}>
+                    {/* 標題欄 */}
+                    <Box className={styles.header}>
+                        <Typography variant="h5" className={styles.headerTitle}>
+                            {t('app.settings.title')}
+                        </Typography>
+                        <IconButton
+                            onClick={onClose}
+                            size="small"
+                            sx={{
+                                color: '#00000085',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
                                 }
-                            />
-                        }
-                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
-                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >{t('app.settings.logFolder')}</Typography>
-                                <Button
-                                    sx={{
-                                        '&:focus': {
-                                            outline: 'none',
-                                            border: 'none',
-                                            boxShadow: 'none'
-                                        },
-                                        '&:active': {
-                                            outline: 'none',
-                                            border: 'none',
-                                            boxShadow: 'none'
-                                        },
-                                        '&:hover': {
-                                            border: 'none'
-                                        }
-                                    }}
-                                    variant='text'
-                                    onClick={() => {
-                                        window.electronAPI.openDir('runLog')
-                                    }}>
-                                    {t('app.settings.open')}
-                                </Button>
-                            </Stack>
-                        </Paper>
-                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
-                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >{t('app.settings.language')}</Typography>
-                                <LanguageSwitcher variant='select' size='small' showLabel={false} />
-                            </Stack>
-                        </Paper>
-                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
-                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >{t('app.settings.checkUpdate')}</Typography>
-                                {updateStatus.isLatest !== null ? (
-                                    // 檢查完成後，顯示狀態文字替換按鈕
-                                    <Typography 
-                                        variant="body2" 
-                                        sx={{ 
-                                            color: updateStatus.isLatest ? 'success.main' : 'warning.main',
-                                            fontSize: '0.875rem',
-                                            fontWeight: 500
-                                        }}
-                                    >
-                                        {updateStatus.message}
-                                    </Typography>
-                                ) : (
-                                    // 未檢查或檢查中，顯示按鈕
-                                    <Button
-                                        sx={{
-                                            '&:focus': {
-                                                outline: 'none',
-                                                border: 'none',
-                                                boxShadow: 'none'
-                                            },
-                                            '&:active': {
-                                                outline: 'none',
-                                                border: 'none',
-                                                boxShadow: 'none'
-                                            },
-                                            '&:hover': {
-                                                border: 'none'
+                            }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+
+                    {/* 主內容區域 */}
+                    <Box className={styles.content}>
+                        {/* 左側導航側邊欄 */}
+                        <Box className={styles.sidebar}>
+                            <Button
+                                className={`${styles.navItem} ${selectedCategory === 'general' ? styles.navItemActive : ''}`}
+                                onClick={() => setSelectedCategory('general')}
+                                fullWidth
+                            >
+                                {t('app.settings.generalSettings')}
+                            </Button>
+                            <Button
+                                className={`${styles.navItem} ${selectedCategory === 'ai' ? styles.navItemActive : ''}`}
+                                onClick={() => setSelectedCategory('ai')}
+                                fullWidth
+                            >
+                                {t('app.settings.aiSettings')}
+                            </Button>
+                            <Button
+                                className={`${styles.navItem} ${selectedCategory === 'update' ? styles.navItemActive : ''}`}
+                                onClick={() => setSelectedCategory('update')}
+                                fullWidth
+                            >
+                                {t('app.settings.update')}
+                            </Button>
+                            <Button
+                                className={`${styles.navItem} ${selectedCategory === 'about' ? styles.navItemActive : ''}`}
+                                onClick={() => setSelectedCategory('about')}
+                                fullWidth
+                            >
+                                {t('app.settings.about')}
+                            </Button>
+                        </Box>
+
+                        {/* 右側內容區域 */}
+                        <Box className={styles.mainContent}>
+                            {selectedCategory === 'general' && (
+                                <Stack spacing={2}>
+                                    <Paper className={styles.settingItem} elevation={0} variant='outlined'>
+                                        <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                            <Typography variant="body1" className={styles.label}>
+                                                {t('app.settings.language')}
+                                            </Typography>
+                                            <LanguageSwitcher variant='select' size='small' showLabel={false} />
+                                        </Stack>
+                                    </Paper>
+                                    <Paper className={styles.settingItem} elevation={0} variant='outlined'>
+                                        <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                            <Typography variant="body1" className={styles.label}>
+                                                {t('app.settings.logFolder')}
+                                            </Typography>
+                                            <Button
+                                                sx={{
+                                                    color: '#1976d2',
+                                                    '&:focus': {
+                                                        outline: 'none',
+                                                        border: 'none',
+                                                        boxShadow: 'none'
+                                                    },
+                                                    '&:active': {
+                                                        outline: 'none',
+                                                        border: 'none',
+                                                        boxShadow: 'none'
+                                                    },
+                                                    '&:hover': {
+                                                        backgroundColor: 'transparent',
+                                                        textDecoration: 'underline'
+                                                    }
+                                                }}
+                                                variant='text'
+                                                onClick={() => {
+                                                    window.electronAPI.openDir('runLog')
+                                                }}>
+                                                {t('app.settings.open')}
+                                            </Button>
+                                        </Stack>
+                                    </Paper>
+                                </Stack>
+                            )}
+
+                            {selectedCategory === 'ai' && (
+                                <Stack spacing={2}>
+                                    <SettingItem
+                                        title={t('app.settings.visualIndex')}
+                                        type='switch'
+                                        value={openIndexImage}
+                                        onAction={toggleVisualIndex}
+                                    />
+                                    {
+                                        context.os === 'win' &&
+                                        <SettingItem
+                                            title={t('app.settings.gpuService')}
+                                            type='custom'
+                                            value={openIndexImage}
+                                            onAction={toggleVisualIndex}
+                                            action={<Button
+                                                sx={{
+                                                    color: '#1976d2',
+                                                    '&:focus': {
+                                                        outline: 'none',
+                                                        border: 'none',
+                                                        boxShadow: 'none'
+                                                    },
+                                                    '&:active': {
+                                                        outline: 'none',
+                                                        border: 'none',
+                                                        boxShadow: 'none'
+                                                    },
+                                                    '&:hover': {
+                                                        backgroundColor: 'transparent',
+                                                        textDecoration: 'underline'
+                                                    }
+                                                }}
+                                                variant='text'
+                                                onClick={() => { setGpuSeverOpen(true) }} >
+                                                {isInstallGpu ? t('app.settings.reInstall') : t('app.settings.install')}
+                                            </Button>
                                             }
-                                        }}
-                                        variant='text'
-                                        onClick={handleCheckUpdate}
-                                        disabled={isCheckingUpdate}
-                                    >
-                                        {isCheckingUpdate ? t('app.settings.checking') : t('app.settings.check')}
-                                    </Button>
-                                )}
-                            </Stack>
-                        </Paper>
-                        <SettingItem
-                            title={t('app.settings.autoLaunch')}
-                            type='switch'
-                            value={autoLaunch}
-                            onAction={toggleAutoLaunch}
-                        />
-                        <SettingItem
-                            title={t('app.settings.userExperience')}
-                            type='switch'
-                            value={reportAgreement}
-                            onAction={toggleReportAgreement}
-                        />
-                    </Stack>
+                                        />
+                                    }
+                                </Stack>
+                            )}
+
+                            {selectedCategory === 'update' && (
+                                <Stack spacing={2}>
+                                    <Paper className={styles.settingItem} elevation={0} variant='outlined'>
+                                        <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                            <Typography variant="body1" className={styles.label}>
+                                                {t('app.settings.checkUpdate')}
+                                            </Typography>
+                                            {updateStatus.isLatest !== null ? (
+                                                <Typography 
+                                                    variant="body2" 
+                                                    sx={{ 
+                                                        color: updateStatus.isLatest ? 'success.main' : 'warning.main',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500
+                                                    }}
+                                                >
+                                                    {updateStatus.message}
+                                                </Typography>
+                                            ) : (
+                                                <Button
+                                                    sx={{
+                                                        color: '#1976d2',
+                                                        '&:focus': {
+                                                            outline: 'none',
+                                                            border: 'none',
+                                                            boxShadow: 'none'
+                                                        },
+                                                        '&:active': {
+                                                            outline: 'none',
+                                                            border: 'none',
+                                                            boxShadow: 'none'
+                                                        },
+                                                        '&:hover': {
+                                                            backgroundColor: 'transparent',
+                                                            textDecoration: 'underline'
+                                                        }
+                                                    }}
+                                                    variant='text'
+                                                    onClick={handleCheckUpdate}
+                                                    disabled={isCheckingUpdate}
+                                                >
+                                                    {isCheckingUpdate ? t('app.settings.checking') : t('app.settings.check')}
+                                                </Button>
+                                            )}
+                                        </Stack>
+                                    </Paper>
+                                    <SettingItem
+                                        title={t('app.settings.autoLaunch')}
+                                        type='switch'
+                                        value={autoLaunch}
+                                        onAction={toggleAutoLaunch}
+                                    />
+                                </Stack>
+                            )}
+
+                            {selectedCategory === 'about' && (
+                                <Stack spacing={2}>
+                                    <Paper className={styles.settingItem} elevation={0} variant='outlined'>
+                                        <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                            <Typography variant="body1" className={styles.label}>
+                                                {t('app.settings.website')}
+                                            </Typography>
+                                            <Button
+                                                sx={{
+                                                    color: '#1976d2',
+                                                    textTransform: 'none',
+                                                    '&:focus': {
+                                                        outline: 'none',
+                                                        border: 'none',
+                                                        boxShadow: 'none'
+                                                    },
+                                                    '&:active': {
+                                                        outline: 'none',
+                                                        border: 'none',
+                                                        boxShadow: 'none'
+                                                    },
+                                                    '&:hover': {
+                                                        backgroundColor: 'transparent',
+                                                        textDecoration: 'underline'
+                                                    }
+                                                }}
+                                                variant='text'
+                                                onClick={() => {
+                                                    window.electronAPI.openExternalUrl('https://osai.click')
+                                                }}>
+                                                https://osai.click
+                                            </Button>
+                                        </Stack>
+                                    </Paper>
+                                    <SettingItem
+                                        title={t('app.settings.userExperience')}
+                                        type='switch'
+                                        value={reportAgreement}
+                                        onAction={toggleReportAgreement}
+                                    />
+                                    <Box className={styles.contact}>
+                                        <Contact title={t('app.settings.community')} />
+                                    </Box>
+                                </Stack>
+                            )}
+                        </Box>
+                    </Box>
                 </Box>
-                <div className={styles.contact}>
-                    <Contact title={t('app.settings.community')} />
-                </div>
-            </Drawer>
+            </Dialog>
         </div>
     );
 };

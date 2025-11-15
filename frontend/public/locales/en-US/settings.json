@@ -7,7 +7,7 @@
   "userExperience": "User Experience Improvement Plan",
   "autoLaunch": "Launch at Startup",
   "language": "Language",
-  "logFolder": "Log Folder",
+  "logFolder": "Execution Record",
   "open": "Open",
   "community": "Give us your feedback in the community!",
   "feedback": "Feedback",
@@ -15,5 +15,10 @@
   "check": "Check",
   "checking": "Checking...",
   "checkUpdateStatusLatest": "You are on the latest version",
-  "checkUpdateStatusNewVersion": "New version found: {{version}}"
+  "checkUpdateStatusNewVersion": "New version found: {{version}}",
+  "generalSettings": "General Settings",
+  "aiSettings": "AI Settings",
+  "update": "Update",
+  "about": "About",
+  "website": "Official Website"
 }

@@ -15,5 +15,10 @@
   "check": "檢查",
   "checking": "檢查中...",
   "checkUpdateStatusLatest": "目前已是最新版本",
-  "checkUpdateStatusNewVersion": "發現新版本：{{version}}"
+  "checkUpdateStatusNewVersion": "發現新版本：{{version}}",
+  "generalSettings": "一般設定",
+  "aiSettings": "AI 設定",
+  "update": "更新",
+  "about": "關於",
+  "website": "官方網站"
 }

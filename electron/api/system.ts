@@ -1,4 +1,4 @@
-import { ipcMain, app } from 'electron';
+import { ipcMain, app, shell } from 'electron';
 import { logger } from '../core/logger.js';
 import { severDownloader } from '../core/downloader.js';
 import { initializeModel } from '../core/model.js';
@@ -71,6 +71,18 @@ export function initializeSystemApi() {
             return true;
         } catch (error) {
             logger.error(`設置自啟動狀態失敗: ${error}`);
+            return false;
+        }
+    });
+
+    // 在外部瀏覽器中打開鏈接
+    ipcMain.handle('open-external-url', (_event, url: string) => {
+        try {
+            shell.openExternal(url);
+            logger.info(`在外部瀏覽器中打開鏈接: ${url}`);
+            return true;
+        } catch (error) {
+            logger.error(`打開外部鏈接失敗: ${error}`);
             return false;
         }
     });

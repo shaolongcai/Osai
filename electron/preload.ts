@@ -27,6 +27,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     updateTrayLanguage: (language: string) => ipcRenderer.send('update-tray-language', language), // 更新托盘菜单语言
     getAutoLaunch: () => ipcRenderer.invoke('get-auto-launch'), // 獲取自啟動狀態
     setAutoLaunch: (enabled: boolean) => ipcRenderer.invoke('set-auto-launch', enabled), // 設置自啟動狀態
+    openExternalUrl: (url: string) => ipcRenderer.invoke('open-external-url', url), // 在外部瀏覽器中打開鏈接
 
     // 更新相关
     checkForUpdates: () => ipcRenderer.invoke('check-for-updates'), // 检查

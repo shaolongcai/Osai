@@ -15,5 +15,10 @@
   "check": "確認",
   "checking": "確認中...",
   "checkUpdateStatusLatest": "最新バージョンを使用しています",
-  "checkUpdateStatusNewVersion": "新しいバージョンが見つかりました{{version}}"
+  "checkUpdateStatusNewVersion": "新しいバージョンが見つかりました{{version}}",
+  "generalSettings": "一般設定",
+  "aiSettings": "AI 設定",
+  "update": "更新",
+  "about": "について",
+  "website": "公式ウェブサイト"
 }

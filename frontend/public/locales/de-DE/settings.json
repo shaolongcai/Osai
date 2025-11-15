@@ -15,5 +15,10 @@
   "check": "Prüfen",
   "checking": "Wird geprüft...",
   "checkUpdateStatusLatest": "Sie verwenden die neueste Version",
-  "checkUpdateStatusNewVersion": "Neue Version gefunden: {{version}}"
+  "checkUpdateStatusNewVersion": "Neue Version gefunden: {{version}}",
+  "generalSettings": "Allgemeine Einstellungen",
+  "aiSettings": "KI-Einstellungen",
+  "update": "Aktualisierung",
+  "about": "Über",
+  "website": "Offizielle Website"
 }
