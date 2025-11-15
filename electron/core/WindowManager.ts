@@ -51,7 +51,7 @@ class WindowManager {
             backgroundColor: '#00000000',
             // hasShadow: false, // 如果想去掉系统阴影
             webPreferences: {
-                preload: path.join(__dirname, 'preload.js'),
+                preload: path.join(__dirname, '../preload.js'),
                 nodeIntegration: false,
                 contextIsolation: true
             }
@@ -75,7 +75,7 @@ class WindowManager {
             backgroundColor: '#00000000',
             // hasShadow: false, // 如果想去掉系统阴影
             webPreferences: {
-                preload: path.join(__dirname, 'preload.js'),
+                preload: path.join(__dirname, '../preload.js'),
                 nodeIntegration: false,
                 contextIsolation: true
             }
