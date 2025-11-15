@@ -5,6 +5,7 @@
   "visualIndex": "开启图片索引",
   "gpuService": "GPU加速服务",
   "userExperience": "用户体验改进计划",
+  "autoLaunch": "开机自启动",
   "language": "语言",
   "logFolder": "运行日志",
   "open": "打开",

@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain, app } from 'electron';
 import { logger } from '../core/logger.js';
 import { severDownloader } from '../core/downloader.js';
 import { initializeModel } from '../core/model.js';
@@ -43,5 +43,35 @@ export function initializeSystemApi() {
                 sendToRenderer('ai-sever-installed', true);
             }
         }, 3000);
+    });
+
+    // 獲取自啟動狀態
+    ipcMain.handle('get-auto-launch', (_event) => {
+        try {
+            const loginItemSettings = app.getLoginItemSettings();
+            const enabled = loginItemSettings.openAtLogin;
+            logger.info(`獲取自啟動狀態: ${enabled}`);
+            return enabled;
+        } catch (error) {
+            logger.error(`獲取自啟動狀態失敗: ${error}`);
+            return false;
+        }
+    });
+
+    // 設置自啟動狀態
+    ipcMain.handle('set-auto-launch', (_event, enabled: boolean) => {
+        try {
+            app.setLoginItemSettings({
+                openAtLogin: enabled,
+                openAsHidden: false,
+            });
+            // 保存到數據庫
+            setConfig('autoLaunch', enabled, 'boolean');
+            logger.info(`設置自啟動狀態: ${enabled}`);
+            return true;
+        } catch (error) {
+            logger.error(`設置自啟動狀態失敗: ${error}`);
+            return false;
+        }
     });
 }

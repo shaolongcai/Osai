@@ -15,7 +15,7 @@ import { useTranslation } from '@/contexts/I18nContext';
 import packageJson from '../../../../package.json';
 
 // 版本號常量，方便統一管理
-const APP_VERSION = 'Beta 0.4.0';
+const APP_VERSION = 'Beta 0.4.1';
 
 const Home = () => {
 

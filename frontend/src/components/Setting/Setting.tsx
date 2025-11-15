@@ -1,4 +1,4 @@
-import { Drawer, Box, Typography, Switch, styled, Paper, Stack, Button } from '@mui/material';
+import { Drawer, Box, Typography, styled, Paper, Stack, Button } from '@mui/material';
 import styles from './Setting.module.scss'
 import { useEffect, useState } from 'react';
 import { Contact, Dialog, ReportProtocol, SettingItem } from '@/components';
@@ -8,6 +8,13 @@ import { useContext } from 'react';
 import { globalContext } from '@/contexts/globalContext';
 import { useTranslation } from '@/contexts/I18nContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher/LanguageSwitcher';
+
+// 更新狀態類型
+interface UpdateStatusData {
+    isUpdateAvailable?: boolean;
+    version?: string;
+    message?: string;
+}
 
 interface SettingProps {
     open: boolean;
@@ -32,6 +39,9 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [gpuSeverOpen, setGpuSeverOpen] = useState(false) //GPU服务弹窗
     const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
     const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
+    const [autoLaunch, setAutoLaunch] = useState(false) //是否開機自啟動
+    const [isCheckingUpdate, setIsCheckingUpdate] = useState(false) //是否正在檢查更新
+    const [updateStatus, setUpdateStatus] = useState<{ isLatest: boolean | null; message?: string; version?: string }>({ isLatest: null }) //更新狀態
 
     const context = useContext(globalContext)
     const { t } = useTranslation();
@@ -41,15 +51,53 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     // 拉取用户配置
     useEffect(() => {
         if (open) {
+            // 重置更新狀態，允許用戶重新檢查
+            setUpdateStatus({ isLatest: null });
+            setIsCheckingUpdate(false);
+            
             window.electronAPI.getConfig().then((res: UserConfig) => {
                 console.log('config', res)
                 setOpenIndexImage(res.visual_index_enabled)
                 setHasGPU(res.hasGPU)
                 setIsInstallGpu(res.cuda_installed)
                 setReportAgreement(res.report_agreement)
+                // 讀取自啟動狀態
+                window.electronAPI.getAutoLaunch().then((enabled: boolean) => {
+                    setAutoLaunch(enabled)
+                })
             })
         }
     }, [open])
+
+    // 監聽更新狀態
+    useEffect(() => {
+        if (!open) return;
+
+        const handleUpdateStatus = (data: UpdateStatusData) => {
+            console.log('更新狀態:', data);
+            if (data.isUpdateAvailable) {
+                // 有新版本
+                setUpdateStatus({
+                    isLatest: false,
+                    version: data.version,
+                    message: data.message || t('app.settings.checkUpdateStatusNewVersion', { version: data.version })
+                });
+            } else {
+                // 已是最新版本或檢查完成
+                setUpdateStatus({
+                    isLatest: true,
+                    message: data.message || t('app.settings.checkUpdateStatusLatest')
+                });
+            }
+            setIsCheckingUpdate(false);
+        };
+
+        window.electronAPI.onUpdateStatus(handleUpdateStatus);
+
+        return () => {
+            window.electronAPI.removeAllListeners('update-status');
+        };
+    }, [open, t])
 
     // 安装GPU服务
     const installGpu = async () => {
@@ -61,10 +109,19 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     }
 
     // 手動檢查更新
-    // const handleCheckUpdate = async () => {
-    //     if (!window.electronAPI) return;
-    //     (window as any).electronAPI.checkForUpdates();
-    // }
+    const handleCheckUpdate = async () => {
+        if (!window.electronAPI) return;
+        setIsCheckingUpdate(true);
+        // 重置更新狀態，準備顯示新的檢查結果
+        setUpdateStatus({ isLatest: null });
+        try {
+            await window.electronAPI.checkForUpdates();
+        } catch (error) {
+            console.error('檢查更新失敗:', error);
+            setIsCheckingUpdate(false);
+        }
+        // 注意：isCheckingUpdate 會在 onUpdateStatus 回調中設置為 false
+    }
 
     // 切换视觉索引开关
     const toggleVisualIndex = async (checked: boolean) => {
@@ -102,6 +159,12 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
         window.electronAPI.setConfig(params2)
     }
 
+    // 切換自啟動開關
+    const toggleAutoLaunch = async (checked: boolean) => {
+        setAutoLaunch(checked)
+        await window.electronAPI.setAutoLaunch(checked)
+    }
+
     return (
         <div>
             {/* 同意协议弹窗 */}
@@ -115,7 +178,11 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                 title={hasGPU ? t('app.settings.gpuService') : '本机没有任何GPU'}
                 primaryButtonText={hasGPU ? t('app.common.confirm') : t('app.common.close')}
                 onPrimaryButtonClick={() => {
-                    hasGPU ? installGpu() : setGpuSeverOpen(false)
+                    if (hasGPU) {
+                        installGpu()
+                    } else {
+                        setGpuSeverOpen(false)
+                    }
                 }}
                 secondaryButtonText={hasGPU && t('app.common.cancel')}
                 open={gpuSeverOpen}
@@ -250,6 +317,54 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                 <LanguageSwitcher variant='select' size='small' showLabel={false} />
                             </Stack>
                         </Paper>
+                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
+                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                <Typography variant="body1" className={styles.label} >{t('app.settings.checkUpdate')}</Typography>
+                                {updateStatus.isLatest !== null ? (
+                                    // 檢查完成後，顯示狀態文字替換按鈕
+                                    <Typography 
+                                        variant="body2" 
+                                        sx={{ 
+                                            color: updateStatus.isLatest ? 'success.main' : 'warning.main',
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500
+                                        }}
+                                    >
+                                        {updateStatus.message}
+                                    </Typography>
+                                ) : (
+                                    // 未檢查或檢查中，顯示按鈕
+                                    <Button
+                                        sx={{
+                                            '&:focus': {
+                                                outline: 'none',
+                                                border: 'none',
+                                                boxShadow: 'none'
+                                            },
+                                            '&:active': {
+                                                outline: 'none',
+                                                border: 'none',
+                                                boxShadow: 'none'
+                                            },
+                                            '&:hover': {
+                                                border: 'none'
+                                            }
+                                        }}
+                                        variant='text'
+                                        onClick={handleCheckUpdate}
+                                        disabled={isCheckingUpdate}
+                                    >
+                                        {isCheckingUpdate ? t('app.settings.checking') : t('app.settings.check')}
+                                    </Button>
+                                )}
+                            </Stack>
+                        </Paper>
+                        <SettingItem
+                            title={t('app.settings.autoLaunch')}
+                            type='switch'
+                            value={autoLaunch}
+                            onAction={toggleAutoLaunch}
+                        />
                         <SettingItem
                             title={t('app.settings.userExperience')}
                             type='switch'

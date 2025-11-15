@@ -5,6 +5,7 @@
   "visualIndex": "Enable Image Indexing",
   "gpuService": "GPU Acceleration Service",
   "userExperience": "User Experience Improvement Plan",
+  "autoLaunch": "Launch at Startup",
   "language": "Language",
   "logFolder": "Log Folder",
   "open": "Open",

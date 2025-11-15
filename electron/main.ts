@@ -476,6 +476,16 @@ app.whenReady().then(() => {
   initializeUpdateApi()
   initializeSystemApi()
 
+  // 檢查並應用自啟動配置
+  const autoLaunchEnabled = getConfig('autoLaunch');
+  if (autoLaunchEnabled === true) {
+    app.setLoginItemSettings({
+      openAtLogin: true,
+      openAsHidden: false,
+    });
+    logger.info('應用啟動時已設置自啟動');
+  }
+
   // 監聽托盤菜單語言更新
   ipcMain.on('update-tray-language', (_event, language: string) => {
     updateTrayMenu(language);
