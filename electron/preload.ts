@@ -33,6 +33,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // 执行AI Mark功能
     aiMark: (filePath: string) => ipcRenderer.invoke('ai-mark', filePath),
 
+    // 实时更新宽度
+    resizeMainWindow: (width: number, height?: number) => ipcRenderer.send('resize-main-window', width, height),
+
 
     // 日志监听
     onLogger: (callback) => {

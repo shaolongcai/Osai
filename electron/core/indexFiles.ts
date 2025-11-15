@@ -147,24 +147,8 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
             // 我们需要指向编译后的 .js 文件
             const workerPath = path.join(__dirname, '../workers/indexer.worker.js');
 
-            const excludedDirNames = new Set([
-                // 'node_modules',
-                // '$Recycle.Bin',
-                // 'System Volume Information',
-                // 'AppData',
-                // 'ProgramData',
-                // 'Program Files',
-                // 'Program Files (x86)',
-                // 'Windows',
-                // '.git',
-                // '.vscode',
-                // 'Library' //mac忽略目录
-            ]);
-            // 将 Set 转换为数组以便通过 workerData 传递
-            const excludedDirNamesArray = Array.from(excludedDirNames);
-
             const worker = new Worker(workerPath, {
-                workerData: { drive, dbPath, excludedDirNamesArray }
+                workerData: { drive, dbPath }
             });
 
 
@@ -383,7 +367,6 @@ const getInstalledPrograms = () => {
 /**
  * 获取 macOS 端的「已安装应用」与「常见目录图片」
  * 1) 应用来源：/Applications 与 ~/Applications 下的 .app 包
- * 2) 图片来源：~/Pictures、~/Desktop、~/Downloads 下的常见图片格式
  * 返回结构与 Windows 程序入库所需字段保持一致，便于后续复用
  */
 const getMacProgramsAndImages = (): {

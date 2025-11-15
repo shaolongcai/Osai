@@ -14,6 +14,7 @@ import { initializeUpdateApi } from './api/update.js';
 import { initializeSystemApi } from './api/system.js';
 
 
+
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,9 +29,11 @@ let isQuitting = false;
  * F 盘示例：
  * F:\MyApp\resources\app.asar\electron
  */
-let mainWindow: BrowserWindow | null;
-let win = null;
 let tray: Tray | null = null;
+let mainWindow: BrowserWindow | null;
+  let searchWindow: BrowserWindow | null;
+  let settingsWindow: BrowserWindow | null;
+
 
 function createWindow() {
 
@@ -96,35 +99,19 @@ function createWindow() {
 
 // 创建快捷键的UI
 function createSearchBar() {
-  win = new BrowserWindow({
-    width: 480,
-    height: 600,
-    x: 0,               // 后面会计算居中
-    y: 0,
-    frame: false,       // 无边框
-    resizable: false,
-    movable: true,
-    alwaysOnTop: true,  // 总在最前
-    skipTaskbar: true,  // 不占用任务栏
-    show: false,        // 先不显示
-    transparent: true,
-    backgroundColor: '#00000000',
-    // hasShadow: false, // 如果想去掉系统阴影
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: false,
-      contextIsolation: true
-    }
-  });
-  // 加载搜索条HTML
+
+
   if (isDev) {
-    win.loadURL('http://localhost:5173/search-bar.html');
-    win.webContents.openDevTools(); //打开开发者工具
+    searchWindow.loadURL('http://localhost:5173/search-bar.html');   // 加载搜索条HTML
+    settingsWindow.loadURL('http://localhost:5173/setting.html');   // 加载设置条HTML
+    searchWindow.webContents.openDevTools(); //打开开发者工具
+    settingsWindow.webContents.openDevTools(); //打开开发者工具
   } else {
-    win.loadFile(path.join(__dirname, '../frontend/dist/search-bar.html'));
+    searchWindow.loadFile(path.join(__dirname, '../frontend/dist/search-bar.html'));
+    settingsWindow.loadFile(path.join(__dirname, '../frontend/dist/settings.html'));
 
     // 生產環境：屏蔽開發者工具快捷鍵
-    win.webContents.on('before-input-event', (event, input) => {
+    searchWindow.webContents.on('before-input-event', (event, input) => {
       // 屏蔽 Ctrl+Shift+I (Windows/Linux) 和 Cmd+Option+I (macOS)
       if (input.control && input.shift && input.key.toLowerCase() === 'i') {
         event.preventDefault();
@@ -142,13 +129,24 @@ function createSearchBar() {
 
   // 當搜索框失去焦點時自動隱藏（開發模式下禁用，避免與開發者工具衝突）
   if (!isDev) {
-    win.on('blur', () => {
-      if (win && win.isVisible()) {
-        win.hide();
+    searchWindow.on('blur', () => {
+      if (searchWindow && searchWindow.isVisible()) {
+        searchWindow.hide();
       }
     });
   }
 }
+
+// // 监听UI大小
+//   ipcMain.on('resize-main-window', (_event, width: number, height?: number) => {
+//      if (!windowManager.searchWindow || windowManager.searchWindow.isDestroyed()) return;
+//   const [oldW, oldH] = windowManager.searchWindow.getContentSize();
+//   const [oldX, oldY] = windowManager.searchWindow.getPosition();
+//   const newW = Math.max(480, Math.round(width));
+//   const newH = Math.round(height ?? oldH);
+//   const newX = Math.round(oldX + (oldW - newW) / 2);
+//   windowManager.searchWindow.setBounds({ x: newX, y: oldY, width: newW, height: newH });
+//   });
 
 // 更新托盤菜單語言
 function updateTrayMenu(language?: string) {
@@ -173,10 +171,10 @@ function updateTrayMenu(language?: string) {
     {
       label: t.showSearchBar,
       click: () => {
-        if (win) {
-          centerOnCurrentDisplay();
-          win.show();
-          win.focus();
+        if (searchWindow) {
+          // centerOnCurrentDisplay();
+          searchWindow.show();
+          searchWindow.focus();
         }
       }
     },
@@ -186,10 +184,10 @@ function updateTrayMenu(language?: string) {
     {
       label: t.settings,
       click: () => {
-        if (mainWindow) {
-          mainWindow.show();
-          mainWindow.focus();
-          mainWindow.webContents.send('navigate-to-settings');
+        if (settingsWindow) {
+          settingsWindow.show();
+          settingsWindow.focus();
+          settingsWindow.webContents.send('navigate-to-settings');    
         }
       }
     },
@@ -298,10 +296,10 @@ function createTray() {
     {
       label: t.showSearchBar,
       click: () => {
-        if (win) {
-          centerOnCurrentDisplay();
-          win.show();
-          win.focus();
+        if (searchWindow) {
+          // centerOnCurrentDisplay();
+          searchWindow.show();
+          searchWindow.focus();
         }
       }
     },
@@ -354,13 +352,13 @@ function createTray() {
   // 單擊托盤圖標顯示搜索框（Windows系統）
   if (process.platform === 'win32') {
     tray.on('click', () => {
-      if (win) {
-        if (win.isVisible()) {
-          win.hide();
+      if (searchWindow) {
+        if (searchWindow.isVisible()) {
+          searchWindow.hide();
         } else {
-          centerOnCurrentDisplay();
-          win.show();
-          win.focus();
+          // centerOnCurrentDisplay();
+          searchWindow.show();
+          searchWindow.focus();
         }
       }
     });
@@ -426,7 +424,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) || true) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();
@@ -465,7 +463,11 @@ export const startIndexTask = async () => {
 
 
 // 应用事件
-app.whenReady().then(() => {
+app.whenReady().then(async() => {
+  const { windowManager } = await import('./core/WindowManager.js');
+  searchWindow = windowManager.searchWindow;
+  settingsWindow = windowManager.settingsWindow;
+
   createWindow();
   createSearchBar();
   createTray(); // 創建系統托盤
@@ -478,8 +480,8 @@ app.whenReady().then(() => {
   ipcMain.on('update-tray-language', (_event, language: string) => {
     updateTrayMenu(language);
     // 廣播語言更改到所有窗口（包括搜索框）
-    if (win && !win.isDestroyed()) {
-      win.webContents.send('language-changed', language);
+    if (windowManager.searchWindow && !windowManager.searchWindow.isDestroyed()) {
+      windowManager.searchWindow.webContents.send('language-changed', language);
     }
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('language-changed', language);
@@ -491,8 +493,8 @@ app.whenReady().then(() => {
   registerGlobalShortcut(shortcut);
   // 注册Esc关闭搜索框
   globalShortcut.register('Escape', () => {
-    if (win && win.isVisible()) {
-      win.hide();
+    if (windowManager.searchWindow && windowManager.searchWindow.isVisible()) {
+      windowManager.searchWindow.hide();
     }
   });
   // 注册Ctrl+Q退出应用
@@ -503,9 +505,9 @@ app.whenReady().then(() => {
 
   // 防止多开
   app.on('second-instance', () => {
-    if (win) {
-      if (!win.isVisible()) win.show();
-      win.focus();
+    if (windowManager.searchWindow) {
+      if (!windowManager.searchWindow.isVisible()) windowManager.searchWindow.show();
+      windowManager.searchWindow.focus();
     }
   });
 });
@@ -546,23 +548,15 @@ export const sendToRenderer = (channel: string, data: any) => {
 // 注册全局快捷键
 const registerGlobalShortcut = (shortcut: string) => {
   globalShortcut.register(shortcut, () => {
-    if (win.isVisible()) {
-      win.hide();
+    if (searchWindow.isVisible()) {
+      searchWindow.hide();
+      settingsWindow.hide();
     } else {
-      centerOnCurrentDisplay();
-      win.show();
-      win.focus(); // 让输入框直接获得焦点
+      // centerOnCurrentDisplay();
+      searchWindow.show();
+      searchWindow.focus(); // 让输入框直接获得焦点
+      settingsWindow.show();
     }
   });
 }
 
-// 计算屏幕居中
-const centerOnCurrentDisplay = () => {
-  const cursor = screen.getCursorScreenPoint();
-  const dist = screen.getDisplayNearestPoint(cursor).workArea;
-  const { width, height } = win.getBounds();
-  win.setBounds({
-    x: Math.round(dist.x + (dist.width - width) / 2),
-    y: Math.round(dist.y + dist.height * 0.25)   // 屏幕 1/4 处
-  });
-}

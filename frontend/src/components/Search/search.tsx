@@ -27,6 +27,7 @@ const Search: React.FC<Props> = ({
     }
 
     return <Paper
+        id='search-panel'
         elevation={0}
         className={styles.root}
         sx={{
@@ -35,6 +36,7 @@ const Search: React.FC<Props> = ({
             boxShadow: '0px 2px 4px rgba(25, 33, 61, 0.08)',
             border: '1px solid #F0F2F5',
             width: '100%',
+            // minWidth: '480px',
         }}
     >
         <Stack direction="row" spacing={2} alignItems="center">

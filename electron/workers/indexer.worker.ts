@@ -6,7 +6,6 @@ import Database from 'better-sqlite3';
 import dayjs from 'dayjs';
 import fg from 'fast-glob';
 import type { IndexFile } from '../types/database';
-import { execSync } from 'child_process';
 
 
 // ... (ALLOWED_EXTENSIONS and BATCH_SIZE remain the same)
@@ -14,10 +13,9 @@ const ALLOWED_EXTENSIONS = 'png,jpg,jpeg,ppt,pptx,csv,doc,docx,txt,xlsx,xls,pdf'
 const BATCH_SIZE = 10000;
 
 // --- 1. 首先，获取 workerData 并初始化数据库 ---
-const { drive, dbPath, excludedDirNamesArray } = workerData as {
+const { drive, dbPath } = workerData as {
     drive: string;
     dbPath: string;
-    excludedDirNamesArray: string[];
 };
 const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
@@ -34,10 +32,10 @@ const insertStmt = db.prepare(
 async function findFiles(dir: string): Promise<string[]> {
     try {
         console.log(`🚀 使用 fast-glob 在 "${dir}" 中开始异步搜索...`);
-        const dynamicIgnores = excludedDirNamesArray.map(d => `**/${d}/**`);
+        // const dynamicIgnores = excludedDirNamesArray.map(d => `**/${d}/**`);
 
         const ignorePatterns = [
-            ...dynamicIgnores,
+            // ...dynamicIgnores,
             '**/.?*',
             '**/{node_modules,.$*,System Volume  Information,AppData,ProgramData,Program Files,Program Files (x86),Windows,.git,.vscode,.idea,temp,tmp,cache,logs,build,dist,out,target,__pycache__}/**',
             '**/*.{asar,DS_Store,thumbs.db,desktop.ini}',
@@ -45,6 +43,7 @@ async function findFiles(dir: string): Promise<string[]> {
             '**/Library/**', // mac忽略目录
             '**/.*/**', // 去掉所有以点开头的文件夹
             '**/*.app/**', // 去掉所有以.app结尾的文件夹
+            '**/Applications/**', //去掉应用程序，在应用程序中已经寻找了
         ];
 
         const allFiles: string[] = [];
@@ -62,7 +61,6 @@ async function findFiles(dir: string): Promise<string[]> {
             throwErrorOnBrokenSymbolicLink: false,
             // deep: 5 
         });
-
 
 
         //📌 stat加上后，无法返回实体
