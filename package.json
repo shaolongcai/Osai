@@ -34,7 +34,7 @@
     "build:win": "electron-builder --win --x64"
   },
   "name": "osai",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "a search app by ai",
   "main": "dist-electron/main.js",
   "license": "none",
@@ -170,7 +170,8 @@
       "uninstallerIcon": "./dist-electron/resources/assets/logo-256.ico",
       "installerHeaderIcon": "./dist-electron/resources/assets/logo-256.ico",
       "deleteAppDataOnUninstall": false,
-      "runAfterFinish": true
+      "runAfterFinish": true,
+      "allowDowngrade": true
     },
     "dmg": {
       "iconSize": 100,
