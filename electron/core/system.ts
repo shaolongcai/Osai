@@ -10,7 +10,7 @@ import { INotification } from '../types/system.js';
 import pathConfig from './pathConfigs.js';
 import { exec } from 'child_process';
 import { logger } from './logger.js';
-import { getConfig, setConfig } from '../database/sqlite.js';
+import { getConfig, getDatabase, setConfig } from '../database/sqlite.js';
 import { execSync } from 'child_process';
 import * as fs from 'fs'
 import AdmZip from 'adm-zip';
@@ -185,10 +185,52 @@ export const openDir = (type: string, filePath?: string) => {
                 // 对于其他平台（如 Linux），继续使用 showItemInFolder 作为备选
                 shell.showItemInFolder(filePath);
             }
+            try {
+                if (filePath) {
+                    const db = getDatabase();
+                    // 临时mac端判断是否为程序,判断扩展名为.app,如果为.app 则增加到programs表,否则增加到files表
+                    let formName: string
+                    if (filePath.endsWith('.app')) {
+                         formName = 'programs'
+                    } else {
+                         formName = 'files'
+                    }
+                    db.prepare(`UPDATE ${formName} SET click_count = click_count + 1, last_access_time = datetime('now','localtime') WHERE path = ?`).run(filePath);
+                    // 打印出当前的次数
+                    const result = db.prepare(`SELECT click_count FROM ${formName} WHERE path = ?`).get(filePath);
+                    logger.info(`文件点击次数: ${(result as { click_count: number }).click_count}`);
+                    // 打印出当前的访问时间
+                    const accessTime = db.prepare(`SELECT last_access_time FROM ${formName} WHERE path = ?`).get(filePath);
+                    logger.info(`文件最后访问时间: ${(accessTime as { last_access_time: string }).last_access_time}`);
+                }
+            } catch (error) {
+                logger.warn(`更新文件点击次数失败: ${error}`);
+            }
             break;
         // 直接打开文件
         case 'openFile':
             shell.openPath(filePath);
+            try {
+                if (filePath) {
+                    const db = getDatabase();
+                    // 临时mac端判断是否为程序,判断扩展名为.app
+                    let formName: string
+                    if (filePath.endsWith('.app')) {
+                         formName = 'programs'
+                    } else {
+                         formName = 'files'
+                    }
+                    db.prepare(`UPDATE ${formName} SET click_count = click_count + 1, last_access_time = datetime('now','localtime') WHERE path = ?`).run(filePath);
+                    // 打印出当前的次数
+                    const result = db.prepare(`SELECT click_count FROM ${formName} WHERE path = ?`).get(filePath);  
+                    logger.info(`文件点击次数: ${(result as { click_count: number }).click_count}`);
+                    // 打印出当前的访问时间
+                    const accessTime = db.prepare(`SELECT last_access_time FROM ${formName} WHERE path = ?`).get(filePath);
+                    logger.info(`文件最后访问时间: ${(accessTime as { last_access_time: string }).last_access_time}`);
+                }
+            } catch (error) {
+                logger.warn(`更新文件点击次数失败: ${error}`);
+            }
             break;
         default:
             break;
@@ -242,21 +284,21 @@ export const extractZip = async (zipPath: string, extractPath: string) => {
  */
 //解压CUDA服务
 export const extractCUDA = async () => {
-  // 检查是否有cuda.zip文件
-  const cudaDir = path.join(pathConfig.get('resources'), 'Ollama', 'lib', 'ollama');
-  const v12ZipPath = path.join(cudaDir, 'cudaV12.zip');
-  const v13ZipPath = path.join(cudaDir, 'cudaV13.zip');
-  // 判断文件是否存在，而不是判断路径字符串是否存在
-  if (fs.existsSync(v12ZipPath)) {
-    logger.info(`发现CUDA V12压缩包: ${v12ZipPath}`);
-    await extractZip(v12ZipPath, cudaDir);
-  } else if (fs.existsSync(v13ZipPath)) {
-    logger.info(`发现CUDA V13压缩包: ${v13ZipPath}`);
-    await extractZip(v13ZipPath, cudaDir);
-  }
-  else {
-    logger.info(`未发现CUDA V12或V13压缩包`);
-  }
+    // 检查是否有cuda.zip文件
+    const cudaDir = path.join(pathConfig.get('resources'), 'Ollama', 'lib', 'ollama');
+    const v12ZipPath = path.join(cudaDir, 'cudaV12.zip');
+    const v13ZipPath = path.join(cudaDir, 'cudaV13.zip');
+    // 判断文件是否存在，而不是判断路径字符串是否存在
+    if (fs.existsSync(v12ZipPath)) {
+        logger.info(`发现CUDA V12压缩包: ${v12ZipPath}`);
+        await extractZip(v12ZipPath, cudaDir);
+    } else if (fs.existsSync(v13ZipPath)) {
+        logger.info(`发现CUDA V13压缩包: ${v13ZipPath}`);
+        await extractZip(v13ZipPath, cudaDir);
+    }
+    else {
+        logger.info(`未发现CUDA V12或V13压缩包`);
+    }
 }
 
 

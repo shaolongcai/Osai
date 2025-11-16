@@ -28,29 +28,47 @@ export function searchFiles(searchTerm: string, isAiMark?: boolean, limit?: numb
     }
     const db = getDatabase()
 
-    // 2. 从数据库中获取所有文件名
-    // 注意：如果文件数量非常多（例如超过几十万），一次性加载到内存中可能会有性能问题。
-    // 使用 SQL LIKE 进行模糊匹配，% 通配符表示匹配任意字符
+    /**
+     * 从数据库中获取所有文件
+     * 注意：如果文件数量非常多（例如超过几十万），一次性加载到内存中可能会有性能问题。
+     * 使用 SQL LIKE 进行模糊匹配，% 通配符表示匹配任意字符
+     * 因子分别为：
+     * Pfx: 前缀匹配（name 以 query 开头）
+     * Sub: 子串位置权重（位置越靠前得分越高）
+     * Fav: 点击偏好（click_count 归一化）
+     * Rec: 最近访问（last_access_time 线性衰减：0.5天=1，90天=0）
+     * Len: 长度惩罚（短名更高）
+     */
     const stmt = db.prepare(`
-        SELECT id,path, name,modified_at,ext,summary,ai_mark 
-        FROM files
-        WHERE name LIKE ? 
-        OR summary LIKE ? 
-        OR tags LIKE ?
-        ${isAiMark ? 'AND ai_mark = 1' : ''}
-        ORDER BY 
-        CASE 
-          WHEN ai_mark = 1 THEN 0 
-          WHEN name LIKE ? THEN 1
-          WHEN summary LIKE ? THEN 2
-          ELSE 3
-        END,
-        name
-        ${limit ? `LIMIT ${limit}` : ''}
-        `);
-    const searchPattern = `%${searchTerm}%`;
-    const exactPattern = `${searchTerm}%`; // WHEN display_name LIKE ? THEN 1 ：前面匹配优先
-    const allFiles = stmt.all(searchPattern, searchPattern, searchPattern, exactPattern, exactPattern) as SearchDataItem[];
+      WITH q(query) AS (SELECT lower(?))
+      SELECT id,path,name,modified_at,last_access_time,ext,summary,ai_mark,click_count,
+             (
+               0.35 * CASE WHEN lower(name) LIKE (SELECT query FROM q) || '%' THEN CAST(length((SELECT query FROM q)) AS REAL) / NULLIF(length(name),0) ELSE 0 END
+             + 0.25 * CASE WHEN instr(lower(name),(SELECT query FROM q)) > 0 THEN 1 - (instr(lower(name),(SELECT query FROM q)) - 1) / CAST(length(name) AS REAL) ELSE 0 END
+             + 0.10 * (1.0 - 1.0 / (COALESCE(click_count,0) + 1))
+             + 0.06 * (
+                 CASE
+                   WHEN last_access_time IS NULL THEN 0
+                   ELSE
+                     CASE
+                       WHEN (julianday('now') - julianday(last_access_time)) <= 0.5 THEN 1.0
+                       WHEN (julianday('now') - julianday(last_access_time)) >= 90.0 THEN 0.0
+                       ELSE 1.0 - ((julianday('now') - julianday(last_access_time)) - 0.5) / (90.0 - 0.5)
+                     END
+                 END
+               )
+             + 0.04 * (1.0 - MIN(length(name), 255) / 255.0)
+             ) AS score
+      FROM files
+      WHERE lower(name) LIKE '%' || (SELECT query FROM q) || '%'
+         OR lower(summary) LIKE '%' || (SELECT query FROM q) || '%'
+         OR lower(tags) LIKE '%' || (SELECT query FROM q) || '%'
+         ${isAiMark ? 'AND ai_mark = 1' : ''}
+      ORDER BY ai_mark DESC, score DESC, name
+      ${limit ? `LIMIT ${limit}` : ''}
+    `);
+    const q = searchTerm.toLowerCase();
+    const allFiles = stmt.all(q) as SearchDataItem[];
 
     return {
         data: allFiles,
@@ -74,7 +92,7 @@ export function shortSearch(keyword: string): shortSearchResult {
     const programs = searchPrograms(keyword);
     // console.log('搜索到的程序', programs);
     // 搜索拥有AI Mark的文件
-    const aiFiles = searchFiles(keyword, true, 5);
+    const aiFiles = searchFiles(keyword, true, 50);
     // 构造返回的data
     const programsData = programs.map(item => ({
         id: item.id,
@@ -117,6 +135,20 @@ export function searchPrograms(keyword: string, limit: number = 5): searchProgra
           WHEN display_name LIKE ? THEN 2
           ELSE 3
         END,
+        (
+          0.10 * (1.0 - 1.0 / (COALESCE(click_count,0) + 1))
+        + 0.06 * (
+            CASE
+              WHEN last_access_time IS NULL THEN 0
+              ELSE
+                CASE
+                  WHEN (julianday('now') - julianday(last_access_time)) <= 0.5 THEN 1.0
+                  WHEN (julianday('now') - julianday(last_access_time)) >= 90.0 THEN 0.0
+                  ELSE 1.0 - ((julianday('now') - julianday(last_access_time)) - 0.5) / (90.0 - 0.5)
+                END
+            END
+          )
+        ) DESC,
         display_name
       LIMIT ?
     `);
