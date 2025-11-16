@@ -235,7 +235,7 @@ const Setting = () => {
                 marginTop: '16px',
                 boxSizing: 'border-box',
             }}
-            alignItems='flex-end' spacing={2}
+            alignItems='flex-end' spacing={3}
         >
             {/* 设置按钮 */}
             <SettingButton
@@ -246,6 +246,7 @@ const Setting = () => {
                 openSetting &&
                 <Paper
                     sx={{
+                       
                         width: '480px',
                         height: '580px',
                         padding: '16px',

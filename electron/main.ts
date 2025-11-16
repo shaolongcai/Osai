@@ -31,8 +31,8 @@ let isQuitting = false;
  */
 let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null;
-  let searchWindow: BrowserWindow | null;
-  let settingsWindow: BrowserWindow | null;
+let searchWindow: BrowserWindow | null;
+let settingsWindow: BrowserWindow | null;
 
 
 function createWindow() {
@@ -100,7 +100,6 @@ function createWindow() {
 // 创建快捷键的UI
 function createSearchBar() {
 
-
   if (isDev) {
     searchWindow.loadURL('http://localhost:5173/search-bar.html');   // 加载搜索条HTML
     settingsWindow.loadURL('http://localhost:5173/setting.html');   // 加载设置条HTML
@@ -137,16 +136,6 @@ function createSearchBar() {
   }
 }
 
-// // 监听UI大小
-//   ipcMain.on('resize-main-window', (_event, width: number, height?: number) => {
-//      if (!windowManager.searchWindow || windowManager.searchWindow.isDestroyed()) return;
-//   const [oldW, oldH] = windowManager.searchWindow.getContentSize();
-//   const [oldX, oldY] = windowManager.searchWindow.getPosition();
-//   const newW = Math.max(480, Math.round(width));
-//   const newH = Math.round(height ?? oldH);
-//   const newX = Math.round(oldX + (oldW - newW) / 2);
-//   windowManager.searchWindow.setBounds({ x: newX, y: oldY, width: newW, height: newH });
-//   });
 
 // 更新托盤菜單語言
 function updateTrayMenu(language?: string) {
@@ -187,7 +176,7 @@ function updateTrayMenu(language?: string) {
         if (settingsWindow) {
           settingsWindow.show();
           settingsWindow.focus();
-          settingsWindow.webContents.send('navigate-to-settings');    
+          settingsWindow.webContents.send('navigate-to-settings');
         }
       }
     },
@@ -424,7 +413,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();
@@ -463,7 +452,7 @@ export const startIndexTask = async () => {
 
 
 // 应用事件
-app.whenReady().then(async() => {
+app.whenReady().then(async () => {
   const { windowManager } = await import('./core/WindowManager.js');
   searchWindow = windowManager.searchWindow;
   settingsWindow = windowManager.settingsWindow;
@@ -541,7 +530,16 @@ app.on('before-quit', () => {
 
 //----- 触发事件 ---- 
 export const sendToRenderer = (channel: string, data: any) => {
-  mainWindow.webContents.send(channel, data);
+  // 广播事件到所有窗口
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(channel, data);
+  }
+  if (searchWindow && !searchWindow.isDestroyed()) {
+    searchWindow.webContents.send(channel, data);
+  }
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.webContents.send(channel, data);
+  }
 };
 
 
