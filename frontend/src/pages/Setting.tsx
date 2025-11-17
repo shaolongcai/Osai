@@ -90,6 +90,7 @@ const Setting = () => {
     const [isCheckingUpdate, setIsCheckingUpdate] = useState(false)
     const [latestVersion, setLatestVersion] = useState<string | null>(null)
     const [updateStatusText, setUpdateStatusText] = useState('')
+    const [autoLaunch, setAutoLaunch] = useState(false) //是否開機自啟動
 
     const context = useGlobalContext();
     const { t } = useTranslation()
@@ -109,10 +110,6 @@ const Setting = () => {
 
     // 監聽更新狀態並在抽屜開啟時自動檢查（在非 Electron 環境下跳過）
     useEffect(() => {
-        if (!openSetting) {
-            window.electronAPI.removeAllListeners('update-status')
-            return
-        }
         if (!(window as any).electronAPI) {
             // 非 Electron 預覽環境：直接顯示最新版本提示
             setIsCheckingUpdate(false)
@@ -123,6 +120,7 @@ const Setting = () => {
         }
         // 僅訂閱事件，不在此自動觸發檢查
         window.electronAPI.onUpdateStatus((data: any) => {
+            console.log('update-status', data)
             setIsCheckingUpdate(false)
             if (data && data.isUpdateAvailable) {
                 setIsUpdateAvailable(true)
@@ -196,6 +194,12 @@ const Setting = () => {
         window.electronAPI.setConfig(params2)
     }
 
+    // 切換自啟動開關
+    const toggleAutoLaunch = async (checked: boolean) => {
+        setAutoLaunch(checked)
+        await window.electronAPI.setAutoLaunch(checked)
+    }
+
     return <>
         {/* 同意协议弹窗 */}
         <ReportProtocol
@@ -246,7 +250,7 @@ const Setting = () => {
                 openSetting &&
                 <Paper
                     sx={{
-                       
+
                         width: '480px',
                         height: '580px',
                         padding: '16px',
@@ -310,6 +314,13 @@ const Setting = () => {
                                 </Stack>
                             }
                         />
+                        {/* 自动启动开关 */}
+                        <SettingItem
+                            title={t('app.settings.autoLaunch')}
+                            type='switch'
+                            value={autoLaunch}
+                            onAction={toggleAutoLaunch}
+                        />
                     </Stack>
                     <Stack spacing={1} sx={{ marginTop: '16px' }}>
                         <Typography variant='titleMedium' >
@@ -323,7 +334,6 @@ const Setting = () => {
                             onAction={() => { }}
                             action={<LanguageSwitcher variant='select' size='small' showLabel={false} />}
                         />
-
                     </Stack>
                 </Paper>
             }

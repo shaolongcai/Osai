@@ -174,7 +174,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     }
 
     return (
-        <div>
+        <div style={{ padding: 4 }}>
             {/* 同意协议弹窗 */}
             <ReportProtocol
                 open={openReportProtocol}
@@ -247,6 +247,8 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                         maxHeight: '700px',
                         borderRadius: '8px',
                         backgroundColor: '#FAFDFC',
+                        padding: 4,
+                        boxSizing: 'border-box'
                     }
                 }}
             >

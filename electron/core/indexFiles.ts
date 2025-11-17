@@ -220,11 +220,11 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
             if (!filePath) {
                 continue;
             }
-           
+
             // 判断平台
             if (process.platform === 'win32') {
                 //
-                 const normalizedPath = filePath.replace(/\//g, '\\');
+                const normalizedPath = filePath.replace(/\//g, '\\');
                 const iconBuffer = await extractIcon(normalizedPath, 256);
                 if (iconBuffer) {
                     logger.info(`添加新的图标： ${ext}`);
@@ -238,27 +238,25 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
             }
             else {
                 try {
-                      // 获取图标
-                const nativeImage = await app.getFileIcon(filePath,{size:'normal'});
-                if (nativeImage) {
-                    const { width, height } = nativeImage.getSize();
-                    const outBuf = Math.max(width, height) > 256
-                        ? nativeImage.resize({ width: 256, height: 256 }).toPNG({scaleFactor:4})
-                        : nativeImage.toPNG({scaleFactor:4});
-                       const extWithoutDot = ext.slice(1);
-                    savePngBuffer(outBuf, path.join(pathConfig.get('iconsCache'), `${extWithoutDot}.png`));
-                    logger.info(`添加新的图标(macOS)： ${ext}`);
-                }
-                else {
-                    continue
-                }
+                    // 获取图标
+                    const nativeImage = await app.getFileIcon(filePath, { size: 'normal' });
+                    if (nativeImage) {
+                        const { width, height } = nativeImage.getSize();
+                        const outBuf = Math.max(width, height) > 256
+                            ? nativeImage.resize({ width: 256, height: 256 }).toPNG({ scaleFactor: 4 })
+                            : nativeImage.toPNG({ scaleFactor: 4 });
+                        const extWithoutDot = ext.slice(1);
+                        savePngBuffer(outBuf, path.join(pathConfig.get('iconsCache'), `${extWithoutDot}.png`));
+                        logger.info(`添加新的图标(macOS)： ${ext}`);
+                    }
+                    else {
+                        continue
+                    }
                 } catch (error) {
                     logger.error(`获取 ${ext} 图标失败:${JSON.stringify(error)}`);
                     continue;
                 }
-              
             }
-
         }
 
         const endTime = Date.now();
