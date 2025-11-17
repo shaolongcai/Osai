@@ -94,6 +94,12 @@ interface ElectronAPI {
     installAiServer(withCuda: boolean): Promise<void>;
     // 更新托盘菜单语言
     updateTrayLanguage(language: string): void;
+    // 獲取自啟動狀態
+    getAutoLaunch(): Promise<boolean>;
+    // 設置自啟動狀態
+    setAutoLaunch(enabled: boolean): Promise<boolean>;
+    // 在外部瀏覽器中打開鏈接
+    openExternalUrl(url: string): Promise<boolean>;
 
     //更新接口
     checkForUpdates(): Promise<boolean>; //手动检查有没有更新

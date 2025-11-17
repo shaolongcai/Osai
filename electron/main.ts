@@ -14,7 +14,6 @@ import { initializeUpdateApi } from './api/update.js';
 import { initializeSystemApi } from './api/system.js';
 
 
-
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -491,15 +490,39 @@ app.whenReady().then(async () => {
     isQuitting = true;
     app.quit();
   });
+})
 
-  // 防止多开
-  app.on('second-instance', () => {
-    if (windowManager.searchWindow) {
-      if (!windowManager.searchWindow.isVisible()) windowManager.searchWindow.show();
-      windowManager.searchWindow.focus();
+// 防止多开
+app.on('second-instance', () => {
+  if (searchWindow) {
+    if (!searchWindow.isVisible()) searchWindow.show();
+    searchWindow.focus();
+  }
+  // 防止多開：請求單實例鎖
+  const gotTheLock = app.requestSingleInstanceLock();
+
+  if (!gotTheLock) {
+    // 如果獲取鎖失敗，說明已經有另一個實例在運行
+    logger.info('應用已在運行，退出當前實例');
+    app.quit();
+  } else {
+    logger.info('檢測到第二個實例啟動，激活現有窗口');
+    // 如果主窗口存在，顯示並聚焦
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
     }
-  });
-});
+    // 如果搜索框存在，顯示並聚焦（先居中再顯示）
+    if (searchWindow) {
+      if (!searchWindow.isVisible()) {
+        // centerOnCurrentDisplay();
+        searchWindow.show();
+      }
+      searchWindow.focus();
+    }
+  }
+})
 
 app.on('window-all-closed', () => {
   // 當所有窗口關閉時，不退出應用（因為有系統托盤）

@@ -5,6 +5,7 @@
   "visualIndex": "Kích hoạt lập chỉ mục hình ảnh",
   "gpuService": "Dịch vụ tăng tốc GPU",
   "userExperience": "Chương trình cải thiện trải nghiệm người dùng",
+  "autoLaunch": "Tự động khởi động khi khởi động",
   "language": "Ngôn ngữ",
   "logFolder": "Nhật ký thực thi",
   "open": "Mở",
@@ -14,5 +15,10 @@
   "check": "Kiểm tra",
   "checking": "Đang kiểm tra...",
   "checkUpdateStatusLatest": "Bạn đang dùng phiên bản mới nhất",
-  "checkUpdateStatusNewVersion": "Đã tìm thấy phiên bản mới:{{version}}"
+  "checkUpdateStatusNewVersion": "Đã tìm thấy phiên bản mới:{{version}}",
+  "generalSettings": "Cài đặt chung",
+  "aiSettings": "Cài đặt AI",
+  "update": "Cập nhật",
+  "about": "Giới thiệu",
+  "website": "Trang Web Chính Thức"
 }

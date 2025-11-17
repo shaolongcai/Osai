@@ -5,6 +5,7 @@
   "visualIndex": "開啟圖片索引",
   "gpuService": "GPU 加速服務",
   "userExperience": "使用者體驗改進計畫",
+  "autoLaunch": "開機自啟動",
   "language": "語言",
   "logFolder": "執行記錄",
   "open": "開啟",
@@ -14,5 +15,10 @@
   "check": "檢查",
   "checking": "檢查中...",
   "checkUpdateStatusLatest": "目前已是最新版本",
-  "checkUpdateStatusNewVersion": "發現新版本：{{version}}"
+  "checkUpdateStatusNewVersion": "發現新版本：{{version}}",
+  "generalSettings": "一般設定",
+  "aiSettings": "AI 設定",
+  "update": "更新",
+  "about": "關於",
+  "website": "官方網站"
 }

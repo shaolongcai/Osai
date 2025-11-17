@@ -36,6 +36,11 @@ export interface TranslationKeys {
       checking?: string;
       checkUpdateStatusLatest?: string;
       checkUpdateStatusNewVersion?: string;
+      generalSettings?: string;
+      aiSettings?: string;
+      update?: string;
+      about?: string;
+      website?: string;
     };
     common: {
       confirm: string;
@@ -173,6 +178,11 @@ export type TranslationKeyPath =
   | 'app.settings.checking'
   | 'app.settings.checkUpdateStatusLatest'
   | 'app.settings.checkUpdateStatusNewVersion'
+  | 'app.settings.generalSettings'
+  | 'app.settings.aiSettings'
+  | 'app.settings.update'
+  | 'app.settings.about'
+  | 'app.settings.website'
   | 'app.common.confirm'
   | 'app.common.cancel'
   | 'app.common.save'

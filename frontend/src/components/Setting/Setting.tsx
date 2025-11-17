@@ -1,7 +1,8 @@
-import { Drawer, Box, Typography, Switch, styled, Paper, Stack, Button } from '@mui/material';
+import { Dialog, Box, Typography, Paper, Stack, Button, IconButton, styled } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import styles from './Setting.module.scss'
 import { useEffect, useState } from 'react';
-import { Contact, Dialog, ReportProtocol, SettingItem } from '@/components';
+import { Contact, Dialog as CustomDialog, ReportProtocol, SettingItem } from '@/components';
 import { UserConfig } from '@/types/system';
 import { ConfigParams } from '@/types/electron';
 import { useContext } from 'react';
@@ -9,13 +10,14 @@ import { globalContext } from '@/contexts/globalContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useTranslation } from '@/contexts/I18nContext';
 
-interface SettingProps {
-    open: boolean;
-    onClose: () => void;
+
+// 更新狀態類型
+interface UpdateStatusData {
+    isUpdateAvailable?: boolean;
+    version?: string;
+    message?: string;
 }
 
-// 步骤2：创建一个带样式的标题组件
-// 作用：将标题样式（字号、粗细、颜色）封装起来，使代码更清晰。
 const StyledTitle = styled(Typography)(({ theme }) => ({
     fontSize: '24px',
     fontWeight: 'bold',
@@ -23,8 +25,17 @@ const StyledTitle = styled(Typography)(({ theme }) => ({
     marginBottom: theme.spacing(2),
 }));
 
+interface SettingProps {
+    open: boolean;
+    onClose: () => void;
+}
+
+// 設置類別類型
+type SettingCategory = 'general' | 'ai' | 'update' | 'about';
+
 const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
 
+    const [selectedCategory, setSelectedCategory] = useState<SettingCategory>('general')
     const [openIndexImage, setOpenIndexImage] = useState(Boolean(Number(localStorage.getItem('openIndexImage') || 0)))
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false) //CPU下开启索引的弹窗
     const [openReportProtocol, setOpenReportProtocol] = useState(false) //用户体验改进计划弹窗
@@ -37,21 +48,31 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [isCheckingUpdate, setIsCheckingUpdate] = useState(false)
     const [latestVersion, setLatestVersion] = useState<string | null>(null)
     const [updateStatusText, setUpdateStatusText] = useState('')
+    const [autoLaunch, setAutoLaunch] = useState(false) //是否開機自啟動
+    const [updateStatus, setUpdateStatus] = useState<{ isLatest: boolean | null; message?: string; version?: string }>({ isLatest: null }) //更新狀態
 
     const context = useContext(globalContext)
-    const { t } = useTranslation()
+    const { t } = useTranslation();
 
 
 
     // 拉取用户配置
     useEffect(() => {
         if (open) {
+            // 重置更新狀態，允許用戶重新檢查
+            setUpdateStatus({ isLatest: null });
+            setIsCheckingUpdate(false);
+
             window.electronAPI.getConfig().then((res: UserConfig) => {
                 console.log('config', res)
                 setOpenIndexImage(res.visual_index_enabled)
                 setHasGPU(res.hasGPU)
                 setIsInstallGpu(res.cuda_installed)
                 setReportAgreement(res.report_agreement)
+                // 讀取自啟動狀態
+                window.electronAPI.getAutoLaunch().then((enabled: boolean) => {
+                    setAutoLaunch(enabled)
+                })
             })
         }
     }, [open])
@@ -146,6 +167,12 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
         window.electronAPI.setConfig(params2)
     }
 
+    // 切換自啟動開關
+    const toggleAutoLaunch = async (checked: boolean) => {
+        setAutoLaunch(checked)
+        await window.electronAPI.setAutoLaunch(checked)
+    }
+
     return (
         <div>
             {/* 同意协议弹窗 */}
@@ -155,13 +182,17 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                 onConfirm={() => { setReportAgreement(true) }} // 同意协议的回调
             />
             {/* 开启GPU服务 */}
-            <Dialog
+            <CustomDialog
                 title={hasGPU ? t('app.settings.gpuService') : '本机没有任何GPU'}
                 primaryButtonText={hasGPU ? t('app.common.confirm') : t('app.common.close')}
                 onPrimaryButtonClick={() => {
-                    hasGPU ? installGpu() : setGpuSeverOpen(false)
+                    if (hasGPU) {
+                        installGpu()
+                    } else {
+                        setGpuSeverOpen(false)
+                    }
                 }}
-                secondaryButtonText={hasGPU && t('app.common.cancel')}
+                secondaryButtonText={hasGPU ? t('app.common.cancel') : undefined}
                 open={gpuSeverOpen}
                 onClose={() => { setGpuSeverOpen(false) }}
                 maxWidth='xs'
@@ -178,9 +209,9 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                         </Typography>
                     )
                 }
-            </Dialog>
+            </CustomDialog>
             {/* 视觉服务提示 */}
-            <Dialog
+            <CustomDialog
                 title={t('app.settings.visualIndex')}
                 primaryButtonText={t('app.common.confirm')}
                 onPrimaryButtonClick={() => {
@@ -202,18 +233,21 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                 <Typography className={styles.dialogTips}>
                     📌 索引操作会在后台进行，你可以随时在设置中关闭视觉索引。
                 </Typography>
-            </Dialog>
-            <Drawer
-                anchor="right" // 从右侧滑出
+            </CustomDialog>
+            <Dialog
                 open={open}
                 onClose={onClose}
-                sx={{
-                    '& .MuiDrawer-paper': {
+                maxWidth={false}
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        width: '90%',
+                        maxWidth: '900px',
+                        height: '80%',
+                        maxHeight: '700px',
+                        borderRadius: '8px',
                         backgroundColor: '#FAFDFC',
-                        width: 360, // 设置一个合适的宽度
-                        padding: '16px', // 增加内边距
-                        boxSizing: 'border-box',
-                    },
+                    }
                 }}
             >
                 <Box
@@ -323,12 +357,16 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                 </Stack>
                             </Stack>
                         </Paper>
+                        {/* 自动启动开关 */}
+                        <SettingItem
+                            title={t('app.settings.autoLaunch')}
+                            type='switch'
+                            value={autoLaunch}
+                            onAction={toggleAutoLaunch}
+                        />
                     </Stack>
                 </Box>
-                <div className={styles.contact}>
-                    <Contact title={t('app.settings.community')} />
-                </div>
-            </Drawer>
+            </Dialog>
         </div>
     );
 };

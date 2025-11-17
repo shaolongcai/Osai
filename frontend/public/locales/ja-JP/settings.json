@@ -5,6 +5,7 @@
   "visualIndex": "画像インデックスを有効にする",
   "gpuService": "GPU加速サービス",
   "userExperience": "ユーザーエクスペリエンス改善プログラム",
+  "autoLaunch": "起動時に自動起動",
   "language": "言語",
   "logFolder": "実行ログ",
   "open": "開く",
@@ -14,5 +15,10 @@
   "check": "確認",
   "checking": "確認中...",
   "checkUpdateStatusLatest": "最新バージョンを使用しています",
-  "checkUpdateStatusNewVersion": "新しいバージョンが見つかりました{{version}}"
+  "checkUpdateStatusNewVersion": "新しいバージョンが見つかりました{{version}}",
+  "generalSettings": "一般設定",
+  "aiSettings": "AI 設定",
+  "update": "更新",
+  "about": "について",
+  "website": "公式ウェブサイト"
 }
