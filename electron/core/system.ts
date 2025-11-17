@@ -152,8 +152,10 @@ export const detectCudaVersion = (): 'cudaV13.zip' | 'cudaV12.zip' => {
  * @param filePath 目录路径,当type为openFileDir，必须要传入
  * @returns 
  */
-export const openDir = (type: string, filePath?: string) => {
+export const openDir = async (type: string, filePath?: string) => {
     logger.info(`打开目录: ${type}, ${filePath}`)
+    // 异步导入 windowManager
+    const { windowManager } = await import('./WindowManager.js');
     switch (type) {
         // 打开运行日志
         case 'runLog':
@@ -191,10 +193,12 @@ export const openDir = (type: string, filePath?: string) => {
                     // 临时mac端判断是否为程序,判断扩展名为.app,如果为.app 则增加到programs表,否则增加到files表
                     let formName: string
                     if (filePath.endsWith('.app')) {
-                         formName = 'programs'
+                        formName = 'programs'
                     } else {
-                         formName = 'files'
+                        formName = 'files'
                     }
+                    // 隐藏所有窗口
+                    windowManager.hideAllWindows();
                     db.prepare(`UPDATE ${formName} SET click_count = click_count + 1, last_access_time = datetime('now','localtime') WHERE path = ?`).run(filePath);
                     // 打印出当前的次数
                     const result = db.prepare(`SELECT click_count FROM ${formName} WHERE path = ?`).get(filePath);
@@ -216,13 +220,15 @@ export const openDir = (type: string, filePath?: string) => {
                     // 临时mac端判断是否为程序,判断扩展名为.app
                     let formName: string
                     if (filePath.endsWith('.app')) {
-                         formName = 'programs'
+                        formName = 'programs'
                     } else {
-                         formName = 'files'
+                        formName = 'files'
                     }
+                    // 隐藏所有窗口
+                    windowManager.hideAllWindows();
                     db.prepare(`UPDATE ${formName} SET click_count = click_count + 1, last_access_time = datetime('now','localtime') WHERE path = ?`).run(filePath);
                     // 打印出当前的次数
-                    const result = db.prepare(`SELECT click_count FROM ${formName} WHERE path = ?`).get(filePath);  
+                    const result = db.prepare(`SELECT click_count FROM ${formName} WHERE path = ?`).get(filePath);
                     logger.info(`文件点击次数: ${(result as { click_count: number }).click_count}`);
                     // 打印出当前的访问时间
                     const accessTime = db.prepare(`SELECT last_access_time FROM ${formName} WHERE path = ?`).get(filePath);

@@ -108,6 +108,7 @@ export function shortSearch(keyword: string): shortSearchResult {
         name: item.name,
         path: item.path || '',
         ext: item.ext || '', //没有ext则为文件夹
+        aiMark: item.ai_mark,
     }));
 
     return {

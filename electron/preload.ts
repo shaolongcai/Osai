@@ -69,6 +69,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onLanguageChanged: (callback) => {
         ipcRenderer.on('language-changed', (event, language) => callback(language));
     },
+    // 聚焦搜索輸入框
+    onFocusSearchInput: (callback) => {
+        ipcRenderer.on('focus-search-input', () => callback());
+    },
 
     
     // 移除事件监听

@@ -127,6 +127,12 @@ class WindowManager {
         this.searchWindow.hide();
         this.settingsWindow.hide();
     }
+
+    // 显示所有窗口
+    showAllWindows() {
+        this.searchWindow.show();
+        this.settingsWindow.show();
+    }
 }
 
 // 导出单例

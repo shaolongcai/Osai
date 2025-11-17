@@ -1,4 +1,4 @@
-import { Paper, Stack, Typography } from "@mui/material";
+import { Chip, Paper, Stack, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
 import styles from './SearchPanel.module.scss'
 import placeholder from '@/assets/images/weChat.png'
@@ -10,6 +10,7 @@ interface SearchResultItemProps {
     icon?: string;
     ext?: string;
     isSelected?: boolean; // 是否被选中
+    isAiMark?: boolean; // 是否为AI文件
     onClick?: () => void; // 点击事件
     onMouseEnter?: () => void; // 鼠标进入事件
     onMouseLeave?: () => void; // 鼠标离开事件
@@ -21,6 +22,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     name,
     icon,
     ext,
+    isAiMark = false,
     isSelected = false,
     onClick,
     onMouseEnter,
@@ -41,9 +43,26 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
         <Stack direction='row' spacing={1} alignItems="center">
             <img src={iconSrc} alt={name} />
             <Stack justifyContent='space-between'>
-                <Typography variant="titleLarge" className={styles.name}>
-                    {name}
-                </Typography>
+                <Stack direction='row' spacing={1}>
+                    <Typography variant='titleMedium'
+                        sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            maxWidth: '320px',
+                        }}
+                    >
+                        {name}
+                    </Typography>
+                    {
+                        isAiMark && <Chip
+                            label='AI Mark'
+                            size="small"
+                            variant="outlined"
+                            color="primary"
+                        />
+                    }
+                </Stack>
                 {/* <Typography>
                     将来放地址
                 </Typography> */}
@@ -138,6 +157,7 @@ const SearchPanel: React.FC<Props> = ({
                     ref={(el) => { itemRefs.current[index] = el; }}
                 >
                     <SearchResultItem
+                        isAiMark={item.aiMark === 1}
                         name={item.name}
                         icon={item.icon}
                         ext={item.ext}

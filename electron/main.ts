@@ -479,7 +479,7 @@ app.whenReady().then(async () => {
 
   // 注册全局快捷键
   const shortcut = 'Alt+Space'; // 可改
-  registerGlobalShortcut(shortcut);
+  registerGlobalShortcut(shortcut, windowManager);
   // 注册Esc关闭搜索框
   globalShortcut.register('Escape', () => {
     if (windowManager.searchWindow && windowManager.searchWindow.isVisible()) {
@@ -544,16 +544,15 @@ export const sendToRenderer = (channel: string, data: any) => {
 
 
 // 注册全局快捷键
-const registerGlobalShortcut = (shortcut: string) => {
+const registerGlobalShortcut = (shortcut: string, windowManager: any) => {
   globalShortcut.register(shortcut, () => {
-    if (searchWindow.isVisible()) {
-      searchWindow.hide();
-      settingsWindow.hide();
+    if (windowManager.searchWindow.isVisible()) {
+      windowManager.hideAllWindows();
     } else {
       // centerOnCurrentDisplay();
-      searchWindow.show();
-      searchWindow.focus(); // 让输入框直接获得焦点
-      settingsWindow.show();
+      windowManager.showAllWindows();
+      searchWindow.focus();  // 先确保窗口获得焦点，再下发聚焦事件
+      searchWindow.webContents.focus(); //只发给search窗口
     }
   });
 }
