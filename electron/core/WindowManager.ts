@@ -91,9 +91,6 @@ class WindowManager {
         return WindowManager.instance;
     }
 
-    repositionSidecars() { /* 根据中心窗口重排左右窗口 */ }
-
-
     // 计算屏幕居中
     private centerOnCurrentDisplay = () => {
         const cursor = screen.getCursorScreenPoint();

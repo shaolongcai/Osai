@@ -106,7 +106,7 @@ function createSearchBar() {
     settingsWindow.webContents.openDevTools(); //打开开发者工具
   } else {
     searchWindow.loadFile(path.join(__dirname, '../frontend/dist/search-bar.html'));
-    settingsWindow.loadFile(path.join(__dirname, '../frontend/dist/settings.html'));
+    settingsWindow.loadFile(path.join(__dirname, '../frontend/dist/setting.html'));
 
     // 生產環境：屏蔽開發者工具快捷鍵
     searchWindow.webContents.on('before-input-event', (event, input) => {
@@ -126,13 +126,13 @@ function createSearchBar() {
   }
 
   // 當搜索框失去焦點時自動隱藏（開發模式下禁用，避免與開發者工具衝突）
-  if (!isDev) {
-    searchWindow.on('blur', () => {
-      if (searchWindow && searchWindow.isVisible()) {
-        searchWindow.hide();
-      }
-    });
-  }
+  // if (!isDev) {
+  //   searchWindow.on('blur', () => {
+  //     if (searchWindow && searchWindow.isVisible()) {
+  //       searchWindow.hide();
+  //     }
+  //   });
+  // }
 }
 
 
@@ -530,11 +530,6 @@ app.on('window-all-closed', () => {
   // 其他平台也保持運行在托盤中
 });
 
-app.on('activate', async () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
 
 app.on('before-quit', () => {
   // 設置退出標誌，允許窗口真正關閉
