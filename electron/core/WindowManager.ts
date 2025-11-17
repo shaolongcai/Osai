@@ -17,6 +17,7 @@ class WindowManager {
 
     private static instance: WindowManager;
 
+    // 这里应该要私有化，提供get方法，暂时公开
     public searchWindow: BrowserWindow; //search 窗口
     public settingsWindow: BrowserWindow; //settings 窗口
     // private static fileContentManager: FileContentManager; //file content 窗口 
@@ -114,11 +115,17 @@ class WindowManager {
             y: Math.round(dist.y + dist.height * 0.25)   // 屏幕 1/4 处
         });
     }
-    
+
 
     destroy() {
         this.searchWindow.destroy();
         this.settingsWindow.destroy();
+    }
+
+    // 隐藏所有窗口
+    hideAllWindows() {
+        this.searchWindow.hide();
+        this.settingsWindow.hide();
     }
 }
 

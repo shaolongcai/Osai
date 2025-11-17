@@ -456,7 +456,7 @@ app.whenReady().then(async () => {
   const { windowManager } = await import('./core/WindowManager.js');
   searchWindow = windowManager.searchWindow;
   settingsWindow = windowManager.settingsWindow;
-
+  // 初始化窗口
   createWindow();
   createSearchBar();
   createTray(); // 創建系統托盤
@@ -483,7 +483,7 @@ app.whenReady().then(async () => {
   // 注册Esc关闭搜索框
   globalShortcut.register('Escape', () => {
     if (windowManager.searchWindow && windowManager.searchWindow.isVisible()) {
-      windowManager.searchWindow.hide();
+      windowManager.hideAllWindows();
     }
   });
   // 注册Ctrl+Q退出应用
