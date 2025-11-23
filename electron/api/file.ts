@@ -134,7 +134,7 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
 
             // 检查文件是否存在
             if (!fs.existsSync(resolvedPath)) {
-                logger.warn(`图标文件不存在: ${iconPath}`);
+                // logger.warn(`图标文件不存在: ${iconPath}`);
                 return null;
             }
 

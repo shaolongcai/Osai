@@ -61,19 +61,6 @@ export function initializeDatabase(): Database.Database {
             );
             CREATE UNIQUE INDEX IF NOT EXISTS idx_programs_name ON programs (display_name);
           `)
-    // 为现有表添加tags字段（如果不存在）
-    try {
-      db.exec(`ALTER TABLE files ADD COLUMN skip_ocr BOOLEAN DEFAULT 0`) //是否跳过ocr
-      logger.info('成功添加skip_ocr字段到files表')
-      db.exec(`ALTER TABLE files ADD COLUMN ai_mark BOOLEAN DEFAULT 0`)
-      logger.info('成功添加ai_mark字段到files表')
-      db.exec(`ALTER TABLE files ADD COLUMN full_content TEXT DEFAULT ''`)
-      logger.info('成功添加full_content字段到files表')
-      db.exec(`ALTER TABLE files ADD COLUMN tags TEXT DEFAULT '[]'`)
-      logger.info('成功添加tags字段到files表')
-    } catch (error) {
-      // 字段已存在时会报错，忽略即可
-    }
 
     // 创建用户配置表
     db.exec(`
@@ -88,6 +75,9 @@ export function initializeDatabase(): Database.Database {
             );
             CREATE UNIQUE INDEX IF NOT EXISTS idx_config_key ON user_config (config_key);
           `)
+
+    // 添加新的字段
+    addColumn()
 
     // 插入默认配置
     const insertConfig = db.prepare(`
@@ -106,6 +96,59 @@ export function initializeDatabase(): Database.Database {
     logger.error(`数据库初始化失败:${JSON.stringify(error)}`)
     throw new Error(`数据库初始化失败:${JSON.stringify(error)}`)
   }
+}
+
+/**
+ * 添加新字段
+ */
+const addColumn = () => {
+  logger.info('开始添加新字段')
+  try {
+    db.exec(`ALTER TABLE files ADD COLUMN skip_ocr BOOLEAN DEFAULT 0`) //是否跳过ocr
+    logger.info('成功添加skip_ocr字段到files表')
+    logger.info('成功添加tags字段到programs表')
+  } catch (error) { }
+  try {
+    db.exec(`ALTER TABLE files ADD COLUMN ai_mark BOOLEAN DEFAULT 0`)
+    logger.info('成功添加ai_mark字段到files表')
+  } catch (error) { }
+  try {
+    db.exec(`ALTER TABLE files ADD COLUMN full_content TEXT DEFAULT ''`)
+    logger.info('成功添加full_content字段到files表')
+  } catch (error) { }
+  try {
+    db.exec(`ALTER TABLE files ADD COLUMN tags TEXT DEFAULT '[]'`)
+    logger.info('成功添加tags字段到files表')
+  } catch (error) { }
+  // 程序表
+  try {
+    db.exec(`ALTER TABLE programs ADD COLUMN tags TEXT DEFAULT '[]'`)
+    logger.info('成功添加tags字段到programs表')
+  } catch (error) { }
+  try {
+    db.exec(`ALTER TABLE files ADD COLUMN click_count INTEGER DEFAULT 0`)
+    logger.info('成功添加click_count字段到files表')
+  } catch (error) { }
+  try {
+    db.exec(`ALTER TABLE files ADD COLUMN last_access_time DATETIME`)
+    logger.info('成功添加last_access_time字段到files表')
+  } catch (error) { }
+  try {
+    db.exec(`ALTER TABLE programs ADD COLUMN click_count INTEGER DEFAULT 0`)
+    logger.info('成功添加click_count字段到programs表')
+  } catch (error) {  }
+  // 测量 programs 表的 click_count 是否存在
+  try {
+    db.exec(`SELECT click_count FROM programs LIMIT 1`)
+    logger.info('programs表已存在click_count字段')
+  } catch (error) {
+    logger.info('programs表不存在click_count字段')
+  }
+
+  try {
+    db.exec(`ALTER TABLE programs ADD COLUMN last_access_time DATETIME`)
+    logger.info('成功添加last_access_time字段到programs表')
+  } catch (error) { }
 }
 
 
@@ -225,24 +268,35 @@ export async function insertProgramInfo(programInfo: {
     const pinyinArray = pinyin(programInfo.DisplayName, { toneType: "none", type: "array" }); // ["han", "yu", "pin", "yin"]
     const pinyinHead = pinyinArray.map((item) => item[0]).join("");
 
-    // 解析图标
-    const programIcon = await extractIcon(
-      programInfo.DisplayIcon,          // 可能 null / "C:\\xxx.exe,0"
-      programInfo.InstallLocation,      // 备用目录
-    );
+    // 解析图标(windows)
+    // const programIcon = await extractIcon(
+    //   programInfo.DisplayIcon,          // 可能 null / "C:\\xxx.exe,0"
+    //   programInfo.InstallLocation,      // 备用目录
+    // );
 
-    //  这里需要加一个判断，如果有 C:\PROGRA~1\DIFX\0169CE3A95F06636\DPInst64.exe,0 ，这种形式的需要取第一个
-    if (programInfo.DisplayIcon?.includes(',')) {
-      programInfo.DisplayIcon = programInfo.DisplayIcon.split(',')[0].trim()
-    }
+    // //  这里需要加一个判断，如果有 C:\PROGRA~1\DIFX\0169CE3A95F06636\DPInst64.exe,0 ，这种形式的需要取第一个
+    // if (programInfo.DisplayIcon?.includes(',')) {
+    //   programInfo.DisplayIcon = programInfo.DisplayIcon.split(',')[0].trim()
+    // }
 
+    // windows
+    // stmt.run(
+    //   programInfo.DisplayName,
+    //   pinyinArray.join(""),
+    //   pinyinHead,
+    //   programInfo.Publisher,
+    //   programInfo.DisplayIcon || programInfo.InstallLocation,
+    //   programIcon,
+    // );
+
+    // mac
     stmt.run(
       programInfo.DisplayName,
       pinyinArray.join(""),
       pinyinHead,
       programInfo.Publisher,
-      programInfo.DisplayIcon || programInfo.InstallLocation,
-      programIcon,
+      programInfo.InstallLocation,
+      programInfo.DisplayIcon,
     );
 
     logger.debug(`程序信息已插入: ${programInfo.DisplayName}`);

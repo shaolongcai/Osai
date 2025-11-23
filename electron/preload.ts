@@ -25,6 +25,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     installGpuServer: () => ipcRenderer.invoke('install-gpu-server'), // 安装GPU服务
     installAiServer: (withCuda: boolean) => ipcRenderer.invoke('install-ai-server', withCuda), // 安装AI服务(AI Mark),whiteCuda:是否安装CUDA
     updateTrayLanguage: (language: string) => ipcRenderer.send('update-tray-language', language), // 更新托盘菜单语言
+    getAutoLaunch: () => ipcRenderer.invoke('get-auto-launch'), // 獲取自啟動狀態
+    setAutoLaunch: (enabled: boolean) => ipcRenderer.invoke('set-auto-launch', enabled), // 設置自啟動狀態
+    openExternalUrl: (url: string) => ipcRenderer.invoke('open-external-url', url), // 在外部瀏覽器中打開鏈接
 
     // 更新相关
     checkForUpdates: () => ipcRenderer.invoke('check-for-updates'), // 检查
@@ -32,6 +35,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     // 执行AI Mark功能
     aiMark: (filePath: string) => ipcRenderer.invoke('ai-mark', filePath),
+
+    // 实时更新宽度
+    resizeMainWindow: (width: number, height?: number) => ipcRenderer.send('resize-main-window', width, height),
 
 
     // 日志监听
@@ -65,6 +71,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // 語言更改監聽
     onLanguageChanged: (callback) => {
         ipcRenderer.on('language-changed', (event, language) => callback(language));
+    },
+    // 聚焦搜索輸入框
+    onFocusSearchInput: (callback) => {
+        ipcRenderer.on('focus-search-input', () => callback());
     },
 
     

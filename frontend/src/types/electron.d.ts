@@ -94,6 +94,12 @@ interface ElectronAPI {
     installAiServer(withCuda: boolean): Promise<void>;
     // 更新托盘菜单语言
     updateTrayLanguage(language: string): void;
+    // 獲取自啟動狀態
+    getAutoLaunch(): Promise<boolean>;
+    // 設置自啟動狀態
+    setAutoLaunch(enabled: boolean): Promise<boolean>;
+    // 在外部瀏覽器中打開鏈接
+    openExternalUrl(url: string): Promise<boolean>;
 
     //更新接口
     checkForUpdates(): Promise<boolean>; //手动检查有没有更新
@@ -108,6 +114,7 @@ interface ElectronAPI {
     onAiSeverInstalled(callback: (data: boolean) => void): void; // AI服务是否安装
     onNavigateToSettings(callback: () => void): void; // 從托盤菜單導航到設定頁面
     onLanguageChanged(callback: (language: string) => void): void; // 語言更改監聽
+    onFocusSearchInput(callback: () => void): void; // 搜索框聚焦監聽 
 
     // 移除事件监听
     removeAllListeners(channel: string): void;

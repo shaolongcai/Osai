@@ -1,6 +1,6 @@
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material"
 import styles from './search.module.scss'
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from '@/contexts/I18nContext';
 
 
@@ -14,6 +14,16 @@ const Search: React.FC<Props> = ({
 
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
     const { t } = useTranslation();
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    useEffect(() => {
+        if (typeof window === 'undefined' || !window.electronAPI) return;
+        window.electronAPI.onFocusSearchInput(() => {
+            console.log('聚焦到搜索框');
+            requestAnimationFrame(() => inputRef.current?.focus());
+        });
+        return () => window.electronAPI?.removeAllListeners('focus-search-input');
+    }, []);
 
     const aiSearch = async () => {
         // const result = await window.electronAPI.aiSearch(searchValue);
@@ -27,6 +37,7 @@ const Search: React.FC<Props> = ({
     }
 
     return <Paper
+        id='search-panel'
         elevation={0}
         className={styles.root}
         sx={{
@@ -35,10 +46,12 @@ const Search: React.FC<Props> = ({
             boxShadow: '0px 2px 4px rgba(25, 33, 61, 0.08)',
             border: '1px solid #F0F2F5',
             width: '100%',
+            // minWidth: '480px',
         }}
     >
         <Stack direction="row" spacing={2} alignItems="center">
             <TextField
+                inputRef={inputRef}
                 slotProps={{
                     htmlInput: {
                         autoComplete: 'off',
@@ -51,7 +64,6 @@ const Search: React.FC<Props> = ({
                 variant="outlined"
                 value={searchValue}
                 onChange={(event) => handleSearch(event.target.value)}
-                // onKeyDown={handleKeyDown}
                 sx={{
                     flex: 1,
                     '& .MuiOutlinedInput-root': {
@@ -65,7 +77,7 @@ const Search: React.FC<Props> = ({
                             borderWidth: '0px',
                         },
                         '& .MuiOutlinedInput-input': {
-                            padding: '0', // 修改内边距
+                            padding: '0',
                             color: '#666F8D'
                         }
                     },

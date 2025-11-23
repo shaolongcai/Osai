@@ -15,6 +15,7 @@ export type UserConfig = {
     visual_index_enabled: boolean;
     cuda_installed: boolean;
     report_agreement: boolean; //是否同意用户体验改进计划
+    autoLaunch: boolean; //是否開機自啟動
 }
 
 

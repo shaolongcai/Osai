@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import styles from './index.module.scss';
-import { Search, SearchPanel } from "@/components";
+import { InfoCard, Search, SearchPanel } from "@/components";
 import { I18nProvider } from '../contexts/I18nContext';
 import { Language } from '../types/i18n';
+import RootProviders from '@/RootProviders';
+import { Stack } from '@mui/material';
 
 
 
@@ -100,17 +102,20 @@ const SearchBar = () => {
     }, []);
 
     return <I18nProvider defaultLanguage={currentLanguage} key={currentLanguage}>
-        <Search onSearch={onSearch} />
-        {
-            data.length > 0 &&
-            <div className={styles.searchPanel}>
-                <SearchPanel
-                    data={data}
-                    selectedIndex={selectedIndex}
-                    onSelectedIndexChange={handleSelectedIndexChange}
-                />
-            </div>
-        }
+        <RootProviders>
+            <Stack spacing={1}>
+                <Search onSearch={onSearch} />
+                {
+                    data.length > 0 &&
+                    <SearchPanel
+                        data={data}
+                        selectedIndex={selectedIndex}
+                        onSelectedIndexChange={handleSelectedIndexChange}
+                    />
+                }
+                <InfoCard />
+            </Stack>
+        </RootProviders>
     </I18nProvider>
 }
 

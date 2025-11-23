@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react-swc'
 import path from 'path'
 import { resolve } from 'path';
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -16,6 +17,7 @@ export default defineConfig({
     ],
   },
   plugins: [
+    tailwindcss(),
     react(),
     viteStaticCopy({
       targets: [
@@ -37,7 +39,8 @@ export default defineConfig({
     rollupOptions: {
        input: {
         main: resolve(__dirname, 'index.html'),
-        searchBar: resolve(__dirname, 'search-bar.html')
+        searchBar: resolve(__dirname, 'search-bar.html'),
+        setting: resolve(__dirname, 'setting.html')
       },
       output: {
         manualChunks: {

@@ -88,9 +88,10 @@ const InfoCard: React.FC<Props> = ({
                                 direction='row'
                                 className={styles.info}
                                 alignItems='center'
-                                justifyContent='space-between'
+                                spacing={1}
+                            // justifyContent='space-between'
                             >
-                                <Typography variant="body2" component="div" className={styles.text}>
+                                <Typography variant='bodyMedium' component="div" className={styles.text}>
                                     {(() => {
                                         // 根據通知 id 與文本做翻譯映射
                                         if (item.id === 'visual-index') {

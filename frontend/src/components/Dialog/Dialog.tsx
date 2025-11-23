@@ -63,6 +63,7 @@ interface DialogProps {
     tips?: ReactNode | string; //对话框左下角的提示信息
     primaryButtonColor?: "primary" | "secondary" | "inherit" | "success" | "error" | "warning" | "info";
     loading?: boolean; //是否显示loading
+    hideBackdrop?: boolean; //是否隐藏 backdrop
 }
 
 /**
@@ -88,6 +89,7 @@ const Dialog: React.FC<DialogProps> = ({
     tips,
     primaryButtonColor = 'primary',
     loading = false,
+    hideBackdrop = false,
 }) => {
     /**
      * 处理主要按钮点击
@@ -116,6 +118,7 @@ const Dialog: React.FC<DialogProps> = ({
             maxWidth={maxWidth}
             fullWidth={fullWidth}
             className={styles.dialog}
+            hideBackdrop={hideBackdrop}
         >
             {title && (
                 <DialogTitle className={styles.dialogTitle}>

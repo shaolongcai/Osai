@@ -5,6 +5,7 @@ type SearchDataItem = {
     name: string;
     ext: string;
     modified_at: string;
+    ai_mark: 1 | 0;
 }
 
 interface SearchResult {

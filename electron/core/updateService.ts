@@ -206,6 +206,7 @@ class UpdateService {
     async manualCheckForUpdates(): Promise<void> {
         try {
             const result = await autoUpdater.checkForUpdates();
+            logger.info(`手动检查更新结果: ${JSON.stringify(result)}`);
             if (!result?.updateInfo) {
                 sendToRenderer('update-status', { type: 'not-available', message: '当前已是最新版本' });
             }

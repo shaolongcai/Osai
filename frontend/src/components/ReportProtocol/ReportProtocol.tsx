@@ -14,10 +14,11 @@ interface Props {
 /**
  * 允许应用向服务端报告崩溃、BUG的协议
  */
-const ReportProtocol: React.FC<Props> = ({
+const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
     open,
     onClose,
     onConfirm,
+    hideBackdrop = false,
 }) => {
 
     const [isRemind, setIsRemind] = useState(false);
@@ -62,6 +63,7 @@ const ReportProtocol: React.FC<Props> = ({
             secondaryButtonText={t('app.reportProtocol.secondaryButtonText')}
             onPrimaryButtonClick={agree}
             onSecondaryButtonClick={handleClose}
+            hideBackdrop={hideBackdrop}
         >
             <>
                 <Typography sx={{

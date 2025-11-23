@@ -30,6 +30,7 @@ type shortSearchDataItem = {
     path: string;
     name: string;
     ext?: string;
+    aiMark: 1 | 0;
 }
 
 // 快捷搜索类型

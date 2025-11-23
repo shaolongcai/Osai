@@ -5,6 +5,7 @@
   "visualIndex": "Activer l'indexation d'images",
   "gpuService": "Service d'accélération GPU",
   "userExperience": "Programme d'amélioration de l'expérience utilisateur",
+  "autoLaunch": "Démarrer au démarrage",
   "language": "Langue",
   "logFolder": "Journaux d'exécution",
   "open": "Ouvrir",
@@ -14,5 +15,10 @@
   "check": "Vérifier",
   "checking": "Vérification...",
   "checkUpdateStatusLatest": "Vous avez la dernière version",
-  "checkUpdateStatusNewVersion": "Nouvelle version disponible : {{version}}"
+  "checkUpdateStatusNewVersion": "Nouvelle version disponible : {{version}}",
+  "generalSettings": "Paramètres généraux",
+  "aiSettings": "Paramètres IA",
+  "update": "Mise à jour",
+  "about": "À propos",
+  "website": "Site Web Officiel"
 }
