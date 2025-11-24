@@ -27,22 +27,17 @@ def get_version_from_package_json():
 NEW_VERSION = get_version_from_package_json()  # 从 package.json 获取版本号
 
 
-def find_exe_file(version):
-    """根据版本号查找匹配的 EXE 文件，如果找不到则回退到任意一个"""
+def find_exe_files(version):
+    """根据版本号查找匹配的 EXE 文件，返回列表"""
     if not os.path.exists(out_dir):
         print(f"❌ 目录不存在: {out_dir}")
-        return None
-    
+        return []
     # 优先查找包含版本号的 EXE 文件
-    # 注意：这里的模式可能需要根据你的实际文件名进行调整
-    # 例如 "My App Setup 1.2.3.exe"
     exe_pattern = os.path.join(out_dir, f"*{version}*.exe")
     found_files = glob.glob(exe_pattern)
-    
     if found_files:
-        return found_files[0] # 返回第一个匹配的
-
-    # 如果没找到，回退查找任意 .exe 文件
+        return found_files
+    # 回退：查找任意 .exe 文件
     print(f"⚠️ 未找到版本为 {version} 的 EXE 文件，将查找任意 EXE 文件。")
     exe_pattern = os.path.join(out_dir, "*.exe")
     found_files = glob.glob(exe_pattern)
@@ -60,11 +55,10 @@ def compute_sha512(file_path: str) -> str:
 
 def generate_update_info():
     """快速生成更新信息"""
-    exe_files = find_exe_files()
+    exe_files = find_exe_files(NEW_VERSION)
     if not exe_files:
         print("❌ 未找到任何 EXE 文件")
         return
-
     target_file = exe_files[0]
     file_name = os.path.basename(target_file)
 

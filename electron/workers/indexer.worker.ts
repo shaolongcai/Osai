@@ -37,7 +37,7 @@ async function findFiles(dir: string): Promise<string[]> {
         const ignorePatterns = [
             // ...dynamicIgnores,
             '**/.?*',
-            '**/{node_modules,.$*,System Volume  Information,AppData,ProgramData,Program Files,Program Files (x86),Windows,.git,.vscode,.idea,temp,tmp,cache,logs,build,dist,out,target,__pycache__}/**',
+            '**/{node_modules,.$*,System Volume Information,AppData,ProgramData,Program Files,Program Files (x86),Windows,.git,.vscode,.idea,temp,tmp,cache,logs,build,dist,out,target,__pycache__}/**',
             '**/*.{asar,DS_Store,thumbs.db,desktop.ini}',
             '**/.Trash/**',
             '**/Library/**', // mac忽略目录
@@ -49,7 +49,8 @@ async function findFiles(dir: string): Promise<string[]> {
         const allFiles: string[] = [];
         let processedCount = 0;
         // 📌 注意：win本来为 /**/*.{${ALLOWED_EXTENSIONS}} ，需要测试windwos下，能否匹配 （包括目录）
-        const stream = fg.stream(`**/*.{${ALLOWED_EXTENSIONS}}`, {
+        const scanPaht = process.platform === 'win32' ? `/**/*.{${ALLOWED_EXTENSIONS}}` : `**/*.{${ALLOWED_EXTENSIONS}}`;
+        const stream = fg.stream(scanPaht, {
             cwd: drive,
             ignore: ignorePatterns,
             onlyFiles: true,

@@ -223,7 +223,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
             // 判断平台
             if (process.platform === 'win32') {
-                //
+                //获取256*256的图标，getFileIcon无法获取
                 const normalizedPath = filePath.replace(/\//g, '\\');
                 const iconBuffer = await extractIcon(normalizedPath, 256);
                 if (iconBuffer) {

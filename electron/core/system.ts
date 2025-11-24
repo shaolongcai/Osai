@@ -154,8 +154,7 @@ export const detectCudaVersion = (): 'cudaV13.zip' | 'cudaV12.zip' => {
  */
 export const openDir = async (type: string, filePath?: string) => {
     logger.info(`打开目录: ${type}, ${filePath}`)
-    // 异步导入 windowManager
-    const { windowManager } = await import('./WindowManager.js');
+
     switch (type) {
         // 打开运行日志
         case 'runLog':
@@ -164,85 +163,69 @@ export const openDir = async (type: string, filePath?: string) => {
             break;
         // 打开所在的文件夹，并且聚焦在该文件上
         case 'openFileDir':
-            if (process.platform === 'win32') {
-                // 在 Windows 上，使用 explorer.exe 并通过 /select 参数来选中文件
-                // 确保路径格式正确，将正斜杠转换为反斜杠
-                const windowsPath = filePath?.replace(/\//g, '\\') || filePath;
-                const command = `explorer.exe /select,"${windowsPath}"`;
-                exec(command, (error, stdout, stderr) => {
-                    if (error) {
-                        // 如果命令失败，使用备用方法
-                        shell.showItemInFolder(filePath);
-                    }
-                });
-            } else if (process.platform === 'darwin') {
-                // 在 macOS 上，使用 open 命令并附带 -R 参数来在 Finder 中显示文件
-                exec(`open -R "${filePath}"`, (error, stdout, stderr) => {
-                    if (error) {
-                        console.error('打开文件夹失败:', error);
-                        shell.showItemInFolder(filePath);
-                    }
-                });
-            } else {
-                // 对于其他平台（如 Linux），继续使用 showItemInFolder 作为备选
-                shell.showItemInFolder(filePath);
-            }
-            try {
-                if (filePath) {
-                    const db = getDatabase();
-                    // 临时mac端判断是否为程序,判断扩展名为.app,如果为.app 则增加到programs表,否则增加到files表
-                    let formName: string
-                    if (filePath.endsWith('.app')) {
-                        formName = 'programs'
-                    } else {
-                        formName = 'files'
-                    }
-                    // 隐藏所有窗口
-                    windowManager.hideAllWindows();
-                    db.prepare(`UPDATE ${formName} SET click_count = click_count + 1, last_access_time = datetime('now','localtime') WHERE path = ?`).run(filePath);
-                    // 打印出当前的次数
-                    const result = db.prepare(`SELECT click_count FROM ${formName} WHERE path = ?`).get(filePath);
-                    logger.info(`文件点击次数: ${(result as { click_count: number }).click_count}`);
-                    // 打印出当前的访问时间
-                    const accessTime = db.prepare(`SELECT last_access_time FROM ${formName} WHERE path = ?`).get(filePath);
-                    logger.info(`文件最后访问时间: ${(accessTime as { last_access_time: string }).last_access_time}`);
-                }
-            } catch (error) {
-                logger.warn(`更新文件点击次数失败: ${error}`);
-            }
+            shell.showItemInFolder(filePath);
+            await updateClickCountAndTime(filePath);
+            // if (process.platform === 'win32') {
+            //     // 在 Windows 上，使用 explorer.exe 并通过 /select 参数来选中文件
+            //     // 确保路径格式正确，将正斜杠转换为反斜杠
+            //     const windowsPath = filePath?.replace(/\//g, '\\') || filePath;
+            //     const command = `explorer.exe /select,"${windowsPath}"`;
+            //     exec(command, (error, stdout, stderr) => {
+            //         if (error) {
+            //             // 如果命令失败，使用备用方法
+            //             shell.showItemInFolder(filePath);
+            //         }
+            //     });
+            // } else if (process.platform === 'darwin') {
+            //     // 在 macOS 上，使用 open 命令并附带 -R 参数来在 Finder 中显示文件
+            //     exec(`open -R "${filePath}"`, (error, stdout, stderr) => {
+            //         if (error) {
+            //             console.error('打开文件夹失败:', error);
+            //             shell.showItemInFolder(filePath);
+            //         }
+            //     });
+            // } else {
+            //     // 对于其他平台（如 Linux），继续使用 showItemInFolder 作为备选
+            //     shell.showItemInFolder(filePath);
+            // }
             break;
         // 直接打开文件
         case 'openFile':
             shell.openPath(filePath);
-            try {
-                if (filePath) {
-                    const db = getDatabase();
-                    // 临时mac端判断是否为程序,判断扩展名为.app
-                    let formName: string
-                    if (filePath.endsWith('.app')) {
-                        formName = 'programs'
-                    } else {
-                        formName = 'files'
-                    }
-                    // 隐藏所有窗口
-                    windowManager.hideAllWindows();
-                    db.prepare(`UPDATE ${formName} SET click_count = click_count + 1, last_access_time = datetime('now','localtime') WHERE path = ?`).run(filePath);
-                    // 打印出当前的次数
-                    const result = db.prepare(`SELECT click_count FROM ${formName} WHERE path = ?`).get(filePath);
-                    logger.info(`文件点击次数: ${(result as { click_count: number }).click_count}`);
-                    // 打印出当前的访问时间
-                    const accessTime = db.prepare(`SELECT last_access_time FROM ${formName} WHERE path = ?`).get(filePath);
-                    logger.info(`文件最后访问时间: ${(accessTime as { last_access_time: string }).last_access_time}`);
-                }
-            } catch (error) {
-                logger.warn(`更新文件点击次数失败: ${error}`);
-            }
+            await updateClickCountAndTime(filePath);
             break;
         default:
             break;
     }
 }
 
+
+/**
+ * 更新文件点击次数与最后访问时间
+ */
+const updateClickCountAndTime = async (filePath: string) => {
+    try {
+        // 异步导入 windowManager
+        const { windowManager } = await import('./WindowManager.js');
+        if (filePath) {
+            const db = getDatabase();
+            let formName: string
+            if (filePath.endsWith('.app') || filePath.endsWith('.exe')) {
+                formName = 'programs'
+            } else {
+                formName = 'files'
+            }
+            // 隐藏所有窗口
+            windowManager.hideAllWindows();
+            db.prepare(`UPDATE ${formName} SET click_count = click_count + 1, last_access_time = datetime('now','localtime') WHERE path = ?`).run(filePath);
+            // 打印出当前的次数
+            const result = db.prepare(`SELECT click_count FROM ${formName} WHERE path = ?`).get(filePath);
+            logger.info(`文件点击次数: ${(result as { click_count: number }).click_count}`);
+        }
+    } catch (error) {
+        logger.warn(`更新文件点击次数失败: ${error}`);
+    }
+}
 
 /**
     * 公用的解压ZIP文件
