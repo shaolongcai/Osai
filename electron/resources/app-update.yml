@@ -1,2 +1,4 @@
 provider: generic
 url: http://kodo.osai.timefamily.cc/last/
+# url: http://kodo.osai.timefamily.cc/last/
+updaterCacheDirName: __update__
