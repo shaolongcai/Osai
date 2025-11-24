@@ -6,6 +6,7 @@
   "gpuService": "GPU-Beschleunigungsdienst",
   "userExperience": "Programm zur Verbesserung der Benutzererfahrung",
   "autoLaunch": "Beim Starten automatisch starten",
+  "autoLaunchHidden": "Im Hintergrund starten",
   "language": "Sprache",
   "logFolder": "Ausführungsprotokolle",
   "open": "Öffnen",

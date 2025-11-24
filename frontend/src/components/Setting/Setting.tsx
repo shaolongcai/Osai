@@ -49,6 +49,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [latestVersion, setLatestVersion] = useState<string | null>(null)
     const [updateStatusText, setUpdateStatusText] = useState('')
     const [autoLaunch, setAutoLaunch] = useState(false) //是否開機自啟動
+    const [autoLaunchHidden, setAutoLaunchHidden] = useState(false) //是否靜默啟動
     const [updateStatus, setUpdateStatus] = useState<{ isLatest: boolean | null; message?: string; version?: string }>({ isLatest: null }) //更新狀態
 
     const context = useContext(globalContext)
@@ -70,8 +71,9 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                 setIsInstallGpu(res.cuda_installed)
                 setReportAgreement(res.report_agreement)
                 // 讀取自啟動狀態
-                window.electronAPI.getAutoLaunch().then((enabled: boolean) => {
-                    setAutoLaunch(enabled)
+                window.electronAPI.getAutoLaunch().then((result: { enabled: boolean; openAsHidden: boolean }) => {
+                    setAutoLaunch(result.enabled)
+                    setAutoLaunchHidden(result.openAsHidden)
                 })
             })
         }
@@ -170,7 +172,17 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     // 切換自啟動開關
     const toggleAutoLaunch = async (checked: boolean) => {
         setAutoLaunch(checked)
-        await window.electronAPI.setAutoLaunch(checked)
+        await window.electronAPI.setAutoLaunch(checked, autoLaunchHidden)
+    }
+
+    // 切換靜默啟動開關
+    const toggleAutoLaunchHidden = async (checked: boolean) => {
+        setAutoLaunchHidden(checked)
+        await window.electronAPI.setAutoLaunchHidden(checked)
+        // 如果自啟動已開啟，需要更新自啟動設置以包含靜默啟動選項
+        if (autoLaunch) {
+            await window.electronAPI.setAutoLaunch(true, checked)
+        }
     }
 
     return (
@@ -365,6 +377,14 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                             type='switch'
                             value={autoLaunch}
                             onAction={toggleAutoLaunch}
+                        />
+                        {/* 静默启动开关 */}
+                        <SettingItem
+                            title={t('app.settings.autoLaunchHidden')}
+                            type='switch'
+                            value={autoLaunchHidden}
+                            onAction={toggleAutoLaunchHidden}
+                            disabled={!autoLaunch}
                         />
                     </Stack>
                 </Box>

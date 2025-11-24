@@ -6,6 +6,7 @@
   "gpuService": "Service d'accélération GPU",
   "userExperience": "Programme d'amélioration de l'expérience utilisateur",
   "autoLaunch": "Démarrer au démarrage",
+  "autoLaunchHidden": "Démarrer en arrière-plan",
   "language": "Langue",
   "logFolder": "Journaux d'exécution",
   "open": "Ouvrir",

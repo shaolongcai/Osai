@@ -26,7 +26,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     installAiServer: (withCuda: boolean) => ipcRenderer.invoke('install-ai-server', withCuda), // 安装AI服务(AI Mark),whiteCuda:是否安装CUDA
     updateTrayLanguage: (language: string) => ipcRenderer.send('update-tray-language', language), // 更新托盘菜单语言
     getAutoLaunch: () => ipcRenderer.invoke('get-auto-launch'), // 獲取自啟動狀態
-    setAutoLaunch: (enabled: boolean) => ipcRenderer.invoke('set-auto-launch', enabled), // 設置自啟動狀態
+    setAutoLaunch: (enabled: boolean, openAsHidden?: boolean) => ipcRenderer.invoke('set-auto-launch', enabled, openAsHidden), // 設置自啟動狀態
+    getAutoLaunchHidden: () => ipcRenderer.invoke('get-auto-launch-hidden'), // 獲取靜默啟動狀態
+    setAutoLaunchHidden: (openAsHidden: boolean) => ipcRenderer.invoke('set-auto-launch-hidden', openAsHidden), // 設置靜默啟動狀態
     openExternalUrl: (url: string) => ipcRenderer.invoke('open-external-url', url), // 在外部瀏覽器中打開鏈接
 
     // 更新相关

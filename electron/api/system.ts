@@ -48,29 +48,97 @@ export function initializeSystemApi() {
     // 獲取自啟動狀態
     ipcMain.handle('get-auto-launch', (_event) => {
         try {
-            const loginItemSettings = app.getLoginItemSettings();
-            const enabled = loginItemSettings.openAtLogin;
-            logger.info(`獲取自啟動狀態: ${enabled}`);
-            return enabled;
+            const s = app.getLoginItemSettings();
+            const enabled = s.openAtLogin;
+            const openAsHidden = s.openAsHidden || getConfig('autoLaunchHidden') || false;
+            logger.info(`獲取自啟動狀態: ${enabled}, 靜默啟動: ${openAsHidden}, exe=${app.getPath('exe')}, dev=${process.env.NODE_ENV}`);
+            return { enabled, openAsHidden };
         } catch (error) {
-            logger.error(`獲取自啟動狀態失敗: ${error}`);
-            return false;
+            const msg = error instanceof Error ? error.message : '獲取自啟動狀態失敗';
+            logger.error(`獲取自啟動狀態失敗: ${msg}`);
+            return { enabled: false, openAsHidden: false };
         }
     });
 
     // 設置自啟動狀態
-    ipcMain.handle('set-auto-launch', (_event, enabled: boolean) => {
+    ipcMain.handle('set-auto-launch', (_event, enabled: boolean, openAsHidden?: boolean) => {
         try {
+            const exePath = app.getPath('exe');
+            const args: string[] = [];
+            
+            // 开发模式下必须把"项目路径"作为参数传给 electron.exe
+            // 否则 Windows 会启动裸 electron.exe，找不到应用入口，显示默认页面
+            if (process.env.NODE_ENV === 'development') {
+                args.push(app.getAppPath()); // 等价于 electron.exe <path-to-app>
+            }
+            
+            // 如果未指定 openAsHidden，则从数据库读取
+            const hidden = openAsHidden !== undefined ? openAsHidden : (getConfig('autoLaunchHidden') || false);
+            
             app.setLoginItemSettings({
                 openAtLogin: enabled,
-                openAsHidden: false,
+                openAsHidden: hidden,
+                path: exePath,
+                args,
+                name: app.getName(),
             });
+            
             // 保存到數據庫
             setConfig('autoLaunch', enabled, 'boolean');
-            logger.info(`設置自啟動狀態: ${enabled}`);
+            setConfig('autoLaunchHidden', hidden, 'boolean');
+            logger.info(`設置自啟動狀態: ${enabled}, 靜默啟動: ${hidden}, path=${exePath}, args=${JSON.stringify(args)}`);
             return true;
         } catch (error) {
-            logger.error(`設置自啟動狀態失敗: ${error}`);
+            const msg = error instanceof Error ? error.message : '設置自啟動狀態失敗';
+            logger.error(`設置自啟動狀態失敗: ${msg}`);
+            return false;
+        }
+    });
+
+    // 獲取靜默啟動狀態
+    ipcMain.handle('get-auto-launch-hidden', (_event) => {
+        try {
+            const s = app.getLoginItemSettings();
+            const openAsHidden = s.openAsHidden || getConfig('autoLaunchHidden') || false;
+            logger.info(`獲取靜默啟動狀態: ${openAsHidden}`);
+            return openAsHidden;
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : '獲取靜默啟動狀態失敗';
+            logger.error(`獲取靜默啟動狀態失敗: ${msg}`);
+            return false;
+        }
+    });
+
+    // 設置靜默啟動狀態
+    ipcMain.handle('set-auto-launch-hidden', (_event, openAsHidden: boolean) => {
+        try {
+            const exePath = app.getPath('exe');
+            const args: string[] = [];
+            
+            // 开发模式下必须把"项目路径"作为参数传给 electron.exe
+            if (process.env.NODE_ENV === 'development') {
+                args.push(app.getAppPath());
+            }
+            
+            // 獲取當前的自啟動狀態
+            const s = app.getLoginItemSettings();
+            const enabled = s.openAtLogin;
+            
+            app.setLoginItemSettings({
+                openAtLogin: enabled,
+                openAsHidden: openAsHidden,
+                path: exePath,
+                args,
+                name: app.getName(),
+            });
+            
+            // 保存到數據庫
+            setConfig('autoLaunchHidden', openAsHidden, 'boolean');
+            logger.info(`設置靜默啟動狀態: ${openAsHidden}`);
+            return true;
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : '設置靜默啟動狀態失敗';
+            logger.error(`設置靜默啟動狀態失敗: ${msg}`);
             return false;
         }
     });
