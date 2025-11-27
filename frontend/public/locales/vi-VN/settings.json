@@ -6,6 +6,7 @@
   "gpuService": "Dịch vụ tăng tốc GPU",
   "userExperience": "Chương trình cải thiện trải nghiệm người dùng",
   "autoLaunch": "Tự động khởi động khi khởi động",
+  "autoLaunchHidden": "Khởi động nền",
   "language": "Ngôn ngữ",
   "logFolder": "Nhật ký thực thi",
   "open": "Mở",

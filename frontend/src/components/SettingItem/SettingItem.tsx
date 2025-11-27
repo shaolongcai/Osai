@@ -11,6 +11,7 @@ interface Props {
     type: ActionType;
     onAction: (checked: boolean) => void;
     action?: React.ReactNode;
+    disabled?: boolean;
 }
 
 const SettingItem: React.FC<Props> = ({
@@ -19,6 +20,7 @@ const SettingItem: React.FC<Props> = ({
     type,
     onAction,
     action,
+    disabled = false,
 }) => {
 
 
@@ -55,6 +57,7 @@ const SettingItem: React.FC<Props> = ({
                     <Switch
                         checked={value as boolean}
                         onChange={(_e, checked) => onAction(checked)}
+                        disabled={disabled}
                     />
                 )
             case 'custom':

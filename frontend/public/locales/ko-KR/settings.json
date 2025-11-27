@@ -6,6 +6,7 @@
   "gpuService": "GPU 가속 서비스",
   "userExperience": "사용자 경험 개선 프로그램",
   "autoLaunch": "시작 시 자동 실행",
+  "autoLaunchHidden": "백그라운드 실행",
   "language": "언어",
   "logFolder": "실행 로그",
   "open": "열기",

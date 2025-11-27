@@ -95,9 +95,13 @@ interface ElectronAPI {
     // 更新托盘菜单语言
     updateTrayLanguage(language: string): void;
     // 獲取自啟動狀態
-    getAutoLaunch(): Promise<boolean>;
+    getAutoLaunch(): Promise<{ enabled: boolean; openAsHidden: boolean }>;
     // 設置自啟動狀態
-    setAutoLaunch(enabled: boolean): Promise<boolean>;
+    setAutoLaunch(enabled: boolean, openAsHidden?: boolean): Promise<boolean>;
+    // 獲取靜默啟動狀態
+    getAutoLaunchHidden(): Promise<boolean>;
+    // 設置靜默啟動狀態
+    setAutoLaunchHidden(openAsHidden: boolean): Promise<boolean>;
     // 在外部瀏覽器中打開鏈接
     openExternalUrl(url: string): Promise<boolean>;
 

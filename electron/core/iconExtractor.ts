@@ -53,6 +53,94 @@ async function loadNativeModule(): Promise<NativeIconModule | null> {
   return null;
 }
 
+
+/**
+ * 检查原生模块是否可用
+ */
+export async function isNativeModuleAvailable(): Promise<boolean> {
+  if (!nativeModule) {
+    nativeModule = await loadNativeModule();
+  }
+  return nativeModule !== null;
+}
+
+
+/**
+ * 解析windows应用的icon（文件ICON是另外的）
+ * 总提取函数
+ * @param displayIcon
+ * @param installLoc
+ * @returns 返回图片png形式
+ */
+export async function extractIconOnWindows(displayIcon: string | null, installLoc: string): Promise<string> {
+  const cacheDir = pathConfig.get('iconsCache')
+  if (!fs.existsSync(cacheDir)) {
+    fs.mkdirSync(cacheDir, { recursive: true })
+  }
+
+  let srcPath = ''
+  if (displayIcon) {
+    srcPath = displayIcon.split(',')[0].trim().replace(/^"|"$/g, '')
+  }
+
+  if (!srcPath || !fs.existsSync(srcPath)) {
+    if (installLoc && fs.existsSync(installLoc)) {
+      try {
+        const executables = fs
+          .readdirSync(installLoc, { withFileTypes: true })
+          .filter(
+            (d) =>
+              d.isFile() &&
+              (d.name.toLowerCase().endsWith('.exe') || d.name.toLowerCase().endsWith('.dll'))
+          )
+          .map((d) => path.join(installLoc, d.name))
+
+        const dirName = path.basename(installLoc).toLowerCase()
+        const mainExe = executables.find((exe) => {
+          const exeName = path.basename(exe, path.extname(exe)).toLowerCase()
+          return exeName === dirName || dirName.includes(exeName)
+        })
+
+        srcPath = mainExe || executables[0] || ''
+      } catch (e) {
+        console.error(`读取安装目录失败: ${installLoc}`, e)
+        srcPath = ''
+      }
+    }
+  }
+
+  if (!srcPath || !fs.existsSync(srcPath)) {
+    console.warn(`最终无法确定图标源路径: displayIcon=${displayIcon}, installLoc=${installLoc}`)
+    return ''
+  }
+
+  try {
+    const stat = fs.statSync(srcPath)
+    const key = `${path.parse(srcPath).name}_${stat.size}_${stat.mtimeMs}`.replace(
+      /[^a-zA-Z0-9_]/g,
+      ''
+    )
+    const pngPath = path.join(cacheDir, `${key}.png`)
+
+    if (fs.existsSync(pngPath)) {
+      return pngPath
+    }
+
+    const iconBuffer = await extractIcon(srcPath, 256)
+
+    if (iconBuffer) {
+      savePngBuffer(iconBuffer, pngPath)
+      return pngPath
+    } else {
+      console.warn(`使用原生模块提取图标失败: ${srcPath}`)
+      return ''
+    }
+  } catch (e) {
+    console.error('提取图标过程中发生错误', srcPath, e)
+    return ''
+  }
+}
+
 /**
  * 提取单个文件的图标
  * @param filePath 文件路径
@@ -90,6 +178,8 @@ export async function extractIcon(filePath: string, size: number = 256): Promise
   return null;
 }
 
+
+
 /**
  * 批量提取文件图标
  * @param filePaths 文件路径数组
@@ -121,15 +211,6 @@ export async function batchExtractIcons(filePaths: string[], size: number = 256)
   return filePaths.map(() => null);
 }
 
-/**
- * 检查原生模块是否可用
- */
-export async function isNativeModuleAvailable(): Promise<boolean> {
-  if (!nativeModule) {
-    nativeModule = await loadNativeModule();
-  }
-  return nativeModule !== null;
-}
 
 /**
  * 将Buffer保存为PNG文件

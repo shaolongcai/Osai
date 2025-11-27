@@ -6,6 +6,7 @@
   "gpuService": "GPU 加速服務",
   "userExperience": "使用者體驗改進計畫",
   "autoLaunch": "開機自啟動",
+  "autoLaunchHidden": "靜默啟動",
   "language": "語言",
   "logFolder": "執行記錄",
   "open": "開啟",

@@ -4,8 +4,7 @@ import path from 'path'
 import { logger } from '../core/logger.js'
 import { ConfigName } from '../types/system.js'
 import { pinyin } from "pinyin-pro";
-import { extractIcon as extractIconNative, savePngBuffer } from '../core/iconExtractor.js';
-import * as fs from 'fs'
+import { extractIconOnWindows } from '../core/iconExtractor.js';
 
 let db: Database.Database | null = null
 
@@ -136,7 +135,7 @@ const addColumn = () => {
   try {
     db.exec(`ALTER TABLE programs ADD COLUMN click_count INTEGER DEFAULT 0`)
     logger.info('成功添加click_count字段到programs表')
-  } catch (error) {  }
+  } catch (error) { }
   // 测量 programs 表的 click_count 是否存在
   try {
     db.exec(`SELECT click_count FROM programs LIMIT 1`)
@@ -269,35 +268,39 @@ export async function insertProgramInfo(programInfo: {
     const pinyinHead = pinyinArray.map((item) => item[0]).join("");
 
     // 解析图标(windows)
-    // const programIcon = await extractIcon(
-    //   programInfo.DisplayIcon,          // 可能 null / "C:\\xxx.exe,0"
-    //   programInfo.InstallLocation,      // 备用目录
-    // );
+    if (process.platform === 'win32') {
+      const programIcon = await extractIconOnWindows(
+        programInfo.DisplayIcon,          // 可能 null / "C:\\xxx.exe,0"
+        programInfo.InstallLocation,      // 备用目录
+      );
 
-    // //  这里需要加一个判断，如果有 C:\PROGRA~1\DIFX\0169CE3A95F06636\DPInst64.exe,0 ，这种形式的需要取第一个
-    // if (programInfo.DisplayIcon?.includes(',')) {
-    //   programInfo.DisplayIcon = programInfo.DisplayIcon.split(',')[0].trim()
-    // }
+      //  这里需要加一个判断，如果有 C:\PROGRA~1\DIFX\0169CE3A95F06636\DPInst64.exe,0 ，这种形式的需要取第一个
+      if (programInfo.DisplayIcon?.includes(',')) {
+        programInfo.DisplayIcon = programInfo.DisplayIcon.split(',')[0].trim()
+      }
 
-    // windows
-    // stmt.run(
-    //   programInfo.DisplayName,
-    //   pinyinArray.join(""),
-    //   pinyinHead,
-    //   programInfo.Publisher,
-    //   programInfo.DisplayIcon || programInfo.InstallLocation,
-    //   programIcon,
-    // );
+      // windows
+      stmt.run(
+        programInfo.DisplayName,
+        pinyinArray.join(""),
+        pinyinHead,
+        programInfo.Publisher,
+        programInfo.DisplayIcon || programInfo.InstallLocation,
+        programIcon,
+      );
+    }
+    else {
 
-    // mac
-    stmt.run(
-      programInfo.DisplayName,
-      pinyinArray.join(""),
-      pinyinHead,
-      programInfo.Publisher,
-      programInfo.InstallLocation,
-      programInfo.DisplayIcon,
-    );
+      // mac
+      stmt.run(
+        programInfo.DisplayName,
+        pinyinArray.join(""),
+        pinyinHead,
+        programInfo.Publisher,
+        programInfo.InstallLocation,
+        programInfo.DisplayIcon,
+      );
+    }
 
     logger.debug(`程序信息已插入: ${programInfo.DisplayName}`);
   } catch (error) {
@@ -306,82 +309,6 @@ export async function insertProgramInfo(programInfo: {
   }
 }
 
-
-/**
- * 解析windows应用的icon（文件ICON是另外的）
- * @param displayIcon
- * @param installLoc
- * @returns 返回图片png形式
- * @todo 移动去iconExtractor文件
- */
-async function extractIcon(displayIcon: string | null, installLoc: string): Promise<string> {
-  const cacheDir = pathConfig.get('iconsCache')
-  if (!fs.existsSync(cacheDir)) {
-    fs.mkdirSync(cacheDir, { recursive: true })
-  }
-
-  let srcPath = ''
-  if (displayIcon) {
-    srcPath = displayIcon.split(',')[0].trim().replace(/^"|"$/g, '')
-  }
-
-  if (!srcPath || !fs.existsSync(srcPath)) {
-    if (installLoc && fs.existsSync(installLoc)) {
-      try {
-        const executables = fs
-          .readdirSync(installLoc, { withFileTypes: true })
-          .filter(
-            (d) =>
-              d.isFile() &&
-              (d.name.toLowerCase().endsWith('.exe') || d.name.toLowerCase().endsWith('.dll'))
-          )
-          .map((d) => path.join(installLoc, d.name))
-
-        const dirName = path.basename(installLoc).toLowerCase()
-        const mainExe = executables.find((exe) => {
-          const exeName = path.basename(exe, path.extname(exe)).toLowerCase()
-          return exeName === dirName || dirName.includes(exeName)
-        })
-
-        srcPath = mainExe || executables[0] || ''
-      } catch (e) {
-        console.error(`读取安装目录失败: ${installLoc}`, e)
-        srcPath = ''
-      }
-    }
-  }
-
-  if (!srcPath || !fs.existsSync(srcPath)) {
-    console.warn(`最终无法确定图标源路径: displayIcon=${displayIcon}, installLoc=${installLoc}`)
-    return ''
-  }
-
-  try {
-    const stat = fs.statSync(srcPath)
-    const key = `${path.parse(srcPath).name}_${stat.size}_${stat.mtimeMs}`.replace(
-      /[^a-zA-Z0-9_]/g,
-      ''
-    )
-    const pngPath = path.join(cacheDir, `${key}.png`)
-
-    if (fs.existsSync(pngPath)) {
-      return pngPath
-    }
-
-    const iconBuffer = await extractIconNative(srcPath, 256)
-
-    if (iconBuffer) {
-      savePngBuffer(iconBuffer, pngPath)
-      return pngPath
-    } else {
-      console.warn(`使用原生模块提取图标失败: ${srcPath}`)
-      return ''
-    }
-  } catch (e) {
-    console.error('提取图标过程中发生错误', srcPath, e)
-    return ''
-  }
-}
 
 /**
  * 获取数据库连接实例。

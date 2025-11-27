@@ -15,6 +15,24 @@ class UpdateService {
         this.setupAutoUpdater();
     }
 
+
+    private currentUpdateType: 'differential' | 'full' | null = null;
+
+    // 作用：根据 updateInfo 与差分开关判断更新类型
+    private resolveUpdateType(info: any): 'differential' | 'full' {
+        try {
+            const files = info?.files ?? [];
+            const hasBlockmap = files.some((f: any) => {
+                const name = String(f?.url || f?.href || f?.path || '').toLowerCase();
+                const hasMeta = !!(f?.metadata && (f.metadata.blockMapSize || f.metadata.blockmapSize));
+                return name.endsWith('.blockmap') || hasMeta;
+            });
+            return (!autoUpdater.disableDifferentialDownload && hasBlockmap) ? 'differential' : 'full';
+        } catch {
+            return 'full';
+        }
+    }
+
     /**
     * 获取架构特定的更新文件名
     */
@@ -59,13 +77,14 @@ class UpdateService {
         // 设置架构特定的更新文件
         const updateFileName = this.getArchSpecificUpdateFile();
         logger.info(`使用更新文件: ${updateFileName}`);
+        
 
         // 设置更新服务器地址和特定的更新文件
-        autoUpdater.setFeedURL({
-            provider: 'generic',
-            url: 'http://kodo.osai.timefamily.cc/last/',
-            channel: updateFileName.replace('.yml', '') //获取不同的更新yml
-        });
+        // autoUpdater.setFeedURL({
+        //     provider: 'generic',
+        //     url: 'http://kodo.osai.timefamily.cc/last/',
+        //     channel: updateFileName.replace('.yml', '') //获取不同的更新yml
+        // });
 
         // 强制开发环境也进行更新检查（仅用于测试）
         if (process.env.NODE_ENV === 'development') {
@@ -85,6 +104,11 @@ class UpdateService {
 
         autoUpdater.on('update-available', (info) => {
             logger.info(`发现新版本: ${info.version}`);
+
+            const updateType = this.resolveUpdateType(info);
+            this.currentUpdateType = updateType;
+            logger.info(`发现新版本: ${info.version}，更新类型: ${updateType === 'differential' ? '差分(块图)' : '完整'}`);
+
             sendToRenderer('update-status', {
                 version: info.version,
                 releaseNotes: info.releaseNotes,
