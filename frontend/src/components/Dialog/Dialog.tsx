@@ -8,7 +8,6 @@ import {
     Stack,
     Typography
 } from '@mui/material';
-import styles from './Dialog.module.scss';
 import { Close } from '@mui/icons-material';
 
 /**
@@ -117,24 +116,28 @@ const Dialog: React.FC<DialogProps> = ({
             onClose={onClose}
             maxWidth={maxWidth}
             fullWidth={fullWidth}
-            className={styles.dialog}
             hideBackdrop={hideBackdrop}
+            PaperProps={{
+                sx: {
+                    borderRadius: '16px',
+                }
+            }}
         >
             {title && (
-                <DialogTitle className={styles.dialogTitle}>
+                <DialogTitle className="px-6 py-4 flex flex-row items-center justify-between text-black gap-1">
                     <Stack direction="row" alignItems="center" spacing={1}>
-                        {icon && <div className={styles.iconContainer}>{icon}</div>}
-                        <Typography variant="h6" className={styles.text}>{title}</Typography>
+                        {icon && <div className="w-4 h-4 flex items-center justify-center [&>*]:w-4 [&>*]:h-4 [&>*]:text-base">{icon}</div>}
+                        <Typography variant="h6" className="text-lg font-bold">{title}</Typography>
                     </Stack>
-                    <Close className={styles.close} onClick={onClose} />
+                    <Close className="w-4 h-4 cursor-pointer" onClick={onClose} />
                 </DialogTitle>
             )}
-            <DialogContent className={styles.dialogContent}>
+            <DialogContent className="px-6 py-4 flex flex-col">
                 {children}
             </DialogContent>
             {(primaryButtonText || secondaryButtonText) && (
-                <DialogActions className={styles.dialogActions}>
-                    <Typography className={styles.tips}>
+                <DialogActions className="px-6 py-4 flex flex-row items-center justify-between">
+                    <Typography className="text-white/45 text-xs">
                         {tips && tips}
                     </Typography>
                     <Stack direction="row" spacing={2}>

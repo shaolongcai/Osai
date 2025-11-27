@@ -1,6 +1,5 @@
 import Dialog from "../Dialog/Dialog"
 import aiMarkImage from "@/assets/images/ai-mark.png"
-import styles from "./AIMarkDialog.module.scss"
 import { useState } from "react"
 import { Checkbox, FormControlLabel, Stack, Typography } from "@mui/material"
 import { useGlobalContext } from "@/contexts/globalContext"
@@ -32,12 +31,12 @@ const AIMarkDialog: React.FC<Props> = ({
         return (
             <Stack spacing={2}>
                 <Stack spacing={1} alignItems="center">
-                    <img src={aiMarkImage} alt="" className={styles.aiMarkDialogImage} />
+                    <img src={aiMarkImage} alt="" className="w-[300px] rounded-xl border border-black/25" />
                     <Typography variant="bodyMedium" sx={{ color: 'rgba(0, 0, 0, 0.45)' }}>
                         {t('app.aiMark.step1.entry')}
                     </Typography>
                 </Stack>
-                <Stack spacing={1} className={styles.tips}>
+                <Stack spacing={1} className="text-text-primary">
                     <Typography variant="bodyMedium">
                         {t('app.aiMark.step1.desc')}
                     </Typography>
@@ -85,7 +84,7 @@ const AIMarkDialog: React.FC<Props> = ({
     const renderStep3 = () => {
         return (
             <Stack spacing={1} alignItems="center">
-                <img src={aiMarkImage} alt="" className={styles.aiMarkDialogImage} />
+                <img src={aiMarkImage} alt="" className="w-[300px] rounded-xl border border-black/25" />
                 <Typography variant="bodyMedium">
                     {t('app.aiMark.step3.done')}
                 </Typography>

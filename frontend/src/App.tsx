@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './App.css'
 import { NotificationsProvider } from '@toolpad/core/useNotifications';
 import { globalContext } from '@/contexts/globalContext';
 import { GpuInfo } from './types/electron';

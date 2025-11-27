@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import styles from './index.module.scss';
 import { InfoCard, Search, SearchPanel } from "@/components";
 import { I18nProvider } from '../contexts/I18nContext';
 import { Language } from '../types/i18n';

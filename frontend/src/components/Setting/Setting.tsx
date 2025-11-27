@@ -1,6 +1,5 @@
 import { Dialog, Box, Typography, Paper, Stack, Button, IconButton, styled } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import styles from './Setting.module.scss'
 import { useEffect, useState } from 'react';
 import { Contact, Dialog as CustomDialog, ReportProtocol, SettingItem } from '@/components';
 import { UserConfig } from '@/types/system';
@@ -212,11 +211,11 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             >
                 {
                     hasGPU ? (
-                        <Typography className={styles.dialogTips} >
+                        <Typography className="text-sm text-text-primary" >
                             即将安装 GPU 加速服务，可能需要几分钟，请耐心等候。安装完毕后，请重启应用。
                         </Typography>
                     ) : (
-                        <Typography className={styles.dialogTips}>
+                        <Typography className="text-sm text-text-primary">
                             本机没有GPU/显卡，无法安装 GPU 加速服务。应用将会启动 CPU 索引图片。
                         </Typography>
                     )
@@ -236,13 +235,13 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                 onClose={() => { setConfirmDialogOpen(false) }}
                 fullWidth={false}
             >
-                <Typography className={styles.dialogTips}>
+                <Typography className="text-sm text-text-primary">
                     📌 CPU下，AI视觉索引的耗时会较长。
                 </Typography>
-                <Typography className={styles.dialogTips}>
+                <Typography className="text-sm text-text-primary">
                     📌 已索引的图片能立即提供AI搜索。
                 </Typography>
-                <Typography className={styles.dialogTips}>
+                <Typography className="text-sm text-text-primary">
                     📌 索引操作会在后台进行，你可以随时在设置中关闭视觉索引。
                 </Typography>
             </CustomDialog>
@@ -309,9 +308,9 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                 }
                             />
                         }
-                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
+                        <Paper className="p-4 rounded-xl border border-border" elevation={0} variant='outlined' >
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >{t('app.settings.logFolder')}</Typography>
+                                <Typography variant="body1" className="text-sm font-semibold text-text-secondary" >{t('app.settings.logFolder')}</Typography>
                                 <Button
                                     sx={{
                                         '&:focus': {
@@ -336,9 +335,9 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                 </Button>
                             </Stack>
                         </Paper>
-                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
+                        <Paper className="p-4 rounded-xl border border-border" elevation={0} variant='outlined' >
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >{t('app.settings.language')}</Typography>
+                                <Typography variant="body1" className="text-sm font-semibold text-text-secondary" >{t('app.settings.language')}</Typography>
                                 <LanguageSwitcher variant='select' size='small' showLabel={false} />
                             </Stack>
                         </Paper>
@@ -349,9 +348,9 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                             onAction={toggleReportAgreement}
                         />
                         {/* 檢查更新 */}
-                        <Paper className={styles.settingItem} elevation={0} variant='outlined' >
+                        <Paper className="p-4 rounded-xl border border-border" elevation={0} variant='outlined' >
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className={styles.label} >{t('app.settings.checkUpdate' as any)}</Typography>
+                                <Typography variant="body1" className="text-sm font-semibold text-text-secondary" >{t('app.settings.checkUpdate' as any)}</Typography>
                                 <Stack direction='row' alignItems='center' spacing={2}>
                                     <Typography variant="body2" color={'text.secondary'}>
                                         {updateStatusText || t('app.settings.checkUpdateStatusLatest' as any)}

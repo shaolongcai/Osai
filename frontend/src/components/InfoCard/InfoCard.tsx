@@ -8,7 +8,6 @@ import {
     Help as QuestionIcon
 } from '@mui/icons-material';
 
-import styles from './InfoCard.module.scss'
 import { NOTIFICATION_TYPE, NotificationType } from "@/utils/enum";
 import { Notification } from "@/types/electron";
 import { useEffect, useState } from "react";
@@ -53,25 +52,25 @@ const InfoCard: React.FC<Props> = ({
     const renderIcon = (type: NotificationType) => {
         switch (type) {
             case NOTIFICATION_TYPE.PENDING:
-                return <PendingIcon className={styles.icon} color='warning' />
+                return <PendingIcon className="cursor-pointer" color='warning' />
             case NOTIFICATION_TYPE.SUCCESS:
-                return <SuccessIcon className={styles.icon} color='success' />
+                return <SuccessIcon className="cursor-pointer" color='success' />
             case NOTIFICATION_TYPE.WARNING:
-                return <WaringIcon className={styles.icon} color='error' />
+                return <WaringIcon className="cursor-pointer" color='error' />
             case NOTIFICATION_TYPE.LOADING:
-                return <CircularProgress className={styles.icon} size={24} />
+                return <CircularProgress className="cursor-pointer" size={24} />
             case NOTIFICATION_TYPE.LOADING_QUESTION:
-                return <LoadingQuestionIcon className={styles.icon} color='info' />
+                return <LoadingQuestionIcon className="cursor-pointer" color='info' />
             case NOTIFICATION_TYPE.QUESTION:
-                return <QuestionIcon className={styles.icon} color='info' />
+                return <QuestionIcon className="cursor-pointer" color='info' />
             default:
                 return null
         }
     }
 
     return (
-        <Card className={styles.root}>
-            <DownIcon className={styles.downIcon} fontSize='medium'
+        <Card className="rounded-xl min-w-[338px] relative">
+            <DownIcon className="absolute top-6 right-4 cursor-pointer" fontSize='medium'
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 sx={{
                     //    当 isCollapsed 为 true 时，旋转180度
@@ -86,12 +85,12 @@ const InfoCard: React.FC<Props> = ({
                             <Stack
                                 key={item.text}
                                 direction='row'
-                                className={styles.info}
+                                className="min-w-[128px] w-[234px]"
                                 alignItems='center'
                                 spacing={1}
                             // justifyContent='space-between'
                             >
-                                <Typography variant='bodyMedium' component="div" className={styles.text}>
+                                <Typography variant='bodyMedium' component="div" className="text-text-secondary">
                                     {(() => {
                                         // 根據通知 id 與文本做翻譯映射
                                         if (item.id === 'visual-index') {
@@ -136,7 +135,7 @@ const InfoCard: React.FC<Props> = ({
                                         return item.text;
                                     })()}
                                 </Typography>
-                                <Tooltip title={item.tooltip} arrow className={styles.tooltip} >
+                                <Tooltip title={item.tooltip} arrow className="max-w-[120px]" >
                                     <div style={{ height: '24px' }}>
                                         {/* 没有转发ref，Tooltip 内部的元素不会被转发 */}
                                         {renderIcon(item.type)}

@@ -2,7 +2,6 @@ import { Stack, LinearProgress, Typography, Button } from "@mui/material"
 import { useRef, useEffect, useCallback, useState } from "react";
 import initImg from '@/assets/images/init.png'
 import initErrorImg from '@/assets/images/init-error.png'
-import styles from './Preload.module.scss'
 import { useNavigate } from 'react-router-dom';
 import { Dialog, ReportProtocol } from "@/components";
 import { useGlobalContext } from "@/contexts/globalContext";
@@ -157,11 +156,11 @@ const Preload = () => {
                     setIsCheckProtocol(true);
                 }}
             />
-            <Stack className={styles.root} spacing={1} alignItems="center">
+            <Stack className="my-[240px] mx-auto max-w-[240px]" spacing={1} alignItems="center">
                 {
                     initError ? (
                         <Stack spacing={1} alignItems="center">
-                            <img src={initErrorImg} className={styles.image} />
+                            <img src={initErrorImg} className="w-[180px] h-[180px]" />
                             <Typography variant="body1" color="error" align="center">
                                 {t('app.preload.initFailed')}
                             </Typography>
@@ -174,9 +173,9 @@ const Preload = () => {
                         </Stack>
                     ) :
                         <>
-                            <img src={initImg} className={styles.image} />
+                            <img src={initImg} className="w-[180px] h-[180px]" />
                             <LinearProgress
-                                className={styles.progress}
+                                className="w-full"
                             />
                             <Typography variant="body1" align="center"
                                 sx={{

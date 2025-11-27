@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link, Stack, Typography } from "@mui/material"
 import weChatQrcode from '@/assets/images/weChat.png'
-import styles from './Contact.module.scss'
 import { useTranslation } from '@/contexts/I18nContext'
 
 interface Props {
@@ -13,14 +12,14 @@ const Contact: React.FC<Props> = ({ title }) => {
   const displayTitle = title ?? t('app.contact.title');
 
   return (
-    <Stack spacing={2} alignItems='center' className={styles.root}>
-      <Typography className={styles.text}>
+    <Stack spacing={2} alignItems='center'>
+      <Typography className="text-base font-semibold text-center leading-6 text-text-secondary">
         {displayTitle}
       </Typography>
       <Link
         href='https://discord.gg/qJHfsGXTzP'
         target='_blank'
-        className={styles.link}
+        className="text-base font-semibold text-[#1890FF]"
         underline='none'
       >
         {t('app.contact.joinDiscord')}

@@ -1,5 +1,4 @@
 import { Paper, Stack, Typography, Button, Switch } from "@mui/material"
-import styles from './SettingItem.module.scss'
 
 
 
@@ -68,9 +67,9 @@ const SettingItem: React.FC<Props> = ({
     }
 
     return (
-        <Paper className={styles.root} elevation={0} variant='outlined' >
+        <Paper className="p-4 rounded-xl border border-border" elevation={0} variant='outlined' >
             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                <Typography variant="body1" className={styles.label} >
+                <Typography variant="body1" className="text-sm font-semibold text-text-secondary" >
                     {title}
                 </Typography>
                 {generateAction(type)}

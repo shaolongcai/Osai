@@ -1,6 +1,5 @@
 import { Box, Chip, ClickAwayListener, Menu, MenuItem, Paper, Tooltip } from "@mui/material"
 import React, { useEffect, useMemo, useState } from "react";
-import styles from './TableRelust.module.scss'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -336,13 +335,12 @@ const TableRelust: React.FC<Props> = ({
         )),
     }), []); // 依赖为空数组，确保只在组件挂载时创建一次
 
-    return <Box className={styles.table}>
+    return <Box className="mt-4 h-[80vh]">
         <AIMarkDialog
             open={aiMarkDialogOpen}
             onClose={() => setAIMarkDialogOpen(false)}
         />
         <TableVirtuoso
-            className={styles.TableContainer}
             fixedHeaderContent={fixedHeaderContent}
             data={sortedData}
             components={VirtuosoTableComponents}

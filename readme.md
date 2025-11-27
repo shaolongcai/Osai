@@ -31,6 +31,7 @@ Osai 是一个功能强大的桌面应用程序，利用人工智能技术为用
 - **React 18** - 现代化的用户界面框架
 - **TypeScript** - 类型安全的 JavaScript 超集
 - **Material-UI (MUI)** - React 组件库
+- **Tailwind CSS V4** - 实用优先的 CSS 框架
 - **Vite** - 快速的前端构建工具
 - **React Context** - 状态管理和国际化
 
@@ -184,6 +185,7 @@ electron/
 frontend/
 ├── package.json                 # 前端项目依赖和脚本配置
 ├── vite.config.ts               # Vite 构建配置
+├── tailwind.config.ts           # Tailwind CSS V4 配置文件
 ├── tsconfig.json                # TypeScript 配置
 ├── eslint.config.js             # ESLint 代码规范配置
 ├── index.html                   # HTML 入口文件
@@ -460,6 +462,58 @@ updatePack/
 - 使用 Prettier 进行代码格式化
 - 组件命名使用 PascalCase
 - 文件命名使用 camelCase
+
+### Tailwind CSS 使用指南
+
+本项目使用 **Tailwind CSS V4** 作为主要的样式框架，同时保留部分 SCSS 模块用于组件样式。
+
+#### 配置说明
+
+- **配置文件**: `frontend/tailwind.config.ts`
+- **Vite 插件**: 已集成 `@tailwindcss/vite` 插件
+- **CSS 导入**: 在 `frontend/src/App.css` 中使用 `@import "tailwindcss"` 导入
+
+#### 自定义主题
+
+Tailwind 配置文件中已定义以下自定义主题：
+
+- **颜色系统**:
+  - `primary`: 主色调 (#1976d2)
+  - `background`: 背景色系 (#FAFDFC, #FFFFFF, #F5F5F5)
+  - `border`: 边框色系 (#F0F2F5)
+  - `text`: 文字颜色（primary, secondary, tertiary, disabled）
+
+- **间距**: 扩展了标准间距系统
+- **圆角**: 自定义了 `xl` (16px) 和 `2xl` (20px)
+- **阴影**: 基于项目设计系统的自定义阴影
+
+#### 使用方式
+
+1. **在组件中使用 Tailwind 工具类**:
+   ```tsx
+   <div className="p-4 rounded-xl bg-background border border-border">
+     <h1 className="text-xl font-bold text-text-primary">标题</h1>
+   </div>
+   ```
+
+2. **使用自定义颜色**:
+   ```tsx
+   <button className="bg-primary text-white hover:bg-primary-dark">
+     按钮
+   </button>
+   ```
+
+3. **与 SCSS 模块共存**:
+   项目正在逐步从 SCSS 迁移到 Tailwind CSS，目前两种方式可以共存：
+   - 新组件优先使用 Tailwind CSS
+   - 现有 SCSS 模块样式保持不变，逐步迁移
+
+#### 迁移计划
+
+- ✅ 已安装 Tailwind CSS V4
+- ✅ 已创建配置文件
+- 🔄 逐步将 SCSS 模块样式转换为 Tailwind 工具类
+- 📝 保留必要的 SCSS 用于复杂样式和 MUI 主题定制
 
 ### 调试指南
 

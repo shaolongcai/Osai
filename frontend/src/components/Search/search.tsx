@@ -1,5 +1,4 @@
 import { Button, Paper, Stack, TextField, Typography } from "@mui/material"
-import styles from './search.module.scss'
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from '@/contexts/I18nContext';
 
@@ -39,13 +38,8 @@ const Search: React.FC<Props> = ({
     return <Paper
         id='search-panel'
         elevation={0}
-        className={styles.root}
+        className="p-4 rounded-xl shadow-sm border border-border box-border transition-all duration-200 hover:border-border-light hover:shadow-md w-full"
         sx={{
-            padding: '16px',
-            borderRadius: '8px',
-            boxShadow: '0px 2px 4px rgba(25, 33, 61, 0.08)',
-            border: '1px solid #F0F2F5',
-            width: '100%',
             // minWidth: '480px',
         }}
     >
@@ -58,7 +52,6 @@ const Search: React.FC<Props> = ({
                         autoFocus: true,
                     }
                 }}
-                className={styles.input}
                 fullWidth
                 placeholder={t('app.search.placeholder')}
                 variant="outlined"

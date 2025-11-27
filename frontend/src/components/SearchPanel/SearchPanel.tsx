@@ -1,6 +1,5 @@
 import { Chip, Paper, Stack, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
-import styles from './SearchPanel.module.scss'
 import placeholder from '@/assets/images/weChat.png'
 import { useIcon } from '@/hooks/useIcon';
 
@@ -38,19 +37,14 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         elevation={0}
-        className={`${styles.searchResultItem} ${isSelected ? styles.selected : ''}`}
+        className={`w-full cursor-pointer rounded-lg box-border transition-colors duration-200 p-2 mb-1 ${isSelected ? 'bg-black/5' : ''}`}
     >
         <Stack direction='row' spacing={1} alignItems="center">
-            <img src={iconSrc} alt={name} />
+            <img src={iconSrc} alt={name} className="w-12 h-12 rounded-lg" />
             <Stack justifyContent='space-between'>
                 <Stack direction='row' spacing={1}>
                     <Typography variant='titleMedium'
-                        sx={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            maxWidth: '320px',
-                        }}
+                        className="font-bold text-text-primary max-w-[340px] overflow-hidden text-ellipsis whitespace-nowrap"
                     >
                         {name}
                     </Typography>
@@ -144,7 +138,7 @@ const SearchPanel: React.FC<Props> = ({
 
     return <Paper
         elevation={3}
-        className={styles.root}
+        className="p-2 rounded-xl shadow-sm border border-border w-full box-border max-h-[500px] overflow-y-auto"
         ref={containerRef}
     >
         <Stack alignItems='flex-start'>

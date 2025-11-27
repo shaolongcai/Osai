@@ -1,6 +1,5 @@
 import { Box, Chip, LinearProgress, Stack, Typography } from "@mui/material"
 import { useCallback, useEffect, useRef, useState } from "react";
-import styles from './Home2.module.scss'
 import { Search, InfoCard, Setting, Contact, TableRelust, UpdateTipsDialog } from '@/components';
 import { Progress } from "@/types/electron";
 import readySearchImage from '@/assets/images/search-ready.png'
@@ -163,7 +162,7 @@ const Home = () => {
 
 
   return (
-    <div className={styles.root}>
+    <div>
       {/* 版本更新信息提示 */}
       <UpdateTipsDialog
         open={openUpdateTips}
@@ -177,11 +176,11 @@ const Home = () => {
       />
       <Stack direction='row' alignItems='center' spacing={1} >
         <Search onSearch={setKeyword} />
-        <Stack className={styles.settings} fontSize='large' alignItems='center' justifyContent='center'
+        <Stack className="w-16 h-16 cursor-pointer" fontSize='large' alignItems='center' justifyContent='center'
           onClick={() => setOpenSetting(true)}
         >
-          <SettingsIcon className={styles.settingsIcon} />
-          <Typography variant='body2' className={styles.text}>
+          <SettingsIcon className="w-8 h-8 text-text-secondary" />
+          <Typography variant='body2' className="text-text-secondary">
             {t('app.common.settings')}
           </Typography>
         </Stack>
@@ -189,7 +188,7 @@ const Home = () => {
       {/* 搜索与结果 */}
       {
         data.length > 0 &&
-        <Typography className={styles.total}>
+        <Typography className="block absolute bottom-6 right-6 text-sm text-text-secondary">
           {t('app.search.results', { count: data.length })}
         </Typography>
       }
@@ -205,31 +204,31 @@ const Home = () => {
           // 若为空，但是有搜索关键词，则显示搜索为空
           keyword.length > 0 ?
             <>
-              <Stack className={styles.searchNull} alignItems='center'>
-                <img src={searchNull} />
-                <Typography variant='body1' className={styles.text}>
+              <Stack className="mt-40" alignItems='center'>
+                <img src={searchNull} className="w-[180px] h-[180px]" />
+                <Typography variant='body1' className="text-sm font-semibold text-text-secondary">
                   {t('app.search.noResults')}
                 </Typography>
               </Stack>
-              <div className={styles.contact}>
+              <div className="mt-6">
                 <Contact />
               </div>
             </>
             :
-            <Stack className={styles.indexRoot} alignItems='center' spacing={1}>
-              <img src={readySearchImage} alt='' />
+            <Stack className="w-[180px] my-[180px] mx-auto" alignItems='center' spacing={1}>
+              <img src={readySearchImage} alt='' className="w-full" />
               {
                 indexProgress?.process !== 'finish' &&
-                <LinearProgress className={styles.progress} />
+                <LinearProgress className="w-full" />
               }
-              <Typography className={styles.text} variant='body1'>
+              <Typography className="font-semibold text-center whitespace-nowrap overflow-hidden text-ellipsis" variant='body1'>
                 {indexProgress
                   ? ((indexProgress.process === 'finish' || (indexProgress.message && indexProgress.message.includes('已索引')))
                     ? t('app.indexing.indexed', { count: indexProgress.count })
                     : t('app.indexing.pending'))
                   : t('app.indexing.pending')}
               </Typography>
-              <Typography className={styles.text} variant='body1'>
+              <Typography className="font-semibold text-center whitespace-nowrap overflow-hidden text-ellipsis" variant='body1'>
                 {t('app.search.start')}
               </Typography>
               <Chip

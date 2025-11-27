@@ -1,0 +1,6 @@
+[系统约束]
+- 必须使用electron + TypeScript 5.0+ + tailwind css V3 + SQLite
+- 遵循SOLID原则
+- 性能目标：首屏加载<1s
+
+[当前进度]
