@@ -1,6 +1,5 @@
 import { Chip, Paper, Stack, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
-import placeholder from '@/assets/images/weChat.png'
 import { useIcon } from '@/hooks/useIcon';
 
 

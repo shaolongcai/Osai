@@ -1,4 +1,4 @@
-import { Button, Paper, Stack, TextField, Typography } from "@mui/material"
+import { Button, Paper, Stack, TextField} from "@mui/material"
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from '@/contexts/I18nContext';
 
@@ -60,6 +60,7 @@ const Search: React.FC<Props> = ({
                 sx={{
                     flex: 1,
                     '& .MuiOutlinedInput-root': {
+                        height: '56px',
                         '& fieldset': {
                             borderWidth: '0px',
                         },
@@ -70,7 +71,7 @@ const Search: React.FC<Props> = ({
                             borderWidth: '0px',
                         },
                         '& .MuiOutlinedInput-input': {
-                            padding: '0',
+                            padding: '12px 16px',
                             color: '#666F8D'
                         }
                     },
