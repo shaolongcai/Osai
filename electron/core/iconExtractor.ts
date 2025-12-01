@@ -110,7 +110,6 @@ export async function extractIconOnWindows(displayIcon: string | null, installLo
   }
 
   if (!srcPath || !fs.existsSync(srcPath)) {
-    console.warn(`最终无法确定图标源路径: displayIcon=${displayIcon}, installLoc=${installLoc}`)
     return ''
   }
 

@@ -17,7 +17,7 @@ export function searchFiles(searchTerm: string, isAiMark?: boolean, limit?: numb
             total: 0,
         };
     }
-    // 1. 获取数据库连接
+    // 获取数据库连接
     const dbDirectory = pathConfig.get('database');
     if (!dbDirectory) {
         logger.error('数据库目录未配置');

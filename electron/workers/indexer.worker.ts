@@ -7,8 +7,16 @@ import dayjs from 'dayjs';
 import fg from 'fast-glob';
 import type { IndexFile } from '../types/database';
 
+/**
+ * 基础的文件信息
+ */
+type FileInfo = {
+    filePath: string;
+    name: string;
+    ext: string;
+};
 
-// ... (ALLOWED_EXTENSIONS and BATCH_SIZE remain the same)
+
 const ALLOWED_EXTENSIONS = 'png,jpg,jpeg,ppt,pptx,csv,doc,docx,txt,xlsx,xls,pdf'
 const BATCH_SIZE = 10000;
 
@@ -20,22 +28,17 @@ const { drive, dbPath } = workerData as {
 const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 
-// --- 2. 其次，准备好所有需要用到的 SQL 语句 ---
-const selectStmt = db.prepare('SELECT size, modified_at FROM files WHERE path = ?');
-const updateStmt = db.prepare(
-    'UPDATE files SET md5 = ?, size = ?, modified_at = ? WHERE path = ?'
-);
+// --- 准备好 SQL 语句 ---
 const insertStmt = db.prepare(
-    'INSERT INTO files (md5, path, name, ext, size, created_at, modified_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    'INSERT OR IGNORE INTO files (md5, path, name, ext) VALUES (?, ?, ?, ?)'
 );
 
-async function findFiles(dir: string): Promise<string[]> {
+
+async function findFiles(dir: string): Promise<FileInfo[]> {
     try {
         console.log(`🚀 使用 fast-glob 在 "${dir}" 中开始异步搜索...`);
-        // const dynamicIgnores = excludedDirNamesArray.map(d => `**/${d}/**`);
 
         const ignorePatterns = [
-            // ...dynamicIgnores,
             '**/.?*',
             '**/{node_modules,.$*,System Volume Information,AppData,ProgramData,Program Files,Program Files (x86),Windows,.git,.vscode,.idea,temp,tmp,cache,logs,build,dist,out,target,__pycache__}/**',
             '**/*.{asar,DS_Store,thumbs.db,desktop.ini}',
@@ -46,9 +49,9 @@ async function findFiles(dir: string): Promise<string[]> {
             '**/Applications/**', //去掉应用程序，在应用程序中已经寻找了
         ];
 
-        const allFiles: string[] = [];
+        const fileInfoList: Array<FileInfo> = [];
         let processedCount = 0;
-        // 📌 注意：win本来为 /**/*.{${ALLOWED_EXTENSIONS}} ，需要测试windwos下，能否匹配 （包括目录）
+        // 📌 注意：win本来为 /**/*.{${ALLOWED_EXTENSIONS}}
         const scanPaht = process.platform === 'win32' ? `/**/*.{${ALLOWED_EXTENSIONS}}` : `**/*.{${ALLOWED_EXTENSIONS}}`;
         const stream = fg.stream(scanPaht, {
             cwd: drive,
@@ -57,25 +60,20 @@ async function findFiles(dir: string): Promise<string[]> {
             dot: true,
             caseSensitiveMatch: false,
             suppressErrors: true, //跳过出错的文件
-            // stats: true, // 请求返回 stat 对象
             absolute: true, // 返回绝对路径
             throwErrorOnBrokenSymbolicLink: false,
             // deep: 5 
         });
 
-
-        //📌 stat加上后，无法返回实体
+        // 收集所有文件信息
         for await (const filePath of stream) {
-            const stat = fs.statSync(filePath);
-            allFiles.push(filePath as string);
-            processFile(filePath as string, stat);
-            processedCount++;
-
-            if (processedCount % BATCH_SIZE === 0) {
-                // parentPort?.postMessage({
-                //     type: 'progress',
-                //     content: `已处理 ${processedCount} 个文件...`
-                // });
+            try {
+                //根据path，取出name以及ext
+                const name = path.basename(filePath as string);
+                const ext = path.extname(filePath as string);
+                fileInfoList.push({ filePath: filePath as string, name, ext });
+            } catch (error) {
+                console.error(`读取文件 ${filePath} 信息时出错:`, error);
             }
         }
 
@@ -94,25 +92,29 @@ async function findFiles(dir: string): Promise<string[]> {
 
         for await (const dirPath of dirStream) {
             try {
-                //    console.log('dirPath', dirPath)
-                const stat = fs.statSync(dirPath);
-                allFiles.push(dirPath as string);
-                processFile(dirPath as string, stat);
+                const name = path.basename(dirPath as string);
+                const ext = path.extname(dirPath as string);
+                fileInfoList.push({ filePath: dirPath as string, name, ext });
                 processedCount++;
 
                 if (processedCount % BATCH_SIZE === 0) {
-                    // parentPort?.postMessage({
-                    //     type: 'progress',
-                    //     content: `已处理 ${processedCount} 个项目...`
-                    // });
+                    parentPort?.postMessage({
+                        type: 'progress',
+                        content: `已扫描 ${processedCount} 个项目...`
+                    });
                 }
             } catch (error) {
                 console.error(`处理文件夹 ${dirPath} 时出错:`, error);
             }
         }
 
-        console.log(`✅ fast-glob 搜索完成，共找到 ${allFiles.length} 个文件。`);
-        return allFiles;
+        console.log(`🔄 开始批量更新数据库...`);
+
+        // 批量处理所有文件并更新数据库
+        batchProcessFiles(fileInfoList);
+
+        console.log(`✅ 数据库更新完成。`);
+        return fileInfoList;
     } catch (error) {
         console.error(error)
         return []
@@ -120,31 +122,38 @@ async function findFiles(dir: string): Promise<string[]> {
 }
 
 
-
-function processFile(filePath: string, stat: fs.Stats) {
+/**
+ * 批量处理文件并更新数据库（使用事务提升性能）
+ * @param fileInfoList 文件信息列表
+ */
+function batchProcessFiles(fileInfoList: Array<FileInfo>) {
     try {
-        const file = path.basename(filePath).toLowerCase();
-        const ext = path.extname(filePath).toLowerCase()
+        // 使用事务批量处理，大幅提升性能
+        const transaction = db.transaction((files: Array<FileInfo>) => {
+            let insertCount = 0;
 
-        const existingFile = selectStmt.get(filePath) as IndexFile | undefined;
-
-        if (existingFile) {
-            const existingMtime = new Date(existingFile.modified_at).getTime();
-            // 文件已修改，则更新记录（包括新的MD5）
-            if (existingFile.size !== stat.size || existingMtime !== stat.mtime.getTime()) {
-                const metadataString = `${filePath}-${stat.size}-${stat.mtime.getTime()}`;
-                const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
-                updateStmt.run(md5, stat.size, dayjs(stat.mtime).format(), filePath);
+            for (const { filePath, name, ext } of files) {
+                try {
+                    const fileName = name.toLowerCase();
+                    const extLower = ext.toLowerCase();
+                    // 计算MD5的方法
+                    // const metadataString = `${filePath}-${stat.size}-${stat.mtime.getTime()}`;
+                    // const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
+                    insertStmt.run(filePath, filePath, fileName, extLower); //临时使用filePaht代替MD5
+                    insertCount++;
+                } catch (error) {
+                    console.error(`处理文件 ${filePath} 时出错:`, error);
+                }
             }
-        } else {
-            // 没有则新增
-            const metadataString = `${filePath}-${stat.size}-${stat.mtime.getTime()}`;
-            const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
-            insertStmt.run(md5, filePath, file, ext, stat.size, dayjs(stat.ctime).format(), dayjs(stat.mtime).format());
-        }
+
+            console.log(`📊 数据库操作统计: 总共 ${insertCount} 条`);
+        });
+
+        // 执行事务
+        transaction(fileInfoList);
     } catch (error) {
-        console.error(error)
-        throw error
+        console.error('批量处理文件时出错:', error);
+        throw error;
     }
 }
 
@@ -152,10 +161,31 @@ function processFile(filePath: string, stat: fs.Stats) {
 (async () => {
     try {
         const files = await findFiles(path.join(drive));
+
+        // 1. 先发送成功消息
         parentPort?.postMessage({ status: 'success', files });
+
+        // 2. 关闭数据库连接
+        db.close();
+
+        // 3. 正常退出
+        process.exit(0);
+
     } catch (error) {
         const msg = error instanceof Error ? error.message : '索引失败';
         console.error(`❌ 索引失败: ${msg}`);
+
+        // 1. 先发送错误消息
         parentPort?.postMessage({ status: 'error', error: msg });
+
+        // 2. 关闭数据库连接
+        try {
+            db.close();
+        } catch (e) {
+            console.error('关闭数据库失败:', e);
+        }
+
+        // 3. 异常退出
+        process.exit(1);
     }
 })();

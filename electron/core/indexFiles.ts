@@ -14,6 +14,12 @@ import * as os from 'os';
 import * as fs from 'fs'
 import { extractIcon, savePngBuffer } from './iconExtractor.js';
 
+type FileInfo = {
+    filePath: string;
+    name: string;
+    ext: string;
+};
+
 // 获取当前文件路径（ES模块兼容）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,15 +104,15 @@ function getDrives(): string[] {
 
 
 // 删除在数据库中多余
-const deleteExtraFiles = async (allFiles: string[]) => {
+const deleteExtraFiles = async (allFiles: FileInfo[]) => {
     const db = getDatabase()
-    const allFilesSet = new Set(allFiles);
+    const allFilesSet = new Set(allFiles.map(file => file.filePath));
     const selectStmt = db.prepare('SELECT path FROM files');
     const filesInDb = selectStmt.all() as { path: string }[];
     const filesToDelete = filesInDb.filter((file) => !allFilesSet.has(file.path));
     if (filesToDelete.length > 0) {
         logger.info(`发现 ${filesToDelete.length} 个需要删除的记录。`);
-        // 4. 准备删除语句并开启一个事务来批量删除
+        // 准备删除语句并开启一个事务来批量删除
         const deleteStmt = db.prepare('DELETE FROM files WHERE path = ?');
         const deleteTransaction = db.transaction((files) => {
             for (const file of files) {
@@ -114,7 +120,7 @@ const deleteExtraFiles = async (allFiles: string[]) => {
             }
         });
 
-        // 5. 执行事务
+        // 执行事务
         deleteTransaction(filesToDelete);
         logger.info('过时的文件记录已成功删除。');
     } else {
@@ -126,7 +132,7 @@ const deleteExtraFiles = async (allFiles: string[]) => {
  * 索引所有驱动器上具有允许扩展名的所有文件。
  * @returns 找到的所有文件的路径列表。
  */
-export async function indexAllFilesWithWorkers(): Promise<string[]> {
+export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
 
     const startTime = Date.now();
     const drives = getDrives();
@@ -151,7 +157,6 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
                 workerData: { drive, dbPath }
             });
 
-
             worker.on('message', (message) => {
                 if (message.status === 'success') {
                     logger.info(`驱动器 ${drive} 索引完成，找到 ${message.files.length} 个文件。`);
@@ -166,6 +171,7 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
                         process: completedDrives === drives.length ? 'finish' : 'pending',
                         count: formattedTotal
                     })
+
                     resolve(message.files);
                 }
                 else if (message.type === 'progress') {
@@ -175,7 +181,6 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
                     logger.error(`驱动器 ${drive} 索引失败:${JSON.stringify(message.error)}`);
                     resolve([]);
                 }
-                worker.terminate();
             });
 
             worker.on('error', (error) => {
@@ -195,15 +200,19 @@ export async function indexAllFilesWithWorkers(): Promise<string[]> {
 
     try {
 
+              // 获取前5个做验证
+                   const db = getDatabase();
+        const verifyFiles = db.prepare('SELECT * FROM files LIMIT 5').all();
+        console.log('验证文件', verifyFiles);
+
         const results = await Promise.all(promises);
-        const allFiles = results.flat(); // flat方法展开二维数组
+        const allFiles: FileInfo[] = results.flat() as unknown as FileInfo[]; // flat方法展开二维数组
 
         // 寻找所有扩展名,并对应第一个文件
-        const extToFileMap = new Map();
+        const extToFileMap = new Map<string, string>();
         allFiles.forEach(file => {
-            const ext = path.extname(file).toLowerCase();
-            if (!extToFileMap.has(ext)) {
-                extToFileMap.set(ext, file);
+            if (!extToFileMap.has(file.ext)) {
+                extToFileMap.set(file.ext, file.filePath);
             }
         });
         const extensions = new Set(extToFileMap.keys());

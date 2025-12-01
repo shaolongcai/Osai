@@ -58,7 +58,7 @@ function createWindow() {
   } else {
     const indexPath = path.join(__dirname, '../frontend/dist/index.html');
     logger.info(`嘗試加載主窗口文件: ${indexPath}`);
-    
+
     // 檢查文件是否存在
     if (!existsSync(indexPath)) {
       logger.error(`主窗口文件不存在: ${indexPath}`);
@@ -104,7 +104,7 @@ function createWindow() {
       // 檢查是否為開機自動啟動
       const loginItemSettings = app.getLoginItemSettings();
       const isAutoLaunch = loginItemSettings.wasOpenedAtLogin || loginItemSettings.wasOpenedAsHidden;
-      
+
       if (isAutoLaunch) {
         logger.info('檢測到開機自動啟動，主窗口將保持隱藏狀態');
         // 開機自動啟動時，不顯示主窗口，只顯示在托盤
@@ -140,7 +140,7 @@ function createSearchBar() {
   } else {
     const searchBarPath = path.join(__dirname, '../frontend/dist/search-bar.html');
     const settingPath = path.join(__dirname, '../frontend/dist/setting.html');
-    
+
     // 檢查文件是否存在
     if (!existsSync(searchBarPath)) {
       logger.error(`搜索窗口文件不存在: ${searchBarPath}`);
@@ -149,7 +149,7 @@ function createSearchBar() {
         logger.error(`加載搜索窗口文件失敗: ${error}`);
       });
     }
-    
+
     if (!existsSync(settingPath)) {
       logger.error(`設置窗口文件不存在: ${settingPath}`);
     } else {
@@ -462,7 +462,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) || true) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();
@@ -477,8 +477,8 @@ export const startIndexTask = async () => {
         count: last_index_file_count
       })
     }
-    // 开启视觉索引 （由appState控制继续还是关闭）
-    indexImagesService();
+    // 开启视觉索引 （不再主动索引）
+    // indexImagesService();
   } catch (error) {
     const msg = error instanceof Error ? error.message : '索引任务失败';
     logger.error(`索引任务开始失败: ${msg}`);

@@ -88,7 +88,9 @@ class UpdateService {
 
         // 强制开发环境也进行更新检查（仅用于测试）
         if (process.env.NODE_ENV === 'development') {
-            autoUpdater.forceDevUpdateConfig = true;
+            // autoUpdater.forceDevUpdateConfig = true;
+            //不检查更新
+            autoUpdater.forceDevUpdateConfig = false;
             // 或者设置更新服务器地址
             // autoUpdater.setFeedURL({
             //     provider: 'generic',

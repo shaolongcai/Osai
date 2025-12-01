@@ -5,6 +5,7 @@ import { logger } from '../core/logger.js'
 import { ConfigName } from '../types/system.js'
 import { pinyin } from "pinyin-pro";
 import { extractIconOnWindows } from '../core/iconExtractor.js';
+import { createConfigDb, createFilesDb, createFilesFtsDb, createProgramsDb } from './schema.js'
 
 let db: Database.Database | null = null
 
@@ -28,52 +29,27 @@ export function initializeDatabase(): Database.Database {
     db.pragma('journal_mode = WAL') // 提升并发写入性能
     db.pragma('synchronous = NORMAL') // 在大多数情况下是安全且高效的
 
-    // 创建文件索引表。如果表已存在，则此命令不会执行任何操作。
-    // 我们为 `path` 列创建了一个唯一索引，以防止重复插入。
-    db.exec(`
-            CREATE TABLE IF NOT EXISTS files (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              md5 TEXT NOT NULL,
-              path TEXT NOT NULL,
-              name TEXT NOT NULL,
-              ext TEXT NOT NULL,
-              size INTEGER,
-              created_at DATETIME,
-              modified_at DATETIME,
-              summary TEXT,
-              tags TEXT DEFAULT '[]'
-            );
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_files_md5 ON files (md5);
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_files_path ON files (path);
-          `)
-
-    // 创建程序信息表
-    db.exec(`
-            CREATE TABLE IF NOT EXISTS programs (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              display_name TEXT NOT NULL,
-              full_pinyin TEXT,
-              head_pinyin TEXT,
-              publisher TEXT,
-              path TEXT,
-              display_icon TEXT
-            );
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_programs_name ON programs (display_name);
-          `)
-
-    // 创建用户配置表
-    db.exec(`
-            CREATE TABLE IF NOT EXISTS user_config (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              config_key TEXT NOT NULL UNIQUE,
-              config_value TEXT,
-              config_type TEXT DEFAULT 'string',
-              description TEXT,
-              created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-              updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_config_key ON user_config (config_key);
-          `)
+    //创建表
+    try {
+      createFilesDb(db)
+    } catch (error) {
+      logger.error(`创建表失败: ${JSON.stringify(error)}`)
+    }
+    try {
+      createProgramsDb(db)
+    } catch (error) {
+      logger.error(`创建表失败2: ${JSON.stringify(error)}`)
+    }
+    try {
+      createConfigDb(db)
+    } catch (error) {
+      logger.error(`创建表失败3: ${JSON.stringify(error)}`)
+    }
+    try {
+      createFilesFtsDb(db)
+    } catch (error) {
+      logger.error(`FTS表创建失败: ${JSON.stringify(error)}`)
+    }
 
     // 添加新的字段
     addColumn()
@@ -102,37 +78,25 @@ export function initializeDatabase(): Database.Database {
  */
 const addColumn = () => {
   logger.info('开始添加新字段')
-  try {
-    db.exec(`ALTER TABLE files ADD COLUMN skip_ocr BOOLEAN DEFAULT 0`) //是否跳过ocr
-    logger.info('成功添加skip_ocr字段到files表')
-    logger.info('成功添加tags字段到programs表')
-  } catch (error) { }
-  try {
-    db.exec(`ALTER TABLE files ADD COLUMN ai_mark BOOLEAN DEFAULT 0`)
-    logger.info('成功添加ai_mark字段到files表')
-  } catch (error) { }
-  try {
-    db.exec(`ALTER TABLE files ADD COLUMN full_content TEXT DEFAULT ''`)
-    logger.info('成功添加full_content字段到files表')
-  } catch (error) { }
-  try {
-    db.exec(`ALTER TABLE files ADD COLUMN tags TEXT DEFAULT '[]'`)
-    logger.info('成功添加tags字段到files表')
-  } catch (error) { }
+
   // 程序表
   try {
+    // 0.4.1加上
     db.exec(`ALTER TABLE programs ADD COLUMN tags TEXT DEFAULT '[]'`)
     logger.info('成功添加tags字段到programs表')
   } catch (error) { }
   try {
+    // 0.4.1加上
     db.exec(`ALTER TABLE files ADD COLUMN click_count INTEGER DEFAULT 0`)
     logger.info('成功添加click_count字段到files表')
   } catch (error) { }
   try {
+    // 0.4.1加上
     db.exec(`ALTER TABLE files ADD COLUMN last_access_time DATETIME`)
     logger.info('成功添加last_access_time字段到files表')
   } catch (error) { }
   try {
+    // 0.4.1加上
     db.exec(`ALTER TABLE programs ADD COLUMN click_count INTEGER DEFAULT 0`)
     logger.info('成功添加click_count字段到programs表')
   } catch (error) { }
@@ -145,6 +109,7 @@ const addColumn = () => {
   }
 
   try {
+    // 0.4.1加上
     db.exec(`ALTER TABLE programs ADD COLUMN last_access_time DATETIME`)
     logger.info('成功添加last_access_time字段到programs表')
   } catch (error) { }
