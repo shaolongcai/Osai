@@ -24,6 +24,7 @@ interface PathsConfig {
     iconsCache: string;
     iconExtractor: string;
     getPrograms: string;
+    recentFolder: string;
 }
 
 /**
@@ -43,23 +44,33 @@ class PathConfig {
     private resources: string;
     private ollamaPath: string;
     private iconExtractor: string;
-
+    private recentFolder: string;
+    private appData: string;
 
     constructor() {
         const platform = process.platform;
 
         this.userHome = os.homedir();
+        this.appData = app.getPath('appData');
 
         // 基础目录配置
         this.baseAppDir = app.isPackaged ? 'Osai' : 'Osai-test'; //sqlit 访问不了带.的前缀的文件夹
         this.appDataPath = path.join(this.userHome, this.baseAppDir);
         this.resources = app && app.isPackaged ? process.resourcesPath : path.join(__dirname, '../../electron/', 'resources'),   // 资源文件
             this.paths = null;
-        this.ollamaPath = platform === 'win32' ? path.join(this.resources, 'ollama', 'ollama.exe') : path.join(this.resources, 'ollama', 'Resources', 'ollama');
+        this.ollamaPath = platform === 'win32'
+            ? path.join(this.resources, 'ollama', 'ollama.exe')
+            : path.join(this.resources, 'ollama', 'Resources', 'ollama');
+
         // C++ 提取图标执行文件
         this.iconExtractor = app.isPackaged ?
             path.join(this.resources, 'native', 'dist', 'win32-x64-139', 'icon_extractor.node')
             : path.join(__dirname, '..', 'native', 'dist', 'win32-x64-139', 'icon_extractor.node')
+
+        // 最近的访问目录 （还缺少mac）
+        this.recentFolder = process.platform === 'win32'
+            ? path.join(this.appData, 'Microsoft', 'Windows', 'Recent')
+            : '';
 
         // 初始化所有路径
         this._initializePaths();
@@ -100,6 +111,8 @@ class PathConfig {
             // 程序列表脚本(后期归到服务脚本文件夹)
             getPrograms: path.join(this.resources, 'get_programs.ps1'),
 
+            // 最近访问
+            recentFolder: this.recentFolder,
         };
 
         //确保所有目录都存在

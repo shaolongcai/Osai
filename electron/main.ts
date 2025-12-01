@@ -462,7 +462,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)  ) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       indexAllFilesWithWorkers();
@@ -477,8 +477,8 @@ export const startIndexTask = async () => {
         count: last_index_file_count
       })
     }
-    // 开启视觉索引 （不再主动索引）
-    // indexImagesService();
+    // 索引最近访问的文件
+    indexImagesService();
   } catch (error) {
     const msg = error instanceof Error ? error.message : '索引任务失败';
     logger.error(`索引任务开始失败: ${msg}`);

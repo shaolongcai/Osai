@@ -8,6 +8,9 @@ import { sendToRenderer } from '../main.js';
 import { fileURLToPath } from 'url';
 import { ollamaService } from './ollama.js';
 import { ImagePrompt } from '../data/prompt.js';
+import { createWorker } from 'tesseract.js';
+import * as fs from 'fs';
+import pathConfig from './pathConfigs.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,14 +22,13 @@ export class ImageSever {
     private imageWorker: Worker | null
     private pendingImages: Map<string, { resolve: Function; reject: Function }>
     private db: Database
-
+    private ocrWorker: Awaited<ReturnType<typeof createWorker>> | null = null;
 
     constructor() {
         this.initializeImageWorker()
         this.pendingImages = new Map()
         this.db = getDatabase()
     }
-
 
     /**
      * AI Mark 图片,对外服务主要使用这个
@@ -57,7 +59,6 @@ export class ImageSever {
             this.handleFinishImageProcessed(filePath)
         }
     }
-
 
     // 初始化图片处理Worker
     private initializeImageWorker() {
@@ -100,6 +101,35 @@ export class ImageSever {
         }
     };
 
+    /**
+    * OCR索引
+    * @param imagePath 
+    * @returns 图片文本内容
+    */
+    public processImage = (imagePath: string): Promise<string> => {
+
+        const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // 20MB：過大的圖片容易導致 wasm 报错
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                // 基本校验：過大文件直接跳過，避免 Aborted(-1)
+                try {
+                    const stat = fs.statSync(imagePath);
+                    if (stat.size > MAX_IMAGE_SIZE) {
+                        return reject(new Error('图片过大，已跳过（>20MB）'));
+                    }
+                } catch { /* 忽略 stat 失败 */ }
+
+
+                const ret = await this.ocrWorker.recognize(imagePath);
+                resolve(ret.data.text)
+            } catch (error) {
+                const msg = error instanceof Error ? error.message : '图片处理失败';
+                logger.error(`图片处理失败: ${msg}`);
+                reject(new Error(msg));
+            }
+        });
+    }
 
     // 使用线程处理图片
     private processImageWithWorker = (imagePath: string, prompt: string = '请使用中文摘要这张图片，请简洁描述，不要重复内容，控制在300字以内'): Promise<string> => {
@@ -135,5 +165,91 @@ export class ImageSever {
             }
             sendToRenderer('system-info', notification)
         }
+    }
+
+    /**
+     * 开启视觉索引服务
+     * OCR Worker 單例：避免重複初始化導致內存暴漲與崩潰
+     */
+    private getOCRWorker = async () => {
+        if (this.ocrWorker) return this.ocrWorker;
+
+        const resourcesPath = pathConfig.get('resources');
+        const cacheRoot = path.join(pathConfig.get('cache'), 'tesseract');
+        // 確保緩存目錄存在
+        try {
+            if (!fs.existsSync(cacheRoot)) fs.mkdirSync(cacheRoot, { recursive: true });
+        } catch (e) {
+            logger.error(`创建 Tesseract 缓存目录失败: ${String(e)}`);
+        }
+
+        try {
+            this.ocrWorker = await createWorker(['chi_sim', 'chi_tra', 'eng'], 1, {
+                langPath: path.join(resourcesPath, 'traineddata'),
+                cachePath: cacheRoot,
+                gzip: true,
+                // 錯誤處理：捕獲 worker 線程錯誤，避免應用直接崩潰
+                errorHandler: (err: unknown) => {
+                    const msg = err instanceof Error ? err.message : String(err);
+                    logger.error(`OCR Worker 错误: ${msg}`);
+                },
+                logger: (m: unknown) => {
+                    // 只保留初始化階段的關鍵日誌，避免刷屏
+                    const s = typeof m === 'string' ? m : JSON.stringify(m);
+                    if (s.includes('initialized') || s.includes('loaded_lang_model')) {
+                        logger.info(`OCR: ${s}`);
+                    }
+                }
+            });
+            return this.ocrWorker;
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : 'OCR Worker 初始化失败';
+            logger.error(`OCR 初始化失败: ${msg}`);
+            // 降級策略：僅使用英語模型再次嘗試
+            try {
+                this.ocrWorker = await createWorker(['eng'], 1, {
+                    langPath: path.join(resourcesPath, 'traineddata'),
+                    cachePath: cacheRoot,
+                    gzip: true,
+                });
+                return this.ocrWorker;
+            } catch (e2) {
+                const m2 = e2 instanceof Error ? e2.message : String(e2);
+                logger.error(`OCR 英語模型降級仍失敗: ${m2}`);
+                throw new Error(msg);
+            }
+        }
+    }
+
+
+    /**
+     * 释放OCR Worker
+     * @returns
+     */
+    public async terminateOCRWorker() {
+        if (this.ocrWorker) {
+            try {
+                await this.ocrWorker.terminate();
+            } catch (e) {
+                logger.error(`OCR Worker 终止失败: ${String(e)}`);
+            }
+            this.ocrWorker = null;
+        }
+    }
+
+    // 新增：静态工厂，负责异步初始化（如OCR Worker）
+    static async create(): Promise<ImageSever> {
+        const instance = new ImageSever();
+        try {
+            // 步骤：异步初始化OCR（如需）
+            if (typeof (instance as any).getOCRWorker === 'function') {
+                instance.ocrWorker = await (instance as any).getOCRWorker();
+            }
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : '初始化OCR失败';
+            // 仅记录，不阻塞AI流程
+            logger.warn(`初始化OCR失败: ${msg}`);
+        }
+        return instance;
     }
 }

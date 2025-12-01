@@ -23,8 +23,22 @@ export interface INotification {
     id: string,
     text: string,
     type: NotificationType,
-    tooltip?: string
+    tooltip?: string,
 }
+
+/**
+ * V2版本通知类型
+ */
+export interface INotification2 {
+    id: string,
+    text?: string, //临时测试使用
+    type: NotificationType,
+    tooltip?: string,
+    textType: string, //用于识别多语言
+    count?: number, //用于显示任务数量
+}
+
+
 
 export type NotificationType = 'pending' | 'success' | 'warning' | 'loading' | 'loadingQuestion' | 'question' | 'none';
 

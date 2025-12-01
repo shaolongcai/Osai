@@ -3,16 +3,20 @@ import { execSync } from 'child_process';
 import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
-import { getDatabase, setConfig, insertProgramInfo } from '../database/sqlite.js';
+import { getDatabase, setConfig, insertProgramInfo, getConfig } from '../database/sqlite.js';
 import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 import { logger } from './logger.js';
-import { createWorker } from 'tesseract.js';
-import { app, nativeImage } from 'electron';
+import { app, nativeImage, shell } from 'electron';
 import * as os from 'os';
 import * as fs from 'fs'
 import { extractIcon, savePngBuffer } from './iconExtractor.js';
+import { getFileTypeByExtension, FileType } from '../units/enum.js';
+import { ImageSever } from './imageSever.js';
+import { DocumentSever } from './documentSever.js';
+import { findRecentFolders } from './system.js';
+import { ocrSeverSingleton } from '../sever/ocrSever.js';
 
 type FileInfo = {
     filePath: string;
@@ -199,12 +203,6 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
     });
 
     try {
-
-              // 获取前5个做验证
-                   const db = getDatabase();
-        const verifyFiles = db.prepare('SELECT * FROM files LIMIT 5').all();
-        console.log('验证文件', verifyFiles);
-
         const results = await Promise.all(promises);
         const allFiles: FileInfo[] = results.flat() as unknown as FileInfo[]; // flat方法展开二维数组
 
@@ -533,208 +531,45 @@ const getMacProgramsAndImages = (): {
 
 
 /**
- * 开启视觉索引服务
- * OCR Worker 單例：避免重複初始化導致內存暴漲與崩潰
- */
-let ocrWorker: Awaited<ReturnType<typeof createWorker>> | null = null;
-
-async function getOCRWorker() {
-    if (ocrWorker) return ocrWorker;
-
-    const resourcesPath = pathConfig.get('resources');
-    const cacheRoot = path.join(pathConfig.get('cache'), 'tesseract');
-    // 確保緩存目錄存在
-    try {
-        if (!fs.existsSync(cacheRoot)) fs.mkdirSync(cacheRoot, { recursive: true });
-    } catch (e) {
-        logger.error(`创建 Tesseract 缓存目录失败: ${String(e)}`);
-    }
-
-    try {
-        ocrWorker = await createWorker(['chi_sim', 'chi_tra', 'eng'], 1, {
-            langPath: path.join(resourcesPath, 'traineddata'),
-            cachePath: cacheRoot,
-            gzip: true,
-            // 錯誤處理：捕獲 worker 線程錯誤，避免應用直接崩潰
-            errorHandler: (err: unknown) => {
-                const msg = err instanceof Error ? err.message : String(err);
-                logger.error(`OCR Worker 错误: ${msg}`);
-            },
-            logger: (m: unknown) => {
-                // 只保留初始化階段的關鍵日誌，避免刷屏
-                const s = typeof m === 'string' ? m : JSON.stringify(m);
-                if (s.includes('initialized') || s.includes('loaded_lang_model')) {
-                    logger.info(`OCR: ${s}`);
-                }
-            }
-        });
-        return ocrWorker;
-    } catch (error) {
-        const msg = error instanceof Error ? error.message : 'OCR Worker 初始化失败';
-        logger.error(`OCR 初始化失败: ${msg}`);
-        // 降級策略：僅使用英語模型再次嘗試
-        try {
-            ocrWorker = await createWorker(['eng'], 1, {
-                langPath: path.join(resourcesPath, 'traineddata'),
-                cachePath: cacheRoot,
-                gzip: true,
-            });
-            return ocrWorker;
-        } catch (e2) {
-            const m2 = e2 instanceof Error ? e2.message : String(e2);
-            logger.error(`OCR 英語模型降級仍失敗: ${m2}`);
-            throw new Error(msg);
-        }
-    }
-}
-
-async function terminateOCRWorker() {
-    if (ocrWorker) {
-        try {
-            await ocrWorker.terminate();
-        } catch (e) {
-            logger.error(`OCR Worker 终止失败: ${String(e)}`);
-        }
-        ocrWorker = null;
-    }
-}
-
-/**
- * 第一步：开启视觉索引服务
+ * 视觉索引服务
+ * 索引最近的访问文件
  */
 export const indexImagesService = async (): Promise<void> => {
-    logger.info('等待索引更新完毕')
     await waitForIndexUpdate();
     logger.info('索引更新完毕')
-
-    // 尝试提前初始化 OCR Worker，提高首張圖片的響應速度
-    try { await getOCRWorker(); } catch { /* 初始化失敗時在使用時再處理 */ }
-
     // 对所有图片文件，都使用vl应用读取摘要
-    const startIndexImageTime = Date.now();
-    await indexImageFiles();
-    const endIndexImageTime = Date.now();
-    logger.info(`所有图片索引完成。耗时: ${endIndexImageTime - startIndexImageTime} 毫秒`);
-    const notification: INotification = {
-        id: 'visual-index',
-        text: 'OCR 索引已全部完成',
-        type: 'success',
-    }
-    sendToRenderer('system-info', notification);
-
-    // 任務結束後釋放 OCR Worker
-    await terminateOCRWorker();
-}
-
-/**
- * 第二步：索引所有图片
- */
-async function indexImageFiles() {
-
-    const db = getDatabase()
-    // 使用ext字段查询图片文件（ext字段存储的是带点的扩展名）
-    const selectStmt = db.prepare(
-        'SELECT path FROM files WHERE ext IN (\'.jpg\', \' .png\', \' .jpeg\') AND size > 50 * 1024 AND summary IS NULL AND skip_ocr = 0'
-    )
-    const files = selectStmt.all() as Array<{ path: string }>;
+    // const startIndexImageTime = Date.now();
+    const recentPaths = findRecentFolders();
     // 总共需要视觉处理的文件数量
-    let totalFiles = files.length;
-    logger.info(`一共找到 ${files.length} 个图片，准备视觉索引服务`)
-
-
-    // 编程for await 循环，每个文件都等待视觉索引服务完成
-    for await (const file of files) {
-        try {
-            await waitForIndexImage();
-            const notification: INotification = {
-                id: 'visual-index',
-                text: `OCR 服务已启动 剩余 ${totalFiles}`,
-                type: 'loadingQuestion',
-                tooltip: 'OCR 服务：AI会识别图片中的文字，你可以直接搜索图片中的文字，而不仅是名称。你可前往【设置】手动关闭'
-            }
-            sendToRenderer('system-info', notification)
-            const summary = await summarizeImage(file.path);
-            // logger.info(`图片摘要: ${summary}`);
-            // 更新数据库
-            const updateStmt = db.prepare(`UPDATE files SET summary = ? WHERE path = ?`);
-            const res = updateStmt.run(summary, file.path);
-            if (res.changes > 0) {
-                logger.info(`剩余处理图片数: ${totalFiles}`);
-                totalFiles--
-                continue
-            }
-
-        } catch (error) {
-            // 更新数据库记录无需再OCR
-            const updateStmt = db.prepare(`UPDATE files SET skip_ocr = 1 WHERE path = ?`);
-            const res = updateStmt.run(file.path);
-            if (res.changes > 0) {
-                logger.info(`已经记录跳过OCR`)
-            }
-            const msg = error instanceof Error ? error.message : '图片索引服务失败';
-            logger.error(`图片索引服务失败:${msg}；文件路径:${file.path}`)
-        }
-    }
-}
-
-/**
- * 第三步：单个图片摘要函数 
- * @param imagePath 图片路径
- * @returns 图片摘要
- */
-export async function summarizeImage(imagePath: string): Promise<string> {
-    let timeoutId: NodeJS.Timeout;
-    try {
-        const timeout = new Promise<never>((_, reject) => {
-            timeoutId = setTimeout(() => {
-                reject(new Error('OCR 处理超时（60秒）'));
-            }, 60000);
-        })
-
-        const summary = await Promise.race([
-            processImage(imagePath),
-            timeout
-        ]);
-
-        clearTimeout(timeoutId);
-        return summary;
-    } catch (error) {
-        clearTimeout(timeoutId);
-        // 被reject（失败）后，走这里，会 立即将这个 Promise 的拒绝原因作为异常抛出 。
-        const msg = error instanceof Error ? error.message : '图片摘要生成失败';
-        // logger.error(`图片摘要生成失败:${msg}；文件路径:${imagePath}`)
-        throw new Error(msg);
-    }
+    logger.info(`一共找到 ${recentPaths.length} 个图片，准备视觉索引服务`)
+    await Promise.all(recentPaths.map(async (file) => {
+        await ocrSeverSingleton.enqueue(file);
+    }))
+    // 任務結束後釋放 OCR Worker
+    // await ocrSeverSingleton.terminateOCRWorker();
 }
 
 
 /**
- * OCR索引
- * @param imagePath 
- * @returns 
+ * 索引单个文件
+ * @param filePath 文件路径
  */
-const processImage = (imagePath: string): Promise<string> => {
+export const indexSingleFile = async (filePath: string): Promise<void> => {
+    // 判断是否安装 AI 服务
+    const aiInstalled = !!getConfig('aiModel_installed');
+    const db = getDatabase();
+    const imageSever = aiInstalled ? new ImageSever() : null;
+    const documentSever = aiInstalled ? new DocumentSever() : null;
+    // 判断类型（图片/文档/其他）
+    const ext = path.extname(filePath).toLowerCase();
+    const fileType = getFileTypeByExtension(ext);
 
-    const resourcesPath = pathConfig.get('resources')
-    const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // 20MB：過大的圖片容易導致 wasm 报错
-
-    return new Promise(async (resolve, reject) => {
-        try {
-            // 基本校验：過大文件直接跳過，避免 Aborted(-1)
-            try {
-                const stat = fs.statSync(imagePath);
-                if (stat.size > MAX_IMAGE_SIZE) {
-                    return reject(new Error('图片过大，已跳过（>20MB）'));
-                }
-            } catch { /* 忽略 stat 失败 */ }
-
-            const worker = await getOCRWorker();
-            const ret = await worker.recognize(imagePath);
-            resolve(ret.data.text)
-        } catch (error) {
-            const msg = error instanceof Error ? error.message : '图片处理失败';
-            logger.error(`图片处理失败: ${msg}`);
-            reject(new Error(msg));
-        }
-    });
+    if (fileType === 'image' && !aiInstalled) {
+        // 类型为图片，且未安装模型，采用OCR
+        await ocrSeverSingleton.enqueue(filePath);
+    } else if (fileType === 'document' && !aiInstalled) {
+        // await documentSever?.processDocument(filePath);
+    } else {
+        logger.info(`文件类型 ${fileType} 不支持索引: ${filePath}`);
+    }
 }
