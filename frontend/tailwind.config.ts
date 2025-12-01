@@ -13,6 +13,8 @@ const config: Config = {
     './setting.html',
     './src/**/*.{js,ts,jsx,tsx}',
   ],
+  // 启用 important 模式，确保 Tailwind 样式优先级最高
+  important: true,
   theme: {
     extend: {
       // 自定義顏色（基於項目現有的 SCSS 樣式）
@@ -76,11 +78,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
-  // V4 特定配置
-  corePlugins: {
-    // 確保所有核心插件都啟用
-  },
+  plugins: []
 }
 
 export default config

@@ -28,7 +28,17 @@ export const theme = createTheme({
             }
         },
 
-
+        MuiCard: {
+            styleOverrides: {
+                root: {
+                    borderRadius: '16px',
+                    // 变体为elevation时  阴影
+                    '&.MuiCard-elevation': {
+                        boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
+                    }
+                }
+            }
+        },
 
         MuiChip: {
             styleOverrides: {

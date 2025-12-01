@@ -1,4 +1,4 @@
-import { Chip, Paper, Stack, Typography } from "@mui/material";
+import { Card, Chip, Paper, Stack, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
 import { useIcon } from '@/hooks/useIcon';
 
@@ -32,11 +32,12 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     const { iconSrc } = useIcon(icon, ext);
 
     return <Paper
+        variant='elevation'
         onClick={onClick}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         elevation={0}
-        className={`w-full cursor-pointer rounded-lg box-border transition-colors duration-200 p-2 mb-1 ${isSelected ? 'bg-black/5' : ''}`}
+        className={`w-full cursor-pointer rounded-lg  transition-colors duration-200 p-2 mb-1 ${isSelected ? 'bg-black/5' : ''}`}
     >
         <Stack direction='row' spacing={1} alignItems="center">
             <img src={iconSrc} alt={name} className="w-12 h-12 rounded-lg" />
@@ -135,9 +136,9 @@ const SearchPanel: React.FC<Props> = ({
         // 如果需要清除选中状态，可以调用 onSelectedIndexChange(-1)
     };
 
-    return <Paper
-        elevation={3}
-        className="p-2 rounded-xl shadow-sm border border-border w-full box-border max-h-[500px] overflow-y-auto"
+    return <Card
+        variant='elevation'
+        className="p-2 w-full max-h-[520px] overflow-y-auto! box-border"
         ref={containerRef}
     >
         <Stack alignItems='flex-start'>
@@ -165,7 +166,7 @@ const SearchPanel: React.FC<Props> = ({
                 </div>
             ))}
         </Stack>
-    </Paper>
+    </Card>
 }
 
 export default SearchPanel;

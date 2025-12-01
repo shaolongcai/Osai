@@ -1,6 +1,6 @@
 {
   "placeholder": "Search file name or image summary",
-  "button": "Search",
+  "button": "AISearch",
   "results": "Found {{count}} results",
   "noResults": "No related results found",
   "noKeyword": "Please enter search keywords",

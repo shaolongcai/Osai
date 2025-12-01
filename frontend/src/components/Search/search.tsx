@@ -1,4 +1,4 @@
-import { Button, Paper, Stack, TextField} from "@mui/material"
+import { Button, Paper, Stack, TextField } from "@mui/material"
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from '@/contexts/I18nContext';
 
@@ -38,9 +38,12 @@ const Search: React.FC<Props> = ({
     return <Paper
         id='search-panel'
         elevation={0}
-        className="p-4 rounded-xl shadow-sm border border-border box-border transition-all duration-200 hover:border-border-light hover:shadow-md w-full"
+        className="flex items-center h-[72px] p-4 rounded-xl shadow-sm transition-all duration-200 hover:border-border-light 
+        hover:shadow-md w-full"
         sx={{
-            // minWidth: '480px',
+            input: {
+                minWidth: '300px',
+            }
         }}
     >
         <Stack direction="row" spacing={2} alignItems="center">
@@ -79,9 +82,9 @@ const Search: React.FC<Props> = ({
             />
             <Button
                 onClick={aiSearch}
-            // loading={loading}
-            // variant="contained"
-            // color="primary"
+                // loading={loading}
+                variant="contained"
+                color="primary"
             // disableElevation
             // onClick={() => { handleSendMessage(question) }}
             // startIcon={<img className='' src={sendIcon} alt='' />}
