@@ -28,52 +28,76 @@ export function searchFiles(searchTerm: string, isAiMark?: boolean, limit?: numb
     }
     const db = getDatabase()
 
-    /**
-     * 从数据库中获取所有文件
-     * 注意：如果文件数量非常多（例如超过几十万），一次性加载到内存中可能会有性能问题。
-     * 使用 SQL LIKE 进行模糊匹配，% 通配符表示匹配任意字符
-     * 因子分别为：
-     * Pfx: 前缀匹配（name 以 query 开头）
-     * Sub: 子串位置权重（位置越靠前得分越高）
-     * Fav: 点击偏好（click_count 归一化）
-     * Rec: 最近访问（last_access_time 线性衰减：0.5天=1，90天=0）
-     * Len: 长度惩罚（短名更高）
-     */
-    const stmt = db.prepare(`
-      WITH q(query) AS (SELECT lower(?))
-      SELECT id,path,name,modified_at,last_access_time,ext,summary,ai_mark,click_count,
-             (
-               0.35 * CASE WHEN lower(name) LIKE (SELECT query FROM q) || '%' THEN CAST(length((SELECT query FROM q)) AS REAL) / NULLIF(length(name),0) ELSE 0 END
-             + 0.25 * CASE WHEN instr(lower(name),(SELECT query FROM q)) > 0 THEN 1 - (instr(lower(name),(SELECT query FROM q)) - 1) / CAST(length(name) AS REAL) ELSE 0 END
-             + 0.10 * (1.0 - 1.0 / (COALESCE(click_count,0) + 1))
-             + 0.06 * (
-                 CASE
-                   WHEN last_access_time IS NULL THEN 0
-                   ELSE
-                     CASE
-                       WHEN (julianday('now') - julianday(last_access_time)) <= 0.5 THEN 1.0
-                       WHEN (julianday('now') - julianday(last_access_time)) >= 90.0 THEN 0.0
-                       ELSE 1.0 - ((julianday('now') - julianday(last_access_time)) - 0.5) / (90.0 - 0.5)
-                     END
-                 END
-               )
-             + 0.04 * (1.0 - MIN(length(name), 255) / 255.0)
-             ) AS score
-      FROM files
-      WHERE lower(name) LIKE '%' || (SELECT query FROM q) || '%'
-         OR lower(summary) LIKE '%' || (SELECT query FROM q) || '%'
-         OR lower(tags) LIKE '%' || (SELECT query FROM q) || '%'
-         ${isAiMark ? 'AND ai_mark = 1' : ''}
-      ORDER BY ai_mark DESC, score DESC, name
-      ${limit ? `LIMIT ${limit}` : ''}
-    `);
-    const q = searchTerm.toLowerCase();
-    const allFiles = stmt.all(q) as SearchDataItem[];
+    // 步骤1：计算 FTS 候选上限（作用：控制 snippet 的生成数量）
+    const ftsLimit = Math.min(Math.max(limit ?? 200, 50), 500);
 
-    return {
-        data: allFiles,
-        total: allFiles.length,
-    };
+    try {
+        /**
+        * 从数据库中获取所有文件
+        * 注意：如果文件数量非常多（例如超过几十万），一次性加载到内存中可能会有性能问题。
+        * 使用 SQL LIKE 进行模糊匹配，% 通配符表示匹配任意字符
+        * 因子分别为：
+        * Pfx: 前缀匹配（name 以 query 开头）
+        * Sub: 子串位置权重（位置越靠前得分越高）
+        * Fav: 点击偏好（click_count 归一化）
+        * Rec: 最近访问（last_access_time 线性衰减：0.5天=1，90天=0）
+        * Len: 长度惩罚（短名更高）
+        */
+        const stmt = db.prepare(`
+      WITH q(query) AS (SELECT lower(?)),
+      ftsHits AS (
+        SELECT 
+          rowid,
+          -- 步骤2：缩短片段长度（作用：减少字符串拼接开销）
+          snippet(files_fts, 0, '<mark>', '</mark>', '...', 16) AS snippet,
+          bm25(files_fts) AS fts_score
+        FROM files_fts
+        WHERE files_fts MATCH ?
+        ORDER BY bm25(files_fts)
+        LIMIT ?
+      )
+      SELECT 
+        f.id, f.path, f.name, f.modified_at, f.last_access_time, f.ext, f.summary, f.ai_mark, f.click_count,
+        (
+          0.35 * CASE WHEN lower(f.name) LIKE (SELECT query FROM q) || '%' THEN CAST(length((SELECT query FROM q)) AS REAL) / NULLIF(length(f.name),0) ELSE 0 END
+        + 0.25 * CASE WHEN instr(lower(f.name),(SELECT query FROM q)) > 0 THEN 1 - (instr(lower(f.name),(SELECT query FROM q)) - 1) / CAST(length(f.name) AS REAL) ELSE 0 END
+        + 0.18 * COALESCE(1.0 / (ftsHits.fts_score + 1.0), 0.0)  -- 全文命中加权（bm25 越小越相关）
+        + 0.10 * (1.0 - 1.0 / (COALESCE(f.click_count,0) + 1))
+        + 0.06 * (
+            CASE
+              WHEN f.last_access_time IS NULL THEN 0
+              ELSE
+                CASE
+                  WHEN (julianday('now') - julianday(f.last_access_time)) <= 0.5 THEN 1.0
+                  WHEN (julianday('now') - julianday(f.last_access_time)) >= 90.0 THEN 0.0
+                  ELSE 1.0 - ((julianday('now') - julianday(f.last_access_time)) - 0.5) / (90.0 - 0.5)
+                END
+            END
+          )
+        + 0.04 * (1.0 - MIN(length(f.name), 255) / 255.0)
+        ) AS score,
+        COALESCE(ftsHits.snippet, NULL) AS snippet
+      FROM files f
+      LEFT JOIN ftsHits ON ftsHits.rowid = f.id
+      WHERE (
+         lower(f.name) LIKE '%' || (SELECT query FROM q) || '%'
+         OR lower(f.summary) LIKE '%' || (SELECT query FROM q) || '%'
+         OR lower(f.tags) LIKE '%' || (SELECT query FROM q) || '%'
+         OR ftsHits.rowid IS NOT NULL   -- 全文命中
+      )
+      ORDER BY f.ai_mark DESC, score DESC, f.name
+      ${limit ? `LIMIT ${limit}` : `LIMIT 50`}
+    `);
+        const q = searchTerm.toLowerCase();
+        const allFiles = stmt.all(q, searchTerm, ftsLimit) as SearchDataItem[];
+
+        return {
+            data: allFiles,
+            total: allFiles.length,
+        };
+    } catch (error) {
+        // logger.error(`搜索文件失败: ${error}`);
+    }
 }
 
 

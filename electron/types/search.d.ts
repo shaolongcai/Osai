@@ -6,6 +6,7 @@ type SearchDataItem = {
     ext: string;
     modified_at: string;
     ai_mark: 1 | 0;
+    snippet?: string; // 高亮片段（可选）
 }
 
 interface SearchResult {

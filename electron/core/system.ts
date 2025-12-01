@@ -14,8 +14,7 @@ import { execSync } from 'child_process';
 import * as fs from 'fs'
 import AdmZip from 'adm-zip';
 import path from 'path';
-import { getFileTypeByExtension, FileType } from '../units/enum.js';
-import { indexSingleFile } from './indexFiles';
+import { indexSingleFile } from './indexFiles.js';
 
 /**
  * 检查系统是否有可用的GPU
@@ -296,12 +295,7 @@ export const findRecentFolders = (): string[] => {
                 const link = shell.readShortcutLink(lnkPath);
                 targetPath = link?.target;
                 if (!targetPath) continue;
-                // 判断类型（图片/文档/其他）
-                const ext = path.extname(targetPath).toLowerCase();
-                const fileType = getFileTypeByExtension(ext);
-                if (fileType === FileType.Image) {
-                    recentPaths.push(targetPath);
-                }
+                recentPaths.push(targetPath);
             } catch (error) {
                 const msg = error instanceof Error ? error.message : '解析快捷方式失败';
                 logger.warn(`${msg}: ${lnkPath}`);

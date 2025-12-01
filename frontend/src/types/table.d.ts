@@ -8,6 +8,7 @@ type SearchDataItem = {
     ext: string;
     modified_at: string;
     ai_mark: number;
+    snippet?: string; // 高亮片段（可选）
 }
 
 interface ColumnData {

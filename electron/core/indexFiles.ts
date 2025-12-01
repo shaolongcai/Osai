@@ -14,7 +14,7 @@ import * as fs from 'fs'
 import { extractIcon, savePngBuffer } from './iconExtractor.js';
 import { getFileTypeByExtension, FileType } from '../units/enum.js';
 import { ImageSever } from './imageSever.js';
-import { DocumentSever } from './documentSever.js';
+import { documentSeverSingleton } from '../sever/documentSever.js';
 import { findRecentFolders } from './system.js';
 import { ocrSeverSingleton } from '../sever/ocrSever.js';
 
@@ -543,7 +543,8 @@ export const indexImagesService = async (): Promise<void> => {
     // 总共需要视觉处理的文件数量
     logger.info(`一共找到 ${recentPaths.length} 个图片，准备视觉索引服务`)
     await Promise.all(recentPaths.map(async (file) => {
-        await ocrSeverSingleton.enqueue(file);
+        await indexSingleFile(file);
+        // await ocrSeverSingleton.enqueue(file);
     }))
     // 任務結束後釋放 OCR Worker
     // await ocrSeverSingleton.terminateOCRWorker();
@@ -559,16 +560,24 @@ export const indexSingleFile = async (filePath: string): Promise<void> => {
     const aiInstalled = !!getConfig('aiModel_installed');
     const db = getDatabase();
     const imageSever = aiInstalled ? new ImageSever() : null;
-    const documentSever = aiInstalled ? new DocumentSever() : null;
     // 判断类型（图片/文档/其他）
     const ext = path.extname(filePath).toLowerCase();
     const fileType = getFileTypeByExtension(ext);
 
-    if (fileType === 'image' && !aiInstalled) {
+    console.log(`文件类型 ${fileType} 扩展: ${ext}`);
+
+    if (fileType === FileType.Image && !aiInstalled) {
         // 类型为图片，且未安装模型，采用OCR
         await ocrSeverSingleton.enqueue(filePath);
-    } else if (fileType === 'document' && !aiInstalled) {
-        // await documentSever?.processDocument(filePath);
+    } else if (fileType === FileType.Document && !aiInstalled) {
+        // 类型为文档，且未安装模型，读取全文
+        await documentSeverSingleton.enqueue(filePath);
+    } else if (fileType === FileType.Image && aiInstalled) {
+        // 图片类型，安装模型，使用vl应用读取摘要a
+        // await ocrSeverSingleton.enqueue(filePath); //临时测试
+    } else if (fileType === FileType.Document && aiInstalled) {
+        // 文档类型，安装模型，使用vl应用读取摘要
+        await documentSeverSingleton.enqueue(filePath);
     } else {
         logger.info(`文件类型 ${fileType} 不支持索引: ${filePath}`);
     }
