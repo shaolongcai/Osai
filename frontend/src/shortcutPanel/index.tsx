@@ -4,20 +4,30 @@ import { I18nProvider } from '../contexts/I18nContext';
 import { Language } from '../types/i18n';
 import RootProviders from '@/RootProviders';
 import { Stack } from '@mui/material';
+import { useDebounce } from 'ahooks';
 
 
 
 const SearchBar = () => {
 
     const [data, setData] = useState<shortSearchDataItem[]>([]); //搜索的结果
+    const [total, setTotal] = useState<number>(0); // 搜索结果总数
     const [selectedIndex, setSelectedIndex] = useState<number>(0); // 当前选中的项目索引
     const [currentLanguage, setCurrentLanguage] = useState<Language>('zh-CN'); // 當前語言
+    const [searchValue, setSearchValue] = useState(''); //搜索的关键词
+    const debounceSearch = useDebounce(searchValue, { wait: 200 });
 
+    // 当搜索关键词变化时触发快捷搜索
+    useEffect(() => {
+        onSearch(debounceSearch);
+    }, [debounceSearch]);
 
     // 快捷搜索
     const onSearch = async (keyword: string) => {
         const res = await window.electronAPI.shortSearch(keyword);
+        console.log('快捷搜索结果', res);
         setData(res.data);
+        setTotal(res.total);
         setSelectedIndex(0); // 重置选中状态到搜索框
     }
 
@@ -103,7 +113,7 @@ const SearchBar = () => {
     return <I18nProvider defaultLanguage={currentLanguage} key={currentLanguage}>
         <RootProviders>
             <Stack spacing={1}>
-                <Search onSearch={onSearch} />
+                <Search onSearch={setSearchValue} />
                 {
                     data.length > 0 &&
                     <SearchPanel

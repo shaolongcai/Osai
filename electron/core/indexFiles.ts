@@ -296,6 +296,8 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
         setConfig('last_index_time', Date.now());
         setConfig('last_index_file_count', allFiles.length);
 
+        await indexImagesService()
+
         return allFiles;
     } catch (error) {
         logger.error(`一个或多个 Worker 索引任务失败。${JSON.stringify(error)}`);
@@ -564,8 +566,6 @@ export const indexSingleFile = async (filePath: string): Promise<void> => {
     const ext = path.extname(filePath).toLowerCase();
     const fileType = getFileTypeByExtension(ext);
 
-    console.log(`文件类型 ${fileType} 扩展: ${ext}`);
-
     if (fileType === FileType.Image && !aiInstalled) {
         // 类型为图片，且未安装模型，采用OCR
         await ocrSeverSingleton.enqueue(filePath);
@@ -579,6 +579,6 @@ export const indexSingleFile = async (filePath: string): Promise<void> => {
         // 文档类型，安装模型，使用vl应用读取摘要
         await documentSeverSingleton.enqueue(filePath);
     } else {
-        logger.info(`文件类型 ${fileType} 不支持索引: ${filePath}`);
+        // logger.info(`文件类型 ${fileType} 不支持索引: ${filePath}`);
     }
 }

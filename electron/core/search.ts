@@ -10,7 +10,7 @@ import { waitForModelReady } from './appState.js';
  * @param searchTerm 搜索关键词
  * @returns 匹配到的文件列表，按匹配度排序
  */
-export function searchFiles(searchTerm: string, isAiMark?: boolean, limit?: number): SearchResult {
+export function searchFiles(searchTerm: string, limit?: number): SearchResult {
     if (!searchTerm) {
         return {
             data: [],
@@ -30,6 +30,19 @@ export function searchFiles(searchTerm: string, isAiMark?: boolean, limit?: numb
 
     // 步骤1：计算 FTS 候选上限（作用：控制 snippet 的生成数量）
     const ftsLimit = Math.min(Math.max(limit ?? 200, 50), 500);
+    // 拆分为单字的方法（用于 FTS5 前缀查询，FTS5会把每个字作为一个 token，作为倒排）
+    const buildFtsQuery = (input: string) => {
+        const tokens = input
+            .toLowerCase()
+            .trim()
+            .split(/\s+/)
+            .filter(t => t.length > 0 && t.length <= 32)
+            .slice(0, 8); // 控制词数，避免过长导致性能问题
+        if (tokens.length === 0) return input.toLowerCase();
+        // 用 OR + 前缀匹配扩大召回（fts5 支持 token* 前缀查询）
+        return tokens.map(t => `${t}*`).join(' OR ');
+    };
+    const ftsQuery = buildFtsQuery(searchTerm);
 
     try {
         /**
@@ -45,23 +58,25 @@ export function searchFiles(searchTerm: string, isAiMark?: boolean, limit?: numb
         */
         const stmt = db.prepare(`
       WITH q(query) AS (SELECT lower(?)),
+      -- 临时结果集 ftsHits：只去 FTS5 虚拟表里做全文检索
       ftsHits AS (
         SELECT 
           rowid,
-          -- 步骤2：缩短片段长度（作用：减少字符串拼接开销）
           snippet(files_fts, 0, '<mark>', '</mark>', '...', 16) AS snippet,
           bm25(files_fts) AS fts_score
         FROM files_fts
+    -- 第二个参数 匹配全文
         WHERE files_fts MATCH ?
         ORDER BY bm25(files_fts)
+    -- 第三个参数 限制返回数量
         LIMIT ?
       )
       SELECT 
         f.id, f.path, f.name, f.modified_at, f.last_access_time, f.ext, f.summary, f.ai_mark, f.click_count,
         (
-          0.35 * CASE WHEN lower(f.name) LIKE (SELECT query FROM q) || '%' THEN CAST(length((SELECT query FROM q)) AS REAL) / NULLIF(length(f.name),0) ELSE 0 END
-        + 0.25 * CASE WHEN instr(lower(f.name),(SELECT query FROM q)) > 0 THEN 1 - (instr(lower(f.name),(SELECT query FROM q)) - 1) / CAST(length(f.name) AS REAL) ELSE 0 END
-        + 0.18 * COALESCE(1.0 / (ftsHits.fts_score + 1.0), 0.0)  -- 全文命中加权（bm25 越小越相关）
+          0.35 * CASE WHEN lower(f.name) LIKE q.query || '%' THEN CAST(length(q.query) AS REAL) / NULLIF(length(f.name),0) ELSE 0 END
+        + 0.25 * CASE WHEN instr(lower(f.name),q.query) > 0 THEN 1 - (instr(lower(f.name),q.query) - 1) / CAST(length(f.name) AS REAL) ELSE 0 END
+        + 0.18 * COALESCE(1.0 / (ftsHits.fts_score + 1.0), 0.0)
         + 0.10 * (1.0 - 1.0 / (COALESCE(f.click_count,0) + 1))
         + 0.06 * (
             CASE
@@ -76,27 +91,35 @@ export function searchFiles(searchTerm: string, isAiMark?: boolean, limit?: numb
           )
         + 0.04 * (1.0 - MIN(length(f.name), 255) / 255.0)
         ) AS score,
-        COALESCE(ftsHits.snippet, NULL) AS snippet
+        ftsHits.snippet AS snippet
       FROM files f
       LEFT JOIN ftsHits ON ftsHits.rowid = f.id
+      CROSS JOIN q
       WHERE (
-         lower(f.name) LIKE '%' || (SELECT query FROM q) || '%'
-         OR lower(f.summary) LIKE '%' || (SELECT query FROM q) || '%'
-         OR lower(f.tags) LIKE '%' || (SELECT query FROM q) || '%'
-         OR ftsHits.rowid IS NOT NULL   -- 全文命中
+         lower(f.name) LIKE '%' || q.query || '%'
+         OR lower(f.summary) LIKE '%' || q.query || '%'
+         OR lower(f.tags) LIKE '%' || q.query || '%'
+         OR ftsHits.rowid IS NOT NULL
       )
       ORDER BY f.ai_mark DESC, score DESC, f.name
-      ${limit ? `LIMIT ${limit}` : `LIMIT 50`}
+      LIMIT 50
     `);
         const q = searchTerm.toLowerCase();
-        const allFiles = stmt.all(q, searchTerm, ftsLimit) as SearchDataItem[];
+        const allFiles = stmt.all(q, ftsQuery, ftsLimit) as SearchDataItem[];
+
+        // 统一日志输出到文件与终端
+        logger.info(`搜索到的文件条数: ${allFiles.length}`);
 
         return {
             data: allFiles,
             total: allFiles.length,
         };
     } catch (error) {
-        // logger.error(`搜索文件失败: ${error}`);
+        logger.error(`搜索文件失败: ${error}`);
+        return {
+            data: [],
+            total: 0
+        }
     }
 }
 
@@ -116,7 +139,9 @@ export function shortSearch(keyword: string): shortSearchResult {
     const programs = searchPrograms(keyword);
     // console.log('搜索到的程序', programs);
     // 搜索拥有AI Mark的文件
-    const aiFiles = searchFiles(keyword, true, 50);
+    const aiFiles = searchFiles(keyword, 50);
+
+    console.log('搜索到的文件的第一个', aiFiles.data[0]);
     // 构造返回的data
     const programsData = programs.map(item => ({
         id: item.id,
@@ -140,7 +165,6 @@ export function shortSearch(keyword: string): shortSearchResult {
         total: programsData.length + aiFiles.total,
     };
 }
-
 
 
 /**

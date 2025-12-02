@@ -1,11 +1,9 @@
 import { parentPort, workerData } from 'worker_threads';
-import * as fs from 'fs';
 import * as path from 'path';
-import * as crypto from 'crypto';
 import Database from 'better-sqlite3';
 import dayjs from 'dayjs';
 import fg from 'fast-glob';
-import type { IndexFile } from '../types/database';
+import { normalizeWinPath } from '../units/pathUtils.js';
 
 /**
  * 基础的文件信息
@@ -71,7 +69,9 @@ async function findFiles(dir: string): Promise<FileInfo[]> {
                 //根据path，取出name以及ext
                 const name = path.basename(filePath as string);
                 const ext = path.extname(filePath as string);
-                fileInfoList.push({ filePath: filePath as string, name, ext });
+                // windows 归一化路径
+                const normalizedPath = normalizeWinPath(filePath as string);
+                fileInfoList.push({ filePath: normalizedPath, name, ext });
             } catch (error) {
                 console.error(`读取文件 ${filePath} 信息时出错:`, error);
             }
@@ -94,7 +94,9 @@ async function findFiles(dir: string): Promise<FileInfo[]> {
             try {
                 const name = path.basename(dirPath as string);
                 const ext = path.extname(dirPath as string);
-                fileInfoList.push({ filePath: dirPath as string, name, ext });
+                // windows 归一化路径
+                const normalizedPath = normalizeWinPath(dirPath as string);
+                fileInfoList.push({ filePath: normalizedPath, name, ext });
                 processedCount++;
 
                 if (processedCount % BATCH_SIZE === 0) {
@@ -136,6 +138,7 @@ function batchProcessFiles(fileInfoList: Array<FileInfo>) {
                 try {
                     const fileName = name.toLowerCase();
                     const extLower = ext.toLowerCase();
+
                     // 计算MD5的方法
                     // const metadataString = `${filePath}-${stat.size}-${stat.mtime.getTime()}`;
                     // const md5 = crypto.createHash('md5').update(metadataString).digest('hex');

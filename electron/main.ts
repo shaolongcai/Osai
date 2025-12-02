@@ -465,7 +465,7 @@ export const startIndexTask = async () => {
     if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)  ) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
-      indexAllFilesWithWorkers();
+      await indexAllFilesWithWorkers();
     }
     else {
       logger.info(`缓存期间无需索引`);
@@ -478,7 +478,7 @@ export const startIndexTask = async () => {
       })
     }
     // 索引最近访问的文件
-    indexImagesService();
+    await indexImagesService();
   } catch (error) {
     const msg = error instanceof Error ? error.message : '索引任务失败';
     logger.error(`索引任务开始失败: ${msg}`);

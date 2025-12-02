@@ -13,6 +13,7 @@ import * as fsAsync from 'fs/promises';
 import * as fs from 'fs';
 import XLSX from 'xlsx';
 import * as crypto from 'crypto';
+import { normalizeWinPath } from '../units/pathUtils.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -122,10 +123,15 @@ class DocumentSever {
             const modifiedAt = Math.floor(file.mtimeMs);
             const name = path.basename(documentPath).toLowerCase();
             const ext = path.extname(documentPath).toLowerCase();
-            const updateStmt = this.db.prepare(`UPDATE files SET  size = ?, modified_at = ?,full_content = ? WHERE path = ?`);
-            const res = updateStmt.run(size, modifiedAt, content, documentPath);
+            // 计算MD5
+            const metadataString = `${documentPath}-${size}-${modifiedAt}`;
+            const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
+            // windows 路径归一化
+            const normalizedPath = normalizeWinPath(documentPath);
+            const updateStmt = this.db.prepare(`UPDATE files SET md5 = ?, size = ?, modified_at = ?,full_content = ? WHERE path = ?`);
+            const res = updateStmt.run(md5, size, modifiedAt, content, normalizedPath);
             if (res.changes > 0) {
-                logger.info(`文档读取成功: ${documentPath}`);
+                logger.info(`文档读取成功: ${normalizedPath}`);;
                 return true;
             }
             // 没有记录，则插入一条新的记录
@@ -133,17 +139,15 @@ class DocumentSever {
                 `INSERT OR IGNORE INTO files (md5, path, name, ext, full_content, size, modified_at, skip_ocr)
                      VALUES (?, ?, ?, ?, ?, ?, ?, 1)`
             );
-            // 计算MD5
-            const metadataString = `${documentPath}-${size}-${modifiedAt}`;
-            const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
-            const inserRes = insertStmt.run(md5, documentPath, name, ext, content, size, modifiedAt);
+
+            const inserRes = insertStmt.run(md5, normalizedPath, name, ext, content, size, modifiedAt);
             if (inserRes.changes > 0) {
-                logger.info(`OCR 索引插入成功: ${documentPath}`);
+                logger.info(`OCR 索引插入成功: ${normalizedPath}`);
                 return true;
             }
-            throw new Error(`OCR 索引插入失败: ${documentPath}`);
+            throw new Error(`OCR 索引插入失败: ${normalizedPath}`);
         } catch (error) {
-            logger.error(`insertOCRResult处理失败: ${error}`);
+            logger.error(`insertResult处理失败: ${error}`);
         }
     }
 

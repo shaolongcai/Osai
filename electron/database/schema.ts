@@ -61,6 +61,8 @@ export const createProgramsDb = (db: Database) => {
  */
 export const createFilesFtsDb = (db: Database) => {
     try {
+        // 删除旧的影子表（如果存在）
+        // db.exec(`DROP TABLE IF EXISTS files_fts;`)
         // 创建FTS5虚拟表，用于全文搜索
         db.exec(`
         CREATE VIRTUAL TABLE IF NOT EXISTS files_fts USING fts5(
