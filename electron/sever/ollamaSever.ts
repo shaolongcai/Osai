@@ -1,7 +1,7 @@
 import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
-import { logger } from './logger.js';
-import pathConfig from './pathConfigs.js';
+import { logger } from '../core/logger.js';
+import pathConfig from '../core/pathConfigs.js';
 import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 
@@ -51,7 +51,6 @@ class OllamaService {
                     spawnArgs = ['serve'];
                 }
 
-
                 this.process = spawn(spawnCommand, spawnArgs, {
                     stdio: 'pipe',
                     env: {
@@ -93,7 +92,6 @@ class OllamaService {
                     const waitTime = attempt * 1000; // 递增等待时间：1秒、2秒
                     logger.info(`等待${waitTime}ms后重试...`);
                     await new Promise(resolve => setTimeout(resolve, waitTime)); //等待的函数
-
                     // 重试前清理进程
                     await this.killAllOllamaProcesses();
                 }
@@ -174,12 +172,9 @@ class OllamaService {
                 reject(new Error('文档处理Worker未初始化'));
                 return;
             }
-
             const requestId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
             // 添加到请求队列中
             this.pendingAiRequests.set(requestId, { resolve, reject, params });
-
             if (!this.isProcessingQueue) {
                 this.handleQueue();
             }
@@ -221,7 +216,7 @@ class OllamaService {
             setTimeout(() => {
                 // 处理完第一个请求后，递归调用处理队列(相隔一段时间等待)
                 this.handleQueue(); //或者可以改成while循环
-            }, 3000);
+            }, 1000);
         }
     }
 

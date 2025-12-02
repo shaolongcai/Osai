@@ -4,11 +4,11 @@ import { fileURLToPath } from 'url';
 import { readFileSync, existsSync } from 'fs';
 import { getConfig, initializeDatabase, setConfig } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
-import { indexAllFilesWithWorkers, indexImagesService } from './core/indexFiles.js';
+import { indexAllFilesWithWorkers } from './core/indexFiles.js';
 import { logger } from './core/logger.js';
 import { checkGPU, reportErrorToWechat } from './core/system.js';
 import { checkModelService } from './core/model.js'
-import { ollamaService } from './core/ollama.js';
+import { ollamaService } from './sever/ollamaSever.js';
 import { INotification } from './types/system.js';
 import { initializeUpdateApi } from './api/update.js';
 import { initializeSystemApi } from './api/system.js';
@@ -462,7 +462,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)  ) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) || true) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       await indexAllFilesWithWorkers();
@@ -477,8 +477,8 @@ export const startIndexTask = async () => {
         count: last_index_file_count
       })
     }
-    // 索引最近访问的文件
-    await indexImagesService();
+    // 索引最近访问的文件 （进测试时启用）
+    // await indexImagesService();
   } catch (error) {
     const msg = error instanceof Error ? error.message : '索引任务失败';
     logger.error(`索引任务开始失败: ${msg}`);

@@ -6,7 +6,7 @@ import { getDatabase } from '../database/sqlite.js';
 import { Database } from 'better-sqlite3';
 import { sendToRenderer } from '../main.js';
 import { fileURLToPath } from 'url';
-import { ollamaService } from './ollama.js';
+import { ollamaService } from '../sever/ollamaSever.js';
 import { ImagePrompt } from '../data/prompt.js';
 import { createWorker } from 'tesseract.js';
 import * as fs from 'fs';

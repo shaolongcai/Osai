@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url';
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf"
 import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 import { PPTXLoader } from "@langchain/community/document_loaders/fs/pptx";
-import { ollamaService } from '../core/ollama.js';
 import * as fsAsync from 'fs/promises';
 import * as fs from 'fs';
 import XLSX from 'xlsx';
@@ -66,9 +65,6 @@ class DocumentSever {
                 const { documentPath, resolve, reject } = task;
 
                 try {
-                    if (!fs.existsSync(documentPath)) {
-                        throw new Error(`文档服务处理跳过: 文件不存在 ${documentPath}`);
-                    }
                     // UI提示剩余任务
                     // const notification: INotification2 = {
                     //     id: 'ocr',
@@ -81,7 +77,7 @@ class DocumentSever {
                     // sendToRenderer('system-info', notification)
 
                     const ext = path.extname(documentPath).toLowerCase();
-                    const content = await this.readDocument(ext, documentPath);
+                    const content = await this.readDocument(documentPath, ext);
                     const success = this.insertResult(documentPath, content);
                     resolve(content);
                 } catch (error) {
@@ -151,8 +147,13 @@ class DocumentSever {
         }
     }
 
-    // 读取文档
-    private readDocument = async (ext: string, documentPath: string): Promise<string> => {
+    /**
+     * 读取文档内容
+     * @param ext 文档扩展名
+     * @param documentPath 文档路径
+     * @returns 文档内容 string
+     */
+    public readDocument = async ( documentPath: string,ext: string): Promise<string> => {
         let content: string //文档全文
         switch (ext) {
             case '.pdf':
@@ -190,18 +191,7 @@ class DocumentSever {
 
         return content
 
-        // 执行AI操作
-        // logger.info(`读取文档成功: ${documentPath.split('/').pop()}`)
-        // const resultString = await ollamaService.generate({
-        //     path: documentPath,
-        //     prompt: DocumentPrompt,
-        //     content: `全文内容: ${content}，文件标题: ${documentPath.split('/').pop()}`,
-        //     isJson: true,
-        // })
-        // const result = JSON.parse(resultString)
-        // // console.log('简介:', result.summary)
-        // // console.log('标签:', result.tags)
-        // logger.info(`文档分析成功`)
+
 
         // 数据库操作
         // const updateStmt = this.db.prepare(`UPDATE files SET summary = ?, tags = ?, ai_mark = 1, skip_ocr = 1 WHERE path = ?`);

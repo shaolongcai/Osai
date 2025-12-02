@@ -93,9 +93,6 @@ export class OcrSever {
                 const { imagePath, resolve, reject } = task;
 
                 try {
-                    if (!fs.existsSync(imagePath)) {
-                        throw new Error(`OCR 服务处理跳过: 文件不存在 ${imagePath}`);
-                    }
                     // UI提示剩余任务
                     const notification: INotification2 = {
                         id: 'ocr',

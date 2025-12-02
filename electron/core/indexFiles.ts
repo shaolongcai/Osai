@@ -4,7 +4,7 @@ import { Worker } from 'worker_threads';
 import { fileURLToPath } from 'url';
 import pathConfig from './pathConfigs.js';
 import { getDatabase, setConfig, insertProgramInfo, getConfig } from '../database/sqlite.js';
-import { setIndexUpdate, waitForIndexImage, waitForIndexUpdate } from './appState.js';
+import { setIndexUpdate, waitForIndexUpdate } from './appState.js';
 import { sendToRenderer } from '../main.js';
 import { INotification } from '../types/system.js';
 import { logger } from './logger.js';
@@ -17,6 +17,7 @@ import { ImageSever } from './imageSever.js';
 import { documentSeverSingleton } from '../sever/documentSever.js';
 import { findRecentFolders } from './system.js';
 import { ocrSeverSingleton } from '../sever/ocrSever.js';
+import { aiSeverSingleton } from '../sever/aiSever.js';
 
 type FileInfo = {
     filePath: string;
@@ -296,11 +297,11 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
         setConfig('last_index_time', Date.now());
         setConfig('last_index_file_count', allFiles.length);
 
-        await indexImagesService()
+        await indexRecently()
 
         return allFiles;
     } catch (error) {
-        logger.error(`一个或多个 Worker 索引任务失败。${JSON.stringify(error)}`);
+        // logger.error(`一个或多个 Worker 索引任务失败。${JSON.stringify(error)}`);
         return []; // 发生严重错误时返回空数组
     }
 }
@@ -533,20 +534,20 @@ const getMacProgramsAndImages = (): {
 
 
 /**
- * 视觉索引服务
- * 索引最近的访问文件
+ * 深度索引最近的访问文件
+ * 大小、修改时间、全文、OCR
  */
-export const indexImagesService = async (): Promise<void> => {
+export const indexRecently = async (): Promise<void> => {
     await waitForIndexUpdate();
     logger.info('索引更新完毕')
-    // 对所有图片文件，都使用vl应用读取摘要
-    // const startIndexImageTime = Date.now();
     const recentPaths = findRecentFolders();
-    // 总共需要视觉处理的文件数量
-    logger.info(`一共找到 ${recentPaths.length} 个图片，准备视觉索引服务`)
     await Promise.all(recentPaths.map(async (file) => {
+        // 统一检查file的有效性
+        if (!fs.existsSync(file)) {
+            logger.warn(`文件不存在: ${file}`);
+            return;
+        }
         await indexSingleFile(file);
-        // await ocrSeverSingleton.enqueue(file);
     }))
     // 任務結束後釋放 OCR Worker
     // await ocrSeverSingleton.terminateOCRWorker();
@@ -560,8 +561,6 @@ export const indexImagesService = async (): Promise<void> => {
 export const indexSingleFile = async (filePath: string): Promise<void> => {
     // 判断是否安装 AI 服务
     const aiInstalled = !!getConfig('aiModel_installed');
-    const db = getDatabase();
-    const imageSever = aiInstalled ? new ImageSever() : null;
     // 判断类型（图片/文档/其他）
     const ext = path.extname(filePath).toLowerCase();
     const fileType = getFileTypeByExtension(ext);
@@ -572,13 +571,11 @@ export const indexSingleFile = async (filePath: string): Promise<void> => {
     } else if (fileType === FileType.Document && !aiInstalled) {
         // 类型为文档，且未安装模型，读取全文
         await documentSeverSingleton.enqueue(filePath);
-    } else if (fileType === FileType.Image && aiInstalled) {
-        // 图片类型，安装模型，使用vl应用读取摘要a
-        // await ocrSeverSingleton.enqueue(filePath); //临时测试
-    } else if (fileType === FileType.Document && aiInstalled) {
-        // 文档类型，安装模型，使用vl应用读取摘要
-        await documentSeverSingleton.enqueue(filePath);
+    } else if (fileType !== FileType.Other && aiInstalled) {
+        console.log('使用AI标记')
+        // 使用ai服务，标记文件
+        await aiSeverSingleton.enqueue(filePath, fileType);
     } else {
-        // logger.info(`文件类型 ${fileType} 不支持索引: ${filePath}`);
+        logger.warn(`文件类型 ${fileType} 不支持索引: ${filePath}`);
     }
 }
