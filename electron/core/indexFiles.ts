@@ -18,6 +18,7 @@ import { documentSeverSingleton } from '../sever/documentSever.js';
 import { findRecentFolders } from './system.js';
 import { ocrSeverSingleton } from '../sever/ocrSever.js';
 import { aiSeverSingleton } from '../sever/aiSever.js';
+import { normalizeWinPath } from '../units/pathUtils.js';
 
 type FileInfo = {
     filePath: string;
@@ -289,7 +290,7 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
             insertProgramInfo(program);
         });
 
-        // 删除多余的数据库记录
+        // 删除多余的数据库记录（最后才放）
         await deleteExtraFiles(allFiles);
         // 索引更新
         setIndexUpdate(true);
@@ -298,7 +299,6 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
         setConfig('last_index_file_count', allFiles.length);
 
         await indexRecently()
-
         return allFiles;
     } catch (error) {
         // logger.error(`一个或多个 Worker 索引任务失败。${JSON.stringify(error)}`);
@@ -547,7 +547,7 @@ export const indexRecently = async (): Promise<void> => {
             logger.warn(`文件不存在: ${file}`);
             return;
         }
-        await indexSingleFile(file);
+        return await indexSingleFile(file);
     }))
     // 任務結束後釋放 OCR Worker
     // await ocrSeverSingleton.terminateOCRWorker();
@@ -564,18 +564,20 @@ export const indexSingleFile = async (filePath: string): Promise<void> => {
     // 判断类型（图片/文档/其他）
     const ext = path.extname(filePath).toLowerCase();
     const fileType = getFileTypeByExtension(ext);
+    // 统一在这里路径归一
+    const normalizedPath = normalizeWinPath(filePath);
 
     if (fileType === FileType.Image && !aiInstalled) {
         // 类型为图片，且未安装模型，采用OCR
-        await ocrSeverSingleton.enqueue(filePath);
+        await ocrSeverSingleton.enqueue(normalizedPath);
     } else if (fileType === FileType.Document && !aiInstalled) {
         // 类型为文档，且未安装模型，读取全文
-        await documentSeverSingleton.enqueue(filePath);
+        await documentSeverSingleton.enqueue(normalizedPath);
     } else if (fileType !== FileType.Other && aiInstalled) {
-        console.log('使用AI标记')
         // 使用ai服务，标记文件
-        await aiSeverSingleton.enqueue(filePath, fileType);
+        await aiSeverSingleton.enqueue(normalizedPath, fileType);
     } else {
-        logger.warn(`文件类型 ${fileType} 不支持索引: ${filePath}`);
+        logger.warn(`文件类型 ${fileType} 不支持索引: ${normalizedPath}`);
     }
+    return
 }

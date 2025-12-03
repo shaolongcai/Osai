@@ -11,13 +11,11 @@ import { PPTXLoader } from "@langchain/community/document_loaders/fs/pptx";
 import * as fsAsync from 'fs/promises';
 import * as fs from 'fs';
 import XLSX from 'xlsx';
-import * as crypto from 'crypto';
-import { normalizeWinPath } from '../units/pathUtils.js';
-
+import { calculateMd5 } from '../units/math.js';
+import { checkTask } from '../database/repositories.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
 /**
  * 文档服务：读取文档、摘要文档、标签化文档
@@ -57,12 +55,16 @@ class DocumentSever {
 
         try {
 
-            // 检查队列中是否有skip_ocr=1的文件，裁剪队列
-            // this.pruneQueueBySkipFlag();
-
             while (this.queue.length > 0) {
                 const task = this.queue.shift()!;
                 const { documentPath, resolve, reject } = task;
+
+                // 检查是否已经读取了全文
+                const isProcessed = checkTask(documentPath, 'document')
+                if (isProcessed) {
+                    resolve(''); // 已在数据库中处理，直接返回空字符串或可改为等待现有任务结果
+                    continue;
+                }
 
                 try {
                     // UI提示剩余任务
@@ -120,14 +122,11 @@ class DocumentSever {
             const name = path.basename(documentPath).toLowerCase();
             const ext = path.extname(documentPath).toLowerCase();
             // 计算MD5
-            const metadataString = `${documentPath}-${size}-${modifiedAt}`;
-            const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
-            // windows 路径归一化
-            const normalizedPath = normalizeWinPath(documentPath);
+            const md5 = calculateMd5(documentPath, size, modifiedAt);
             const updateStmt = this.db.prepare(`UPDATE files SET md5 = ?, size = ?, modified_at = ?,full_content = ? WHERE path = ?`);
-            const res = updateStmt.run(md5, size, modifiedAt, content, normalizedPath);
+            const res = updateStmt.run(md5, size, modifiedAt, content, documentPath);
             if (res.changes > 0) {
-                logger.info(`文档读取成功: ${normalizedPath}`);;
+                logger.info(`文档读取成功: ${documentPath}`);;
                 return true;
             }
             // 没有记录，则插入一条新的记录
@@ -136,12 +135,12 @@ class DocumentSever {
                      VALUES (?, ?, ?, ?, ?, ?, ?, 1)`
             );
 
-            const inserRes = insertStmt.run(md5, normalizedPath, name, ext, content, size, modifiedAt);
+            const inserRes = insertStmt.run(md5, documentPath, name, ext, content, size, modifiedAt);
             if (inserRes.changes > 0) {
-                logger.info(`OCR 索引插入成功: ${normalizedPath}`);
+                logger.info(`OCR 索引插入成功: ${documentPath}`);
                 return true;
             }
-            throw new Error(`OCR 索引插入失败: ${normalizedPath}`);
+            throw new Error(`OCR 索引插入失败: ${documentPath}`);
         } catch (error) {
             logger.error(`insertResult处理失败: ${error}`);
         }
@@ -153,7 +152,7 @@ class DocumentSever {
      * @param documentPath 文档路径
      * @returns 文档内容 string
      */
-    public readDocument = async ( documentPath: string,ext: string): Promise<string> => {
+    public readDocument = async (documentPath: string, ext: string): Promise<string> => {
         let content: string //文档全文
         switch (ext) {
             case '.pdf':
@@ -190,13 +189,6 @@ class DocumentSever {
         }
 
         return content
-
-
-
-        // 数据库操作
-        // const updateStmt = this.db.prepare(`UPDATE files SET summary = ?, tags = ?, ai_mark = 1, skip_ocr = 1 WHERE path = ?`);
-        // const res = updateStmt.run(result.summary, JSON.stringify(result.tags), documentPath);
-        // logger.info(`数据库更新成功: ${res.changes}`)
     };
 
 

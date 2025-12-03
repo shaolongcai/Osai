@@ -61,41 +61,50 @@ export const createProgramsDb = (db: Database) => {
  */
 export const createFilesFtsDb = (db: Database) => {
     try {
-        // 删除旧的影子表（如果存在）
-        // db.exec(`DROP TABLE IF EXISTS files_fts;`)
-        // 创建FTS5虚拟表，用于全文搜索
+        // 1) 清理旧 FTS 与触发器，避免历史残留导致冲突（数据重建时使用）
+        // db.exec(`
+        // DROP TRIGGER IF EXISTS files_fts_ai;
+        // DROP TRIGGER IF EXISTS files_fts_au;
+        // DROP TRIGGER IF EXISTS files_fts_delete;
+        // DROP TABLE IF EXISTS files_fts;
+        // `);
+
+        // 2) 重建 FTS（修正 tokenize 写法，去掉 IF NOT EXISTS 以提升兼容）
         db.exec(`
         CREATE VIRTUAL TABLE IF NOT EXISTS files_fts USING fts5(
             full_content,
-            content='files',
-            content_rowid='id',
+            content=files,
+            content_rowid=id,
             tokenize='unicode61 remove_diacritics 2'
         );
-    `)
+        `);
 
-        // 插入触发器（保证增/删/改3个触发器都有）
+        // 3) 触发器采用 delete 哨兵 + insert 的推荐写法（不使用任何表别名）
         db.exec(`
-        CREATE TRIGGER IF NOT EXISTS files_fts_ai AFTER INSERT ON files BEGIN
-  INSERT INTO files_fts(rowid, full_content)
-  VALUES (new.id, new.full_content);
-END;
-`)
-
-        //更新触发器
-        db.exec(`
-        CREATE TRIGGER IF NOT EXISTS files_fts_au AFTER UPDATE ON files BEGIN
-  UPDATE files_fts
-     SET full_content = new.full_content
-   WHERE rowid = new.id;
-END;
-    `)
-
-        //删除触发器：files表DELETE时，自动删除files_fts对应记录
-        db.exec(`
-        CREATE TRIGGER IF NOT EXISTS files_fts_delete AFTER DELETE ON files BEGIN
-            DELETE FROM files_fts WHERE rowid = old.id;
+        CREATE TRIGGER IF NOT EXISTS files_fts_ai AFTER INSERT ON files FOR EACH ROW BEGIN
+          INSERT INTO files_fts(rowid, full_content)
+          VALUES (new.id, new.full_content);
         END;
-    `)
+        `);
+
+        db.exec(`
+        CREATE TRIGGER IF NOT EXISTS files_fts_au AFTER UPDATE ON files FOR EACH ROW BEGIN
+          INSERT INTO files_fts(files_fts, rowid) VALUES('delete', old.id);
+          INSERT INTO files_fts(rowid, full_content) VALUES (new.id, new.full_content);
+        END;
+        `);
+
+        db.exec(`
+        CREATE TRIGGER IF NOT EXISTS files_fts_delete AFTER DELETE ON files FOR EACH ROW BEGIN
+          INSERT INTO files_fts(files_fts, rowid) VALUES('delete', old.id);
+        END;
+        `);
+
+        // 4) 初始化回填，确保 FTS 与 files 同步，避免空索引或歧义（能够回填数据）
+        db.exec(`
+        INSERT INTO files_fts(rowid, full_content)
+        SELECT id, full_content FROM files WHERE full_content IS NOT NULL;
+        `);
     } catch (error) {
         console.error('创建FTS表失败:', error);
     }
