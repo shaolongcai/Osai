@@ -72,6 +72,14 @@ export const theme = createTheme({
             }
         },
 
+        // 字体
+        MuiTypography: {
+            styleOverrides: {
+                root: {
+
+                }
+            }
+        },
 
         // MuiButton: {
         //     styleOverrides: {
@@ -89,6 +97,8 @@ export const theme = createTheme({
         //     },
         // },
     },
+
+
 
     //字体
     typography: {
@@ -171,20 +181,14 @@ export const theme = createTheme({
         },
     },
 
-    // color: {
-    //     onBg: '#1A1C1EFF', //在背景上的颜色
-    //     surface: '#FCFCFF', //中性颜色
-    //     onSurface: '#1A1C1E', //在中性颜色上
-    //     surfaceVariant: "#DEE3EB", //中性变体颜色
-    //     onSurfaceVariant: "#42474E", //在中性变体颜色上
-    //     primary: '#006397', //主题色
-    //     second: '#51606F', //次要色
-    //     tertiary:'#67587A', //第三色
-    //     error: '#BA1A1A', //错误色
-    // },
 
     //调色板
     palette: {
+        text: {
+            primary: '#1A1C1EFF', //在背景上的颜色
+            secondary: 'rgba(0, 0, 0, 0.65)',
+            disabled: 'rgba(0, 0, 0, 0.25)',
+        },
         primary: {
             main: '#1890FF',
         },

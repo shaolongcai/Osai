@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "@/contexts/globalContext";
-import { Dialog, ReportProtocol } from "@/components";
+import { Dialog, Guide, Login, ReportProtocol } from "@/components";
 import { useTranslation } from '@/contexts/I18nContext';
 import { Button, Paper, Stack, Typography } from "@mui/material";
 import initImg from '@/assets/images/init.png'
@@ -14,10 +14,14 @@ const Preload = () => {
     const [initError, setInitError] = useState<string | null>(null);
     const [protocolOpen, setProtocolOpen] = useState<boolean>(false);
     const [updateOpen, setUpdateOpen] = useState<boolean>(false); // 是否展示更新弹窗
+    const [loginOpen, setLoginOpen] = useState<boolean>(false); // 是否展示登录弹窗
+    const [guideOpen, setGuideOpen] = useState<boolean>(false); // 是否展示新手引导弹窗
 
     const effectRan = useRef(false); // 执行守卫
     const updateResolveRef = useRef<(() => void) | null>(null);
     const protocolResolveRef = useRef<(() => void) | null>(null);
+    const loginResolveRef = useRef<(() => void) | null>(null); // 登录成功回调
+    const guideResolveRef = useRef<(() => void) | null>(null); // 新手引导成功回调
     const context = useGlobalContext();
     const { t } = useTranslation();
 
@@ -29,11 +33,24 @@ const Preload = () => {
             await checkUpdate() // 检查更新
             await updatePromise // 等待用户操作更新说明
 
-            // 协议逻辑
+            // 登录
+            const loginPromise = waitUserLogin(); // 先绑定登录等待，不让loginResolveRef为null
+            setLoginOpen(true);
+            await loginPromise; // 等待用户登录
+
+            // 检查次数
+
+            // 新手引导
+            const guidePromise = waitUserGuide(); // 先绑定新手引导等待，不让guideResolveRef为null
+            await checkGuide();
+            await guidePromise;
+
+            // 体验改进协议
             const protocolPromise = waitUserCheckProtocol(); // 先绑定协议等待，不让protocolResolveRef为null
             await showAgreeProtocol()   // 检查同意协议
-            console.log('等待用户操作同意协议')
             await protocolPromise
+
+            // 服务启动
             console.log('开始初始化node进程')
             await initServer()
         }
@@ -90,6 +107,17 @@ const Preload = () => {
         }
     }, []);
 
+    // 检查是否需要展示新手引导
+    const checkGuide = useCallback(async (): Promise<void> => {
+        const skipGuide = await window.electronAPI.getConfig('skip_guide')
+        if (!skipGuide) {
+            setGuideOpen(true);
+        }
+        else {
+            guideResolveRef.current?.();
+        }
+    }, []);
+
     // 初始化node进程,(设置完监听后，再开始初始化)
     const initServer = useCallback(async () => {
         effectRan.current = true;
@@ -127,6 +155,32 @@ const Preload = () => {
         });
     }, []);
 
+    // 等待用户操作登录
+    const waitUserLogin = useCallback(async (): Promise<void> => {
+        return new Promise<void>((resolve) => {
+            loginResolveRef.current = resolve;
+        }).then(() => {
+            // todo 使用resolve的布尔参数，来确定用户是完成登录还是稍后登录
+            // 关闭登录弹窗
+            setLoginOpen(false);
+        });
+    }, []);
+
+    // 等待用户操作新手引导
+    const waitUserGuide = useCallback(async (): Promise<void> => {
+        return new Promise<void>((resolve) => {
+            guideResolveRef.current = resolve;
+        }).then(() => {
+            // 新手引导完成后，设置不再提醒
+            console.log('新手引导完成后，设置不再提醒')
+            // window.electronAPI.setConfig({
+            //     key: 'skip_guide',
+            //     type: 'boolean',
+            //     value: true,
+            // });
+        });
+    }, []);
+
     // 处理更新
     const handleUpdate = useCallback(() => {
         console.log('处理更新')
@@ -138,6 +192,12 @@ const Preload = () => {
     const handleCloseUpdate = useCallback(() => {
         setUpdateOpen(false);
         updateResolveRef.current?.();
+    }, []);
+
+    // 处理解决登录事务
+    const handleLoginResolve = useCallback(() => {
+        setLoginOpen(false)
+        loginResolveRef.current?.(); // 登录成功
     }, []);
 
     return (
@@ -168,6 +228,31 @@ const Preload = () => {
                     protocolResolveRef.current?.(); // 拒绝协议，也继续
                 }}
             />
+
+            {
+                // 登录
+                loginOpen &&
+                <Login
+                    onLoginSuccess={() => {
+                        setLoginOpen(false)
+                        loginResolveRef.current?.(); // 登录成功
+                    }}
+                    onLater={() => {
+                        setLoginOpen(false)
+                        loginResolveRef.current?.(); // 稍后登录
+                    }}
+                />
+            }
+            {
+                // 新手引导
+                guideOpen &&
+                <Guide
+                    onFinish={() => {
+                        setGuideOpen(false)
+                        guideResolveRef.current?.(); // 新手引导完成
+                    }}
+                />
+            }
 
             {
                 !initError ?

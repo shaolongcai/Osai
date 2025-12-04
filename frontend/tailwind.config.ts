@@ -39,9 +39,9 @@ const config: Config = {
         // 文字顏色
         text: {
           primary: '#000000',
-          secondary: 'rgba(0, 0, 0, 0.65)',
+          secondary: 'rgba(255, 255, 255, 0.65)',
           tertiary: 'rgba(0, 0, 0, 0.45)',
-          disabled: 'rgba(0, 0, 0, 0.38)',
+          disabled: 'rgba(0, 0, 0, 0.25)',
         },
       },
       // 自定義間距
