@@ -16,6 +16,7 @@ const Preload = () => {
     const [updateOpen, setUpdateOpen] = useState<boolean>(false); // 是否展示更新弹窗
     const [loginOpen, setLoginOpen] = useState<boolean>(false); // 是否展示登录弹窗
     const [guideOpen, setGuideOpen] = useState<boolean>(false); // 是否展示新手引导弹窗
+    const [serverOpen, setServerOpen] = useState<boolean>(false); // 是否展示服务启动弹窗
 
     const effectRan = useRef(false); // 执行守卫
     const updateResolveRef = useRef<(() => void) | null>(null);
@@ -29,29 +30,34 @@ const Preload = () => {
     useEffect(() => {
         const init = async () => {
             // 更新逻辑
+            console.log('开始更新')
             const updatePromise = waitUserCheckUpdate(); // 先绑定更新等待，不让updateResolveRef为null
             await checkUpdate() // 检查更新
             await updatePromise // 等待用户操作更新说明
 
             // 登录
+            console.log('开始登录')
             const loginPromise = waitUserLogin(); // 先绑定登录等待，不让loginResolveRef为null
             setLoginOpen(true);
             await loginPromise; // 等待用户登录
 
-            // 检查次数
+            // 检查证书数量
 
             // 新手引导
+            console.log('开始新手引导')
             const guidePromise = waitUserGuide(); // 先绑定新手引导等待，不让guideResolveRef为null
             await checkGuide();
             await guidePromise;
 
             // 体验改进协议
+            console.log('开始同意协议')
             const protocolPromise = waitUserCheckProtocol(); // 先绑定协议等待，不让protocolResolveRef为null
-            await showAgreeProtocol()   // 检查同意协议
+            await checkAgreeProtocol()   // 检查同意协议
             await protocolPromise
 
             // 服务启动
             console.log('开始初始化node进程')
+            setServerOpen(true);
             await initServer()
         }
         init()
@@ -82,24 +88,21 @@ const Preload = () => {
         await window.electronAPI.checkForUpdates(); // 似乎这里可以不需要再监听更新
     }, []);
 
-    // 展示同意协议
-    const showAgreeProtocol = useCallback(async (): Promise<void> => {
+    // 检查用户体验改进协议
+    const checkAgreeProtocol = useCallback(async (): Promise<void> => {
         try {
             // 是否设置不再提醒
             const notRemindAgain = await window.electronAPI.getConfig('not_remind_again')
             if (notRemindAgain) {
-                console.log('已设置同意不需要再询问')
                 protocolResolveRef.current?.(); //已经解决，直接继续
                 return
             }
             // 已设置同意不需要再询问
             const agreeProtocol = await window.electronAPI.getConfig('report_agreement')
             if (agreeProtocol) {
-                console.log('已设置同意协议')
                 protocolResolveRef.current?.();
                 return
             }
-            console.log('未设置同意协议')
             setProtocolOpen(true);
         } catch (error) {
             console.error('展示同意协议失败', error);
@@ -152,6 +155,9 @@ const Preload = () => {
     const waitUserCheckProtocol = useCallback((): Promise<void> => {
         return new Promise<void>((resolve) => {
             protocolResolveRef.current = resolve;
+        }).then(() => {
+            console.log('完成用户同意协议')
+            setProtocolOpen(false);
         });
     }, []);
 
@@ -173,11 +179,7 @@ const Preload = () => {
         }).then(() => {
             // 新手引导完成后，设置不再提醒
             console.log('新手引导完成后，设置不再提醒')
-            // window.electronAPI.setConfig({
-            //     key: 'skip_guide',
-            //     type: 'boolean',
-            //     value: true,
-            // });
+            setGuideOpen(false);
         });
     }, []);
 
@@ -233,13 +235,9 @@ const Preload = () => {
                 // 登录
                 loginOpen &&
                 <Login
-                    onLoginSuccess={() => {
+                    onFinish={() => {
                         setLoginOpen(false)
                         loginResolveRef.current?.(); // 登录成功
-                    }}
-                    onLater={() => {
-                        setLoginOpen(false)
-                        loginResolveRef.current?.(); // 稍后登录
                     }}
                 />
             }
@@ -255,34 +253,38 @@ const Preload = () => {
             }
 
             {
-                !initError ?
-                    // 服务启动中 
-                    <Stack spacing={1} alignItems={'center'}>
-                        <img src={initImg} className="w-[180px] h-[180px]" />
-                        <Typography variant="body1" align="center"
-                            sx={{
-                                fontWeight: 700,
-                            }}>
-                            {t('app.preload.loading')}
-                        </Typography>
-                    </Stack>
-                    :
-                    // 服务启动失败
-                    <Stack spacing={1} alignItems="center">
-                        <img src={initErrorImg} className="w-[180px] h-[180px]" />
-                        <Typography variant="body1" color="error" align="center">
-                            {t('app.preload.initFailed')}
-                        </Typography>
-                        <Typography variant="body1" color="error" align="center">
-                            {initError}
-                        </Typography>
-                        <Button variant='contained' onClick={() => window.location.reload()}>
-                            {t('app.preload.retry')}
-                        </Button>
-                        <Button variant='outlined' onClick={() => isElectron ? (window as any).electronAPI.openDir('runLog') : undefined}>
-                            {t('app.preload.openLog')}
-                        </Button>
-                    </Stack>
+                // 服务启动弹窗
+                serverOpen &&
+                // 服务启动中 
+                <Stack spacing={1} alignItems={'center'}>
+                    <img src={initImg} className="w-[180px] h-[180px]" />
+                    <Typography variant="body1" align="center"
+                        sx={{
+                            fontWeight: 700,
+                        }}>
+                        {t('app.preload.loading')}
+                    </Typography>
+                </Stack>
+            }
+
+            {
+                initError &&
+                // 服务启动失败
+                <Stack spacing={1} alignItems="center">
+                    <img src={initErrorImg} className="w-[180px] h-[180px]" />
+                    <Typography variant="body1" color="error" align="center">
+                        {t('app.preload.initFailed')}
+                    </Typography>
+                    <Typography variant="body1" color="error" align="center">
+                        {initError}
+                    </Typography>
+                    <Button variant='contained' onClick={() => window.location.reload()}>
+                        {t('app.preload.retry')}
+                    </Button>
+                    <Button variant='outlined' onClick={() => isElectron ? (window as any).electronAPI.openDir('runLog') : undefined}>
+                        {t('app.preload.openLog')}
+                    </Button>
+                </Stack>
             }
         </Paper>
     )

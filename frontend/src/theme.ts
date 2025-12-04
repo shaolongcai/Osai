@@ -185,7 +185,7 @@ export const theme = createTheme({
     //调色板
     palette: {
         text: {
-            primary: '#1A1C1EFF', //在背景上的颜色
+            primary: 'rgba(0, 0, 0, 0.85)', //在背景上的颜色
             secondary: 'rgba(0, 0, 0, 0.65)',
             disabled: 'rgba(0, 0, 0, 0.25)',
         },
