@@ -12,3 +12,4 @@ export { default as LanguageSwitcher } from './LanguageSwitcher/LanguageSwitcher
 export { default as Login } from './Login2'
 export { default as Guide } from './Guide'
 export { default as UpdateNotification } from './UpdateNotification'
+export { default as AIProvider } from './AIprovider'

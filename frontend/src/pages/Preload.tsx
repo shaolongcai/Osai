@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "@/contexts/globalContext";
-import { Dialog, Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
+import {  Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
 import { useTranslation } from '@/contexts/I18nContext';
-import { Button, Paper, Stack, Typography } from "@mui/material";
+import { Button, LinearProgress, Paper, Stack, Typography } from "@mui/material";
 import initImg from '@/assets/images/init.png'
 import initErrorImg from '@/assets/images/init-error.png'
+import { useNavigate } from 'react-router-dom';
 
 
 // 是否为 Electron 环境
@@ -23,8 +24,10 @@ const Preload = () => {
     const protocolResolveRef = useRef<(() => void) | null>(null);
     const loginResolveRef = useRef<(() => void) | null>(null); // 登录成功回调
     const guideResolveRef = useRef<(() => void) | null>(null); // 新手引导成功回调
+
     const context = useGlobalContext();
     const { t } = useTranslation();
+    const navigate = useNavigate();
 
     // 初始化
     useEffect(() => {
@@ -136,7 +139,7 @@ const Preload = () => {
             context.setIsReadyAI(res.data.isReadyAI);
             // context.setIsReadyAI(false); //测试
             // 跳转到首页
-            // navigate('/home');
+            navigate('/search');
         }
         else {
             setInitError(res.errMsg);
@@ -237,6 +240,7 @@ const Preload = () => {
                         }}>
                         {t('app.preload.loading')}
                     </Typography>
+                     <LinearProgress className="w-full" />
                 </Stack>
             }
 

@@ -1,14 +1,14 @@
 import { Paper, Stack, Typography, Button, Switch } from "@mui/material"
+import { useTranslation } from '@/contexts/I18nContext';
 
 
-
-type ActionType = 'button' | 'switch' | 'custom'
+type ActionType = 'button' | 'switch' | 'custom' | 'text'
 
 interface Props {
     title: string;
     value?: string | boolean;
     type: ActionType;
-    onAction: (checked: boolean) => void;
+    onAction?: (checked: boolean) => void;
     action?: React.ReactNode;
     disabled?: boolean;
 }
@@ -22,6 +22,7 @@ const SettingItem: React.FC<Props> = ({
     disabled = false,
 }) => {
 
+    const { t } = useTranslation();
 
     // 渲染末位的操作
     const generateAction = (type: ActionType) => {
@@ -48,7 +49,7 @@ const SettingItem: React.FC<Props> = ({
                         onClick={() => {
                             window.electronAPI.openDir('runLog')
                         }}>
-                        打开
+                        {t('app.settings.open')}
                     </Button>
                 )
             case 'switch':
@@ -59,6 +60,12 @@ const SettingItem: React.FC<Props> = ({
                         disabled={disabled}
                     />
                 )
+            case 'text':
+                return (
+                    <Typography variant='bodyMedium' color="text.primary" >
+                        {value}
+                    </Typography>
+                )
             case 'custom':
                 return action
             default:
@@ -67,9 +74,11 @@ const SettingItem: React.FC<Props> = ({
     }
 
     return (
-        <Paper className="p-4 rounded-xl border border-border" elevation={0} variant='outlined' >
+        <Paper className="border border-border" variant='outlined' sx={{
+            padding: '16px',
+        }}>
             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                <Typography variant="body1" className="text-sm font-semibold text-text-secondary" >
+                <Typography variant='bodySmall' color="text.secondary" className="font-semibold" >
                     {title}
                 </Typography>
                 {generateAction(type)}

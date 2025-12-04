@@ -40,13 +40,8 @@ const Search: React.FC<Props> = ({
         className="flex items-center h-[72px] p-4 rounded-xl shadow-md transition-all duration-200 box-shadow
         hover:border-border-light 
         hover:shadow-md w-full"
-        sx={{
-            input: {
-                minWidth: '300px',
-            }
-        }}
     >
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} alignItems="center"  sx={{ width: '100%' }}>
             <TextField
                 inputRef={inputRef}
                 slotProps={{
@@ -85,6 +80,11 @@ const Search: React.FC<Props> = ({
                 // loading={loading}
                 variant="contained"
                 color="primary"
+                sx={{
+                    whiteSpace: 'nowrap',   // 文字不换行
+                    flexShrink: 0,          // 不允许被压缩
+                    minWidth: 0,            // 去掉默认 64px 限制，完全按内容撑开
+                }}
             // disableElevation
             // onClick={() => { handleSendMessage(question) }}
             // startIcon={<img className='' src={sendIcon} alt='' />}
