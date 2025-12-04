@@ -17,6 +17,7 @@ const SearchBar = () => {
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
     const debounceSearch = useDebounce(searchValue, { wait: 200 });
 
+
     // 当搜索关键词变化时触发快捷搜索
     useEffect(() => {
         onSearch(debounceSearch);
@@ -110,22 +111,18 @@ const SearchBar = () => {
         }
     }, []);
 
-    return <I18nProvider defaultLanguage={currentLanguage} key={currentLanguage}>
-        <RootProviders>
-            <Stack spacing={1}>
-                <Search onSearch={setSearchValue} />
-                {
-                    data.length > 0 &&
-                    <SearchPanel
-                        data={data}
-                        selectedIndex={selectedIndex}
-                        onSelectedIndexChange={handleSelectedIndexChange}
-                    />
-                }
-                <InfoCard />
-            </Stack>
-        </RootProviders>
-    </I18nProvider>
+    return <Stack spacing={1}>
+        <Search onSearch={setSearchValue} />
+        {
+            data.length > 0 &&
+            <SearchPanel
+                data={data}
+                selectedIndex={selectedIndex}
+                onSelectedIndexChange={handleSelectedIndexChange}
+            />
+        }
+        <InfoCard />
+    </Stack>
 }
 
 export default SearchBar;

@@ -5,7 +5,7 @@
 /**
  * 获取用户配置
  */
-export type UserConfig = {
+type UserConfig = {
     hasGPU: boolean;
     ignore_hidden_files: boolean;
     ignored_folders: string[];
@@ -19,4 +19,4 @@ export type UserConfig = {
 }
 
 
-export type OsType = 'mac' | 'win' | 'unknown';
+type OsType = 'mac' | 'win' | 'unknown';

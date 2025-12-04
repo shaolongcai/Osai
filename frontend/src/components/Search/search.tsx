@@ -2,7 +2,6 @@ import { Button, Paper, Stack, TextField } from "@mui/material"
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from '@/contexts/I18nContext';
 
-
 interface Props {
     onSearch: (keyword: string) => void;
 }
@@ -37,8 +36,9 @@ const Search: React.FC<Props> = ({
 
     return <Paper
         id='search-panel'
-        elevation={0}
-        className="flex items-center h-[72px] p-4 rounded-xl shadow-sm transition-all duration-200 hover:border-border-light 
+        elevation={1}
+        className="flex items-center h-[72px] p-4 rounded-xl shadow-md transition-all duration-200 box-shadow
+        hover:border-border-light 
         hover:shadow-md w-full"
         sx={{
             input: {

@@ -48,14 +48,14 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                     >
                         {name}
                     </Typography>
-                    {
+                    {/* {
                         isAiMark && <Chip
                             label='AI Mark'
                             size="small"
                             variant="outlined"
                             color="primary"
                         />
-                    }
+                    } */}
                 </Stack>
                 {/* <Typography>
                     将来放地址

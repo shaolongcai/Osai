@@ -85,7 +85,7 @@ const InfoCard: React.FC<Props> = ({
                             <Stack
                                 key={item.text}
                                 direction='row'
-                                className="min-w-[128px] w-[234px]"
+                                className="min-w-[128px] "
                                 alignItems='center'
                                 spacing={1}
                             // justifyContent='space-between'
@@ -136,7 +136,7 @@ const InfoCard: React.FC<Props> = ({
                                     })()}
                                 </Typography>
                                 <Tooltip title={item.tooltip} arrow className="max-w-[120px]" >
-                                    <div style={{ height: '24px' }}>
+                                    <div className="w-[24px] h-[24px] flex items-center justify-center mx-auto">
                                         {/* 没有转发ref，Tooltip 内部的元素不会被转发 */}
                                         {renderIcon(item.type)}
                                     </div>

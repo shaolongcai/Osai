@@ -12,6 +12,7 @@ export const theme = createTheme({
             styleOverrides: {
                 root: {
                     borderRadius: '16px',
+                    padding: '24px',
                     //表格中的paper圆角
                     '&.MuiTableContainer-root': {
                         borderRadius: '4px',
@@ -24,6 +25,10 @@ export const theme = createTheme({
                     '&.MuiMenu-paper': {
                         borderRadius: '4px',
                     },
+                    // 当Paper组件elevation为1时  阴影
+                    '&.MuiPaper-elevation1': {
+                        boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
+                    }
                 },
             }
         },

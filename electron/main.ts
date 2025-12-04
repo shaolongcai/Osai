@@ -13,7 +13,6 @@ import { INotification } from './types/system.js';
 import { initializeUpdateApi } from './api/update.js';
 import { initializeSystemApi } from './api/system.js';
 
-
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,158 +31,6 @@ let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null;
 let searchWindow: BrowserWindow | null;
 let settingsWindow: BrowserWindow | null;
-
-
-function createWindow() {
-
-  mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 1200,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      sandbox: true,
-      preload: path.join(__dirname, 'preload.js')
-    },
-    // icon: path.join(__dirname, 'assets', 'icon.png'), // 可选：应用图标
-    show: false, // 初始不显示，等待准备完成
-    autoHideMenuBar: true,
-    // frame: false,
-  });
-
-  // 开发环境加载开发服务器，生产环境加载打包后的文件
-  if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools(); //打开开发者工具
-  } else {
-    const indexPath = path.join(__dirname, '../frontend/dist/index.html');
-    logger.info(`嘗試加載主窗口文件: ${indexPath}`);
-
-    // 檢查文件是否存在
-    if (!existsSync(indexPath)) {
-      logger.error(`主窗口文件不存在: ${indexPath}`);
-      logger.error(`當前 __dirname: ${__dirname}`);
-      // 如果文件不存在，關閉窗口避免顯示默認窗口
-      mainWindow.close();
-      return;
-    }
-
-    mainWindow.loadFile(indexPath).catch((error) => {
-      logger.error(`加載主窗口文件失敗: ${error}`);
-      // 如果加載失敗，關閉窗口避免顯示默認窗口
-      mainWindow.close();
-    });
-
-    // 監聽加載失敗事件
-    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-      logger.error(`窗口加載失敗 - 錯誤代碼: ${errorCode}, 描述: ${errorDescription}, URL: ${validatedURL}`);
-      // 關閉窗口避免顯示默認窗口
-      mainWindow?.close();
-    });
-
-    // 生產環境：屏蔽開發者工具快捷鍵
-    mainWindow.webContents.on('before-input-event', (event, input) => {
-      // 屏蔽 Ctrl+Shift+I (Windows/Linux) 和 Cmd+Option+I (macOS)
-      if (input.control && input.shift && input.key.toLowerCase() === 'i') {
-        event.preventDefault();
-      }
-      // 屏蔽 F12
-      if (input.key === 'F12') {
-        event.preventDefault();
-      }
-      // 屏蔽 Ctrl+Shift+C (元素檢查器)
-      if (input.control && input.shift && input.key.toLowerCase() === 'c') {
-        event.preventDefault();
-      }
-    });
-  }
-
-  // 窗口加载完成后
-  mainWindow.once('ready-to-show', () => {
-    if (mainWindow) {
-      // 檢查是否為開機自動啟動
-      const loginItemSettings = app.getLoginItemSettings();
-      const isAutoLaunch = loginItemSettings.wasOpenedAtLogin || loginItemSettings.wasOpenedAsHidden;
-
-      if (isAutoLaunch) {
-        logger.info('檢測到開機自動啟動，主窗口將保持隱藏狀態');
-        // 開機自動啟動時，不顯示主窗口，只顯示在托盤
-        mainWindow.hide();
-      } else {
-        mainWindow.show();
-      }
-    }
-  });
-
-  // 修改關閉行為：點擊關閉按鈕時最小化到托盤，而不是退出應用
-  mainWindow.on('close', (event) => {
-    if (!isQuitting) {
-      event.preventDefault();
-      mainWindow?.hide();
-      return false;
-    }
-  });
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
-}
-
-// 创建快捷键的UI
-function createSearchBar() {
-
-  if (isDev) {
-    searchWindow.loadURL('http://localhost:5173/search-bar.html');   // 加载搜索条HTML
-    settingsWindow.loadURL('http://localhost:5173/setting.html');   // 加载设置条HTML
-    searchWindow.webContents.openDevTools(); //打开开发者工具
-    settingsWindow.webContents.openDevTools(); //打开开发者工具
-  } else {
-    const searchBarPath = path.join(__dirname, '../frontend/dist/search-bar.html');
-    const settingPath = path.join(__dirname, '../frontend/dist/setting.html');
-
-    // 檢查文件是否存在
-    if (!existsSync(searchBarPath)) {
-      logger.error(`搜索窗口文件不存在: ${searchBarPath}`);
-    } else {
-      searchWindow.loadFile(searchBarPath).catch((error) => {
-        logger.error(`加載搜索窗口文件失敗: ${error}`);
-      });
-    }
-
-    if (!existsSync(settingPath)) {
-      logger.error(`設置窗口文件不存在: ${settingPath}`);
-    } else {
-      settingsWindow.loadFile(settingPath).catch((error) => {
-        logger.error(`加載設置窗口文件失敗: ${error}`);
-      });
-    }
-
-    // 生產環境：屏蔽開發者工具快捷鍵
-    searchWindow.webContents.on('before-input-event', (event, input) => {
-      // 屏蔽 Ctrl+Shift+I (Windows/Linux) 和 Cmd+Option+I (macOS)
-      if (input.control && input.shift && input.key.toLowerCase() === 'i') {
-        event.preventDefault();
-      }
-      // 屏蔽 F12
-      if (input.key === 'F12') {
-        event.preventDefault();
-      }
-      // 屏蔽 Ctrl+Shift+C (元素檢查器)
-      if (input.control && input.shift && input.key.toLowerCase() === 'c') {
-        event.preventDefault();
-      }
-    });
-  }
-
-  // 當搜索框失去焦點時自動隱藏（開發模式下禁用，避免與開發者工具衝突）
-  // if (!isDev) {
-  //   searchWindow.on('blur', () => {
-  //     if (searchWindow && searchWindow.isVisible()) {
-  //       searchWindow.hide();
-  //     }
-  //   });
-  // }
-}
 
 
 // 更新托盤菜單語言
@@ -421,12 +268,15 @@ export const init = async () => {
     const gpuInfo = await checkGPU();
     // 检查模型是否存在（AI功能是否准备好）
     const modelExists = await checkModelService();
-    console.log('模型是否存在', modelExists);
     setConfig('aiModel_installed', modelExists);
     // 检查CUDA安装包是否未解压
     // const cudaInfo = await checkCUDA();
     // const isInstallCuda = getConfig('cuda_installed');
 
+    // 显示设置窗口
+    if (settingsWindow) {
+      settingsWindow.show();
+    }
     // 检查是否准备好AI Mark功能
     return {
       code: 0,
@@ -506,8 +356,7 @@ app.whenReady().then(async () => {
   searchWindow = windowManager.searchWindow;
   settingsWindow = windowManager.settingsWindow;
   // 初始化窗口
-  createWindow();
-  createSearchBar();
+  // createWindows();
   createTray(); // 創建系統托盤
   // 初始化API
   initializeFileApi(mainWindow);
@@ -624,4 +473,3 @@ const registerGlobalShortcut = (shortcut: string, windowManager: any) => {
     }
   });
 }
-
