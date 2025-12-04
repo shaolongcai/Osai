@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "@/contexts/globalContext";
-import { Dialog, Guide, Login, ReportProtocol } from "@/components";
+import { Dialog, Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
 import { useTranslation } from '@/contexts/I18nContext';
 import { Button, Paper, Stack, Typography } from "@mui/material";
 import initImg from '@/assets/images/init.png'
@@ -156,7 +156,6 @@ const Preload = () => {
         return new Promise<void>((resolve) => {
             protocolResolveRef.current = resolve;
         }).then(() => {
-            console.log('完成用户同意协议')
             setProtocolOpen(false);
         });
     }, []);
@@ -177,59 +176,33 @@ const Preload = () => {
         return new Promise<void>((resolve) => {
             guideResolveRef.current = resolve;
         }).then(() => {
-            // 新手引导完成后，设置不再提醒
-            console.log('新手引导完成后，设置不再提醒')
             setGuideOpen(false);
         });
     }, []);
 
-    // 处理更新
-    const handleUpdate = useCallback(() => {
-        console.log('处理更新')
-        window.electronAPI.downloadUpdate();
-        setUpdateOpen(false);
-        updateResolveRef.current?.();
-    }, []);
-
-    const handleCloseUpdate = useCallback(() => {
-        setUpdateOpen(false);
-        updateResolveRef.current?.();
-    }, []);
-
-    // 处理解决登录事务
-    const handleLoginResolve = useCallback(() => {
-        setLoginOpen(false)
-        loginResolveRef.current?.(); // 登录成功
-    }, []);
 
     return (
         <Paper className="w-[480px] box-border min-h-[400px] flex flex-col items-center justify-center">
-            {/* 新版本更新 */}
-            <Dialog
-                title={t('app.preload.updateTitle')}
-                open={updateOpen}
-                onClose={handleCloseUpdate}
-                primaryButtonText={t('app.preload.updatePrimary')}
-                secondaryButtonText={t('app.preload.updateSecondary')}
-                onSecondaryButtonClick={handleCloseUpdate}
-                onPrimaryButtonClick={handleUpdate}
-                maxWidth='xs'
-            >
-                <Typography variant="body1" align='left'>
-                    {t('app.preload.updateContent')}
-                </Typography>
-            </Dialog>
-            <ReportProtocol
-                open={protocolOpen}
-                onConfirm={() => {
-                    setProtocolOpen(false)
-                    protocolResolveRef.current?.(); // 同意协议
-                }}
-                onClose={() => {
-                    setProtocolOpen(false)
-                    protocolResolveRef.current?.(); // 拒绝协议，也继续
-                }}
-            />
+            {
+                // 新版本通知 
+                updateOpen &&
+                <UpdateNotification
+                    onFinish={() => {
+                        setUpdateOpen(false)
+                        updateResolveRef.current?.(); // 更新完成
+                    }}
+                />
+            }
+            {
+                // 同意协议
+                protocolOpen &&
+                <ReportProtocol
+                    onFinish={() => {
+                        setProtocolOpen(false)
+                        protocolResolveRef.current?.(); // 同意协议
+                    }}
+                />
+            }
 
             {
                 // 登录

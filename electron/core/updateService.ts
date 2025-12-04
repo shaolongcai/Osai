@@ -77,7 +77,7 @@ class UpdateService {
         // 设置架构特定的更新文件
         const updateFileName = this.getArchSpecificUpdateFile();
         logger.info(`使用更新文件: ${updateFileName}`);
-        
+
 
         // 设置更新服务器地址和特定的更新文件
         // autoUpdater.setFeedURL({
@@ -86,7 +86,7 @@ class UpdateService {
         //     channel: updateFileName.replace('.yml', '') //获取不同的更新yml
         // });
 
-        // 强制开发环境也进行更新检查（仅用于测试）
+        // 强制开发环境也进行更新检查（仅用于测试更新）
         if (process.env.NODE_ENV === 'development') {
             // autoUpdater.forceDevUpdateConfig = true;
             //不检查更新

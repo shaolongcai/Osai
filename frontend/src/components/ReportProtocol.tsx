@@ -1,24 +1,18 @@
-import { Checkbox, FormControlLabel, Typography } from "@mui/material"
-import Dialog from "../Dialog/Dialog"
+import { Button, Checkbox, FormControlLabel, Paper, Stack, Typography } from "@mui/material"
 import { useState } from "react";
 import { ConfigParams } from "@/types/electron";
-import { useTranslation } from "../../contexts/I18nContext";
+import { useTranslation } from "../contexts/I18nContext";
 
 
 interface Props {
-    open: boolean;
-    onClose: () => void;
-    onConfirm?: () => void;
+    onFinish: () => void;
 }
 
 /**
  * 允许应用向服务端报告崩溃、BUG的协议
  */
 const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
-    open,
-    onClose,
-    onConfirm,
-    hideBackdrop = false,
+    onFinish,
 }) => {
 
     const [isRemind, setIsRemind] = useState(false);
@@ -34,14 +28,13 @@ const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
         }
         await window.electronAPI.setConfig(params);  // 接口设置同意
         await setNotRemind();
-        onConfirm?.();
-        onClose();
+        onFinish();
     }
 
     // 关闭弹窗
     const handleClose = async () => {
         await setNotRemind();
-        onClose();
+        onFinish();
     }
 
     // 设置不再提醒
@@ -55,17 +48,12 @@ const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
     }
 
     return (
-        <Dialog
-            open={open}
-            onClose={onClose}
-            title={t('app.reportProtocol.title')}
-            primaryButtonText={t('app.reportProtocol.primaryButtonText')}
-            secondaryButtonText={t('app.reportProtocol.secondaryButtonText')}
-            onPrimaryButtonClick={agree}
-            onSecondaryButtonClick={handleClose}
-            hideBackdrop={hideBackdrop}
-        >
-            <>
+        <>
+            <Stack spacing={2} alignItems="center" textAlign="center">
+                <Typography variant='titleMedium' color="text.primary"
+                >
+                    {t('app.reportProtocol.title')}
+                </Typography>
                 <Typography sx={{
                     whiteSpace: 'pre-line',
                     color: 'rgba(0,0,0,0.65)',
@@ -81,8 +69,16 @@ const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
                     control={<Checkbox checked={isRemind} onChange={(_e, check) => setIsRemind(check)} />}
                     label={<Typography sx={{ color: 'rgba(0,0,0,0.45)', fontSize: '14px' }}>{t('app.reportProtocol.notRemindLabel')}</Typography>}
                 />
-            </>
-        </Dialog>
+                <Stack spacing={1}>
+                    <Button onClick={agree} variant="contained">
+                        {t('app.reportProtocol.primaryButtonText')}
+                    </Button>
+                    <Button variant="outlined" onClick={handleClose}>
+                        {t('app.reportProtocol.secondaryButtonText')}
+                    </Button>
+                </Stack>
+            </Stack>
+        </>
     )
 }
 

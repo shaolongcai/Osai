@@ -1,7 +1,7 @@
 {
-  "title": "User Experience Improvement Plan",
+  "title": "User Experience lmprovement Plan",
   "primaryButtonText": "Agree",
   "secondaryButtonText": "Later",
-  "content": "To improve your experience, continuously discover and fix issues, this feature will automatically upload anonymous information. These include:\n\n📌 Program exceptions: such as crashes, error codes, etc.\n📌 Performance data: such as download speed, operation response time, and feature usage frequency (anonymous).\n\nThis process never collects or uploads any personally identifiable information, file contents, chat records, passwords, or browsing history.\n\nYou can disable this protocol at any time in Settings.",
+  "content": "To keep improving, we anonymously send crash and performance stats—no personal data ever.\n\n These include:\n\n📌 Program exceptions: such as crashes, error codes. etc.\n📌 Performance data: such as download speed, operation response time, and featureusage frequency(anonymous).\n\nThis process never collects or uploads any personally identifiable information, file contents, chat records, passwords, or browsing history.\n\nYou can disable this protocol at any time in Settings.",
   "notRemindLabel": "Do not show again"
 }

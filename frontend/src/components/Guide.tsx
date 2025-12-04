@@ -3,7 +3,7 @@ import guide1Img from '@/assets/images/guide1.png'
 import guide2Img from '@/assets/images/guide2.png'
 import guide3Img from '@/assets/images/guide3.png'
 import guide4Img from '@/assets/images/guide4.png'
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 
 interface Props {
@@ -33,11 +33,21 @@ const Guide: React.FC<Props> = ({
             image: guide3Img,
         },
         {
-            title:'All content stays local and 100% private lock.',
+            title: 'All content stays local and 100% private lock.',
             // title: 'All content, whether data or AI, is completed locally, with 100% private lock.',
             image: guide4Img,
         },
     ];
+
+    // 完成引导，并记录
+    const handleFinish = useCallback(async () => {
+        await window.electronAPI.setConfig({
+            key: 'skip_guide',
+            value: true,
+            type: 'boolean',
+        });
+        onFinish();
+    }, [onFinish]);
 
     return (
         <>
@@ -71,7 +81,7 @@ const Guide: React.FC<Props> = ({
                         <Button
                             variant="contained"
                             color="primary"
-                            onClick={onFinish}
+                            onClick={handleFinish}
                         >
                             Finish
                         </Button>
