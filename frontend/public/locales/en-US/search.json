@@ -6,5 +6,8 @@
   "noKeyword": "Please enter search keywords",
   "start": "Enter keywords to start AI search",
   "indexFile": "Indexing complete. indexed conunt: {{count}}",
-  "indexLoading": "Indexing, you can search at any time"
+  "indexLoading": "Indexing, you can search at any time",
+  "ocrSever": "OCR service is running, remaining {{count}} tasks",
+  "ocrSeverTips": "OCR Service: Recognizes text in images to make image content searchable. You can disable it in [Settings]",
+  "ocrSuccess": "OCR task completed"
 }

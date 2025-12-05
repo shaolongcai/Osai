@@ -38,6 +38,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     'contact',
     'table',
     'tray',
+    'aiSever',
   ] as const;
 
   // 動態載入翻譯文件

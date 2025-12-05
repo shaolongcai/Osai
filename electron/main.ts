@@ -12,6 +12,7 @@ import { ollamaService } from './sever/ollamaSever.js';
 import { INotification, INotification2 } from './types/system.js';
 import { initializeUpdateApi } from './api/update.js';
 import { initializeSystemApi } from './api/system.js';
+import { aiSeverSingleton } from './sever/aiSever.js';
 
 // ES 模块中的 __dirname 和 __filename 替代方案
 const __filename = fileURLToPath(import.meta.url);
@@ -262,6 +263,8 @@ export const init = async () => {
   try {
     // 初始化数据库
     initializeDatabase()
+
+
     // 启动Ollama服务
     // await ollamaService.start();
     // // 检查硬件是否支持
@@ -330,6 +333,20 @@ export const startIndexTask = async () => {
       }
       sendToRenderer('system-info', notification)
     }
+
+    // 测试AI状态
+    const aiProvider = await aiSeverSingleton.checkAIProvider();
+    if (!aiProvider) {
+      logger.error('AI服务未配置或连接失败')
+      // throw new Error('ollama服务未配置或连接失败') //测试之用
+    }
+    // 发送未配置AI服务的消息
+    const notification: INotification2 = {
+      id: 'aiSever',
+      type: aiProvider ? 'success' : 'warning',
+      messageKey: aiProvider ? 'app.aiSever.configured' : 'app.aiSever.notConfigured',
+    }
+    sendToRenderer('system-info', notification);
     // 索引最近访问的文件 （进测试时启用）
     // await indexImagesService();
   } catch (error) {
@@ -451,7 +468,7 @@ app.on('before-quit', () => {
 
 
 //----- 触发事件 ---- 
-export const sendToRenderer = (channel: string, data: any) => {
+export const sendToRenderer = (channel: ChannelType, data: any) => {
   // 广播事件到所有窗口
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send(channel, data);

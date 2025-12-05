@@ -1,21 +1,12 @@
 import { Dialog, Box, Typography, Paper, Stack, Button, IconButton, styled } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 import { useEffect, useState } from 'react';
 import { Contact, Dialog as CustomDialog, ReportProtocol, SettingItem } from '@/components';
-import { UserConfig } from '@/types/system';
 import { ConfigParams } from '@/types/electron';
 import { useContext } from 'react';
 import { globalContext } from '@/contexts/globalContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useTranslation } from '@/contexts/I18nContext';
 
-
-// 更新狀態類型
-interface UpdateStatusData {
-    isUpdateAvailable?: boolean;
-    version?: string;
-    message?: string;
-}
 
 const StyledTitle = styled(Typography)(({ theme }) => ({
     fontSize: '24px',

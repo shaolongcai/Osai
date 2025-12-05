@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "@/contexts/globalContext";
-import {  Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
+import { Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
 import { useTranslation } from '@/contexts/I18nContext';
 import { Button, LinearProgress, Paper, Stack, Typography } from "@mui/material";
 import initImg from '@/assets/images/init.png'
@@ -142,6 +142,7 @@ const Preload = () => {
             navigate('/search');
         }
         else {
+            setServerOpen(false);
             setInitError(res.errMsg);
         }
     }, [])
@@ -240,7 +241,7 @@ const Preload = () => {
                         }}>
                         {t('app.preload.loading')}
                     </Typography>
-                     <LinearProgress className="w-full" />
+                    <LinearProgress className="w-full" />
                 </Stack>
             }
 

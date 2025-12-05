@@ -1,4 +1,4 @@
-import { Button, Paper, Stack, Typography, Drawer, Box, Switch, styled } from "@mui/material"
+import { Button, Paper, Stack, Typography, Drawer, Box, Switch, styled, Card } from "@mui/material"
 import { useState, useEffect, useContext } from "react";
 import {
     Settings as SettingsIcon,
@@ -27,12 +27,14 @@ interface SettingButtonProps {
  * 设置按钮
  */
 const SettingButton = ({ openSetting, setOpenSetting }: SettingButtonProps) => {
-    return <Paper
-        elevation={0}
+    return <Card
+        variant="elevation"
         onClick={() => {
             setOpenSetting(!openSetting);
         }}
-        className="rounded-full! flex items-center justify-center cursor-pointer h-10 w-10"
+        className="rounded-full! flex items-center justify-center cursor-pointer h-10 w-10
+        border border-solid border-[rgba(0,0,0,0.12)]
+        "
     >
         {
             openSetting ?
@@ -48,7 +50,7 @@ const SettingButton = ({ openSetting, setOpenSetting }: SettingButtonProps) => {
                         color: 'rgba(0, 0, 0, 0.85)',
                     }} />
         }
-    </Paper>
+    </Card>
 }
 
 

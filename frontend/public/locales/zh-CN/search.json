@@ -4,5 +4,9 @@
   "results": "共搜索到 {{count}} 条结果",
   "noResults": "没有结果",
   "noKeyword": "请输入关键词",
-  "start": "输入关键词，开始AI搜索"
+  "start": "输入关键词，开始AI搜索",
+  "indexFile": "索引完成。索引数量：{{count}}",
+  "indexLoading": "索引中，您可以随时搜索",
+  "ocrSever": "OCR服务已启动，剩余 {{count}} 个任务",
+  "ocrSeverTips": "OCR 服务：识别图片中的文字，便于搜索图片内容。可前往【设置】关闭"
 }

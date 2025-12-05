@@ -39,7 +39,9 @@ const Search: React.FC<Props> = ({
         elevation={1}
         className="flex items-center h-[72px] p-4 rounded-xl shadow-md transition-all duration-200 box-shadow
         hover:border-border-light 
-        hover:shadow-md w-full"
+        hover:shadow-md w-full
+        border border-solid border-[rgba(0,0,0,0.12)]
+        "
     >
         <Stack direction="row" spacing={2} alignItems="center"  sx={{ width: '100%' }}>
             <TextField

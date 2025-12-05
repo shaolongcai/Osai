@@ -1,5 +1,5 @@
 import { ConfigParams } from "@/types/electron";
-import { Button, MenuItem, Paper, Stack, TextField, Typography } from "@mui/material"
+import { Button, Card, MenuItem, Paper, Stack, TextField, Typography } from "@mui/material"
 import { useRequest } from "ahooks";
 import { useState } from "react";
 
@@ -53,7 +53,7 @@ const AIProvider: React.FC<Props> = ({
     }
 
     return (
-        <Paper elevation={1} className="w-[480px] min-h-[400px]">
+        <Card elevation={1} className="w-[480px] min-h-[400px]">
             <Stack spacing={3} alignItems='center'>
                 <Typography variant='headlineSmall' className="w-full text-left">
                     AI Provider
@@ -105,7 +105,7 @@ const AIProvider: React.FC<Props> = ({
                     </Button>
                 </Stack>
             </Stack>
-        </Paper>
+        </Card>
     )
 }
 

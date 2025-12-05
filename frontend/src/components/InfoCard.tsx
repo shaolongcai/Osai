@@ -69,7 +69,12 @@ const InfoCard: React.FC<Props> = ({
     }
 
     return (
-        <Card className="rounded-xl min-w-[338px] relative">
+        <Card className="
+        rounded-xl min-w-[338px] relative
+        border border-solid border-[rgba(0,0,0,0.12)]
+        border-color: #E0E0E0
+        "     
+        >
             <DownIcon className="absolute top-6 right-4 cursor-pointer" fontSize='medium'
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 sx={{
@@ -94,12 +99,14 @@ const InfoCard: React.FC<Props> = ({
                                     {
 
                                         item.messageKey ?
-                                            t(item.messageKey, item.variables)
+                                            item.variables ?
+                                                t(item.messageKey, item.variables) :
+                                                t(item.messageKey)
                                             :
                                             item.text //兼容旧方法
                                     }
                                 </Typography>
-                                <Tooltip title={item.tooltip} arrow className="max-w-[120px]" >
+                                <Tooltip title={t(item.tooltip || '')} arrow className="max-w-[120px]" >
                                     <div className="w-[24px] h-[24px] flex items-center justify-center mx-auto">
                                         {/* 没有转发ref，Tooltip 内部的元素不会被转发 */}
                                         {renderIcon(item.type)}

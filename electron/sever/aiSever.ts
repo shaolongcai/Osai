@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { Database } from 'better-sqlite3';
-import { getDatabase } from '../database/sqlite.js';
+import { getConfig, getDatabase } from '../database/sqlite.js';
 import { FileType } from '../units/enum.js';
 import { ollamaService } from './ollamaSever.js';
 import { ImagePrompt, DocumentPrompt } from '../data/prompt.js';
@@ -45,6 +45,28 @@ class AiSever {
         });
     }
 
+    // 检查是否拥有AI服务
+    public async checkAIProvider() {
+        const aiProviderString = getConfig('ai_provider') as string
+        const aiProvider = JSON.parse(aiProviderString) as { type: string, host: string, modelId: string }
+        // 测试连通性
+        if (aiProvider) {
+            logger.info(`AI服务连接测试，aiProvider配置: ${aiProvider}`)
+            // 暂时固定用ollama方式测试
+            try {
+                const url = `${aiProvider.host}/api/tags`
+                const response = await fetch(url);
+                if (response.ok) return true;
+            } catch (error) {
+                logger.error(`Ollama服务连接测试失败,${error}`)
+                return false
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
     // 处理队列
     private async processQueue() {
         if (this.processing) return;
@@ -52,7 +74,7 @@ class AiSever {
 
         try {
             // 开始处理发送消息
-            this.sendNotification('start')
+            this.sendNotification('pending')
             while (this.queue.length > 0) {
                 try {
                     const task = this.queue.shift()!;
@@ -108,7 +130,7 @@ class AiSever {
                 }
                 finally {
                     // 处理单个完成，发送消息
-                    this.sendNotification('pending')
+                    this.sendNotification('loading')
                 }
             }
         } catch (error) {
@@ -120,30 +142,6 @@ class AiSever {
             this.sendNotification('success')
         }
     }
-
-    // 检查任务是否已经处理
-    // private checkTask(filePath: string) {
-    //     const checkStmt = this.db.prepare(`SELECT ai_mark,md5,path,size,modified_at FROM files WHERE path = ?`);
-    //     const row = checkStmt.get(filePath) as { ai_mark: number, md5: string, path: string, size: number, modified_at: number } | undefined;
-    //     if (row?.ai_mark) {
-    //         const state = fs.statSync(filePath)
-    //         // 计算文件的md5
-    //         const newMd5 = calculateMd5(filePath, state.size, Math.floor(state.mtimeMs))
-    //         // console.log('新的md5', newMd5)
-    //         // console.log('旧的md5', row.md5)
-    //         // console.log('新的size', state.size)
-    //         // console.log('旧的size', row.size)
-    //         // console.log('新的modified_at', Math.floor(state.mtimeMs))
-    //         // console.log('旧的modified_at', row.modified_at)
-    //         // console.log('新的path', filePath)
-    //         // console.log('旧的path', row.path)
-    //         if (newMd5 === row.md5) {
-    //             logger.info(`文件 ${filePath} 已被处理`)
-    //             return true;
-    //         }
-    //     }
-    //     return false
-    // }
 
     // 入库操作
     private insertResult = (documentPath: string, content: string, summary: string, tags: string[]) => {
@@ -187,15 +185,13 @@ class AiSever {
     }
 
     // 发送消息
-    private sendNotification = (type: 'success' | 'pending' | 'start') => {
-        const text = type === 'success' ? 'AI索引已完成' : type === 'pending' ? `AI索引中 剩余 ${this.queue.length}` : 'AI索引中'
+    private sendNotification = (type: 'success' | 'pending' | 'loading') => {
         const notification: INotification2 = {
             id: 'aiMark',
-            text: text,
-            textType: type === 'success' ? 'aiMarkSuccess' : type === 'pending' ? 'aiMarkPending' : 'aiMarkStart',
-            count: this.queue.length,
-            type: type === 'success' ? 'success' : 'pending',
-            tooltip: type === 'success' ? '' : 'AI索引中,可能GPU或CPU的占用率会升高'
+            messageKey: type === 'success' ? 'app.aiSever.success' : type === 'pending' ? 'app.aiSever.pending' : 'app.aiSever.loading',
+            variables: { count: this.queue.length },
+            type: type,
+            tooltip: type === 'success' ? '' : 'app.aiSever.tooltip'
         }
         sendToRenderer('system-info', notification)
     }

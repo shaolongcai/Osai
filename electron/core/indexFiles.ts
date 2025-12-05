@@ -167,13 +167,6 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
                     logger.info(`驱动器 ${drive} 索引完成，找到 ${message.files.length} 个文件。`);
                     completedDrives++;
                     completedFiles += message.files.length;
-                    const notification: INotification2 = {
-                        id: 'indexTask',
-                        messageKey: 'app.search.indexLoading',
-                        type: 'success',
-                    }
-                    sendToRenderer('index-progress', notification)
-
                     resolve(message.files);
                 }
                 else if (message.type === 'progress') {
@@ -201,18 +194,25 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
     });
 
     try {
+        const notification: INotification2 = {
+            id: 'indexTask',
+            messageKey: 'app.search.indexLoading',
+            type: 'success',
+        }
+        sendToRenderer('index-progress', notification)
+
         const results = await Promise.all(promises);
         const allFiles: FileInfo[] = results.flat() as unknown as FileInfo[]; // flat方法展开二维数组
 
         // 发送完成消息
         const formattedTotal = completedFiles.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); //加入千分位
-        const notification: INotification2 = {
+        const notification2: INotification2 = {
             id: 'indexTask',
             messageKey: 'app.search.indexFile',
             variables: { count: formattedTotal },
             type: 'success',
         }
-        sendToRenderer('system-info', notification)
+        sendToRenderer('system-info', notification2)
 
         // 寻找所有扩展名,并对应第一个文件
         const extToFileMap = new Map<string, string>();
@@ -565,8 +565,11 @@ export const indexRecently = async (): Promise<void> => {
  * @param filePath 文件路径
  */
 export const indexSingleFile = async (filePath: string): Promise<void> => {
-    // 判断是否安装 AI 服务
-    const aiInstalled = !!getConfig('aiModel_installed');
+    // 判断是否配置 AI 服务
+    const aiInstalled = await aiSeverSingleton.checkAIProvider();
+    if (!aiInstalled) {
+        logger.warn(`未配置 AI 服务,降级到普通索引`);
+    }
     // 判断类型（图片/文档/其他）
     const ext = path.extname(filePath).toLowerCase();
     const fileType = getFileTypeByExtension(ext);

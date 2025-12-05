@@ -96,11 +96,10 @@ export class OcrSever {
                     // UI提示剩余任务
                     const notification: INotification2 = {
                         id: 'ocr',
-                        text: `OCR 服务已启动 剩余 ${this.queue.length}`,
-                        textType: 'ocrSever',
-                        count: this.queue.length,
+                        messageKey: 'app.search.ocrSever',
+                        variables: { count: this.queue.length },
                         type: 'loadingQuestion',
-                        tooltip: 'OCR 服务：识别图片中的文字，便于搜索图片内容。可前往【设置】关闭'
+                        tooltip: 'app.search.ocrSeverTips',
                     }
                     sendToRenderer('system-info', notification)
 
@@ -120,9 +119,8 @@ export class OcrSever {
                     if (this.enqueued.size === 0) {
                         const notification: INotification2 = {
                             id: 'ocr',
-                            text: `OCR任务已完成`,
+                            messageKey: 'app.search.ocrSuccess',
                             type: 'success',
-                            textType: 'ocrSuccess',
                         }
                         sendToRenderer('system-info', notification)
                     }
