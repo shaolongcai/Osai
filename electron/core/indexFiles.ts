@@ -6,14 +6,13 @@ import pathConfig from './pathConfigs.js';
 import { getDatabase, setConfig, insertProgramInfo, getConfig } from '../database/sqlite.js';
 import { setIndexUpdate, waitForIndexUpdate } from './appState.js';
 import { sendToRenderer } from '../main.js';
-import { INotification } from '../types/system.js';
+import { INotification2 } from '../types/system.js';
 import { logger } from './logger.js';
-import { app, nativeImage, shell } from 'electron';
+import { app, nativeImage } from 'electron';
 import * as os from 'os';
 import * as fs from 'fs'
 import { extractIcon, savePngBuffer } from './iconExtractor.js';
 import { getFileTypeByExtension, FileType } from '../units/enum.js';
-import { ImageSever } from './imageSever.js';
 import { documentSeverSingleton } from '../sever/documentSever.js';
 import { findRecentFolders } from './system.js';
 import { ocrSeverSingleton } from '../sever/ocrSever.js';
@@ -168,15 +167,12 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
                     logger.info(`驱动器 ${drive} 索引完成，找到 ${message.files.length} 个文件。`);
                     completedDrives++;
                     completedFiles += message.files.length;
-                    // const formattedTotal = completedFiles.toLocaleString('en-US');
-                    const formattedTotal = completedFiles.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); //加入千分位
-                    logger.info(`formattedTotal:${formattedTotal}`)
-                    // 加入千分位
-                    sendToRenderer('index-progress', {
-                        message: `已索引 ${formattedTotal} 个文件`,
-                        process: completedDrives === drives.length ? 'finish' : 'pending',
-                        count: formattedTotal
-                    })
+                    const notification: INotification2 = {
+                        id: 'indexTask',
+                        messageKey: 'app.search.indexLoading',
+                        type: 'success',
+                    }
+                    sendToRenderer('index-progress', notification)
 
                     resolve(message.files);
                 }
@@ -207,6 +203,16 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
     try {
         const results = await Promise.all(promises);
         const allFiles: FileInfo[] = results.flat() as unknown as FileInfo[]; // flat方法展开二维数组
+
+        // 发送完成消息
+        const formattedTotal = completedFiles.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); //加入千分位
+        const notification: INotification2 = {
+            id: 'indexTask',
+            messageKey: 'app.search.indexFile',
+            variables: { count: formattedTotal },
+            type: 'success',
+        }
+        sendToRenderer('system-info', notification)
 
         // 寻找所有扩展名,并对应第一个文件
         const extToFileMap = new Map<string, string>();

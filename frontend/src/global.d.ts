@@ -13,6 +13,14 @@ declare module '*.png' {
 }
 
 declare module '@mui/material/styles' {
+
+    interface TypeText {
+        tertiary: string
+    }
+    interface PaletteOptions {
+        text?: Partial<TypeText>
+    }
+
     // allow configuration using `createTheme`
     interface TypographyVariantsOptions {
         headlineLarge?: React.CSSProperties;

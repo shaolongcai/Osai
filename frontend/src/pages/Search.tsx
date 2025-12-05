@@ -1,11 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { InfoCard, Search, SearchPanel } from "@/components";
-import { I18nProvider } from '../contexts/I18nContext';
 import { Language } from '../types/i18n';
-import RootProviders from '@/RootProviders';
 import { Stack } from '@mui/material';
-import { useDebounce } from 'ahooks';
-
+import { useDebounce, useRequest } from 'ahooks';
 
 
 const SearchBar = () => {
@@ -22,20 +19,6 @@ const SearchBar = () => {
     useEffect(() => {
         onSearch(debounceSearch);
     }, [debounceSearch]);
-
-    // 快捷搜索
-    const onSearch = async (keyword: string) => {
-        const res = await window.electronAPI.shortSearch(keyword);
-        console.log('快捷搜索结果', res);
-        setData(res.data);
-        setTotal(res.total);
-        setSelectedIndex(0); // 重置选中状态到搜索框
-    }
-
-    // 处理选中索引变化（来自hover或其他交互）
-    const handleSelectedIndexChange = useCallback((index: number) => {
-        setSelectedIndex(index);
-    }, []);
 
     // 处理键盘导航
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
@@ -110,6 +93,24 @@ const SearchBar = () => {
             };
         }
     }, []);
+
+    // 开始索引
+    useRequest(window.electronAPI.startIndex)
+
+    // 快捷搜索
+    const onSearch = async (keyword: string) => {
+        const res = await window.electronAPI.shortSearch(keyword);
+        console.log('快捷搜索结果', res);
+        setData(res.data);
+        setTotal(res.total);
+        setSelectedIndex(0); // 重置选中状态到搜索框
+    }
+
+    // 处理选中索引变化（来自hover或其他交互）
+    const handleSelectedIndexChange = useCallback((index: number) => {
+        setSelectedIndex(index);
+    }, []);
+
 
     return <Stack spacing={1}>
         <Search onSearch={setSearchValue} />

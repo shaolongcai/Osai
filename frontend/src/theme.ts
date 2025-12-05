@@ -37,7 +37,7 @@ export const theme = createTheme({
                     },
                     '&.MuiPaper-elevation0': {
                         padding: '8px',
-                        boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
+                        // boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
                     }
                 },
             }
@@ -197,6 +197,7 @@ export const theme = createTheme({
         text: {
             primary: 'rgba(0, 0, 0, 0.85)', //在背景上的颜色
             secondary: 'rgba(0, 0, 0, 0.65)',
+            tertiary: 'rgba(0, 0, 0, 0.45)',
             disabled: 'rgba(0, 0, 0, 0.25)',
         },
         primary: {

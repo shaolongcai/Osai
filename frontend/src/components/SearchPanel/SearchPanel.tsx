@@ -37,7 +37,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         elevation={0}
-        className={`w-full cursor-pointer rounded-lg  transition-colors duration-200 p-2 mb-1 ${isSelected ? 'bg-black/5' : ''}`}
+        className={`w-full cursor-pointer rounded-lg  transition-colors duration-200  mb-1 ${isSelected ? 'bg-black/5' : ''}`}
     >
         <Stack direction='row' spacing={1} alignItems="center">
             <img src={iconSrc} alt={name} className="w-12 h-12 rounded-lg" />
@@ -138,7 +138,7 @@ const SearchPanel: React.FC<Props> = ({
 
     return <Card
         variant='elevation'
-        className="p-2 w-full max-h-[520px] overflow-y-auto! box-border"
+        className="w-full max-h-[520px] overflow-y-auto! box-border scrollbar-thin"
         ref={containerRef}
     >
         <Stack alignItems='flex-start'>

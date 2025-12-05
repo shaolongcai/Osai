@@ -9,7 +9,7 @@ import { logger } from './core/logger.js';
 import { checkGPU, reportErrorToWechat } from './core/system.js';
 import { checkModelService } from './core/model.js'
 import { ollamaService } from './sever/ollamaSever.js';
-import { INotification } from './types/system.js';
+import { INotification, INotification2 } from './types/system.js';
 import { initializeUpdateApi } from './api/update.js';
 import { initializeSystemApi } from './api/system.js';
 
@@ -312,7 +312,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) || true) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       await indexAllFilesWithWorkers();
@@ -321,11 +321,14 @@ export const startIndexTask = async () => {
       logger.info(`缓存期间无需索引`);
       // 无需重新索引，直接获取数据库的数据返回
       const last_index_file_count = getConfig('last_index_file_count');
-      sendToRenderer('index-progress', {
-        message: `已索引 ${last_index_file_count} 个文件`,
-        process: 'finish',
-        count: last_index_file_count
-      })
+      const formattedTotal = last_index_file_count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); //加入千分位
+      const notification: INotification2 = {
+        id: 'indexTask',
+        messageKey: 'app.search.indexFile',
+        variables: { count: formattedTotal },
+        type: 'success',
+      }
+      sendToRenderer('system-info', notification)
     }
     // 索引最近访问的文件 （进测试时启用）
     // await indexImagesService();

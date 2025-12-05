@@ -34,8 +34,8 @@ export interface INotification2 {
     text?: string, //临时测试使用
     type: NotificationType,
     tooltip?: string,
-    textType: string, //用于识别多语言
-    count?: number, //用于显示任务数量
+    messageKey: string, //用于识别多语言，形如'app.index.foundImages'
+    variables?: object, //用于显示参数，形如 {count: 100}
 }
 
 

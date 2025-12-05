@@ -78,7 +78,7 @@ const InfoCard: React.FC<Props> = ({
                     transition: 'transform 0.2s ease-in-out'
                 }}
             />
-            <CardContent sx={{ p: 3 }}>
+            <CardContent className="p-0!">
                 <Collapse in={isCollapsed} collapsedSize={24}>
                     <Stack spacing={1}>
                         {notifications.map(item =>
@@ -90,50 +90,14 @@ const InfoCard: React.FC<Props> = ({
                                 spacing={1}
                             // justifyContent='space-between'
                             >
-                                <Typography variant='bodyMedium' component="div" className="text-text-secondary">
-                                    {(() => {
-                                        // 根據通知 id 與文本做翻譯映射
-                                        if (item.id === 'visual-index') {
-                                            if (item.text?.includes('暂停')) {
-                                                return t('app.visualIndexStatus.paused');
-                                            }
-                                            if (item.text?.includes('自动关闭')) {
-                                                return t('app.visualIndexStatus.paused');
-                                            }
-                                            if (item.text?.includes('已全部完成')) {
-                                                return t('app.visualIndexStatus.finished');
-                                            }
-                                            // 處理 "OCR 服务已启动 剩余 X" 的情況
-                                            if (item.text?.includes('剩余') || item.text?.includes('剩餘')) {
-                                                // 提取數字
-                                                const match = item.text.match(/\d+/);
-                                                const count = match ? parseInt(match[0]) : 0;
-                                                return t('app.visualIndexStatus.running', { count });
-                                            }
-                                        }
-                                        if (item.id === 'download-progress') {
-                                            // 下載進度類型，text 已是百分比，直接顯示
-                                            return item.text;
-                                        }
-                                        if (item.id === 'ai-mark') {
-                                            if (item.text?.includes('已完成')) {
-                                                return t('app.aiMarkStatus.completed');
-                                            }
-                                            if (item.text?.includes('正在分析')) {
-                                                return t('app.aiMarkStatus.analyzing');
-                                            }
-                                            if (item.text?.includes('正在记录')) {
-                                                return t('app.aiMarkStatus.recording');
-                                            }
-                                            return item.text;
-                                        }
-                                        // 索引任務問題
-                                        if (item.id === 'indexTask') {
-                                            return item.text;
-                                        }
-                                        // 默認直接顯示
-                                        return item.text;
-                                    })()}
+                                <Typography variant='bodyMedium' color='textTertiary'>
+                                    {
+
+                                        item.messageKey ?
+                                            t(item.messageKey, item.variables)
+                                            :
+                                            item.text //兼容旧方法
+                                    }
                                 </Typography>
                                 <Tooltip title={item.tooltip} arrow className="max-w-[120px]" >
                                     <div className="w-[24px] h-[24px] flex items-center justify-center mx-auto">

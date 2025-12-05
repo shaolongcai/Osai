@@ -31,6 +31,8 @@ export interface Notification {
     id: string,
     text: string,
     type: NotificationType,
+    messageKey: string, //用于识别多语言，形如'app.index.foundImages'
+    variables?: object, //用于显示参数，形如 {count: 100}
     tooltip?: string
 }
 

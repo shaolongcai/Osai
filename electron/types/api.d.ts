@@ -6,3 +6,8 @@ interface ConfigParams {
     value: any, // 配置项的值
     type?: 'boolean' | 'string' | 'number', // 配置值的类型，默认是string
 }
+
+/**
+ * 发送消息到前端的channel类型
+ */
+type ChannelType = 'index-progress' | 'system-info';

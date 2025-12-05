@@ -4,5 +4,7 @@
   "results": "Found {{count}} results",
   "noResults": "No related results found",
   "noKeyword": "Please enter search keywords",
-  "start": "Enter keywords to start AI search"
+  "start": "Enter keywords to start AI search",
+  "indexFile": "Indexing complete. indexed conunt: {{count}}",
+  "indexLoading": "Indexing, you can search at any time"
 }
