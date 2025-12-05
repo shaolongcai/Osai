@@ -185,8 +185,11 @@ export class OcrSever {
             const modifiedAt = Math.floor(file.mtimeMs);
             const name = path.basename(imagePath).toLowerCase();
             const ext = path.extname(imagePath).toLowerCase();
-            const updateStmt = this.db.prepare(`UPDATE files SET summary = ?, size = ?, modified_at = ? WHERE path = ?`);
-            const res = updateStmt.run(text, size, modifiedAt, imagePath);
+                // 计算MD5
+            const metadataString = `${imagePath}-${size}-${modifiedAt}`;
+            const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
+            const updateStmt = this.db.prepare(`UPDATE files SET md5 = ?, summary = ?, size = ?, modified_at = ?, skip_ocr = 1 WHERE path = ?`);
+            const res = updateStmt.run(md5, text, size, modifiedAt, imagePath);
             if (res.changes > 0) {
                 logger.info(`OCR 索引成功: ${imagePath}`);
                 return true;
@@ -196,9 +199,7 @@ export class OcrSever {
                 `INSERT OR IGNORE INTO files (md5, path, name, ext, summary, size, modified_at, skip_ocr)
                  VALUES (?, ?, ?, ?, ?, ?, ?, 1)`
             );
-            // 计算MD5
-            const metadataString = `${imagePath}-${size}-${modifiedAt}`;
-            const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
+        
             const inserRes = insertStmt.run(md5, imagePath, name, ext, text, size, modifiedAt);
             if (inserRes.changes > 0) {
                 logger.info(`OCR 索引插入成功: ${imagePath}`);

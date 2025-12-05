@@ -544,17 +544,25 @@ const getMacProgramsAndImages = (): {
  * 大小、修改时间、全文、OCR
  */
 export const indexRecently = async (): Promise<void> => {
+
+    // 判断是否配置 AI 服务
+    const aiInstalled = await aiSeverSingleton.checkAIProvider();
+    if (!aiInstalled) {
+        logger.warn(`未配置 AI 服务,降级到普通索引`);
+    }
+
     await waitForIndexUpdate();
     logger.info('索引更新完毕')
     const recentPaths = findRecentFolders();
-    await Promise.all(recentPaths.map(async (file) => {
-        // 统一检查file的有效性
+    // 📌📌 需要保持阻塞，并发多个写入影子表，可能会对同个row_id操作，造成database损坏 （请保证对sqlite的操作都是串行的）
+    // FTS5 触发器在写入时，会为 同一条主表记录 向影子表插入 多条内部条目 （每个 token 一行）。并发会插入重复的token
+    for (const file of recentPaths) {
         if (!fs.existsSync(file)) {
             logger.warn(`文件不存在: ${file}`);
-            return;
+            continue;
         }
-        return await indexSingleFile(file);
-    }))
+        await indexSingleFile(file, aiInstalled);
+    }
     // 任務結束後釋放 OCR Worker
     // await ocrSeverSingleton.terminateOCRWorker();
 }
@@ -564,17 +572,19 @@ export const indexRecently = async (): Promise<void> => {
  * 索引单个文件
  * @param filePath 文件路径
  */
-export const indexSingleFile = async (filePath: string): Promise<void> => {
-    // 判断是否配置 AI 服务
-    const aiInstalled = await aiSeverSingleton.checkAIProvider();
-    if (!aiInstalled) {
-        logger.warn(`未配置 AI 服务,降级到普通索引`);
-    }
+export const indexSingleFile = async (filePath: string, aiInstalled: boolean): Promise<void> => {
+
     // 判断类型（图片/文档/其他）
     const ext = path.extname(filePath).toLowerCase();
     const fileType = getFileTypeByExtension(ext);
     // 统一在这里路径归一
     const normalizedPath = normalizeWinPath(filePath);
+
+    // 测试ocr重复索引 通过
+    // await ocrSeverSingleton.enqueue(normalizedPath);
+
+    // 测试文档重复索引 失败
+    // await documentSeverSingleton.enqueue(normalizedPath);
 
     if (fileType === FileType.Image && !aiInstalled) {
         // 类型为图片，且未安装模型，采用OCR

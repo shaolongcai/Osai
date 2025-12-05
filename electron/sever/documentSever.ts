@@ -88,15 +88,6 @@ class DocumentSever {
                 } finally {
                     // 出列与去重清理
                     this.enqueued.delete(documentPath);
-                    if (this.enqueued.size === 0) {
-                        const notification: INotification2 = {
-                            id: 'ocr',
-                            text: `OCR任务已完成`,
-                            type: 'success',
-                            textType: 'ocrSuccess',
-                        }
-                        // sendToRenderer('system-info', notification)
-                    }
                 }
             }
         } catch (error) {
@@ -115,34 +106,30 @@ class DocumentSever {
     // 入库操作
     private insertResult = (documentPath: string, content: string) => {
         try {
-            // 获取更多详情
             const file = fs.statSync(documentPath);
             const size = file.size;
             const modifiedAt = Math.floor(file.mtimeMs);
             const name = path.basename(documentPath).toLowerCase();
             const ext = path.extname(documentPath).toLowerCase();
-            // 计算MD5
             const md5 = calculateMd5(documentPath, size, modifiedAt);
-            const updateStmt = this.db.prepare(`UPDATE files SET md5 = ?, size = ?, modified_at = ?,full_content = ? WHERE path = ?`);
-            const res = updateStmt.run(md5, size, modifiedAt, content, documentPath);
-            if (res.changes > 0) {
-                logger.info(`文档读取成功: ${documentPath}`);;
-                return true;
-            }
-            // 没有记录，则插入一条新的记录
-            const insertStmt = this.db.prepare(
-                `INSERT OR IGNORE INTO files (md5, path, name, ext, full_content, size, modified_at, skip_ocr)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, 1)`
-            );
 
-            const inserRes = insertStmt.run(md5, documentPath, name, ext, content, size, modifiedAt);
-            if (inserRes.changes > 0) {
-                logger.info(`OCR 索引插入成功: ${documentPath}`);
-                return true;
-            }
-            throw new Error(`OCR 索引插入失败: ${documentPath}`);
+            // 原子 UPSERT：存在即更新，不存在则插入
+            const upsertStmt = this.db.prepare(`
+                INSERT INTO files (md5, path, name, ext, full_content, size, modified_at, skip_ocr)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+                ON CONFLICT(path) DO UPDATE SET
+                    md5 = excluded.md5,
+                    size = excluded.size,
+                    modified_at = excluded.modified_at,
+                    full_content = excluded.full_content,
+                    skip_ocr = 1
+            `);
+            const res = upsertStmt.run(md5, documentPath, name, ext, content, size, modifiedAt);
+            logger.info(`文档索引成功: ${documentPath} (changes=${res.changes})`);
+            return true;
         } catch (error) {
             logger.error(`insertResult处理失败: ${error}`);
+            return false;
         }
     }
 

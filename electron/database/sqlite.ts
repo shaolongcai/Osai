@@ -27,7 +27,7 @@ export function initializeDatabase(): Database.Database {
 
     // 优化数据库性能
     db.pragma('journal_mode = WAL') // 提升并发写入性能
-    db.pragma('synchronous = NORMAL') // 在大多数情况下是安全且高效的
+    // db.pragma('synchronous = NORMAL') // 在大多数情况下是安全且高效的
 
     //创建表
     try {
