@@ -32,14 +32,7 @@ const SettingButton = ({ openSetting, setOpenSetting }: SettingButtonProps) => {
         onClick={() => {
             setOpenSetting(!openSetting);
         }}
-        sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            height: '40px',
-            width: '40px',
-        }}
+        className="rounded-full! flex items-center justify-center cursor-pointer h-10 w-10"
     >
         {
             openSetting ?
@@ -250,7 +243,11 @@ const Setting = () => {
             {
                 openSetting &&
                 <Paper
-                    className="w-[480px] max-h-[580px]! box-border overflow-y-auto"
+                    className="w-[480px] max-h-[580px]! box-border overflow-y-auto 
+                    scrollbar-thin
+                    p-6
+                    border border-solid border-[rgba(0,0,0,0.12)]
+                    "
                 >
                     <Typography variant='headlineSmall' >
                         设置

@@ -48,7 +48,7 @@ const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
     }
 
     return (
-        <Paper elevation={1}>
+        <Paper elevation={1} className="p-4">
             <Stack spacing={2} alignItems="center" textAlign="center">
                 <Typography variant='titleMedium' color="text.primary"
                 >

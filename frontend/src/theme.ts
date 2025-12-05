@@ -12,33 +12,33 @@ export const theme = createTheme({
             styleOverrides: {
                 root: {
                     borderRadius: '16px',
-                    // Card 中的paper
-                    '&.MuiCard-root': {
-                        borderRadius: '16px',
-                        boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
-                    },
+                    // // Card 中的paper
+                    // '&.MuiCard-root': {
+                    //     borderRadius: '16px',
+                    //     boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
+                    // },
 
-                    //表格中的paper圆角
-                    '&.MuiTableContainer-root': {
-                        borderRadius: '4px',
-                    },
-                    //Drawer组件中的Paper圆角为0
-                    '&.MuiDrawer-paper': {
-                        borderRadius: '0px',
-                    },
-                    //菜单组件中的Paper圆角为4px
-                    '&.MuiMenu-paper': {
-                        borderRadius: '4px',
-                    },
-                    // 当Paper组件elevation为1时  阴影
-                    '&.MuiPaper-elevation1': {
-                        padding: '24px',
-                        boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
-                    },
-                    '&.MuiPaper-elevation0': {
-                        padding: '8px',
-                        // boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
-                    }
+                    // //表格中的paper圆角
+                    // '&.MuiTableContainer-root': {
+                    //     borderRadius: '4px',
+                    // },
+                    // //Drawer组件中的Paper圆角为0
+                    // '&.MuiDrawer-paper': {
+                    //     borderRadius: '0px',
+                    // },
+                    // //菜单组件中的Paper圆角为4px
+                    // '&.MuiMenu-paper': {
+                    //     borderRadius: '4px',
+                    // },
+                    // // 当Paper组件elevation为1时  阴影
+                    // '&.MuiPaper-elevation1': {
+                    //     padding: '24px',
+                    //     boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
+                    // },
+                    // '&.MuiPaper-elevation0': {
+                    //     padding: '8px',
+                    //     // boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
+                    // }
                 },
             }
         },
@@ -47,6 +47,7 @@ export const theme = createTheme({
             styleOverrides: {
                 root: {
                     borderRadius: '16px',
+                    padding: '24px',
                     // 变体为elevation时  阴影
                     '&.MuiCard-elevation': {
                         boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',

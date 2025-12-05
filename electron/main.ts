@@ -263,12 +263,12 @@ export const init = async () => {
     // 初始化数据库
     initializeDatabase()
     // 启动Ollama服务
-    await ollamaService.start();
-    // 检查硬件是否支持
-    const gpuInfo = await checkGPU();
-    // 检查模型是否存在（AI功能是否准备好）
-    const modelExists = await checkModelService();
-    setConfig('aiModel_installed', modelExists);
+    // await ollamaService.start();
+    // // 检查硬件是否支持
+    // const gpuInfo = await checkGPU();
+    // // 检查模型是否存在（AI功能是否准备好）
+    // const modelExists = await checkModelService();
+    // setConfig('aiModel_installed', modelExists);
     // 检查CUDA安装包是否未解压
     // const cudaInfo = await checkCUDA();
     // const isInstallCuda = getConfig('cuda_installed');
@@ -281,8 +281,8 @@ export const init = async () => {
     return {
       code: 0,
       data: {
-        ...gpuInfo,
-        isReadyAI: modelExists,
+        // ...gpuInfo,
+        // isReadyAI: modelExists,
       },
     }
   } catch (error) {
@@ -358,6 +358,8 @@ app.whenReady().then(async () => {
   const { windowManager } = await import('./core/WindowManager.js');
   searchWindow = windowManager.searchWindow;
   settingsWindow = windowManager.settingsWindow;
+  // 初始化数据库
+  initializeDatabase();
   // 初始化窗口
   // createWindows();
   createTray(); // 創建系統托盤

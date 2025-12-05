@@ -16,6 +16,7 @@ import AdmZip from 'adm-zip';
 import path from 'path';
 import { indexSingleFile } from './indexFiles.js';
 
+
 /**
  * 检查系统是否有可用的GPU
  */
@@ -153,7 +154,8 @@ export const detectCudaVersion = (): 'cudaV13.zip' | 'cudaV12.zip' => {
  */
 export const openDir = async (type: string, filePath?: string) => {
     logger.info(`打开目录: ${type}, ${filePath}`)
-
+    // 异步导入 windowManager
+    const { windowManager } = await import('./WindowManager.js');
     switch (type) {
         // 打开运行日志
         case 'runLog':
@@ -163,14 +165,17 @@ export const openDir = async (type: string, filePath?: string) => {
         // 打开所在的文件夹，并且聚焦在该文件上
         case 'openFileDir':
             shell.showItemInFolder(filePath);
+            windowManager.hideAllWindows();     //隐藏所有窗口
             await indexSingleFile(filePath); //索引该文件
             await updateClickCountAndTime(filePath);
             break;
         // 直接打开文件
         case 'openFile':
             shell.openPath(filePath);
+            windowManager.hideAllWindows();     //隐藏所有窗口
             await indexSingleFile(filePath); //索引该文件
             await updateClickCountAndTime(filePath);
+
             break;
         default:
             break;
@@ -183,8 +188,6 @@ export const openDir = async (type: string, filePath?: string) => {
  */
 const updateClickCountAndTime = async (filePath: string) => {
     try {
-        // 异步导入 windowManager
-        const { windowManager } = await import('./WindowManager.js');
         if (filePath) {
             const db = getDatabase();
             let formName: string
@@ -193,8 +196,6 @@ const updateClickCountAndTime = async (filePath: string) => {
             } else {
                 formName = 'files'
             }
-            // 隐藏所有窗口
-            windowManager.hideAllWindows();
             db.prepare(`UPDATE ${formName} SET click_count = click_count + 1, last_access_time = datetime('now','localtime') WHERE path = ?`).run(filePath);
             // 打印出当前的次数
             const result = db.prepare(`SELECT click_count FROM ${formName} WHERE path = ?`).get(filePath);

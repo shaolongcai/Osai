@@ -24,6 +24,7 @@ const SearchBar = () => {
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
         if (data.length === 0) return;
 
+        console.log('当前选中索引:', selectedIndex);
         switch (event.key) {
             case 'ArrowDown':
                 event.preventDefault();

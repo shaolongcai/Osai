@@ -27,8 +27,6 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     onMouseLeave,
 }) => {
 
-
-
     const { iconSrc } = useIcon(icon, ext);
 
     return <Paper
@@ -37,9 +35,15 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         elevation={0}
-        className={`w-full cursor-pointer rounded-lg  transition-colors duration-200  mb-1 ${isSelected ? 'bg-black/5' : ''}`}
+        className={`w-full cursor-pointer  transition-colors duration-200  mb-1 
+            ${isSelected ? 'bg-linear-to-r! from-blue-50! to-purple-50!' : ''} 
+            hover:bg-linear-to-r! hover:from-blue-50! hover:to-purple-50
+            px-4 py-2
+        `}
     >
-        <Stack direction='row' spacing={1} alignItems="center">
+        <Stack direction='row' spacing={1} alignItems="center"
+        // className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50"
+        >
             <img src={iconSrc} alt={name} className="w-12 h-12 rounded-lg" />
             <Stack justifyContent='space-between'>
                 <Stack direction='row' spacing={1}>
@@ -57,9 +61,9 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                         />
                     } */}
                 </Stack>
-                {/* <Typography>
+                <Typography>
                     将来放地址
-                </Typography> */}
+                </Typography>
             </Stack>
         </Stack>
     </Paper>
@@ -136,12 +140,17 @@ const SearchPanel: React.FC<Props> = ({
         // 如果需要清除选中状态，可以调用 onSelectedIndexChange(-1)
     };
 
-    return <Card
+    return <Paper
         variant='elevation'
-        className="w-full max-h-[520px] overflow-y-auto! box-border scrollbar-thin"
+        className="
+        w-full max-h-[520px] overflow-y-auto! 
+        box-border scrollbar-thin
+        border border-solid border-[rgba(0,0,0,0.12)]
+        py-2
+        "
         ref={containerRef}
     >
-        <Stack alignItems='flex-start'>
+        <Stack alignItems='flex-start' >
             {data.map((item, index) => (
                 <div
                     style={{
@@ -166,7 +175,7 @@ const SearchPanel: React.FC<Props> = ({
                 </div>
             ))}
         </Stack>
-    </Card>
+    </Paper>
 }
 
 export default SearchPanel;

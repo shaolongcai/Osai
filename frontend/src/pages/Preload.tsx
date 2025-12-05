@@ -130,13 +130,13 @@ const Preload = () => {
         const res = await window.electronAPI.init();
         if (res.code === 0) {
             console.log('initRes', res)
-            context.setGpuInfo({
-                hasGPU: res.data.hasGPU,
-                // hasGPU: false, //测试
-                memory: res.data.memory,
-                hasDiscreteGPU: res.data.hasDiscreteGPU,
-            });
-            context.setIsReadyAI(res.data.isReadyAI);
+            // context.setGpuInfo({
+            //     hasGPU: res.data.hasGPU,
+            //     // hasGPU: false, //测试
+            //     memory: res.data.memory,
+            //     hasDiscreteGPU: res.data.hasDiscreteGPU,
+            // });
+            // context.setIsReadyAI(res.data.isReadyAI);
             // context.setIsReadyAI(false); //测试
             // 跳转到首页
             navigate('/search');
