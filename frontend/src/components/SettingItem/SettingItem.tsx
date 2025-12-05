@@ -8,11 +8,20 @@ interface Props {
     title: string;
     value?: string | boolean;
     type: ActionType;
-    onAction?: (checked: boolean) => void;
+    onAction?: (value: boolean | string | React.MouseEvent) => void;
     action?: React.ReactNode;
     disabled?: boolean;
 }
 
+/**
+ * @description 配置项组件
+ * @param value 配置项的值，取代按钮或者文字的文案
+ * @param type 配置项的类型，决定了渲染的组件
+ * @param onAction 配置项的操作函数，参数为配置项的值,switch 为 checked，button 为点击事件,当type为custom时，此参数无效
+ * @param action 自定义的操作组件
+ * @param disabled 是否禁用
+ * @returns 
+ */
 const SettingItem: React.FC<Props> = ({
     title,
     value,
@@ -46,10 +55,9 @@ const SettingItem: React.FC<Props> = ({
                             }
                         }}
                         variant='text'
-                        onClick={() => {
-                            window.electronAPI.openDir('runLog')
-                        }}>
-                        {t('app.settings.open')}
+                        onClick={onAction}
+                    >
+                        {value || t('app.settings.open')}
                     </Button>
                 )
             case 'switch':

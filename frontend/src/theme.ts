@@ -12,6 +12,11 @@ export const theme = createTheme({
             styleOverrides: {
                 root: {
                     borderRadius: '16px',
+                    // Card 中的paper
+                    '&.MuiCard-root': {
+                        borderRadius: '16px',
+                        boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
+                    },
 
                     //表格中的paper圆角
                     '&.MuiTableContainer-root': {

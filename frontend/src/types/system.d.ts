@@ -16,6 +16,7 @@ type UserConfig = {
     cuda_installed: boolean;
     report_agreement: boolean; //是否同意用户体验改进计划
     autoLaunch: boolean; //是否開機自啟動
+    ai_provider: string; //AI服务配置(JSON字符串)
 }
 
 

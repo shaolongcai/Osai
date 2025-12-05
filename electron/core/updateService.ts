@@ -234,7 +234,7 @@ class UpdateService {
             const result = await autoUpdater.checkForUpdates();
             logger.info(`手动检查更新结果: ${JSON.stringify(result)}`);
             if (!result?.updateInfo) {
-                sendToRenderer('update-status', { type: 'not-available', message: '当前已是最新版本' });
+                sendToRenderer('update-status', { type: 'not-available-update', message: '当前已是最新版本' });
             }
         } catch (error) {
             const msg = error instanceof Error ? error.message : '检查更新失败';

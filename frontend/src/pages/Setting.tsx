@@ -74,6 +74,7 @@ const Setting = () => {
     const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
     const [openAIProvider, setOpenAIProvider] = useState(false) //AI服务弹窗
     const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
+    const [aiProvider, setAiProvider] = useState<{ host: string, model: string }>() //是否已设置AI服务
     // 更新檢查相關狀態
     const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
     const [isCheckingUpdate, setIsCheckingUpdate] = useState(false)
@@ -94,6 +95,8 @@ const Setting = () => {
                 setHasGPU(res.hasGPU)
                 setIsInstallGpu(res.cuda_installed)
                 setReportAgreement(res.report_agreement)
+                console.log('ai_provider', JSON.parse(res.ai_provider || '{}').model)
+                setAiProvider(JSON.parse(res.ai_provider || '{}'))
             })
             // 獲取自啟動狀態
             window.electronAPI.getAutoLaunch().then((result: { enabled: boolean; openAsHidden: boolean }) => {
@@ -124,7 +127,15 @@ const Setting = () => {
             } else {
                 setIsUpdateAvailable(false)
                 setLatestVersion(null)
-                const msg = data?.message || t('app.settings.checkUpdateStatusLatest' as any)
+                // 根据 data.type 映射到对应的多语言 key，确保有默认值兜底
+                let msg: string
+                switch (data.type) {
+                    case 'not-available-update':
+                        msg = t('app.settings.not-available-update')
+                        break
+                    default:
+                        msg = t('app.settings.checkUpdateStatusLatest') // 兜底用“已是最新版”
+                }
                 setUpdateStatusText(msg)
             }
         })
@@ -134,12 +145,6 @@ const Setting = () => {
     }, [open, t])
 
     const manualCheckUpdate = async () => {
-        if (!(window as any).electronAPI) {
-            // 非 Electron 環境：模擬檢查完成
-            setIsCheckingUpdate(false)
-            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as any))
-            return
-        }
         setIsCheckingUpdate(true)
         setUpdateStatusText(t('app.settings.checking' as any))
         await window.electronAPI.checkForUpdates()
@@ -153,24 +158,13 @@ const Setting = () => {
         // setIsInstallGpu(true)
     }
 
-    // 切换视觉索引开关
-    const toggleVisualIndex = async (checked: boolean) => {
-        console.log('hasGPU', hasGPU)
-        if (!hasGPU && checked) {
-            // CPU下开启需要弹窗
-            setConfirmDialogOpen(true)
-            return
-        }
-        // 除此之外直接开启或关闭
-        setOpenIndexImage(checked)
-        window.electronAPI.toggleIndexImage(checked)
-    }
 
     // 切换用户体验改进计划
     const toggleReportAgreement = async (checked: boolean) => {
         if (checked) {
             // 同意用户体验改进计划，需要弹窗
             setOpenReportProtocol(true)
+            setOpenSetting(false)
             return
         }
         setReportAgreement(checked)
@@ -205,12 +199,8 @@ const Setting = () => {
         }
     }
 
+
     return <>
-        {
-            // 同意用户体验改进计划弹窗
-            openReportProtocol &&
-            <ReportProtocol onFinish={() => setOpenReportProtocol(false)} />
-        }
         {/* 开启GPU服务 */}
         <Dialog
             title={hasGPU ? t('app.settings.gpuService') : '本机没有任何GPU'}
@@ -245,8 +235,18 @@ const Setting = () => {
             {/* 设置按钮 */}
             <SettingButton
                 openSetting={openSetting}
-                setOpenSetting={() => { setOpenSetting(!openSetting), setOpenAIProvider(false) }}
+                setOpenSetting={() => { setOpenSetting(!openSetting), setOpenAIProvider(false), setOpenReportProtocol(false) }}
             />
+            {
+                // 同意用户体验改进计划弹窗
+                openReportProtocol &&
+                <ReportProtocol
+                    onFinish={() => {
+                        setOpenReportProtocol(false)
+                        setOpenSetting(true)
+                    }}
+                />
+            }
             {
                 openSetting &&
                 <Paper
@@ -281,16 +281,20 @@ const Setting = () => {
                             </Typography>
                             <SettingItem
                                 title='AI Provider'
-                                type='custom'
-                                value='SET' // 暂时只有ollama提供，如果设置了，默认为ollama，即设置的AI Provider
-                                onAction={toggleVisualIndex}
-                                action={<StyledButton
-                                    variant='text'
-                                    onClick={() => { setOpenAIProvider(true), setOpenSetting(false) }} >
-                                    {/* {isInstallGpu ? t('app.settings.reInstall') : t('app.settings.install')} */}
-                                    set
-                                </StyledButton>
-                                }
+                                type='button'
+                                value={aiProvider?.model || 'SET'}
+                                onAction={() => {
+                                    setOpenAIProvider(true)
+                                    setOpenSetting(false)
+                                }}
+                            // action={<StyledButton
+                            //     variant='text'
+                            //     onClick={() => { setOpenAIProvider(true), setOpenSetting(false) }} >
+                            //         {/* // 暂时只有ollama提供，如果设置了，默认为ollama，即设置的AI Provider */}
+                            //     {/* {isInstallGpu ? t('app.settings.reInstall') : t('app.settings.install')} */}
+                            //     {aiProvider.model || 'SET'}
+                            // </StyledButton>
+                            // }
                             />
                             {/* {
                                 context.os === 'win' &&
@@ -332,7 +336,6 @@ const Setting = () => {
                                 title={t('app.settings.checkUpdate')}
                                 type='custom'
                                 value={updateStatusText}
-                                onAction={() => { setIsCheckingUpdate(true) }}
                                 action={
                                     <Stack direction='row' alignItems='center' spacing={2}>
                                         <Typography variant="body2" color={'text.secondary'}>
@@ -379,7 +382,7 @@ const Setting = () => {
                             <Typography variant='titleSmall' >
                                 Contact
                             </Typography>
-                            {/* 待做一个联系组件 */}
+                            <Contact />
                         </Stack>
                     </Stack>
                 </Paper>

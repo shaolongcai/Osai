@@ -15,7 +15,7 @@
   "checkUpdate": "Check for Updates",
   "check": "Check",
   "checking": "Checking...",
-  "checkUpdateStatusLatest": "You are on the latest version",
+  "not-available-update": "Latest version",
   "checkUpdateStatusNewVersion": "New version found: {{version}}",
   "generalSettings": "General Settings",
   "aiSettings": "AI Settings",

@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import { useState } from "react";
 import { ThemeProvider } from '@mui/material'
 import { theme } from './theme'
 import { I18nProvider } from './contexts/I18nContext';
@@ -45,7 +45,16 @@ function RootProviders({ children }) {
                     isReadyAI,
                     setIsReadyAI,
                 }}>
-                    <NotificationsProvider>
+                    <NotificationsProvider
+                        slotProps={{
+                            snackbar: {
+                                anchorOrigin: { vertical: 'bottom', horizontal: 'center' },
+                                sx: {
+                                    // width: 400,
+                                }
+                            },
+
+                        }}>
                         {children}
                     </NotificationsProvider>
                 </globalContext.Provider>

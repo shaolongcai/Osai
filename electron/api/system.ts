@@ -65,28 +65,28 @@ export function initializeSystemApi() {
         try {
             const exePath = app.getPath('exe');
             const args: string[] = [];
-            
+
             // 开发模式下必须把"项目路径"作为参数传给 electron.exe
             // 否则 Windows 会启动裸 electron.exe，找不到应用入口，显示默认页面
             if (process.env.NODE_ENV === 'development') {
                 args.push(app.getAppPath()); // 等价于 electron.exe <path-to-app>
             }
-            
-            // 如果未指定 openAsHidden，则从数据库读取
-            const hidden = openAsHidden !== undefined ? openAsHidden : (getConfig('autoLaunchHidden') || false);
-            
+
+            // 如果未指定 openAsHidden，则从数据库读取,(强制隐藏界面)
+            // const hidden = openAsHidden !== undefined ? openAsHidden : (getConfig('autoLaunchHidden') || false);
+
             app.setLoginItemSettings({
                 openAtLogin: enabled,
-                openAsHidden: hidden,
+                openAsHidden: true,
                 path: exePath,
                 args,
                 name: app.getName(),
             });
-            
+
             // 保存到數據庫
             setConfig('autoLaunch', enabled, 'boolean');
-            setConfig('autoLaunchHidden', hidden, 'boolean');
-            logger.info(`設置自啟動狀態: ${enabled}, 靜默啟動: ${hidden}, path=${exePath}, args=${JSON.stringify(args)}`);
+            // setConfig('autoLaunchHidden', hidden, 'boolean');
+            logger.info(`設置自啟動狀態: ${enabled}, path=${exePath}, args=${JSON.stringify(args)}`);
             return true;
         } catch (error) {
             const msg = error instanceof Error ? error.message : '設置自啟動狀態失敗';
@@ -109,21 +109,24 @@ export function initializeSystemApi() {
         }
     });
 
-    // 設置靜默啟動狀態
+    /**
+     * 設置靜默啟動狀態
+     * @deprecated 此方法已被棄用，合并到自动启动的方法中，自动启动会实现静默启动
+     */
     ipcMain.handle('set-auto-launch-hidden', (_event, openAsHidden: boolean) => {
         try {
             const exePath = app.getPath('exe');
             const args: string[] = [];
-            
+
             // 开发模式下必须把"项目路径"作为参数传给 electron.exe
             if (process.env.NODE_ENV === 'development') {
                 args.push(app.getAppPath());
             }
-            
+
             // 獲取當前的自啟動狀態
             const s = app.getLoginItemSettings();
             const enabled = s.openAtLogin;
-            
+
             app.setLoginItemSettings({
                 openAtLogin: enabled,
                 openAsHidden: openAsHidden,
@@ -131,7 +134,7 @@ export function initializeSystemApi() {
                 args,
                 name: app.getName(),
             });
-            
+
             // 保存到數據庫
             setConfig('autoLaunchHidden', openAsHidden, 'boolean');
             logger.info(`設置靜默啟動狀態: ${openAsHidden}`);

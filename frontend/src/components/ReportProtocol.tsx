@@ -48,7 +48,7 @@ const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
     }
 
     return (
-        <>
+        <Paper elevation={1}>
             <Stack spacing={2} alignItems="center" textAlign="center">
                 <Typography variant='titleMedium' color="text.primary"
                 >
@@ -78,7 +78,7 @@ const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
                     </Button>
                 </Stack>
             </Stack>
-        </>
+        </Paper>
     )
 }
 
