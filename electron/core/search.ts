@@ -141,7 +141,7 @@ export function shortSearch(keyword: string): shortSearchResult {
     // 搜索拥有AI Mark的文件
     const aiFiles = searchFiles(keyword, 50);
 
-    // console.log('搜索到的文件的第一个', aiFiles.data[0]);
+    console.log('搜索到的文件的第一个', aiFiles.data[0]);
     // 构造返回的data
     const programsData = programs.map(item => ({
         id: item.id,
@@ -158,6 +158,7 @@ export function shortSearch(keyword: string): shortSearchResult {
         path: item.path || '',
         ext: item.ext || '', //没有ext则为文件夹
         aiMark: item.ai_mark,
+        snippet: item.snippet ,
     }));
 
     return {

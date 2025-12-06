@@ -31,6 +31,7 @@ type shortSearchDataItem = {
     path: string;
     name: string;
     ext?: string;
+    snippet?: string; // 高亮片段（可选）
     aiMark: 1 | 0;
 }
 

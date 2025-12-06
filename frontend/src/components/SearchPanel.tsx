@@ -12,6 +12,8 @@ interface SearchResultItemProps {
     onClick?: () => void; // 点击事件
     onMouseEnter?: () => void; // 鼠标进入事件
     onMouseLeave?: () => void; // 鼠标离开事件
+    snippet?: string, // 高亮片段（可选）
+    path: string
 }
 /**
  * 搜索的结果项目
@@ -21,10 +23,12 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     icon,
     ext,
     isAiMark = false,
+    snippet,
     isSelected = false,
     onClick,
     onMouseEnter,
     onMouseLeave,
+    path
 }) => {
 
     const { iconSrc } = useIcon(icon, ext);
@@ -39,6 +43,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
             ${isSelected ? 'bg-linear-to-r! from-blue-50! to-purple-50!' : ''} 
             hover:bg-linear-to-r! hover:from-blue-50! hover:to-purple-50
             px-4 py-2
+            max-w-full
         `}
     >
         <Stack direction='row' spacing={1} alignItems="center"
@@ -61,8 +66,16 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                         />
                     } */}
                 </Stack>
-                <Typography>
-                    将来放地址
+                <Typography variant='bodySmall' color='textTertiary'  className="whitespace-nowrap overflow-hidden text-ellipsis max-w-[380px]">
+                    {snippet ? (
+                        <span
+                            dangerouslySetInnerHTML={{
+                                __html: snippet.replace(/<mark>/g, '<mark class="bg-yellow-200 text-gray-900 font-medium px-1">')
+                            }}
+                        />
+                    ) : (
+                        <span className="truncate block">{path}</span>
+                    )}
                 </Typography>
             </Stack>
         </Stack>
@@ -164,6 +177,8 @@ const SearchPanel: React.FC<Props> = ({
                         name={item.name}
                         icon={item.icon}
                         ext={item.ext}
+                        path={item.path}
+                        snippet={item.snippet}
                         isSelected={selectedIndex === index}
                         onMouseEnter={() => handleMouseEnter(index)}
                         onMouseLeave={handleMouseLeave}
