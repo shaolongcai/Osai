@@ -1,4 +1,4 @@
-import { Card, Chip, Paper, Stack, Typography } from "@mui/material";
+import { Paper, Stack, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
 import { useIcon } from '@/hooks/useIcon';
 
@@ -66,7 +66,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                         />
                     } */}
                 </Stack>
-                <Typography variant='bodySmall' color='textTertiary'  className="whitespace-nowrap overflow-hidden text-ellipsis max-w-[380px]">
+                <Typography variant='bodySmall' color='textTertiary' className="whitespace-nowrap overflow-hidden text-ellipsis max-w-[380px]">
                     {snippet ? (
                         <span
                             dangerouslySetInnerHTML={{

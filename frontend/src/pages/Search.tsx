@@ -1,8 +1,38 @@
 import { useState, useEffect, useCallback } from 'react';
 import { InfoCard, Search, SearchPanel } from "@/components";
 import { Language } from '../types/i18n';
-import { Stack } from '@mui/material';
+import { Button, Paper, Stack, Typography } from '@mui/material';
 import { useDebounce, useRequest } from 'ahooks';
+import UpgradeProImg from '@/assets/images/upgrade.png';
+
+/**
+ * 升级为pro的tips
+ */
+const UpgradeProTips = () => {
+    return <Paper className='p-6'>
+        <Stack spacing={2} alignItems="center" sx={{ width: '100%' }}>
+            <Typography variant='titleMedium'>
+                Upgrade to Pro，Unlock AI Search and More
+            </Typography>
+            <img src={UpgradeProImg} alt="Upgrade to Pro" className='w-45 h-45' />
+            <Typography variant='bodyLarge' color='text.primary' className='text-center whitespace-pre-line leading-relaxed! '>
+                {`📌 Agent gradually searches for the files you want.
+                    📌 AI will answer your question directly.
+                    📌 Experience Beta Features First.
+                    And more pro feature coming soon
+                `}
+            </Typography>
+            <Stack>
+                <Button variant='contained' onClick={() => { }}>
+                    Upgrade to Pro
+                </Button>
+                <Button variant='outlined' onClick={() => { }}>
+                    Login
+                </Button>
+            </Stack>
+        </Stack>
+    </Paper>
+}
 
 
 const SearchBar = () => {
@@ -12,6 +42,8 @@ const SearchBar = () => {
     const [selectedIndex, setSelectedIndex] = useState<number>(0); // 当前选中的项目索引
     const [currentLanguage, setCurrentLanguage] = useState<Language>('zh-CN'); // 當前語言
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
+    const [isShowUpgradeProTips, setIsShowUpgradeProTips] = useState<boolean>(false); // 是否显示升级为pro的tips
+
     const debounceSearch = useDebounce(searchValue, { wait: 200 });
 
 
@@ -114,14 +146,18 @@ const SearchBar = () => {
 
 
     return <Stack spacing={1}>
-        <Search onSearch={setSearchValue} />
+        <Search onSearch={setSearchValue} showUpgradeProTips={() => { setIsShowUpgradeProTips(true) }} />
         {
-            data.length > 0 &&
+            data.length > 0 && !isShowUpgradeProTips &&
             <SearchPanel
                 data={data}
                 selectedIndex={selectedIndex}
                 onSelectedIndexChange={handleSelectedIndexChange}
             />
+        }
+        {
+            isShowUpgradeProTips &&
+            <UpgradeProTips />
         }
         <InfoCard />
     </Stack>

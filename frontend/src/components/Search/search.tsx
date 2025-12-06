@@ -4,10 +4,12 @@ import { useTranslation } from '@/contexts/I18nContext';
 
 interface Props {
     onSearch: (keyword: string) => void;
+    showUpgradeProTips: () => void; // 显示升级为pro的tips
 }
 
 const Search: React.FC<Props> = ({
     onSearch,
+    showUpgradeProTips,
 }) => {
 
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
@@ -24,6 +26,17 @@ const Search: React.FC<Props> = ({
     }, []);
 
     const aiSearch = async () => {
+        // 检查是否为pro
+        const isPro = false
+
+        // 不是为pro，提示升级
+        if (!isPro) {
+            showUpgradeProTips();
+            return;
+        }
+
+
+
         // const result = await window.electronAPI.aiSearch(searchValue);
         // console.log('AI搜索结果:', result);
     }
@@ -43,7 +56,7 @@ const Search: React.FC<Props> = ({
         border border-solid border-[rgba(0,0,0,0.12)]
         "
     >
-        <Stack direction="row" spacing={2} alignItems="center"  sx={{ width: '100%' }}>
+        <Stack direction="row" spacing={2} alignItems="center" sx={{ width: '100%' }}>
             <TextField
                 inputRef={inputRef}
                 slotProps={{
