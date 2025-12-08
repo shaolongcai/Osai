@@ -67,7 +67,7 @@ interface ElectronAPI {
     init(): Promise<BaseResponse<InitData>>;
 
     // 获取用户配置
-    getConfig(key?: string): Promise<UserConfig | string | boolean | number>;
+    getConfig(key?: 'ai_provider' | string): Promise<UserConfig | string | boolean | number>;
     // 设置用户配置,type value的类型
     setConfig(params: ConfigParams): Promise<void>;
 

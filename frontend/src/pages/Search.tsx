@@ -156,13 +156,12 @@ const SearchBar = () => {
     return <Stack spacing={1}>
         <Search onSearch={setSearchValue} />
         {
-            data.length > 0 && !isShowUpgradeProTips && !isShowAiServerTips &&
+            debounceSearch.length > 0 && !isShowUpgradeProTips && !isShowAiServerTips &&
             <SearchPanel
                 data={data}
                 selectedIndex={selectedIndex}
                 onSelectedIndexChange={handleSelectedIndexChange}
                 showAiServerTips={handelShowAiServerTips}
-                AISeverTipsText={AISeverTipsText}
             />
         }
         {

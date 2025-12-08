@@ -1,7 +1,9 @@
-import { Paper, Stack, Typography } from "@mui/material";
-import { ReactNode, useEffect, useRef } from "react";
+import { Button, Paper, Stack, Typography } from "@mui/material";
+import { useEffect, useRef } from "react";
 import { useIcon } from '@/hooks/useIcon';
-
+import searchNull from '@/assets/images/search-null.png'
+import { useTranslation } from "@/contexts/I18nContext";
+import { useRequest } from "ahooks";
 
 interface SearchResultItemProps {
     name: string;
@@ -89,17 +91,17 @@ interface Props {
     selectedIndex?: number; // 当前选中的索引
     onSelectedIndexChange?: (index: number) => void; // 选中索引变化回调
     showAiServerTips: () => void; // 显示升级为pro的tips
-    AISeverTipsText: ReactNode; // AI服务提供商提示文本
 }
 const SearchPanel: React.FC<Props> = ({
     data,
     selectedIndex = -1,
     onSelectedIndexChange,
     showAiServerTips,
-    AISeverTipsText,
 }) => {
+
     const containerRef = useRef<HTMLDivElement>(null);
     const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const { t } = useTranslation();
 
     // 当选中索引变化时，滚动到对应项目
     useEffect(() => {
@@ -144,6 +146,15 @@ const SearchPanel: React.FC<Props> = ({
         }
     }, [selectedIndex, data.length]);
 
+    // 获取AI povider配置
+    const { data: aiConfig } = useRequest(() => window.electronAPI.getConfig('ai_provider'),
+        {
+            onSuccess: res => {
+                console.log(res)
+            }
+        }
+    )
+
     // 处理鼠标悬停
     const handleMouseEnter = (index: number) => {
         if (onSelectedIndexChange) {
@@ -167,35 +178,61 @@ const SearchPanel: React.FC<Props> = ({
         "
         ref={containerRef}
     >
-        <Stack alignItems='flex-start' >
-            {data.map((item, index) => (
-                <div
-                    style={{
-                        width: '100%'
-                    }}
-                    key={item.id}
-                    ref={(el) => { itemRefs.current[index] = el; }}
-                >
-                    <SearchResultItem
-                        isAiMark={item.aiMark === 1}
-                        name={item.name}
-                        icon={item.icon}
-                        ext={item.ext}
-                        path={item.path}
-                        snippet={item.snippet}
-                        isSelected={selectedIndex === index}
-                        onMouseEnter={() => handleMouseEnter(index)}
-                        onMouseLeave={handleMouseLeave}
-                        onClick={() => {
-                            console.log('点击了', item.path);
-                            window.electronAPI.openDir('openFile', item.path);
-                            // 显示引导AI显示tips
-                            showAiServerTips();
-                        }}
-                    />
-                </div>
-            ))}
-        </Stack>
+
+        {
+            data.length > 0 ?
+                <Stack alignItems='flex-start' >
+                    {
+                        data.map((item, index) => (
+                            <div
+                                style={{
+                                    width: '100%'
+                                }}
+                                key={item.id}
+                                ref={(el) => { itemRefs.current[index] = el; }}
+                            >
+                                <SearchResultItem
+                                    isAiMark={item.aiMark === 1}
+                                    name={item.name}
+                                    icon={item.icon}
+                                    ext={item.ext}
+                                    path={item.path}
+                                    snippet={item.snippet}
+                                    isSelected={selectedIndex === index}
+                                    onMouseEnter={() => handleMouseEnter(index)}
+                                    onMouseLeave={handleMouseLeave}
+                                    onClick={() => {
+                                        console.log('点击了', item.path);
+                                        window.electronAPI.openDir('openFile', item.path);
+                                        // 显示引导AI显示tips
+                                        showAiServerTips();
+                                    }}
+                                />
+                            </div>
+                        ))
+                    }
+                </Stack>
+                :
+                <Stack alignItems='center' spacing={2} className="p-4">
+                    <img src={searchNull} className="w-[180px] h-[180px]" />
+                    <Typography variant='bodyMedium' color='textSecondary' className="text-sm font-semibold text-text-secondary">
+                        {t('app.search.noResults')}
+                    </Typography>
+                    {
+                        !Boolean(aiConfig) &&
+                        <>
+                            <Typography variant='bodyMedium' color='textSecondary'>
+                                你可以使用AI增强服务，让AI记住你的文件。
+                            </Typography>
+                            <Stack spacing={1}>
+                                <Button variant='contained' onClick={showAiServerTips}>
+                                    Get More
+                                </Button>
+                            </Stack>
+                        </>
+                    }
+                </Stack>
+        }
     </Paper>
 }
 
