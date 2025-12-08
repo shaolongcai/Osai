@@ -1,38 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
-import { InfoCard, Search, SearchPanel } from "@/components";
+import { InfoCard, Search, SearchPanel, UpgradeProTips } from "@/components";
 import { Language } from '../types/i18n';
-import { Button, Paper, Stack, Typography } from '@mui/material';
+import { Button, Card, Paper, Stack, Typography } from '@mui/material';
 import { useDebounce, useRequest } from 'ahooks';
-import UpgradeProImg from '@/assets/images/upgrade.png';
+import AISeverImage from '@/assets/images/AI-sever.png'
+
 
 /**
- * 升级为pro的tips
+ * 提示设置AI的文案
  */
-const UpgradeProTips = () => {
-    return <Paper className='p-6'>
-        <Stack spacing={2} alignItems="center" sx={{ width: '100%' }}>
-            <Typography variant='titleMedium'>
-                Upgrade to Pro，Unlock AI Search and More
-            </Typography>
-            <img src={UpgradeProImg} alt="Upgrade to Pro" className='w-45 h-45' />
-            <Typography variant='bodyLarge' color='text.primary' className='text-center whitespace-pre-line leading-relaxed! '>
-                {`📌 Agent gradually searches for the files you want.
-                    📌 AI will answer your question directly.
-                    📌 Experience Beta Features First.
-                    And more pro feature coming soon
+const AISeverTipsText = <Typography variant='bodyLarge' color='text.primary' className='whitespace-pre-line leading-relaxed! '>
+    {`You can enable AI-enhanced services. Osai will remember your files by a powerful AI model.
+
+    🧠 Document Understanding: With AI's understanding, you can find this document faster and easier.
+
+    🔍 AI auto-tags files—search & find, skip categorizing
+
+    🖼️ understand Image: Truly understanding the content of an image, not just relying on OCR.
                 `}
-            </Typography>
-            <Stack>
-                <Button variant='contained' onClick={() => { }}>
-                    Upgrade to Pro
-                </Button>
-                <Button variant='outlined' onClick={() => { }}>
-                    Login
-                </Button>
-            </Stack>
-        </Stack>
-    </Paper>
-}
+</Typography>
 
 
 const SearchBar = () => {
@@ -43,6 +29,7 @@ const SearchBar = () => {
     const [currentLanguage, setCurrentLanguage] = useState<Language>('zh-CN'); // 當前語言
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
     const [isShowUpgradeProTips, setIsShowUpgradeProTips] = useState<boolean>(false); // 是否显示升级为pro的tips
+    const [isShowAiServerTips, setIsShowAiServerTips] = useState<boolean>(false); // 是否显示AI服务提示
 
     const debounceSearch = useDebounce(searchValue, { wait: 200 });
 
@@ -145,19 +132,62 @@ const SearchBar = () => {
     }, []);
 
 
+    // 处理引导AI服务提示
+    const handelShowAiServerTips = useCallback(() => {
+        const hasShowed = localStorage.getItem('hasShowedAiServerTips');
+        if (hasShowed) return;
+        // 标记为已提示, 避免重复提示
+        localStorage.setItem('hasShowedAiServerTips', 'true');
+        setIsShowAiServerTips(true);
+    }, []);
+
+    // 处理设置AI服务提供商
+    const handleSetAiProvider = useCallback(() => {
+        // 是否有pro
+        const isPro = false;
+        if (isPro) {
+            // 跳转到设置提供商页面
+        } else {
+            setIsShowUpgradeProTips(true);
+            setIsShowAiServerTips(false)
+        }
+    }, []);
+
     return <Stack spacing={1}>
-        <Search onSearch={setSearchValue} showUpgradeProTips={() => { setIsShowUpgradeProTips(true) }} />
+        <Search onSearch={setSearchValue} />
         {
-            data.length > 0 && !isShowUpgradeProTips &&
+            data.length > 0 && !isShowUpgradeProTips && !isShowAiServerTips &&
             <SearchPanel
                 data={data}
                 selectedIndex={selectedIndex}
                 onSelectedIndexChange={handleSelectedIndexChange}
+                showAiServerTips={handelShowAiServerTips}
+                AISeverTipsText={AISeverTipsText}
             />
         }
         {
-            isShowUpgradeProTips &&
-            <UpgradeProTips />
+            isShowAiServerTips && !isShowUpgradeProTips &&
+            <Card>
+                <Stack spacing={2} alignItems='center'>
+                    <Typography variant='titleMedium' className='w-full'>
+                        AI enhanced services
+                    </Typography>
+                    <img src={AISeverImage} className='w-45 h-45' />
+                    {AISeverTipsText}
+                    <Stack spacing={1} alignItems='center'>
+                        <Button variant='contained' onClick={handleSetAiProvider} fullWidth={false} className='w-fit'>
+                            GO TO SET
+                        </Button>
+                        <Button variant='outlined' onClick={() => { setIsShowAiServerTips(false); }} fullWidth={false} className='w-fit'>
+                            Later
+                        </Button>
+                    </Stack>
+                </Stack>
+            </Card>
+        }
+        {
+            (isShowUpgradeProTips && !isShowAiServerTips) &&
+            <UpgradeProTips onFinish={() => { setIsShowUpgradeProTips(false) }} />
         }
         <InfoCard />
     </Stack>

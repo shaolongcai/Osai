@@ -1,5 +1,5 @@
 import { Paper, Stack, Typography } from "@mui/material";
-import { useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { useIcon } from '@/hooks/useIcon';
 
 
@@ -28,7 +28,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     onClick,
     onMouseEnter,
     onMouseLeave,
-    path
+    path,
 }) => {
 
     const { iconSrc } = useIcon(icon, ext);
@@ -88,11 +88,15 @@ interface Props {
     data: shortSearchDataItem[];
     selectedIndex?: number; // 当前选中的索引
     onSelectedIndexChange?: (index: number) => void; // 选中索引变化回调
+    showAiServerTips: () => void; // 显示升级为pro的tips
+    AISeverTipsText: ReactNode; // AI服务提供商提示文本
 }
 const SearchPanel: React.FC<Props> = ({
     data,
     selectedIndex = -1,
     onSelectedIndexChange,
+    showAiServerTips,
+    AISeverTipsText,
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -185,6 +189,8 @@ const SearchPanel: React.FC<Props> = ({
                         onClick={() => {
                             console.log('点击了', item.path);
                             window.electronAPI.openDir('openFile', item.path);
+                            // 显示引导AI显示tips
+                            showAiServerTips();
                         }}
                     />
                 </div>

@@ -1,16 +1,13 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { aiSearch, searchFiles, shortSearch } from '../core/search.js';
+import { searchFiles, shortSearch } from '../core/search.js';
 import { init, sendToRenderer, startIndexTask } from '../main.js';
-import { extractCUDA, openDir } from '../core/system.js';
+import { openDir } from '../core/system.js';
 import { setOpenIndexImages } from '../core/appState.js';
 import { setConfig } from '../database/sqlite.js';
 import { fileURLToPath } from 'url';
 import * as path from 'path';
 import * as fs from 'fs';
 import { logger } from '../core/logger.js';
-import { getFileTypeByExtension, FileType } from '../units/enum.js';
-import { INotification } from '../types/system.js';
-import { ImageSever } from '../core/imageSever.js';
 import pathConfig from '../core/pathConfigs.js';
 
 
@@ -38,69 +35,6 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
     ipcMain.handle('search-files', (_event, keyword: string) => searchFiles(keyword));
     // 快捷搜索
     ipcMain.handle('short-search', (_event, keyword: string) => shortSearch(keyword));
-    // 执行AI搜索
-    ipcMain.handle('ai-search', (_event, query: string) => aiSearch(query));
-
-    /**
-     * 执行AI Mark功能
-     */
-    // ipcMain.handle('ai-mark', async (_event, filePath: string) => {
-
-    //     const imageSever = new ImageSever() // 初始化图片处理服务（用完会自动释放）
-    //     const documentSever = new DocumentSever() // 初始化文档服务（用完会自动释放）
-
-    //     // 尝试找到CUDA并解压
-    //     try {
-    //         await extractCUDA();
-    //     } catch (error) {
-    //         const notification: INotification = {
-    //             id: 'downloadGpuSever',
-    //             text: 'CUDA服务解压失败,请重试',
-    //             type: 'warning',
-    //             tooltip: `你可以重新使用AImark功能，会重新解压，错误信息：${error}`
-    //         }
-    //         sendToRenderer('system-info', notification)
-    //     }
-
-    //     try {
-    //         pendingRequests.add(filePath)
-    //         const notification: INotification = {
-    //             id: 'ai-mark',
-    //             text: `AI 正在分析文档... 剩余 ${pendingRequests.size}`,
-    //             type: 'loading',
-    //             // tooltip: ''
-    //         }
-    //         sendToRenderer('system-info', notification)
-
-    //         //判断类型
-    //         // const stat = fs.statSync(filePath);
-    //         // 获取扩展名
-    //         const ext = path.extname(filePath).toLowerCase();
-    //         const fileType = getFileTypeByExtension(ext);
-    //         // 文档类型
-    //         if (fileType === FileType.Document) {
-    //             await documentSever.readDocument(ext, filePath)
-    //         }
-    //         //图片类型
-    //         else if (fileType === FileType.Image) {
-    //             await imageSever.processImageByAi(filePath)
-    //         }
-    //         //其他类型
-    //         else {
-
-    //         }
-    //     } catch (error) {
-    //         logger.error(`AI mark失败: ${error}`);
-    //         pendingRequests.delete(filePath)
-    //         const notification: INotification = {
-    //             id: 'ai-mark',
-    //             text: `AI 记录文档失败 剩余 ${pendingRequests.size}`,
-    //             type: 'warning',
-    //             tooltip: `失败原因：${error}`
-    //         }
-    //         sendToRenderer('system-info', notification)
-    //     }
-    // });
 
     // 打开某个路径（📌，需要取代open-file-location）
     ipcMain.on('open-dir', (event, type, path) => { openDir(type, path) });

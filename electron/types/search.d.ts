@@ -9,9 +9,16 @@ type SearchDataItem = {
     snippet?: string; // 高亮片段（可选）
 }
 
-interface SearchResult {
-    data: SearchDataItem[];
+
+/**
+ * AI搜索的返回
+ * 402 未付费 403 模型未配置
+ */
+interface AISearchResult {
+    code: 0 | 403 | 402;
+    data?: SearchDataItem[];
     total: number;
+    errMsg?: string;
 }
 
 //搜索应用程序结果
@@ -32,6 +39,9 @@ interface shortSearchResult {
         icon?: string;
         path: string;
         name: string;
+        ext: string;
+        ai_mark?: 1 | 0;
+        snippet?: string; // 高亮片段（可选）
     }[];
     total: number;
 }

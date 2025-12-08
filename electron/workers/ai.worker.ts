@@ -27,7 +27,6 @@ async function aiInWorker(data: GenerateRequest & { requestId: string }): Promis
                 reject(new Error('文档处理超时'));
             }, 4 * 60 * 1000); // 4分钟超时
         });
-
         // JSON结构
         if (data.isJson) {
             schema = data.jsonFormat || {
@@ -46,14 +45,10 @@ async function aiInWorker(data: GenerateRequest & { requestId: string }): Promis
                 required: ['tags', 'summary'],
             }
         }
-
         // const schema =  z.object({
         //         tags: z.array(z.string()),
         //         summary: z.string(),
         //     })
-
-        console.log(`开始处理文档: ${data.path.split('/').pop()}`)
-
         const messages: Message[] = [
             {
                 role: 'user',
@@ -61,7 +56,6 @@ async function aiInWorker(data: GenerateRequest & { requestId: string }): Promis
                 // content: '你好吗？',
             }
         ]
-
         // 是否为图片
         if (data.isImage) {
             // 读取图片并转换为base64
@@ -81,11 +75,9 @@ async function aiInWorker(data: GenerateRequest & { requestId: string }): Promis
             format: data.isJson ? schema : undefined,
         });
 
-
         const response = await Promise.race([chatResponse, timeoutPromise]);
         clearTimeout(timeoutId);
         // console.log('AI响应:', response.message.content)
-
 
         return {
             requestId: data.requestId,

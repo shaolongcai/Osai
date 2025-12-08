@@ -1,15 +1,13 @@
-import { Button, Paper, Stack, TextField } from "@mui/material"
+import { Paper, Stack, TextField } from "@mui/material"
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from '@/contexts/I18nContext';
 
 interface Props {
     onSearch: (keyword: string) => void;
-    showUpgradeProTips: () => void; // 显示升级为pro的tips
 }
 
 const Search: React.FC<Props> = ({
     onSearch,
-    showUpgradeProTips,
 }) => {
 
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
@@ -24,22 +22,6 @@ const Search: React.FC<Props> = ({
         });
         return () => window.electronAPI?.removeAllListeners('focus-search-input');
     }, []);
-
-    const aiSearch = async () => {
-        // 检查是否为pro
-        const isPro = false
-
-        // 不是为pro，提示升级
-        if (!isPro) {
-            showUpgradeProTips();
-            return;
-        }
-
-
-
-        // const result = await window.electronAPI.aiSearch(searchValue);
-        // console.log('AI搜索结果:', result);
-    }
 
     // 处理搜索
     const handleSearch = (value: string) => {
@@ -90,23 +72,6 @@ const Search: React.FC<Props> = ({
                     },
                 }}
             />
-            <Button
-                onClick={aiSearch}
-                // loading={loading}
-                variant="contained"
-                color="primary"
-                sx={{
-                    whiteSpace: 'nowrap',   // 文字不换行
-                    flexShrink: 0,          // 不允许被压缩
-                    minWidth: 0,            // 去掉默认 64px 限制，完全按内容撑开
-                }}
-            // disableElevation
-            // onClick={() => { handleSendMessage(question) }}
-            // startIcon={<img className='' src={sendIcon} alt='' />}
-            // sx={{ minWidth: '100px' }}
-            >
-                {t('app.search.button')}
-            </Button>
         </Stack>
     </Paper>
 }
