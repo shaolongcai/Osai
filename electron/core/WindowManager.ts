@@ -50,7 +50,10 @@ class WindowManager {
             show: false,        // 先不显示
             transparent: true,
             backgroundColor: '#00000000',
-            // hasShadow: false, // 如果想去掉系统阴影
+            // backgroundColor: '#E92828',
+
+            // vibrancy: 'under-window', // macOS 模糊效果，增强边框层次
+            // titleBarStyle: 'hidden', // 隐藏原生标题栏，保留边框
             webPreferences: {
                 preload: path.join(__dirname, '../preload.js'),
                 nodeIntegration: false,
@@ -94,8 +97,8 @@ class WindowManager {
             skipTaskbar: true,  // 不占用任务栏
             show: false,        // 先不显示
             transparent: true,
-            backgroundColor: '#00000000',
-            // hasShadow: false, // 如果想去掉系统阴影
+            // backgroundColor: '#00000000',
+            backgroundColor: '#E92828', //测试大小专用色
             webPreferences: {
                 preload: path.join(__dirname, '../preload.js'),
                 nodeIntegration: false,
@@ -188,6 +191,26 @@ class WindowManager {
         if (input.control && input.shift && input.key.toLowerCase() === 'c') {
             event.preventDefault();
         }
+    }
+
+    // 变更窗口大小
+    resizeWindow(windowName: 'searchWindow' | 'settingsWindow', size: { width: number, height: number }) {
+        if(!size.height || !size.width) return;
+        let window = this.searchWindow;
+        switch (windowName) {
+            case 'searchWindow':
+                window = this.searchWindow;
+                break;
+            case 'settingsWindow':
+                window = this.settingsWindow;
+                break;
+            default:
+                break;
+        }
+        window.setBounds({
+            width: size.width,
+            height: size.height || window.getBounds().height
+        });
     }
 
     destroy() {

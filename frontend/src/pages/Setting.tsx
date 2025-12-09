@@ -1,5 +1,5 @@
 import { Button, Paper, Stack, Typography, Drawer, Box, Switch, styled, Card } from "@mui/material"
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import {
     Settings as SettingsIcon,
     Close as CloseIcon
@@ -9,6 +9,7 @@ import { SettingItem, Contact, Dialog, ReportProtocol, AIProvider } from "@/comp
 import { useTranslation } from '@/contexts/I18nContext';
 import { ConfigParams } from '@/types/electron';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useRequest, useSize } from "ahooks";
 
 
 // 封装按钮样式
@@ -139,6 +140,7 @@ const Setting = () => {
         }
     }, [open, t])
 
+
     const manualCheckUpdate = async () => {
         setIsCheckingUpdate(true)
         setUpdateStatusText(t('app.settings.checking' as any))
@@ -152,7 +154,6 @@ const Setting = () => {
         window.electronAPI.installGpuServer()
         // setIsInstallGpu(true)
     }
-
 
     // 切换用户体验改进计划
     const toggleReportAgreement = async (checked: boolean) => {

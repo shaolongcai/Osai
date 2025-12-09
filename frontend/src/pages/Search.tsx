@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Cate, InfoCard, Search, SearchPanel, UpgradeProTips } from "@/components";
 import { Language } from '../types/i18n';
 import { Button, Card, Paper, Stack, Typography } from '@mui/material';
-import { useDebounce, useRequest } from 'ahooks';
+import { useDebounce, useRequest, useSize } from 'ahooks';
 import AISeverImage from '@/assets/images/AI-sever.png'
 import { FileCate } from '@/utils/enum';
 
@@ -34,7 +34,6 @@ const SearchBar = () => {
     const [isShowAiServerTips, setIsShowAiServerTips] = useState<boolean>(false); // 是否显示AI服务提示
 
     const debounceSearch = useDebounce(searchValue, { wait: 200 });
-
 
     // 当搜索关键词变化时触发快捷搜索
     useEffect(() => {
@@ -156,7 +155,7 @@ const SearchBar = () => {
     }, []);
 
 
-    return <Stack spacing={1}>
+    return <Stack spacing={1} >
         {
             // 分类
             debounceSearch.length > 0 &&

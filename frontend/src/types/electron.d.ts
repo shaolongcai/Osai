@@ -89,6 +89,8 @@ interface ElectronAPI {
 
     //操作相关
     openDir(type: OpenDirType, path?: string): Promise<void>;
+    // 变更窗口大小
+    resizeWindow(windowName: 'searchWindow' | 'settingsWindow', size: { width: number, height: number }): Promise<void>;
 
     // 安装GPU服务
     installGpuServer(): Promise<void>;

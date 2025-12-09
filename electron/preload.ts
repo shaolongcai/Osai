@@ -10,14 +10,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     startIndex: () => ipcRenderer.invoke('start-index'),
     // 切换图片视觉索引开关
     toggleIndexImage: (open: boolean) => ipcRenderer.send('toggle-index-image', open), //send的返回值永远都是void
-
     // 搜索相关
     searchFiles: (keyword: string) => ipcRenderer.invoke('search-files', keyword), // 搜索文件
     shortSearch: (keyword: string,fileType:string) => ipcRenderer.invoke('short-search', keyword,fileType), // 快捷搜索(快捷键的搜索，仅返回少量数据)
-
     // 获取图标文件
     getIcon: (iconPath?: string, ext?: string) => ipcRenderer.invoke('get-icon', iconPath, ext), // 获取图标文件的 base64 数据
-
     // 系统相关
     openDir: (type: string, path: string) => ipcRenderer.send('open-dir', type, path), // 打开目录
     setConfig: (params: ConfigParams) => ipcRenderer.invoke('set-config', params.key, params.value, params.type), // 设置用户配置
@@ -30,16 +27,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getAutoLaunchHidden: () => ipcRenderer.invoke('get-auto-launch-hidden'), // 獲取靜默啟動狀態
     setAutoLaunchHidden: (openAsHidden: boolean) => ipcRenderer.invoke('set-auto-launch-hidden', openAsHidden), // 設置靜默啟動狀態
     openExternalUrl: (url: string) => ipcRenderer.invoke('open-external-url', url), // 在外部瀏覽器中打開鏈接
-
     // 更新相关
     checkForUpdates: () => ipcRenderer.invoke('check-for-updates'), // 检查
     downloadUpdate: () => ipcRenderer.invoke('download-update'),  // 下载
-
     // 执行AI Mark功能
     aiMark: (filePath: string) => ipcRenderer.invoke('ai-mark', filePath),
-
-    // 实时更新宽度
-    resizeMainWindow: (width: number, height?: number) => ipcRenderer.send('resize-main-window', width, height),
+    // 变更窗口大小
+    resizeWindow: (windowName: 'searchWindow' | 'settingsWindow', size: { width: number, height: number }) => ipcRenderer.invoke('resize-window', windowName, size),
 
 
     // 日志监听

@@ -1,6 +1,6 @@
 import { theme } from "@/theme";
 import { FileCate } from "@/utils/enum";
-import { Chip, rgbToHex, Stack } from "@mui/material"
+import { Chip, Stack } from "@mui/material"
 
 
 
@@ -21,7 +21,7 @@ const Cate: React.FC<Props> = ({
     return <Stack direction='row' spacing={1}>
         {CATE.map(cate => {
             return <Chip
-                key='cate'
+                key={cate}
                 label={cate}
                 onClick={() => onClick(cate)}
                 variant='filled'

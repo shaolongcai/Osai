@@ -3,7 +3,6 @@ import { logger } from '../core/logger.js';
 import { severDownloader } from '../core/downloader.js';
 import { initializeModel } from '../core/model.js';
 import { getAllConfigs, getConfig, setConfig } from '../database/sqlite.js';
-import { sendToRenderer } from '../main.js';
 
 
 export function initializeSystemApi() {
@@ -157,4 +156,11 @@ export function initializeSystemApi() {
             return false;
         }
     });
+
+    // 变更视窗大小
+    ipcMain.handle('resize-window', async (_event, windowName: 'searchWindow' | 'settingsWindow', size: { width: number, height: number }) => {
+        console.log('触发变更视窗大小', windowName, size)
+        const { windowManager } = await import('../core/WindowManager.js');
+        windowManager.resizeWindow(windowName, size);
+    })
 }
