@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { InfoCard, Search, SearchPanel, UpgradeProTips } from "@/components";
+import { Cate, InfoCard, Search, SearchPanel, UpgradeProTips } from "@/components";
 import { Language } from '../types/i18n';
 import { Button, Card, Paper, Stack, Typography } from '@mui/material';
 import { useDebounce, useRequest } from 'ahooks';
 import AISeverImage from '@/assets/images/AI-sever.png'
+import { FileCate } from '@/utils/enum';
 
 
 /**
@@ -28,6 +29,7 @@ const SearchBar = () => {
     const [selectedIndex, setSelectedIndex] = useState<number>(0); // 当前选中的项目索引
     const [currentLanguage, setCurrentLanguage] = useState<Language>('zh-CN'); // 當前語言
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
+    const [selectedCategory, setSelectedCategory] = useState<FileCate>(FileCate.ALL); // 当前选中的分类
     const [isShowUpgradeProTips, setIsShowUpgradeProTips] = useState<boolean>(false); // 是否显示升级为pro的tips
     const [isShowAiServerTips, setIsShowAiServerTips] = useState<boolean>(false); // 是否显示AI服务提示
 
@@ -36,8 +38,8 @@ const SearchBar = () => {
 
     // 当搜索关键词变化时触发快捷搜索
     useEffect(() => {
-        onSearch(debounceSearch);
-    }, [debounceSearch]);
+        onSearch(debounceSearch, selectedCategory);
+    }, [debounceSearch, selectedCategory]);
 
     // 处理键盘导航
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
@@ -118,8 +120,8 @@ const SearchBar = () => {
     useRequest(window.electronAPI.startIndex)
 
     // 快捷搜索
-    const onSearch = async (keyword: string) => {
-        const res = await window.electronAPI.shortSearch(keyword);
+    const onSearch = async (keyword: string, category: string = 'ALL') => {
+        const res = await window.electronAPI.shortSearch(keyword, category);
         console.log('快捷搜索结果', res);
         setData(res.data);
         setTotal(res.total);
@@ -153,7 +155,13 @@ const SearchBar = () => {
         }
     }, []);
 
+
     return <Stack spacing={1}>
+        {
+            // 分类
+            debounceSearch.length > 0 &&
+            <Cate onClick={setSelectedCategory} currentCate={selectedCategory} />
+        }
         <Search onSearch={setSearchValue} />
         {
             debounceSearch.length > 0 && !isShowUpgradeProTips && !isShowAiServerTips &&

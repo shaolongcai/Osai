@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     // 搜索相关
     searchFiles: (keyword: string) => ipcRenderer.invoke('search-files', keyword), // 搜索文件
-    shortSearch: (keyword: string) => ipcRenderer.invoke('short-search', keyword), // 快捷搜索(快捷键的搜索，仅返回少量数据)
+    shortSearch: (keyword: string,fileType:string) => ipcRenderer.invoke('short-search', keyword,fileType), // 快捷搜索(快捷键的搜索，仅返回少量数据)
 
     // 获取图标文件
     getIcon: (iconPath?: string, ext?: string) => ipcRenderer.invoke('get-icon', iconPath, ext), // 获取图标文件的 base64 数据

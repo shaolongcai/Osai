@@ -34,7 +34,7 @@ export function initializeFileApi(mainWindow: BrowserWindow) {
     // 搜索文件
     ipcMain.handle('search-files', (_event, keyword: string) => searchFiles(keyword));
     // 快捷搜索
-    ipcMain.handle('short-search', (_event, keyword: string) => shortSearch(keyword));
+    ipcMain.handle('short-search', (_event, keyword: string,fileType:string) => shortSearch(keyword,fileType));
 
     // 打开某个路径（📌，需要取代open-file-location）
     ipcMain.on('open-dir', (event, type, path) => { openDir(type, path) });
