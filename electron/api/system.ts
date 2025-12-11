@@ -159,7 +159,6 @@ export function initializeSystemApi() {
 
     // 变更视窗大小
     ipcMain.handle('resize-window', async (_event, windowName: 'searchWindow' | 'settingsWindow', size: { width: number, height: number }) => {
-        console.log('触发变更视窗大小', windowName, size)
         const { windowManager } = await import('../core/WindowManager.js');
         windowManager.resizeWindow(windowName, size);
     })

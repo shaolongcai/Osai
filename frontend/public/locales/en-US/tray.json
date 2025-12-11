@@ -1,6 +1,5 @@
 {
-  "showMainWindow": "Show Main Window",
-  "showSearchBar": "Show Search Bar (Alt + Space)",
+  "showSearchBar": "Search Bar (Alt + Space)",
   "settings": "Settings",
   "restart": "Restart",
   "quit": "Quit",

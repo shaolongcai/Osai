@@ -7,7 +7,6 @@ import { initializeFileApi } from './api/file.js';
 import { indexAllFilesWithWorkers } from './core/indexFiles.js';
 import { logger } from './core/logger.js';
 import { checkGPU, reportErrorToWechat } from './core/system.js';
-import { checkModelService } from './core/model.js'
 import { ollamaService } from './sever/ollamaSever.js';
 import { INotification, INotification2 } from './types/system.js';
 import { initializeUpdateApi } from './api/update.js';
@@ -34,6 +33,7 @@ let searchWindow: BrowserWindow | null;
 let settingsWindow: BrowserWindow | null;
 
 
+
 // 更新托盤菜單語言
 function updateTrayMenu(language?: string) {
   if (!tray) return;
@@ -48,20 +48,12 @@ function updateTrayMenu(language?: string) {
   // 重新創建托盤菜單
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: t.showMainWindow,
-      click: () => {
-        mainWindow?.show();
-        mainWindow?.focus();
-      }
-    },
-    {
       label: t.showSearchBar,
       click: () => {
-        if (searchWindow) {
-          // centerOnCurrentDisplay();
-          searchWindow.show();
-          searchWindow.focus();
-        }
+        settingsWindow.hide();
+        searchWindow.focus();
+        const isVisible = searchWindow?.isVisible();
+        isVisible ? searchWindow.hide() : searchWindow.show();
       }
     },
     {
@@ -70,11 +62,10 @@ function updateTrayMenu(language?: string) {
     {
       label: t.settings,
       click: () => {
-        if (settingsWindow) {
-          settingsWindow.show();
-          settingsWindow.focus();
-          settingsWindow.webContents.send('navigate-to-settings');
-        }
+        searchWindow.hide();
+        settingsWindow.focus();
+        const isVisible = settingsWindow?.isVisible();
+        isVisible ? settingsWindow.hide() : settingsWindow.show();
       }
     },
     {
@@ -140,8 +131,7 @@ function loadTrayTranslations(language: string): any {
       logger.error(`加載降級翻譯文件也失敗: ${fallbackError instanceof Error ? fallbackError.message : fallbackError}`);
       // 返回硬編碼的默認值
       return {
-        showMainWindow: 'Show Main Window',
-        showSearchBar: 'Show Search Bar',
+        showSearchBar: 'Search Bar',
         settings: 'Settings',
         restart: 'Restart',
         quit: 'Quit',
@@ -173,20 +163,12 @@ function createTray() {
   // 創建托盤菜單
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: t.showMainWindow,
-      click: () => {
-        mainWindow?.show();
-        mainWindow?.focus();
-      }
-    },
-    {
       label: t.showSearchBar,
       click: () => {
-        if (searchWindow) {
-          // centerOnCurrentDisplay();
-          searchWindow.show();
-          searchWindow.focus();
-        }
+        settingsWindow.hide();
+        searchWindow.focus();
+        const isVisible = searchWindow?.isVisible();
+        isVisible ? searchWindow.hide() : searchWindow.show();
       }
     },
     {
@@ -195,13 +177,10 @@ function createTray() {
     {
       label: t.settings,
       click: () => {
-        // 顯示主窗口並導航到設定頁面
-        if (mainWindow) {
-          mainWindow.show();
-          mainWindow.focus();
-          // 發送事件到渲染進程，讓前端導航到設定頁面
-          mainWindow.webContents.send('navigate-to-settings');
-        }
+        searchWindow.hide();
+        settingsWindow.focus();
+        const isVisible = settingsWindow?.isVisible();
+        isVisible ? settingsWindow.hide() : settingsWindow.show();
       }
     },
     {
@@ -276,10 +255,6 @@ export const init = async () => {
     // const cudaInfo = await checkCUDA();
     // const isInstallCuda = getConfig('cuda_installed');
 
-    // 显示设置窗口
-    if (settingsWindow) {
-      settingsWindow.show();
-    }
     // 检查是否准备好AI Mark功能
     return {
       code: 0,
@@ -315,7 +290,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval)) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       await indexAllFilesWithWorkers();
@@ -402,9 +377,7 @@ app.whenReady().then(async () => {
   registerGlobalShortcut(shortcut, windowManager);
   // 注册Esc关闭搜索框
   globalShortcut.register('Escape', () => {
-    if (windowManager.searchWindow && windowManager.searchWindow.isVisible()) {
-      windowManager.hideAllWindows();
-    }
+    windowManager.hideAllWindows();
   });
   // 注册Ctrl+Q退出应用
   globalShortcut.register('CommandOrControl+Q', () => {
@@ -451,7 +424,6 @@ app.on('window-all-closed', () => {
   // 其他平台也保持運行在托盤中
 });
 
-
 app.on('before-quit', () => {
   // 設置退出標誌，允許窗口真正關閉
   isQuitting = true;
@@ -466,13 +438,9 @@ app.on('before-quit', () => {
 });
 
 
-
 //----- 触发事件 ---- 
 export const sendToRenderer = (channel: ChannelType, data: any) => {
   // 广播事件到所有窗口
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send(channel, data);
-  }
   if (searchWindow && !searchWindow.isDestroyed()) {
     searchWindow.webContents.send(channel, data);
   }
@@ -485,13 +453,14 @@ export const sendToRenderer = (channel: ChannelType, data: any) => {
 // 注册全局快捷键
 const registerGlobalShortcut = (shortcut: string, windowManager: any) => {
   globalShortcut.register(shortcut, () => {
-    if (windowManager.searchWindow.isVisible()) {
-      windowManager.hideAllWindows();
+    if (searchWindow.isVisible()) {
+      searchWindow.hide();
     } else {
-      // centerOnCurrentDisplay();
-      windowManager.showAllWindows();
+      searchWindow.show();
       searchWindow.focus();  // 先确保窗口获得焦点，再下发聚焦事件
       searchWindow.webContents.focus(); //只发给search窗口
     }
+    // 必定隐藏 settingsWindow
+    settingsWindow.hide();
   });
 }

@@ -1,6 +1,5 @@
 {
-  "showMainWindow": "显示主窗口",
-  "showSearchBar": "显示搜索框 (Alt + Space)",
+  "showSearchBar": "搜索框 (Alt + Space)",
   "settings": "设置",
   "restart": "重新启动",
   "quit": "退出",

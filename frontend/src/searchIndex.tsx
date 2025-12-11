@@ -18,7 +18,7 @@ const APP = () => {
     })
 
     return (
-        <div ref={rootRef}>
+        <div ref={rootRef} className='w-full h-screen overflow-hidden'>
             <RootProviders  >
                 <HashRouter>
                     <Routes>

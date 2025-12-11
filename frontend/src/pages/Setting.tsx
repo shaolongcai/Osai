@@ -80,30 +80,32 @@ const Setting = () => {
     const [autoLaunchHidden, setAutoLaunchHidden] = useState(false) //是否靜默啟動
 
     const context = useGlobalContext();
-    const { t } = useTranslation()
+    const { t, isLoading } = useTranslation()
 
     // 拉取用户配置
     useEffect(() => {
-        if (openSetting) {
-            window.electronAPI.getConfig().then((res: UserConfig) => {
-                console.log('config', res)
-                setOpenIndexImage(res.visual_index_enabled)
-                setHasGPU(res.hasGPU)
-                setIsInstallGpu(res.cuda_installed)
-                setReportAgreement(res.report_agreement)
-                console.log('ai_provider', JSON.parse(res.ai_provider || '{}').model)
-                setAiProvider(JSON.parse(res.ai_provider || '{}'))
-            })
-            // 獲取自啟動狀態
-            window.electronAPI.getAutoLaunch().then((result: { enabled: boolean; openAsHidden: boolean }) => {
-                setAutoLaunch(result.enabled)
-                setAutoLaunchHidden(result.openAsHidden)
-            })
-        }
-    }, [openSetting])
+        if (isLoading) return
+        // 改为直接获取
+        window.electronAPI.getConfig().then((res: UserConfig) => {
+            console.log('config', res)
+            setOpenIndexImage(res.visual_index_enabled)
+            setHasGPU(res.hasGPU)
+            setIsInstallGpu(res.cuda_installed)
+            setReportAgreement(res.report_agreement)
+            setAiProvider(JSON.parse(res.ai_provider || '{}'))
+        })
+        // 獲取自啟動狀態
+        window.electronAPI.getAutoLaunch().then((result: { enabled: boolean; openAsHidden: boolean }) => {
+            setAutoLaunch(result.enabled)
+            setAutoLaunchHidden(result.openAsHidden)
+        })
+        // 手动检查一次
+        manualCheckUpdate()
+    }, [isLoading])
 
     // 監聽更新狀態並在抽屜開啟時自動檢查（在非 Electron 環境下跳過）
     useEffect(() => {
+        if (isLoading) return
         if (!(window as any).electronAPI) {
             // 非 Electron 預覽環境：直接顯示最新版本提示
             setIsCheckingUpdate(false)
@@ -138,7 +140,7 @@ const Setting = () => {
         return () => {
             window.electronAPI.removeAllListeners('update-status')
         }
-    }, [open, t])
+    }, [open, t, isLoading])
 
 
     const manualCheckUpdate = async () => {
@@ -226,13 +228,12 @@ const Setting = () => {
         <Stack
             alignItems='flex-end'
             spacing={3}
-            className="mt-4 box-border "
         >
             {/* 设置按钮 */}
-            <SettingButton
+            {/* <SettingButton
                 openSetting={openSetting}
                 setOpenSetting={() => { setOpenSetting(!openSetting), setOpenAIProvider(false), setOpenReportProtocol(false) }}
-            />
+            /> */}
             {
                 // 同意用户体验改进计划弹窗
                 openReportProtocol &&
@@ -243,60 +244,58 @@ const Setting = () => {
                     }}
                 />
             }
-            {
-                openSetting &&
-                <Paper
-                    className="w-[480px] max-h-[580px]! box-border overflow-y-auto 
+            <Paper
+                className="w-[480px] max-h-[680px]! box-border! overflow-y-auto 
                     scrollbar-thin
                     p-6
                     border border-solid border-[rgba(0,0,0,0.12)]
                     "
-                >
-                    <Typography variant='headlineSmall' >
-                        设置
-                    </Typography>
-                    <Stack spacing={2} sx={{ marginTop: '16px' }}>
-                        {/* 当前几乎 */}
-                        <Stack spacing={1}>
-                            <Typography variant='titleSmall' className='color-rgba(0, 0, 0, 0.85)' >
-                                Current Plan
-                            </Typography>
-                            {/* 账户信息 */}
-                            <SettingItem
-                                title='Account'
-                                type='button'
-                                value='login'
-                                onAction={() => { console.log('执行登录') }}
-                            />
-                            {/* pro信息 */}
-                            <SettingItem
-                                title='Pro'
-                                type='text'
-                                value='Expire after 2025-08-01'
-                            />
-                        </Stack>
-                        <Stack spacing={1}>
-                            <Typography variant='titleSmall' className='color-rgba(0, 0, 0, 0.85)' >
-                                AI Sever
-                            </Typography>
-                            <SettingItem
-                                title='AI Provider'
-                                type='button'
-                                value={aiProvider?.model || 'SET'}
-                                onAction={() => {
-                                    setOpenAIProvider(true)
-                                    setOpenSetting(false)
-                                }}
-                            // action={<StyledButton
-                            //     variant='text'
-                            //     onClick={() => { setOpenAIProvider(true), setOpenSetting(false) }} >
-                            //         {/* // 暂时只有ollama提供，如果设置了，默认为ollama，即设置的AI Provider */}
-                            //     {/* {isInstallGpu ? t('app.settings.reInstall') : t('app.settings.install')} */}
-                            //     {aiProvider.model || 'SET'}
-                            // </StyledButton>
-                            // }
-                            />
-                            {/* {
+            >
+                <Typography variant='headlineSmall' >
+                    Setting
+                </Typography>
+                <Stack spacing={2} sx={{ marginTop: '16px' }}>
+                    {/* 当前几乎 */}
+                    <Stack spacing={1}>
+                        <Typography variant='titleSmall' className='color-rgba(0, 0, 0, 0.85)' >
+                            Current Plan
+                        </Typography>
+                        {/* 账户信息 */}
+                        <SettingItem
+                            title='Account'
+                            type='button'
+                            value='login'
+                            onAction={() => { console.log('执行登录') }}
+                        />
+                        {/* pro信息 */}
+                        <SettingItem
+                            title='Pro'
+                            type='text'
+                            value='Expire after 2025-08-01'
+                        />
+                    </Stack>
+                    <Stack spacing={1}>
+                        <Typography variant='titleSmall' className='color-rgba(0, 0, 0, 0.85)' >
+                            AI Sever
+                        </Typography>
+                        <SettingItem
+                            title='AI Provider'
+                            type='button'
+                            value={aiProvider?.model || 'SET'}
+                            onAction={() => {
+                                setOpenAIProvider(true)
+                                setOpenSetting(false)
+                            }}
+                        // action={<StyledButton
+                        //     variant='text'
+                        //     onClick={() => { setOpenAIProvider(true), setOpenSetting(false) }} >
+                        //         {/* // 暂时只有ollama提供，如果设置了，默认为ollama，即设置的AI Provider */}
+                        //     {/* {isInstallGpu ? t('app.settings.reInstall') : t('app.settings.install')} */}
+                        //     {aiProvider.model || 'SET'}
+                        // </StyledButton>
+                        // }
+                        />
+                        {/* {
                                 context.os === 'win' &&
                                 // 安装CUDA加速服务
                                 <SettingItem
@@ -312,54 +311,54 @@ const Setting = () => {
                                     }
                                 />
                             } */}
-                        </Stack>
-                        <Stack spacing={1}>
-                            <Typography variant='titleSmall' className='color-rgba(0, 0, 0, 0.85)' >
-                                System
-                            </Typography>
-                            {/* 打开日志 */}
-                            <SettingItem
-                                title={t('app.settings.logFolder')}
-                                action={t('app.settings.open')}
-                                onAction={() => window.electronAPI.openDir('runLog')}
-                                type='button'
-                            />
-                            {/* 用户体验计划 */}
-                            <SettingItem
-                                title={t('app.settings.userExperience')}
-                                type='switch'
-                                value={reportAgreement}
-                                onAction={toggleReportAgreement}
-                            />
-                            {/* 检查更新 */}
-                            <SettingItem
-                                title={t('app.settings.checkUpdate')}
-                                type='custom'
-                                value={updateStatusText}
-                                action={
-                                    <Stack direction='row' alignItems='center' spacing={2}>
-                                        <Typography variant="body2" color={'text.secondary'}>
-                                            {updateStatusText || t('app.settings.checkUpdateStatusLatest' as any)}
-                                        </Typography>
-                                        <StyledButton
-                                            disabled={isCheckingUpdate}
-                                            variant='text'
-                                            onClick={manualCheckUpdate}
-                                        >
-                                            {t('app.settings.check' as any)}
-                                        </StyledButton>
-                                    </Stack>
-                                }
-                            />
-                            {/* 自动启动开关 */}
-                            <SettingItem
-                                title={t('app.settings.autoLaunch')}
-                                type='switch'
-                                value={autoLaunch}
-                                onAction={toggleAutoLaunch}
-                            />
-                        </Stack>
-                        {/* 
+                    </Stack>
+                    <Stack spacing={1}>
+                        <Typography variant='titleSmall' className='color-rgba(0, 0, 0, 0.85)' >
+                            System
+                        </Typography>
+                        {/* 打开日志 */}
+                        <SettingItem
+                            title={t('app.settings.logFolder')}
+                            action={t('app.settings.open')}
+                            onAction={() => window.electronAPI.openDir('runLog')}
+                            type='button'
+                        />
+                        {/* 用户体验计划 */}
+                        <SettingItem
+                            title={t('app.settings.userExperience')}
+                            type='switch'
+                            value={reportAgreement}
+                            onAction={toggleReportAgreement}
+                        />
+                        {/* 检查更新 */}
+                        <SettingItem
+                            title={t('app.settings.checkUpdate')}
+                            type='custom'
+                            value={updateStatusText}
+                            action={
+                                <Stack direction='row' alignItems='center' spacing={2}>
+                                    <Typography variant="body2" color={'text.secondary'}>
+                                        {updateStatusText || t('app.settings.checkUpdateStatusLatest' as any)}
+                                    </Typography>
+                                    <StyledButton
+                                        disabled={isCheckingUpdate}
+                                        variant='text'
+                                        onClick={manualCheckUpdate}
+                                    >
+                                        {t('app.settings.check' as any)}
+                                    </StyledButton>
+                                </Stack>
+                            }
+                        />
+                        {/* 自动启动开关 */}
+                        <SettingItem
+                            title={t('app.settings.autoLaunch')}
+                            type='switch'
+                            value={autoLaunch}
+                            onAction={toggleAutoLaunch}
+                        />
+                    </Stack>
+                    {/* 
                         静默启动开关
                         <SettingItem
                             title={t('app.settings.autoLaunchHidden')}
@@ -367,26 +366,25 @@ const Setting = () => {
                             value={autoLaunchHidden}
                             onAction={toggleAutoLaunchHidden}
                         /> */}
-                        <Stack spacing={1} >
-                            <Typography variant='titleSmall' >
-                                Language
-                            </Typography>
-                            <SettingItem
-                                title={t('app.settings.language')}
-                                type='custom'
-                                onAction={() => { }}
-                                action={<LanguageSwitcher variant='select' size='small' showLabel={false} />}
-                            />
-                        </Stack>
-                        <Stack spacing={1} >
-                            <Typography variant='titleSmall' >
-                                Contact
-                            </Typography>
-                            <Contact />
-                        </Stack>
+                    <Stack spacing={1} >
+                        <Typography variant='titleSmall' >
+                            Language
+                        </Typography>
+                        <SettingItem
+                            title={t('app.settings.language')}
+                            type='custom'
+                            onAction={() => { }}
+                            action={<LanguageSwitcher variant='select' size='small' showLabel={false} />}
+                        />
                     </Stack>
-                </Paper>
-            }
+                    <Stack spacing={1} >
+                        <Typography variant='titleSmall' >
+                            Contact
+                        </Typography>
+                        <Contact />
+                    </Stack>
+                </Stack>
+            </Paper>
             {
                 openAIProvider &&
                 <AIProvider onFinish={() => { setOpenAIProvider(false), setOpenSetting(true) }} />

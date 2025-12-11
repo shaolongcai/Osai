@@ -25,7 +25,6 @@ class WindowManager {
     private constructor() {
         this.initAllWindows();
         this.centerOnCurrentDisplay();
-        this.centerSettingsWindowOnCurrentDisplay();
     }
 
     // 初始化所有窗口
@@ -97,8 +96,8 @@ class WindowManager {
             skipTaskbar: true,  // 不占用任务栏
             show: false,        // 先不显示
             transparent: true,
-            // backgroundColor: '#00000000',
-            backgroundColor: '#E92828', //测试大小专用色
+            backgroundColor: '#00000000',
+            // backgroundColor: '#E92828', //测试大小专用色
             webPreferences: {
                 preload: path.join(__dirname, '../preload.js'),
                 nodeIntegration: false,
@@ -160,22 +159,28 @@ class WindowManager {
         const cursor = screen.getCursorScreenPoint();
         const dist = screen.getDisplayNearestPoint(cursor).workArea;
         const { width, height } = this.searchWindow.getBounds();
+        const { width: settingsWidth, height: settingsHeight } = this.settingsWindow.getBounds();
         this.searchWindow.setBounds({
             x: Math.round(dist.x + (dist.width - width) / 2),
+            y: Math.round(dist.y + dist.height * 0.25)   // 屏幕 1/4 处
+        });
+        // 设置窗口居中
+        this.settingsWindow.setBounds({
+            x: Math.round(dist.x + (dist.width - settingsWidth) / 2),
             y: Math.round(dist.y + dist.height * 0.25)   // 屏幕 1/4 处
         });
     }
 
     //计算setting的位置（在search的左侧16px + 480px自身宽度）
-    private centerSettingsWindowOnCurrentDisplay = () => {
-        const cursor = screen.getCursorScreenPoint();
-        const dist = screen.getDisplayNearestPoint(cursor).workArea;
-        const { width, height } = this.settingsWindow.getBounds();
-        this.settingsWindow.setBounds({
-            x: Math.round(dist.x + (dist.width - width) / 2 - 480 - 16),
-            y: Math.round(dist.y + dist.height * 0.25)   // 屏幕 1/4 处
-        });
-    }
+    // private centerSettingsWindowOnCurrentDisplay = () => {
+    //     const cursor = screen.getCursorScreenPoint();
+    //     const dist = screen.getDisplayNearestPoint(cursor).workArea;
+    //     const { width, height } = this.settingsWindow.getBounds();
+    //     this.settingsWindow.setBounds({
+    //         x: Math.round(dist.x + (dist.width - width) / 2 - 480 - 16),
+    //         y: Math.round(dist.y + dist.height * 0.25)   // 屏幕 1/4 处
+    //     });
+    // }
 
     // 生产环境禁止开发者工具
     private disableDevTools = (event: any, input: any) => {
@@ -195,7 +200,7 @@ class WindowManager {
 
     // 变更窗口大小
     resizeWindow(windowName: 'searchWindow' | 'settingsWindow', size: { width: number, height: number }) {
-        if(!size.height || !size.width) return;
+        if (!size.height || !size.width) return;
         let window = this.searchWindow;
         switch (windowName) {
             case 'searchWindow':
