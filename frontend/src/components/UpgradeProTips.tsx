@@ -1,4 +1,4 @@
-import { Button, Paper, Stack, Typography } from "@mui/material"
+import { Button, Card, Paper, Stack, Typography } from "@mui/material"
 import UpgradeProImg from '@/assets/images/upgrade.png';
 
 
@@ -11,7 +11,7 @@ interface Props {
 const UpgradeProTips: React.FC<Props> = ({
     onFinish
 }) => {
-    return <Paper className='p-6'>
+    return <Card className='p-6'>
         <Stack spacing={2} alignItems="center" sx={{ width: '100%' }}>
             <Typography variant='titleMedium'>
                 Upgrade to Pro，Unlock AI enhanced and More
@@ -29,11 +29,11 @@ const UpgradeProTips: React.FC<Props> = ({
                     Upgrade to Pro
                 </Button>
                 <Button variant='outlined' onClick={onFinish}>
-                    Login
+                    Later
                 </Button>
             </Stack>
         </Stack>
-    </Paper>
+    </Card>
 }
 
 export default UpgradeProTips;

@@ -18,7 +18,19 @@ const APP = () => {
     })
 
     return (
-        <div ref={rootRef} className='w-full h-screen overflow-hidden'>
+        <div ref={rootRef} className='w-full  overflow-hidden'>
+             <style>{`
+                /* 隐藏滚动条但保持可滚动 */
+                ::-webkit-scrollbar {
+                    display: none;
+                }
+                
+                /* 适用于Firefox */
+                * {
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+            `}</style>
             <RootProviders  >
                 <HashRouter>
                     <Routes>

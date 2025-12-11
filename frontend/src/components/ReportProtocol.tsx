@@ -1,4 +1,4 @@
-import { Button, Checkbox, FormControlLabel, Paper, Stack, Typography } from "@mui/material"
+import { Button, Card, Checkbox, FormControlLabel, Paper, Stack, Typography } from "@mui/material"
 import { useState } from "react";
 import { ConfigParams } from "@/types/electron";
 import { useTranslation } from "../contexts/I18nContext";
@@ -48,9 +48,9 @@ const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
     }
 
     return (
-        <Paper elevation={1} className="p-4">
-            <Stack spacing={2} alignItems="center" textAlign="center">
-                <Typography variant='titleMedium' color="text.primary"
+        <Card >
+            <Stack spacing={2} >
+                <Typography variant='titleLarge' color="text.primary"
                 >
                     {t('app.reportProtocol.title')}
                 </Typography>
@@ -62,23 +62,13 @@ const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
                 >
                     {t('app.reportProtocol.content')}
                 </Typography>
-                <FormControlLabel
-                    sx={{
-                        marginTop: '16px'
-                    }}
-                    control={<Checkbox checked={isRemind} onChange={(_e, check) => setIsRemind(check)} />}
-                    label={<Typography sx={{ color: 'rgba(0,0,0,0.45)', fontSize: '14px' }}>{t('app.reportProtocol.notRemindLabel')}</Typography>}
-                />
-                <Stack spacing={1}>
-                    <Button onClick={agree} variant="contained">
+                <Stack spacing={1} alignItems="center">
+                    <Button onClick={agree} variant="contained"  className="w-24 ">
                         {t('app.reportProtocol.primaryButtonText')}
-                    </Button>
-                    <Button variant="outlined" onClick={handleClose}>
-                        {t('app.reportProtocol.secondaryButtonText')}
                     </Button>
                 </Stack>
             </Stack>
-        </Paper>
+        </Card>
     )
 }
 

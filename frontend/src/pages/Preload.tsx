@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "@/contexts/globalContext";
-import { Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
+import { Guide, Login, ReportProtocol, UpdateNotification, UpgradeProTips } from "@/components";
 import { useTranslation } from '@/contexts/I18nContext';
 import { Button, LinearProgress, Paper, Stack, Typography } from "@mui/material";
 import initImg from '@/assets/images/init.png'
@@ -18,12 +18,14 @@ const Preload = () => {
     const [loginOpen, setLoginOpen] = useState<boolean>(false); // 是否展示登录弹窗
     const [guideOpen, setGuideOpen] = useState<boolean>(false); // 是否展示新手引导弹窗
     const [serverOpen, setServerOpen] = useState<boolean>(false); // 是否展示服务启动弹窗
+    const [upgradeOpen, setUpgradeOpen] = useState<boolean>(false); // 是否展示升级弹窗
 
     const effectRan = useRef(false); // 执行守卫
     const updateResolveRef = useRef<(() => void) | null>(null);
     const protocolResolveRef = useRef<(() => void) | null>(null);
     const loginResolveRef = useRef<(() => void) | null>(null); // 登录成功回调
     const guideResolveRef = useRef<(() => void) | null>(null); // 新手引导成功回调
+    const upgradeResolveRef = useRef<(() => void) | null>(null); // 升级成功回调
 
     const context = useGlobalContext();
     const { t } = useTranslation();
@@ -39,10 +41,16 @@ const Preload = () => {
             await updatePromise // 等待用户操作更新说明
 
             // 登录
-            console.log('开始登录')
-            const loginPromise = waitUserLogin(); // 先绑定登录等待，不让loginResolveRef为null
-            setLoginOpen(true);
-            await loginPromise; // 等待用户登录
+            // console.log('开始登录')
+            // const loginPromise = waitUserLogin(); // 先绑定登录等待，不让loginResolveRef为null
+            // setLoginOpen(true);
+            // await loginPromise; // 等待用户登录
+
+            // Pro提示
+            console.log('开始Pro提示')
+            const upgradePromise = waitUserUpgrade(); // 先绑定Pro提示等待，不让proResolveRef为null
+            // await checkPro();
+            await upgradePromise;
 
             // 检查证书数量
 
@@ -152,6 +160,15 @@ const Preload = () => {
     const waitUserCheckUpdate = useCallback((): Promise<void> => {
         return new Promise<void>((resolve) => {
             updateResolveRef.current = resolve; // 将resolve存放在ref中，后续直接调用resolve
+        }).then(() => {
+            setUpgradeOpen(true); // 展示升级弹窗
+        });
+    }, []);
+
+    // 等待用户操作是否升级Pro
+    const waitUserUpgrade = useCallback((): Promise<void> => {
+        return new Promise<void>((resolve) => {
+            upgradeResolveRef.current = resolve;
         });
     }, []);
 
@@ -186,7 +203,7 @@ const Preload = () => {
 
 
     return (
-        <Paper className="w-[480px] box-border min-h-[400px] flex flex-col items-center justify-center">
+        <div>
             {
                 // 新版本通知 
                 updateOpen &&
@@ -204,6 +221,16 @@ const Preload = () => {
                     onFinish={() => {
                         setProtocolOpen(false)
                         protocolResolveRef.current?.(); // 同意协议
+                    }}
+                />
+            }
+            {
+                // 升级Pro
+                upgradeOpen &&
+                <UpgradeProTips
+                    onFinish={() => {
+                        setUpgradeOpen(false)
+                        upgradeResolveRef.current?.(); // 升级成功
                     }}
                 />
             }
@@ -264,7 +291,7 @@ const Preload = () => {
                     </Button>
                 </Stack>
             }
-        </Paper>
+        </div>
     )
 }
 

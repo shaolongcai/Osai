@@ -1,4 +1,4 @@
-import { Button, MobileStepper, Stack, Typography } from "@mui/material"
+import { Button, Card, MobileStepper, Stack, Typography } from "@mui/material"
 import guide1Img from '@/assets/images/guide1.png'
 import guide2Img from '@/assets/images/guide2.png'
 import guide3Img from '@/assets/images/guide3.png'
@@ -50,7 +50,7 @@ const Guide: React.FC<Props> = ({
     }, [onFinish]);
 
     return (
-        <>
+        <Card className="w-[480px] box-border min-h-[400px] flex flex-col items-center justify-center">
             <MobileStepper
                 variant='dots'
                 steps={4}
@@ -95,7 +95,7 @@ const Guide: React.FC<Props> = ({
                         </Button>
                 }
             </Stack>
-        </>
+        </Card>
     )
 }
 

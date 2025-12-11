@@ -48,6 +48,7 @@ export const theme = createTheme({
                 root: {
                     borderRadius: '16px',
                     padding: '24px',
+                    border: '1px solid rgba(0, 0, 0, 0.25)',
                     // 变体为elevation时  阴影
                     '&.MuiCard-elevation': {
                         boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.08)',
