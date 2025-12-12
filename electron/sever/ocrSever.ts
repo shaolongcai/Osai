@@ -97,7 +97,7 @@ export class OcrSever {
                     const notification: INotification2 = {
                         id: 'ocr',
                         messageKey: 'app.search.ocrSever',
-                        variables: { count: this.queue.length },
+                        variables: { count: this.queue.length + 1 },
                         type: 'loadingQuestion',
                         tooltip: 'app.search.ocrSeverTips',
                     }
