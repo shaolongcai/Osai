@@ -15,7 +15,7 @@ type FileInfo = {
 };
 
 
-const ALLOWED_EXTENSIONS = 'png,jpg,jpeg,ppt,pptx,csv,doc,docx,txt,xlsx,xls,pdf'
+const ALLOWED_EXTENSIONS = 'png,jpg,jpeg,ppt,pptx,csv,doc,docx,txt,xlsx,xls,pdf,md,exe'
 const BATCH_SIZE = 10000;
 
 // --- 1. 首先，获取 workerData 并初始化数据库 ---

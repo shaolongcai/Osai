@@ -42,6 +42,7 @@
   "dependencies": {
     "@langchain/community": "^1.0.0",
     "@langchain/core": "^1.0.1",
+    "@paddlejs-models/ocr": "^1.2.4",
     "adm-zip": "^0.5.16",
     "better-sqlite3": "^12.2.0",
     "dayjs": "^1.11.18",
@@ -56,6 +57,8 @@
     "ollama": "^0.6.0",
     "pdf-parse": "^1.1.1",
     "pinyin-pro": "^3.27.0",
+    "ppu-paddle-ocr": "^3.4.0",
+    "regedit": "^5.1.4",
     "systeminformation": "^5.27.9",
     "tesseract.js": "^6.0.1",
     "vite-plugin-static-copy": "^3.1.4",

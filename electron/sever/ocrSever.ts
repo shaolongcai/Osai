@@ -1,4 +1,6 @@
 import * as path from 'path';
+import * as fs from 'fs';
+import * as crypto from 'crypto';
 import { logger } from '../core/logger.js';
 import { INotification, INotification2 } from '../types/system.js';
 import { getDatabase } from '../database/sqlite.js';
@@ -6,9 +8,8 @@ import { Database } from 'better-sqlite3';
 import { sendToRenderer } from '../main.js';
 import { fileURLToPath } from 'url';
 import { createWorker } from 'tesseract.js';
-import * as fs from 'fs';
 import pathConfig from '../core/pathConfigs.js';
-import * as crypto from 'crypto';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -92,6 +93,11 @@ export class OcrSever {
                 const task = this.queue.shift()!;
                 const { imagePath, resolve, reject } = task;
 
+                // 如果imagePath 包含 营业执照 则跳过
+                if (imagePath.includes('营业执照')) {
+                    console.log('营业执照 找到', imagePath)
+                }
+
                 try {
                     // UI提示剩余任务
                     const notification: INotification2 = {
@@ -165,7 +171,6 @@ export class OcrSever {
                     this.ocrWorker.recognize(imagePath),
                     timeout
                 ]);
-
                 clearTimeout(timeoutId);
                 resolve(ret.data.text)
             } catch (error) {
@@ -179,33 +184,50 @@ export class OcrSever {
     // 入库操作
     private insertOCRResult = (imagePath: string, text: string) => {
         try {
+            if(imagePath.includes('营业执照')){
+                console.log(text)
+            }
+
             // 获取更多详情
             const file = fs.statSync(imagePath);
             const size = file.size;
             const modifiedAt = Math.floor(file.mtimeMs);
             const name = path.basename(imagePath).toLowerCase();
             const ext = path.extname(imagePath).toLowerCase();
-                // 计算MD5
+            // 计算MD5
             const metadataString = `${imagePath}-${size}-${modifiedAt}`;
             const md5 = crypto.createHash('md5').update(metadataString).digest('hex');
-            const updateStmt = this.db.prepare(`UPDATE files SET md5 = ?, summary = ?, size = ?, modified_at = ?, skip_ocr = 1 WHERE path = ?`);
-            const res = updateStmt.run(md5, text, size, modifiedAt, imagePath);
-            if (res.changes > 0) {
-                logger.info(`OCR 索引成功: ${imagePath}`);
-                return true;
-            }
-            // 没有记录，则插入一条新的记录
-            const insertStmt = this.db.prepare(
-                `INSERT OR IGNORE INTO files (md5, path, name, ext, summary, size, modified_at, skip_ocr)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, 1)`
-            );
-        
-            const inserRes = insertStmt.run(md5, imagePath, name, ext, text, size, modifiedAt);
-            if (inserRes.changes > 0) {
-                logger.info(`OCR 索引插入成功: ${imagePath}`);
-                return true;
-            }
-            throw new Error(`OCR 索引插入失败: ${imagePath}`);
+
+            // 原子 UPSERT：存在即更新，不存在则插入
+            const upsertStmt = this.db.prepare(`
+                INSERT INTO files (md5, path, name, ext, full_content, size, modified_at, skip_ocr)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+                ON CONFLICT(path) DO UPDATE SET
+                    md5 = excluded.md5,
+                    size = excluded.size,
+                    modified_at = excluded.modified_at,
+                    full_content = excluded.full_content,
+                    skip_ocr = 1
+            `);
+            const res = upsertStmt.run(md5, imagePath, name, ext, text, size, modifiedAt);
+            logger.info(`图片OCR索引成功: ${imagePath} (changes=${res.changes})`);
+
+            // const updateStmt = this.db.prepare(`UPDATE files SET md5 = ?, full_content = ?, size = ?, modified_at = ?, skip_ocr = 1 WHERE path = ?`);
+            // const res = updateStmt.run(md5, text, size, modifiedAt, imagePath);
+            // if (res.changes > 0) {
+            //     logger.info(`OCR 索引成功: ${imagePath}`);
+            //     return true;
+            // }
+            // // 没有记录，则插入一条新的记录
+            // const insertStmt = this.db.prepare(
+            //     `INSERT OR IGNORE INTO files (md5, path, name, ext, full_content, size, modified_at, skip_ocr)
+            //      VALUES (?, ?, ?, ?, ?, ?, ?, 1)`
+            // );
+            // const inserRes = insertStmt.run(md5, imagePath, name, ext, text, size, modifiedAt);
+            // if (inserRes.changes > 0) {
+            //     logger.info(`OCR 索引插入成功: ${imagePath}`);
+            //     return true;
+            // }
         } catch (error) {
             logger.error(`insertOCRResult处理失败: ${error}`);
         }
@@ -253,6 +275,17 @@ export class OcrSever {
                     }
                 }
             });
+
+            await this.ocrWorker.setParameters({
+
+                // OEM: 1 使用 LSTM 引擎，中文效果更好
+                oem: '1',
+                // 保留空格，对英文与数字混排更友好
+                preserve_interword_spaces: '1',
+                // 指定 DPI，有助于提升版面分析与识别
+                user_defined_dpi: '300'
+            });
+
             return this.ocrWorker;
         } catch (error) {
             const msg = error instanceof Error ? error.message : 'OCR Worker 初始化失败';

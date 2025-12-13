@@ -18,6 +18,9 @@ import { findRecentFolders } from './system.js';
 import { ocrSeverSingleton } from '../sever/ocrSever.js';
 import { aiSeverSingleton } from '../sever/aiSever.js';
 import { normalizeWinPath } from '../units/pathUtils.js';
+import { shell } from 'electron';
+import { pinyin } from 'pinyin-pro';
+import { calculateMd5 } from '../units/math.js';
 
 type FileInfo = {
     filePath: string;
@@ -32,7 +35,7 @@ const __dirname = path.dirname(__filename);
 // 支持获取图标的格式
 const supportedIconFormats = [
     '.exe', '.xslx', '.wps', '.csv', '.xls', '.doc', '.docx', '.pptx',
-    '.ppt', '.txt', '.lnk', '.pdf', '.md', '.jpg', '.jpeg', '.png', '.gif'
+    '.ppt', '.txt', '.lnk', '.pdf', '.md', '.jpg', '.jpeg', '.png', '.gif', '.md'
 ];
 
 /**
@@ -277,27 +280,36 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
         const endTime = Date.now();
         logger.info(`所有 Worker 线程索引完成。共找到 ${allFiles.length} 个文件，耗时: ${endTime - startTime} 毫秒`);
 
-        let installedPrograms: Array<{
-            DisplayName: string;
-            Publisher: string;
-            InstallLocation: string;
-            DisplayIcon: string;
-        }> = [];
+
+
+        // let installedPrograms: Array<{
+        //     DisplayName: string;
+        //     Publisher: string;
+        //     InstallLocation: string;
+        //     DisplayIcon: string;
+        // }> = [];
+        let installedProgram = [] as FileInfo[];
         // 获取已安装程序列表
         if (process.platform === 'win32') {
-            installedPrograms = getInstalledPrograms();
+            installedProgram = await getInstalledPrograms();
         }
         else {
-            installedPrograms = getMacProgramsAndImages().programs;
+            // installedPrograms = getMacProgramsAndImages().programs;
         }
 
         // 插入程序信息到数据库
-        installedPrograms.forEach(program => {
-            insertProgramInfo(program);
+        // installedPrograms.forEach(program => {
+        //     insertProgramInfo(program);
+        // });
+
+        // 添加应用程序的路径到allFiles
+        installedProgram.forEach(file => {
+            allFiles.push(file);
         });
 
         // 删除多余的数据库记录（最后才放）
         await deleteExtraFiles(allFiles);
+
         // 索引更新
         setIndexUpdate(true);
         // 记录索引时间，以及索引的文件数量
@@ -348,28 +360,90 @@ async function extractIconsInWorker(extToFileMap: Map<string, string>): Promise<
  * 获取Windows已安装程序列表
  * @returns 已安装程序信息数组
  */
-const getInstalledPrograms = () => {
+const getInstalledPrograms = async (): Promise<FileInfo[]> => {
     try {
         logger.info('正在获取Windows已安装程序列表...');
-        const ps1Path = pathConfig.get('getPrograms');
-        // 兼容中文应用程序 chcp 65001
-        const output = execSync(`chcp 65001 | powershell -ExecutionPolicy Bypass -File "${ps1Path}"`, {
-            encoding: 'buffer'
+        // 枚举两个快捷方式的分支
+        const dirs = [
+            `${process.env.PROGRAMDATA}\\Microsoft\\Windows\\Start Menu\\Programs`,  // 所有用户
+            `${process.env.APPDATA}\\Microsoft\\Windows\\Start Menu\\Programs`  // 当前用户
+        ];
+        const lnkList = [];
+        function walk(dir: string) {
+            let entries;
+            try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+            catch { return; }          // 目录不存在就跳过
+            for (const ent of entries) {
+                const full = path.join(dir, ent.name);
+                if (ent.isDirectory()) walk(full);          // 递归子目录
+                else if (ent.name.endsWith('.lnk')) lnkList.push(full);
+            }
+        }
+
+        dirs.forEach(walk);
+        const filePahtList = [] as FileInfo[];
+        lnkList.forEach(lnkPath => {
+            try {
+                const info = shell.readShortcutLink(lnkPath);
+                console.log(`${path.basename(lnkPath, '.lnk')}  ->  ${info.target}`);
+
+                const appName = path.basename(lnkPath, '.lnk')
+                //获取拼音
+                const pinyinArray = pinyin(appName, { toneType: "none", type: "array" }); // ["han", "yu", "pin", "yin"]
+                const pinyinHead = pinyinArray.map((item) => item[0]).join("");
+
+                const database = getDatabase();
+                // 获取size与ext
+                const stats = fs.statSync(info.target);
+                const size = stats.size;
+                const ext = path.extname(info.target).toLowerCase();
+                const md5 = calculateMd5(info.target, size, stats.mtimeMs);
+                filePahtList.push({
+                    filePath: info.target,
+                    name: appName,
+                    ext: ext,
+                });
+                // 原子 UPSERT：存在即更新，不存在则插入
+                const upsertStmt = database.prepare(`
+                INSERT INTO files (md5,path, name, ext, size, modified_at)
+                VALUES (?,?, ?, ?, ?, ?)
+                ON CONFLICT(path) DO UPDATE SET
+                    md5 = excluded.md5,
+                    name = excluded.name,
+                    ext = excluded.ext,
+                    size = excluded.size,
+                    modified_at = excluded.modified_at
+            `);
+                const changes = upsertStmt.run(md5, info.target, appName, ext, size, stats.mtimeMs);
+                if (changes.changes > 0) {
+                    logger.info(`成功索引程序：${appName}`);
+                }
+            } catch (e) {
+                console.error(e)
+                // 部分系统快捷方式无法解析，可忽略
+            }
         });
 
-        const jsonStr = output.toString('utf8');   // 显式 UTF-8 解码
-        const programs = JSON.parse(jsonStr);
-        const programList = Array.isArray(programs) ? programs : [programs];
+        return filePahtList;
+        // const ps1Path = pathConfig.get('getPrograms');
+        // // 兼容中文应用程序 chcp 65001
+        // const output = execSync(`chcp 65001 | powershell -ExecutionPolicy Bypass -File "${ps1Path}"`, {
+        //     encoding: 'buffer'
+        // });
 
-        logger.info(`找到 ${programList.length} 个已安装程序`);
-        return programList.filter(program =>
-            program.DisplayName &&
-            program.DisplayName.trim() !== '' &&
-            !program.DisplayName.includes('Microsoft Visual C++') && // 过滤运行库
-            !program.DisplayName.includes('Microsoft .NET') &&
-            !program.DisplayName.includes('Update for') &&
-            !program.DisplayName.includes('Security Update')
-        );
+        // const jsonStr = output.toString('utf8');   // 显式 UTF-8 解码
+        // const programs = JSON.parse(jsonStr);
+        // const programList = Array.isArray(programs) ? programs : [programs];
+
+        // logger.info(`找到 ${programList.length} 个已安装程序`);
+        // return programList.filter(program =>
+        //     program.DisplayName &&
+        //     program.DisplayName.trim() !== '' &&
+        //     !program.DisplayName.includes('Microsoft Visual C++') && // 过滤运行库
+        //     !program.DisplayName.includes('Microsoft .NET') &&
+        //     !program.DisplayName.includes('Update for') &&
+        //     !program.DisplayName.includes('Security Update')
+        // );
     } catch (error) {
         console.error(error)
         // logger.error(`获取已安装程序列表失败: ${error}`);
