@@ -1,0 +1,27 @@
+# i18n Ally 自定义框架配置
+# 用于支持项目的多语言文件结构
+
+languageTagSystem: standard
+usage.scanningIgnore: [
+  "node_modules/**",
+  "dist/**",
+  "out/**",
+  "build/**"
+]
+
+enabledFrameworks:
+  - custom
+
+# 自定义框架配置
+custom:
+  # 翻译文件路径模式
+  pathMatcher: "frontend/src/i18n/locales/{locale}/{namespace}.json"
+  # 命名空间文件列表
+  namespace: true
+  # 默认语言
+  defaultNamespace: "app"
+  # 命名空间分隔符
+  namespaceSeparator: ":"
+  # 键分隔符
+  keySeparator: "."
+

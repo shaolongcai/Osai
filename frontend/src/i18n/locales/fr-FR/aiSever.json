@@ -1,0 +1,9 @@
+{
+    "notConfigured": "Service IA non configuré",
+    "configured": "Service IA prêt",
+    "success": "Indexation IA terminée",
+    "pending": "Indexation IA en cours, vous pouvez rechercher à tout moment",
+    "loading": "Indexation IA en cours, {{count}} tâches restantes",
+    "tooltip": "Indexation IA en cours, l'utilisation du CPU ou du GPU augmentera"
+}
+

@@ -1,0 +1,9 @@
+{
+    "notConfigured": "Dịch vụ AI chưa được cấu hình",
+    "configured": "Dịch vụ AI đã sẵn sàng",
+    "success": "Lập chỉ mục AI đã hoàn tất",
+    "pending": "Đang lập chỉ mục AI, bạn có thể tìm kiếm bất cứ lúc nào",
+    "loading": "Đang lập chỉ mục AI, còn lại {{count}} tác vụ",
+    "tooltip": "Đang lập chỉ mục AI, việc sử dụng CPU hoặc GPU sẽ tăng"
+}
+

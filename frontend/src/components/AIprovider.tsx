@@ -2,6 +2,7 @@ import { ConfigParams } from "@/types/electron";
 import { Button, Card, MenuItem, Paper, Stack, TextField, Typography } from "@mui/material"
 import { useRequest } from "ahooks";
 import { useState } from "react";
+import { useTranslation } from '@/contexts/I18nContext';
 
 
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
 const AIProvider: React.FC<Props> = ({
     onFinish
 }) => {
-
+    const { t } = useTranslation();
     const [apiHost, setApiHost] = useState('http://127.0.0.1:11434');
     const [apiHostError, setApiHostError] = useState('');
     const [modelID, setModelID] = useState('');
@@ -56,7 +57,7 @@ const AIProvider: React.FC<Props> = ({
         <Card elevation={1} className="w-[480px] min-h-[400px]">
             <Stack spacing={3} alignItems='center'>
                 <Typography variant='headlineSmall' className="w-full text-left">
-                    AI Provider
+                    {t('app.settings.aiProvider')}
                 </Typography>
                 <Stack spacing={2} className="w-full" alignItems="center">
                     <Typography variant='titleSmall' color='text.secondary' className="w-full" >

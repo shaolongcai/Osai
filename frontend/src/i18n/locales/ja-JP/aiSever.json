@@ -1,0 +1,9 @@
+{
+    "notConfigured": "AI サービスが設定されていません",
+    "configured": "AI サービスは準備完了です",
+    "success": "AI インデックス作成が完了しました",
+    "pending": "AI インデックス作成中、いつでも検索できます",
+    "loading": "AI インデックス作成中、残り {{count}} タスク",
+    "tooltip": "AI インデックス作成中、CPU または GPU の使用率が増加します"
+}
+

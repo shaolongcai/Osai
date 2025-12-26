@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Language, TranslationKeys, TranslationKeyPath, I18nContextType, TranslationResources } from '../types/i18n';
 import { SUPPORTED_LANGUAGES } from '../config/languages';
+import { MODULE_FILES, DEFAULT_LANGUAGE, LOCALES_BASE_PATH } from '../i18n/constants';
 
 // 創建翻譯上下文
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -14,32 +15,12 @@ interface I18nProviderProps {
 // 翻譯上下文提供者組件
 export const I18nProvider: React.FC<I18nProviderProps> = ({
   children,
-  defaultLanguage = 'zh-CN'
+  defaultLanguage = DEFAULT_LANGUAGE
 }) => {
   const [currentLanguage, setCurrentLanguage] = useState<Language>(defaultLanguage);
   const [translations, setTranslations] = useState<Partial<TranslationResources>>({});
   const [loadedLanguages, setLoadedLanguages] = useState<Set<Language>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
-
-  // 支援的模塊文件列表（對應 app 下的各子鍵）
-  const MODULE_FILES = [
-    'app',
-    'search',
-    'settings',
-    'common',
-    'language',
-    'indexing',
-    'visualIndexStatus',
-    'aiMarkStatus',
-    'preload',
-    'reportProtocol',
-    'updateTips',
-    'aiMark',
-    'contact',
-    'table',
-    'tray',
-    'aiSever',
-  ] as const;
 
   // 動態載入翻譯文件
   const loadTranslation = async (language: Language): Promise<void> => {
@@ -50,7 +31,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     setIsLoading(true);
     try {
       // 優先嘗試新的語言/模塊目錄結構
-      const base = `./locales/${language}`;
+      const base = `${LOCALES_BASE_PATH}/${language}`;
       const moduleResponses = await Promise.all(
         MODULE_FILES.map(async (m) => {
           try {
@@ -81,7 +62,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
         });
         // 若有缺失模塊，嘗試載入舊的單檔 JSON 並做補全
         try {
-          const legacyResp = await fetch(`./locales/${language}.json`);
+          const legacyResp = await fetch(`${LOCALES_BASE_PATH}/${language}.json`);
           if (legacyResp.ok) {
             const legacy: any = await legacyResp.json();
             const deepMerge = (target: any, source: any) => {
@@ -106,7 +87,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
         setLoadedLanguages(prev => new Set([...prev, language]));
       } else {
         // 兼容舊結構：單檔 JSON
-        const response = await fetch(`./locales/${language}.json`);
+        const response = await fetch(`${LOCALES_BASE_PATH}/${language}.json`);
         if (response.ok) {
           const data: TranslationKeys = await response.json();
           setTranslations(prev => ({

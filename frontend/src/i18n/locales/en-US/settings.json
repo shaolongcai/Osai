@@ -19,6 +19,9 @@
   "checkUpdateStatusNewVersion": "New version found: {{version}}",
   "generalSettings": "General Settings",
   "aiSettings": "AI Settings",
+  "aiProvider": "AI Provider",
+  "system": "System",
+  "contact": "Contact",
   "update": "Update",
   "about": "About",
   "website": "Official Website"

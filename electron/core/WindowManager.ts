@@ -121,8 +121,8 @@ class WindowManager {
         if (isDev) {
             this.searchWindow.loadURL('http://localhost:5173/search-bar.html');   // 加载搜索条HTML
             this.settingsWindow.loadURL('http://localhost:5173/setting.html');   // 加载设置条HTML
-            this.searchWindow.webContents.openDevTools(); //打开开发者工具
-            this.settingsWindow.webContents.openDevTools(); //打开开发者工具
+            this.searchWindow.webContents.openDevTools({ mode: 'detach' }); //打开开发者工具（分离模式）
+            this.settingsWindow.webContents.openDevTools({ mode: 'detach' }); //打开开发者工具（分离模式）
         } else {
             const searchBarPath = path.join(__dirname, '../frontend/dist/search-bar.html');
             const settingPath = path.join(__dirname, '../frontend/dist/setting.html');

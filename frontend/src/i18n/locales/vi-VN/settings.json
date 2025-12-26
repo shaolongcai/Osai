@@ -16,9 +16,13 @@
   "check": "Kiểm tra",
   "checking": "Đang kiểm tra...",
   "checkUpdateStatusLatest": "Bạn đang dùng phiên bản mới nhất",
+  "not-available-update": "Phiên bản mới nhất",
   "checkUpdateStatusNewVersion": "Đã tìm thấy phiên bản mới:{{version}}",
   "generalSettings": "Cài đặt chung",
   "aiSettings": "Cài đặt AI",
+  "aiProvider": "Nhà cung cấp AI",
+  "system": "Hệ thống",
+  "contact": "Liên hệ",
   "update": "Cập nhật",
   "about": "Giới thiệu",
   "website": "Trang Web Chính Thức"

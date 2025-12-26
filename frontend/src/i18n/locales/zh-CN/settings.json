@@ -16,9 +16,13 @@
   "check": "检查",
   "checking": "检查中...",
   "checkUpdateStatusLatest": "目前已是最新版本",
+  "not-available-update": "已是最新版本",
   "checkUpdateStatusNewVersion": "发现新版本：{{version}}",
   "generalSettings": "一般设置",
   "aiSettings": "AI 设置",
+  "aiProvider": "AI 提供商",
+  "system": "系统",
+  "contact": "联系",
   "update": "更新",
   "about": "关于",
   "website": "官方网站"

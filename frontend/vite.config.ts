@@ -22,7 +22,7 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: 'public/locales',
+          src: 'src/i18n/locales',
           dest: ''
         }
       ]

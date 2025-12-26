@@ -1,0 +1,9 @@
+{
+    "notConfigured": "AI-Dienst nicht konfiguriert",
+    "configured": "AI-Dienst ist bereit",
+    "success": "AI-Indizierung abgeschlossen",
+    "pending": "AI-Indizierung läuft, Sie können jederzeit suchen",
+    "loading": "AI-Indizierung läuft, {{count}} Aufgaben verbleibend",
+    "tooltip": "AI-Indizierung läuft, CPU- oder GPU-Auslastung wird steigen"
+}
+

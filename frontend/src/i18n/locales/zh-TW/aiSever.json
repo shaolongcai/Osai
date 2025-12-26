@@ -1,0 +1,9 @@
+{
+    "notConfigured": "AI 服務未配置",
+    "configured": "AI 服務已就緒",
+    "success": "AI 索引完成",
+    "pending": "AI 索引中，您可以隨時搜索",
+    "loading": "AI 索引中，剩餘 {{count}} 個任務",
+    "tooltip": "AI 索引中，CPU 或 GPU 使用率會增加"
+}
+

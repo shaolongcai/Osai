@@ -16,9 +16,13 @@
   "check": "확인",
   "checking": "확인 중...",
   "checkUpdateStatusLatest": "현재 최신 버전입니다",
+  "not-available-update": "최신 버전",
   "checkUpdateStatusNewVersion": "새 버전 발견: {{version}}",
   "generalSettings": "일반 설정",
   "aiSettings": "AI 설정",
+  "aiProvider": "AI 제공업체",
+  "system": "시스템",
+  "contact": "연락처",
   "update": "업데이트",
   "about": "정보",
   "website": "공식 웹사이트"

@@ -112,7 +112,7 @@ function getAppLanguage(): string {
 function loadTrayTranslations(language: string): any {
   try {
     const localesPath = isDev
-      ? path.join(__dirname, '../frontend/public/locales', language, 'tray.json')
+      ? path.join(__dirname, '../frontend/src/i18n/locales', language, 'tray.json')
       : path.join(__dirname, '../frontend/dist/locales', language, 'tray.json');
 
     const translationData = readFileSync(localesPath, 'utf-8');
@@ -122,7 +122,7 @@ function loadTrayTranslations(language: string): any {
     // 降級到中文簡體
     try {
       const fallbackPath = isDev
-        ? path.join(__dirname, '../frontend/public/locales/zh-CN/tray.json')
+        ? path.join(__dirname, '../frontend/src/i18n/locales/zh-CN/tray.json')
         : path.join(__dirname, '../frontend/dist/locales/zh-CN/tray.json');
       const translationData = readFileSync(fallbackPath, 'utf-8');
       return JSON.parse(translationData);

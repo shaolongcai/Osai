@@ -246,15 +246,15 @@ const Setting = () => {
                     "
                 >
                     <Typography variant='headlineSmall' >
-                        Setting
+                        {t('app.settings.title')}
                     </Typography>
                     <Stack spacing={2} sx={{ marginTop: '16px' }}>
                         <Stack spacing={1}>
                             <Typography variant='titleSmall' className='color-rgba(0, 0, 0, 0.85)' >
-                                AI Sever
+                                {t('app.settings.aiSettings')}
                             </Typography>
                             <SettingItem
-                                title='AI Provider'
+                                title={t('app.settings.aiProvider')}
                                 type='button'
                                 value={aiProvider?.model || 'SET'}
                                 onAction={() => {
@@ -289,7 +289,7 @@ const Setting = () => {
                         </Stack>
                         <Stack spacing={1}>
                             <Typography variant='titleSmall' className='color-rgba(0, 0, 0, 0.85)' >
-                                System
+                                {t('app.settings.system')}
                             </Typography>
                             {/* 打开日志 */}
                             <SettingItem
@@ -343,7 +343,7 @@ const Setting = () => {
                         /> */}
                         <Stack spacing={1} >
                             <Typography variant='titleSmall' >
-                                Language
+                                {t('app.settings.language')}
                             </Typography>
                             <SettingItem
                                 title={t('app.settings.language')}
@@ -354,7 +354,7 @@ const Setting = () => {
                         </Stack>
                         <Stack spacing={1} >
                             <Typography variant='titleSmall' >
-                                Contact
+                                {t('app.settings.contact')}
                             </Typography>
                             <Contact />
                         </Stack>

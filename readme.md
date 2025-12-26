@@ -1,81 +1,90 @@
-# Osai - AI 驱动的智能搜索应用
+<div align="center">
+# Osai - AI-Powered Intelligent Search Application
+</div>
 
 <div align="center">
   <img src="./frontend/public/logo.svg" alt="Osai Logo" width="120" height="120">
   
-  <p>一个基于 AI 技术的本地文件智能搜索应用</p>
+  <p>An intelligent local file search application based on AI technology</p>
   
-  ![Version](https://img.shields.io/badge/version-0.3.1-blue.svg)
-  ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
-  ![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)
+  ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
+  ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square)
+  ![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat-square)
+  ![Node.js](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen?style=flat-square&logo=node.js)
+  ![Electron](https://img.shields.io/badge/electron-38.0.0-blue?style=flat-square&logo=electron)
+
+  <p><strong>Multi-language Support:</strong> English | 简体中文 | 繁體中文</p>
+  
+  <p>⭐ Click the Star in the upper right corner to receive software update notifications on the GitHub homepage~</p>
+  
 </div>
 
-## 📖 项目简介
+## 📖 Project Introduction
 
-Osai 是一个功能强大的桌面应用程序，利用人工智能技术为用户提供智能的本地文件搜索体验。通过结合传统的文本搜索和现代的向量语义搜索，Osai 能够理解用户的搜索意图，提供更准确、更相关的搜索结果。
+Osai is a powerful desktop application that leverages artificial intelligence technology to provide users with an intelligent local file search experience. By combining traditional text search with modern vector semantic search, Osai can understand user search intent and provide more accurate and relevant search results.
 
-### ✨ 主要特性
+### ✨ Key Features
 
-- 🔍 **AI 驱动的智能搜索** - 基于语义理解的文件内容搜索
-- 📷 **OCR 图像文字识别** - 支持从图片中提取文字内容进行搜索
-- 🌍 **多语言支持** - 支持 8 种语言界面（中文简体/繁体、英文、日文、韩文、法文、德文、越南文）
-- 📁 **本地文件索引** - 快速建立本地文件索引，支持多种文件格式
-- 🚀 **向量化搜索** - 使用向量数据库进行语义相似性搜索
-- ⚡ **实时搜索** - 快速响应的搜索结果展示
-- 🔄 **自动更新** - 内置应用自动更新机制
-- 🎨 **现代化界面** - 基于 Material-UI 的美观用户界面
+- 🔍 **AI-Powered Intelligent Search** - File content search based on semantic understanding
+- 📷 **OCR Image Text Recognition** - Extract text content from images for search
+- 🌍 **Multi-language Support** - Supports 8 language interfaces (Simplified/Traditional Chinese, English, Japanese, Korean, French, German, Vietnamese)
+- 📁 **Local File Indexing** - Quickly build local file indexes, supporting multiple file formats
+- 🚀 **Vectorized Search** - Semantic similarity search using vector databases
+- ⚡ **Real-time Search** - Fast and responsive search result display
+- 🔄 **Auto Update** - Built-in application auto-update mechanism
+- 🎨 **Modern Interface** - Beautiful user interface based on Material-UI
 
-## 🛠️ 技术栈
+## 🛠️ Tech Stack
 
-### 前端技术
-- **React 18** - 现代化的用户界面框架
-- **TypeScript** - 类型安全的 JavaScript 超集
-- **Material-UI (MUI)** - React 组件库
-- **Tailwind CSS V4** - 实用优先的 CSS 框架
-- **Vite** - 快速的前端构建工具
-- **React Context** - 状态管理和国际化
+### Frontend Technologies
+- **React 18** - Modern user interface framework
+- **TypeScript** - Type-safe JavaScript superset
+- **Material-UI (MUI)** - React component library
+- **Tailwind CSS V4** - Utility-first CSS framework
+- **Vite** - Fast frontend build tool
+- **React Context** - State management and internationalization
 
-### 后端技术
-- **Electron** - 跨平台桌面应用框架
-- **Node.js** - JavaScript 运行时环境
-- **SQLite** - 轻量级关系型数据库
-- **LanceDB** - 高性能向量数据库
-- **Tesseract.js** - OCR 文字识别引擎
+### Backend Technologies
+- **Electron** - Cross-platform desktop application framework
+- **Node.js** - JavaScript runtime environment
+- **SQLite** - Lightweight relational database
+- **LanceDB** - High-performance vector database
+- **Tesseract.js** - OCR text recognition engine
 
-### AI 集成
-- **Ollama** - 本地 AI 模型服务
-- **向量化引擎** - 文本向量化和语义搜索
-- **多语言 OCR** - 支持中英文等多语言文字识别
+### AI Integration
+- **Ollama** - Local AI model service
+- **Vectorization Engine** - Text vectorization and semantic search
+- **Multi-language OCR** - Supports Chinese, English, and other multi-language text recognition
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 环境要求
+### Requirements
 
 - **Node.js** >= 16.0.0
-- **npm** >= 8.0.0 或 **pnpm** >= 7.0.0
-- **Python** >= 3.8 (用于 OCR 功能)
+- **npm** >= 8.0.0 or **pnpm** >= 7.0.0
+- **Python** >= 3.8 (for OCR functionality)
 - **Git**
 
-### 安装步骤
+### Installation Steps
 
-1. **克隆项目**
+1. **Clone the project**
    ```bash
    git clone https://github.com/your-username/ai-search.git
    cd ai-search
    ```
 
-2. **安装依赖**
+2. **Install dependencies**
    ```bash
-   # 安装主项目依赖
+   # Install main project dependencies
    npm install
    
-   # 安装前端依赖
+   # Install frontend dependencies
    cd frontend
    npm install
    cd ..
    ```
 
-3. **开发环境运行**
+3. **Run in development environment**
    ```bash
    # Windows
    ./run-dev.bat
@@ -83,11 +92,11 @@ Osai 是一个功能强大的桌面应用程序，利用人工智能技术为用
    # Linux/macOS
    ./run-dev.sh
    
-   # 或者使用 npm 命令
+   # Or use npm command
    npm run electron:dev
    ```
 
-4. **构建应用**
+4. **Build the application**
    ```bash
    # Windows
    ./run-build.bat
@@ -95,570 +104,663 @@ Osai 是一个功能强大的桌面应用程序，利用人工智能技术为用
    # Linux/macOS
    ./run-build.sh
    
-   # 或者使用 npm 命令
+   # Or use npm commands
    npm run build:win    # Windows
    npm run build:mac    # macOS
    npm run build:linux  # Linux
    ```
 
-## 📁 项目结构
+## 📁 Project Structure
 
-### 项目总览
+### Project Overview
 
 ```
 ai-search/
-├── electron/                    # Electron 主程序代码
-├── frontend/                    # React 前端应用
-├── dist-electron/               # 编译后的 Electron 代码
-├── updatePack/                  # 更新包相关
-├── build/                       # 构建配置
-├── package.json                 # 主项目配置
-├── vite.main.config.js          # Vite 主进程构建配置
-├── vite.preload.config.js       # Vite 预加载脚本构建配置
-├── vite.renderer.config.js      # Vite 渲染进程构建配置
-├── run-build.bat/.sh            # 构建脚本
-├── run-dev.bat/.sh              # 开发环境启动脚本
-├── create-mac-icons.sh          # macOS 图标生成脚本
-├── dev-app-update.yml           # 开发环境自动更新配置
-├── chi_sim.traineddata          # 简体中文 OCR 训练数据
-├── chi_tra.traineddata          # 繁体中文 OCR 训练数据
-├── eng.traineddata              # 英文 OCR 训练数据
-├── .gitignore                   # Git 忽略文件配置
-└── .npmrc                       # npm 配置文件
+├── electron/                    # Electron main process code
+├── frontend/                    # React frontend application
+├── dist-electron/               # Compiled Electron code
+├── updatePack/                  # Update package related
+├── build/                       # Build configuration
+├── package.json                 # Main project configuration
+├── vite.main.config.js          # Vite main process build configuration
+├── vite.preload.config.js       # Vite preload script build configuration
+├── vite.renderer.config.js      # Vite renderer process build configuration
+├── run-build.bat/.sh            # Build scripts
+├── run-dev.bat/.sh              # Development environment startup scripts
+├── create-mac-icons.sh          # macOS icon generation script
+├── dev-app-update.yml           # Development environment auto-update configuration
+├── chi_sim.traineddata          # Simplified Chinese OCR training data
+├── chi_tra.traineddata          # Traditional Chinese OCR training data
+├── eng.traineddata              # English OCR training data
+├── .gitignore                   # Git ignore file configuration
+└── .npmrc                       # npm configuration file
 ```
 
-### Electron 主进程详细结构 (`electron/`)
+### Electron Main Process Detailed Structure (`electron/`)
 
 ```
 electron/
-├── main.ts                      # Electron 主进程入口
-├── preload.ts                   # 预加载脚本，API 桥接
-├── tsconfig.json                # TypeScript 配置
-├── api/                         # API 接口层
-│   ├── file.ts                  # 文件操作 API
-│   ├── system.ts                # 系统相关 API
-│   └── update.ts                # 应用更新 API
-├── core/                        # 核心业务逻辑
-│   ├── appState.ts              # 应用状态管理
-│   ├── documentSever.ts         # 文档服务器
-│   ├── downloader.ts            # 文件下载服务
-│   ├── imageSever.ts            # 图像服务器
-│   ├── indexFiles.ts            # 文件索引服务
-│   ├── indexer.worker.ts        # 索引工作线程（主要）
-│   ├── indexer2.worker.ts       # 索引工作线程（备用）
-│   ├── logger.ts                # 日志系统
-│   ├── model.ts                 # AI 模型管理
-│   ├── ollama.ts                # Ollama AI 服务集成
-│   ├── pathConfigs.ts           # 路径配置管理
-│   ├── search.ts                # 搜索引擎核心逻辑
-│   ├── system.ts                # 系统信息检测
-│   ├── updateService.ts         # 自动更新服务
-│   └── vectorization.ts         # 向量化服务
-├── database/                    # 数据库操作
-│   ├── lanceDb.ts               # LanceDB 向量数据库
-│   └── sqlite.ts                # SQLite 关系型数据库
-├── workers/                     # 工作线程
-│   ├── ai.worker.ts             # AI 处理工作线程
-│   └── imageProcessor.worker.ts # 图像处理工作线程
-├── types/                       # 类型定义
-│   ├── ai.d.ts                  # AI 相关类型
-│   ├── api.d.ts                 # API 接口类型
-│   ├── database.d.ts            # 数据库类型
-│   ├── search.d.ts              # 搜索相关类型
-│   └── system.d.ts              # 系统相关类型
-├── resources/                   # 资源文件
-│   ├── app-update.yml           # 应用更新配置
-│   ├── assets/                  # 静态资源文件
-│   ├── elevate.exe              # Windows 权限提升工具
-│   ├── ollama/                  # Ollama AI 服务相关文件
-│   ├── pythonScript/            # Python 脚本文件
-│   └── traineddata/             # OCR 训练数据
-├── units/                       # 工具类
-│   └── enum.ts                  # 枚举定义
-└── data/                        # 数据文件
-    └── prompt.ts                # AI 提示词模板
-```
+├── main.ts                      # Electron main process entry
+├── preload.ts                   # Preload script, API bridge
+├── tsconfig.json                # TypeScript configuration
+├── api/                         # API interface layer
+│   ├── file.ts                  # File operation API
+│   ├── system.ts                # System-related API
+│   └── update.ts                # Application update API
+├── core/                        # Core business logic
+│   ├── appState.ts              # Application state management
+│   ├── iconExtractor.ts         # Icon extraction service
+│   ├── iconExtractor.ts         # Icon extraction service
+│   ├── imageSever.ts            # Image server
+│   ├── indexFiles.ts            # File indexing service
+├── sever/                       # Server services
+│   ├── vectorization.ts         # Vectorization service
+├── sever/                       # Server services
+│   ├── vectorization.ts         # Vectorization service
+│   └── WindowManager.ts         # Window management service
+├── sever/                       # Server services
+│   ├── vectorization.ts         # Vectorization service
+│   └── WindowManager.ts         # Window management service
+├── sever/                       # Server services
+│   ├── aiSever.ts               # AI service
+│   ├── documentSever.ts         # Document server
+│   ├── ocrSever.ts              # OCR service
+│   └── ollamaSever.ts           # Ollama AI service integration
+│   ├── documentSever.ts         # Document server
+│   ├── repositories.ts          # Database repositories
+│   ├── schema.ts                # Database schema definitions
+│   └── ollamaSever.ts           # Ollama AI service integration
+│   ├── documentSever.ts         # Document server
+│   ├── repositories.ts          # Database repositories
+│   ├── icon.worker.ts           # Icon processing worker thread
+│   ├── imageProcessor.worker.ts # Image processing worker thread
+│   └── indexer.worker.ts        # Indexing worker thread
+│   └── ollamaSever.ts           # Ollama AI service integration
+│   ├── documentSever.ts         # Document server
+│   ├── repositories.ts          # Database repositories
+│   ├── icon.worker.ts           # Icon processing worker thread
+│   ├── imageProcessor.worker.ts # Image processing worker thread
+│   └── indexer.worker.ts        # Indexing worker thread
+│   └── ollamaSever.ts           # Ollama AI service integration
+│   ├── documentSever.ts         # Document server
+│   ├── repositories.ts          # Database repositories
+│   │   ├── icon.icns            # macOS icon
+│   │   ├── icon.png             # Application icon
+│   │   └── logo-256.ico         # Windows icon
+│   ├── icon.worker.ts           # Icon processing worker thread
+│   ├── get_programs.ps1         # PowerShell script for getting programs
+│   ├── imageProcessor.worker.ts # Image processing worker thread
+│   └── ollamaSever.ts           # Ollama AI service integration
+│       ├── chi_sim.traineddata.gz  # Simplified Chinese OCR data
+│       ├── chi_tra.traineddata.gz  # Traditional Chinese OCR data
+│       └── eng.traineddata.gz      # English OCR data
+├── native/                      # Native modules
+│   ├── binding.gyp              # Node.js native addon build config
+│   ├── include/                 # C++ header files
+│   │   └── icon_extractor.h     # Icon extractor header
+│   └── src/                     # C++ source files
+│       ├── binding.cpp          # Node.js binding
+│       ├── icon_extractor.cpp   # Icon extractor implementation
+│       └── toIcon.cpp           # Icon conversion
+│   ├── documentSever.ts         # Document server
+│   ├── enum.ts                  # Enum definitions
+│   ├── math.ts                  # Math utilities
+│   └── pathUtils.ts             # Path utility functionsories
+│   │   ├── icon.icns            # macOS icon
+│   │   ├── icon.png             # Application icon
+│   │   └── logo-256.ico         # Windows icon
+│   ├── icon.worker.ts           # Icon processing worker thread
+│   ├── get_programs.ps1         # PowerShell script for getting programs
+│   ├── imageProcessor.worker.ts # Image processing worker thread
+│   └── ollamaSever.ts           # Ollama AI service integration
+│       ├── chi_sim.traineddata.gz  # Simplified Chinese OCR data
+│       ├── chi_tra.traineddata.gz  # Traditional Chinese OCR data
+│       └── eng.traineddata.gz      # English OCR data
+├── native/                      # Native modules
+│   ├── binding.gyp              # Node.js native addon build config
+│   ├── include/                 # C++ header files
+│   │   └── icon_extractor.h     # Icon extractor header
+│   └── src/                     # C++ source files
+│       ├── binding.cpp          # Node.js binding
+│       ├── icon_extractor.cpp   # Icon extractor implementation
+│       └── toIcon.cpp           # Icon conversion
+│   ├── documentSever.ts         # Document server
+│   ├── enum.ts                  # Enum definitions
+│   ├── math.ts                  # Math utilities
+│   └── pathUtils.ts             # Path utility functionsories
+│   │   ├── icon.icns            # macOS icon
+│   │   ├── icon.png             # Application icon
+│   │   └── logo-256.ico         # Windows icon
+│   ├── icon.worker.ts           # Icon processing worker thread
+│   ├── get_programs.ps1         # PowerShell script for getting programs
+│   │   │   └── Home2.tsx        # Home page component
+│   │   ├── preload/             # Preload page
+│   │   │   └── Preload.tsx      # Preload component
+│   │   ├── Preload.tsx          # Preload page (alternative)
+│   │   ├── Search.tsx           # Search page
+│   │   └── Setting.tsx          # Settings pageta
+├── native/                      # Native modules
+│   ├── binding.gyp              # Node.js native addon build config
+│   │   │   └── AIMarkDialog.tsx
+│   │   ├── AIprovider.tsx      # AI provider component
+│   │   ├── Cate.tsx             # Category component
+│   │   ├── Contact.tsx          # Contact information component
+│   │   └── icon_extractor.h     # Icon extractor header
+│   │   │   └── Dialog.tsx
+│   │   ├── Guide.tsx            # Guide component
+│   │   ├── InfoCard.tsx         # Information card component
+│       ├── binding.cpp          # Node.js binding
+│   │   │   ├── index.ts
+│   │   │   └── LanguageSwitcher.tsx
+│   │   ├── Login.tsx            # Login component
+│   │   ├── ReportProtocol.tsx   # Report protocol component
+│   │   ├── search.tsx           # Search component
+│   │   ├── SearchPanel.tsx      # Search panel component
+│   ├── documentSever.ts         # Document server
+│   │   │   └── Setting.tsx
+│   ├── enum.ts                  # Enum definitions
+│   │   │   └── SettingItem.tsx
+│   ├── math.ts                  # Math utilities
+│   │   │   └── TableRelust.tsx
+│   │   ├── UpdateNotification.tsx # Update notification component
+│   └── pathUtils.ts             # Path utility functionsories
+│   │   │   └── UpdateTipsDialog.tsx
+│   │   ├── icon.icns            # macOS icon
+│   │   ├── icon.png             # Application icon
+│   │   └── logo-256.ico         # Windows icon
+│   ├── icon.worker.ts           # Icon processing worker thread
+│   ├── get_programs.ps1         # PowerShell script for getting programs
+│   │   │   └── Home2.tsx        # Home page component
+│   │   ├── preload/             # Preload page
+│   │   │   └── Preload.tsx      # Preload component
+│   │   ├── Preload.tsx          # Preload page (alternative)
+│   │   ├── Search.tsx           # Search page
+│   │   └── Setting.tsx          # Settings pageta
+├── native/                      # Native modules
+│   ├── binding.gyp              # Node.js native addon build config
+│   │   │   └── AIMarkDialog.tsx
+│   │   ├── AIprovider.tsx      # AI provider component
+│   │   ├── Cate.tsx             # Category component
+│   │   ├── Contact.tsx          # Contact information component
+│   │   └── icon_extractor.h     # Icon extractor header
+│   │   │   └── Dialog.tsx
+│   │   ├── Guide.tsx            # Guide component
+│   │   ├── InfoCard.tsx         # Information card component
+│       ├── binding.cpp          # Node.js binding
+│   │   │   ├── index.ts
+│   │   │   └── LanguageSwitcher.tsx
+│   │   ├── Login.tsx            # Login component
+│   │   ├── ReportProtocol.tsx   # Report protocol component
+│   │   ├── search.tsx           # Search component
+│   │   ├── SearchPanel.tsx      # Search panel component
+│   ├── documentSever.ts         # Document server
+│   │   │   └── Setting.tsx
+│   ├── enum.ts                  # Enum definitions
+│   │   │   └── SettingItem.tsx
+│   │   ├── enum.ts              # Enum utilities
+│   │   └── tools.ts             # Tool functions
+│   ├── hooks/                   # Custom React hooks
+│   │   └── useIcon.ts           # Icon hook
+│   ├── RootProviders.tsx       # Root providers component
+│   ├── searchIndex.tsx          # Search index page
+│   ├── settingIndex.tsx         # Settings index page
+│   ├── math.ts                  # Math utilities
+│       └── globalContext.ts     # Global state context
+│   │   ├── UpdateNotification.tsx # Update notification component
+│   └── pathUtils.ts             # Path utility functionsories
+│   │   │   └── UpdateTipsDialog.tsx
+│   │   ├── icon.icns            # macOS icon
+│   │   ├── icon.png             # Application icon
+│   │   └── logo-256.ico         # Windows icon
+│   ├── icon.worker.ts           # Icon processing worker thread
+│   ├── get_programs.ps1         # PowerShell script for getting programs
+│   │   │   └── Home2.tsx        # Home page component
+│   │   ├── preload/             # Preload page
+│   │   │   └── Preload.tsx      # Preload component
+│   │   ├── Preload.tsx          # Preload page (alternative)
+│   │   ├── Search.tsx           # Search page
+│   │   └── Setting.tsx          # Settings pageta
+├── native/                      # Native modules
+│   ├── binding.gyp              # Node.js native addon build config
+│   │   │   └── AIMarkDialog.tsx
+│   │   ├── AIprovider.tsx      # AI provider component
+│   │   ├── Cate.tsx             # Category component
+│   │   ├── Contact.tsx          # Contact information component
+│   │   └── icon_extractor.h     # Icon extractor header
+  - `iconExtractor.ts` - Icon extraction service
+  - `WindowManager.ts` - Window management service
+- **`sever/`** - Server services
+  - `aiSever.ts` - AI service
+  - `documentSever.ts` - Document server
+  - `ocrSever.ts` - OCR service
+  - `ollamaSever.ts` - Ollama AI service integration
+│   │   ├── Guide.tsx            # Guide component
+│   │   ├── InfoCard.tsx         # Information card component
+  - `repositories.ts` - Database repositories
+  - `schema.ts` - Database schema definitions binding
+│   │   │   ├── index.ts
+│   │   │   └── LanguageSwitcher.tsx
+  - `icon.worker.ts` - Icon processing thread
+│   │   ├── Login.tsx            # Login component
+  - `indexer.worker.ts` - Indexing worker thread
+│   │   ├── ReportProtocol.tsx   # Report protocol component
+│   │   ├── search.tsx           # Search component
+│   │   ├── SearchPanel.tsx      # Search panel component
+- **`components/`** - React component library
+  - `Search/` - Search component (search.tsx, SearchPanel.tsx)
+│   ├── enum.ts                  # Enum definitions
+│   │   │   └── SettingItem.tsx
+│   │   ├── enum.ts              # Enum utilities
+│   │   └── tools.ts             # Tool functions
+  - `AIprovider.tsx` - AI provider component
+  - `Guide.tsx` - Guide component
+  - `Login.tsx` - Login component
+  - `UpdateNotification.tsx` - Update notification
+│   ├── hooks/                   # Custom React hooks
+  - `home/Home2.tsx` - Home page
+  - `preload/Preload.tsx` - Preload page
+  - `Search.tsx` - Search page
+  - `Setting.tsx` - Settings page   # Root providers component
+│   ├── searchIndex.tsx          # Search index page
+│   ├── settingIndex.tsx         # Settings index page
+  - `globalContext.ts` - Global state context
+│   ├── math.ts                  # Math utilities
+│       └── globalContext.ts     # Global state context
+- **`hooks/`** - Custom React hooks
+  - `useIcon.ts` - Icon hook
+│   │   ├── UpdateNotification.tsx # Update notification component
+│   └── pathUtils.ts             # Path utility functionsories
+│   │   │   └── UpdateTipsDialog.tsx
+│   │   ├── icon.icns            # macOS icon
+│   │   ├── icon.png             # Application icon
+│   │   └── logo-256.ico         # Windows icon
+│   ├── icon.worker.ts           # Icon processing worker thread
+│   ├── get_programs.ps1         # PowerShell script for getting programs
+│   │   │   └── Home2.tsx        # Home page component
+│   │   ├── preload/             # Preload page
+│   │   │   └── Preload.tsx      # Preload component
+│   │   ├── Preload.tsx          # Preload page (alternative)
+│   │   ├── Search.tsx           # Search page
+│   │   └── Setting.tsx          # Settings pageta
+├── native/                      # Native modules
+│   ├── binding.gyp              # Node.js native addon build config
+│   │   │   └── AIMarkDialog.tsx
+│   │   ├── AIprovider.tsx      # AI provider component
+│   │   ├── Cate.tsx             # Category component
+│   │   ├── Contact.tsx          # Contact information component
+│   │   └── icon_extractor.h     # Icon extractor header
+  - `iconExtractor.ts` - Icon extraction service
+  - `WindowManager.ts` - Window management service
+- **`sever/`** - Server services
+  - `aiSever.ts` - AI service
+  - `documentSever.ts` - Document server
+  - `ocrSever.ts` - OCR service
+  - `ollamaSever.ts` - Ollama AI service integration
+│   │   ├── Guide.tsx            # Guide component
+│   │   ├── InfoCard.tsx         # Information card component
+  - `repositories.ts` - Database repositories
+  - `schema.ts` - Database schema definitions binding
+│   │   │   ├── index.ts
+│   │   │   └── LanguageSwitcher.tsx
+  - `icon.worker.ts` - Icon processing thread
+│   │   ├── Login.tsx            # Login component
+  - `indexer.worker.ts` - Indexing worker thread
+│   │   ├── ReportProtocol.tsx   # Report protocol component
+- **AI Service**: Centralized AI service management (`sever/aiSever.ts`)
+- **Ollama Service**: Local AI model service integration (`sever/ollamaSever.ts`), provides text understanding and generation capabilities
+│   │   ├── SearchPanel.tsx      # Search panel component
+- **OCR Service**: Tesseract-based OCR service (`sever/ocrSever.ts`) for multi-language image text recognition
+- **Document Server**: Document processing service (`sever/documentSever.ts`)
+  - `Search/` - Search component (search.tsx, SearchPanel.tsx)
+│   ├── enum.ts                  # Enum definitions
+│   │   │   └── SettingItem.tsx
+│   │   ├── enum.ts              # Enum utilities
+│   │   └── tools.ts             # Tool functions
+  - `AIprovider.tsx` - AI provider component
+  - `Guide.tsx` - Guide component
+  - `Login.tsx` - Login component
+  - `UpdateNotification.tsx` - Update notification
+│   ├── hooks/                   # Custom React hooks
+  - `home/Home2.tsx` - Home page
+  - `preload/Preload.tsx` - Preload page
+  - `Search.tsx` - Search page
+  - `Setting.tsx` - Settings page   # Root providers component
+- **`home/Home2.tsx`** - Home page componentndex page
+│   ├── settingIndex.tsx         # Settings index page
+  - `globalContext.ts` - Global state context
+│   ├── math.ts                  # Math utilities
+│       └── globalContext.ts     # Global state context
+- **`hooks/`** - Custom React hooks
+  - `useIcon.ts` - Icon hook
+│   │   ├── UpdateNotification.tsx # Update notification component
+│   └── pathUtils.ts             # Path utility functions
+│   │   │   └── UpdateTipsDialog.tsx
+- **`Search.tsx`** - Search page
+  - Dedicated search interface
+  - Search functionality and result display
 
-### React 前端详细结构 (`frontend/`)
+- **`Setting.tsx`** - Settings page
+  - Application configuration interface
+  - User preferences management
 
-```
-frontend/
-├── package.json                 # 前端项目依赖和脚本配置
-├── vite.config.ts               # Vite 构建配置
-├── tailwind.config.ts           # Tailwind CSS V4 配置文件
-├── tsconfig.json                # TypeScript 配置
-├── eslint.config.js             # ESLint 代码规范配置
-├── index.html                   # HTML 入口文件
-├── public/                      # 公共资源
-│   ├── locales/                 # 多语言翻译文件
-│   │   ├── zh-CN.json           # 简体中文
-│   │   ├── zh-TW.json           # 繁体中文
-│   │   ├── en-US.json           # 英文
-│   │   ├── ja-JP.json           # 日文
-│   │   ├── ko-KR.json           # 韩文
-│   │   ├── fr-FR.json           # 法文
-│   │   ├── de-DE.json           # 德文
-│   │   └── vi-VN.json           # 越南文
-│   ├── logo.svg                 # 应用图标
-│   └── vite.svg                 # Vite 图标
-├── src/                         # 源代码
-│   ├── main.tsx                 # React 应用入口
-│   ├── App.tsx                  # 主应用组件
-│   ├── App.css                  # 应用样式
-│   ├── index.css                # 全局样式
-│   ├── theme.ts                 # Material-UI 主题配置
-│   ├── global.d.ts              # 全局类型定义
-│   ├── vite-env.d.ts            # Vite 环境类型定义
-│   ├── pages/                   # 页面组件
-│   │   ├── home/                # 主页面
-│   │   │   ├── home.tsx         # 主页面组件
-│   │   │   └── home.module.scss # 主页面样式
-│   │   └── preload/             # 预加载页面
-│   │       ├── Preload.tsx      # 预加载组件
-│   │       └── Preload.module.scss # 预加载样式
-│   ├── components/              # 组件库
-│   │   ├── AIMarkDialog/        # AI 标记对话框
-│   │   ├── Contact/             # 联系方式组件
-│   │   ├── Dialog/              # 通用对话框组件
-│   │   ├── InfoCard/            # 信息卡片组件
-│   │   ├── LanguageSwitcher/    # 语言切换器
-│   │   ├── ReportProtocol/      # 报告协议组件
-│   │   ├── Search/              # 搜索组件
-│   │   ├── Setting/             # 设置组件
-│   │   ├── SettingItem/         # 设置项组件
-│   │   ├── TableRelust/         # 结果表格组件
-│   │   ├── UpdateTipsDialog/    # 更新提示对话框
-│   │   └── index.ts             # 组件统一导出
-│   ├── contexts/                # 上下文管理
-│   │   └── I18nContext.tsx      # 国际化上下文
-│   ├── config/                  # 配置文件
-│   │   └── languages.ts         # 语言配置
-│   ├── types/                   # 类型定义
-│   │   ├── i18n.ts              # 国际化类型
-│   │   ├── electron.ts          # Electron API 类型
-│   │   └── system.ts            # 系统相关类型
-│   ├── assets/                  # 静态资源
-│   │   ├── images/              # 图片资源
-│   │   │   ├── weChat.png       # 微信二维码
-│   │   │   └── flags/           # 国旗 SVG 文件
-│   │   └── icons/               # 图标文件
-│   ├── flags/                   # 国旗组件
-│   │   └── FlagIcons.tsx        # React 国旗图标组件
-│   ├── utils/                   # 工具函数
-│   └── context/                 # 旧版上下文（兼容）
-│       └── globalContext.tsx    # 全局状态上下文
-└── dist/                        # 构建输出
-    ├── assets/                  # 编译后的资源
-    ├── index.html               # 编译后的 HTML
-    └── locales/                 # 编译后的语言文件
-```
+│   │   ├── icon.icns            # macOS icon
+│   │   ├── icon.png             # Application icon
+- **`Search/`** - Search components
+  - `search.tsx` - Search input box and search logic
+  - `SearchPanel.tsx` - Search panel componenton processing worker thread
+│   ├── get_programs.ps1         # PowerShell script for getting programs
+│   │   │   └── Home2.tsx        # Home page component
+│   │   ├── preload/             # Preload page
+│   │   │   └── Preload.tsx      # Preload component
+│   │   ├── Preload.tsx          # Preload page (alternative)
+│   │   ├── Search.tsx           # Search page
+│   │   └── Setting.tsx          # Settings pageta
+├── native/                      # Native modules
+│   ├── binding.gyp              # Node.js native addon build config
+│   │   │   └── AIMarkDialog.tsx
+│   │   ├── AIprovider.tsx      # AI provider component
+│   │   ├── Cate.tsx             # Category component
+│   │   ├── Contact.tsx          # Contact information component
+│   │   └── icon_extractor.h     # Icon extractor header
+  - `iconExtractor.ts` - Icon extraction service
+  - `WindowManager.ts` - Window management service
+- **`sever/`** - Server services
+  - `aiSever.ts` - AI service
+  - `documentSever.ts` - Document server
+  - `ocrSever.ts` - OCR service
+  - `ollamaSever.ts` - Ollama AI service integration
+│   │   ├── Guide.tsx            # Guide component
+  - System preferences
 
-### 核心目录详解
+- **`Guide.tsx`** - Guide component
+  - User guide and tutorials
+  - Feature introductions
 
-#### Electron 主进程 (`electron/`)
+- **`Login.tsx`** - Login component
+  - User authentication interface
 
-- **`main.ts`** - Electron 主进程入口，负责创建窗口、初始化服务
-- **`preload.ts`** - 预加载脚本，提供安全的 API 桥接
-- **`api/`** - API 接口层
-  - `file.ts` - 文件操作 API
-  - `system.ts` - 系统相关 API
-  - `update.ts` - 应用更新 API
-- **`core/`** - 核心业务逻辑
-  - `search.ts` - 搜索引擎核心
-  - `indexFiles.ts` - 文件索引服务
-  - `vectorization.ts` - 向量化服务
-  - `model.ts` - AI 模型管理
-  - `ollama.ts` - Ollama AI 服务集成
-- **`database/`** - 数据库操作
-  - `sqlite.ts` - SQLite 数据库
-  - `lanceDb.ts` - LanceDB 向量数据库
-- **`workers/`** - 工作线程
-  - `ai.worker.ts` - AI 处理线程
-  - `imageProcessor.worker.ts` - 图像处理线程
+- **`UpdateNotification.tsx`** - Update notification
+  - Update notification display
+  - Update status management
+  - System preferences
 
-#### React 前端 (`frontend/src/`)
+- **`Guide.tsx`** - Guide component
+  - User guide and tutorials
+  - Feature introductions
 
-- **`components/`** - React 组件库
-  - `Search/` - 搜索组件
-  - `TableRelust/` - 结果表格组件
-  - `LanguageSwitcher/` - 语言切换器
-  - `Setting/` - 设置组件
-  - `AIMarkDialog/` - AI 标记对话框
-- **`pages/`** - 页面组件
-  - `home/` - 主页面
-  - `preload/` - 预加载页面
-- **`contexts/`** - 上下文管理
-  - `I18nContext.tsx` - 国际化上下文
-- **`config/`** - 配置文件
-  - `languages.ts` - 语言配置
+- **`Login.tsx`** - Login component
+  - User authentication interface
 
-### 更新和部署相关 (`updatePack/`)
+- **`UpdateNotification.tsx`** - Update notification
+  - Update notification display
+  - Update status management
+│   │   ├── InfoCard.tsx         # Information card component
+  - `repositories.ts` - Database repositories
+  - `schema.ts` - Database schema definitions binding
+│   │   │   ├── index.ts
+│   │   │   └── LanguageSwitcher.tsx
+  - `icon.worker.ts` - Icon processing thread
+│   │   ├── Login.tsx            # Login component
+  - `indexer.worker.ts` - Indexing worker thread
+│   │   ├── ReportProtocol.tsx   # Report protocol component
+- **AI Service**: Centralized AI service management (`sever/aiSever.ts`)
+- **Ollama Service**: Local AI model service integration (`sever/ollamaSever.ts`), provides text understanding and generation capabilities
+│   │   ├── SearchPanel.tsx      # Search panel component
+- **OCR Service**: Tesseract-based OCR service (`sever/ocrSever.ts`) for multi-language image text recognition
+- **Document Server**: Document processing service (`sever/documentSever.ts`)cy
+  - `Search/` - Search component (search.tsx, SearchPanel.tsx)
+│   ├── enum.ts                  # Enum definitions
+│   │   │   └── SettingItem.tsx
+│   │   ├── enum.ts              # Enum utilities
+│   │   └── tools.ts             # Tool functions
+  - `AIprovider.tsx` - AI provider component
+  - `Guide.tsx` - Guide component
+  - `Login.tsx` - Login component
+  - `UpdateNotification.tsx` - Update notification
+│   ├── hooks/                   # Custom React hooks
+  - `home/Home2.tsx` - Home page
+  - `preload/Preload.tsx` - Preload page
+  - `Search.tsx` - Search page
+  - `Setting.tsx` - Settings page   # Root providers component
+- **`home/Home2.tsx`** - Home page componentndex page
+│   ├── settingIndex.tsx         # Settings index page
+  - `globalContext.ts` - Global state context
+│   ├── math.ts                  # Math utilities
+│       └── globalContext.ts     # Global state context
+- **`hooks/`** - Custom React hooks
+  - `useIcon.ts` - Icon hook
+│   │   ├── UpdateNotification.tsx # Update notification component
+│   └── pathUtils.ts             # Path utility functions
+│   │   │   └── UpdateTipsDialog.tsx
+- **`Search.tsx`** - Search page
+  - Dedicated search interface
+  - Search functionality and result display
 
-```
-updatePack/
-├── latest.yml                   # Windows 更新配置
-├── latest-x64-mac.yml           # macOS x64 更新配置
-├── latest-arm64-mac.yml         # macOS ARM64 更新配置
-├── quick-generate.py            # 更新包生成脚本
-└── quick-generate-mac.py        # macOS 更新包生成脚本
-```
+- **`Setting.tsx`** - Settings page
+  - Application configuration interface
+  - User preferences management
 
-### 构建配置 (`build/`)
+│   │   ├── icon.icns            # macOS icon
+│   │   ├── icon.png             # Application icon
+│   │   └── logo-256.ico         # Windows icon
+2. **Configure IDE**
+│   ├── get_programs.ps1         # PowerShell script for getting programs
+│   │   │   └── Home2.tsx        # Home page component
+│   │   ├── preload/             # Preload page
+│   │   │   └── Preload.tsx      # Preload component
+│   │   ├── Preload.tsx          # Preload page (alternative)
+│   │   ├── Search.tsx           # Search page
+│   │   └── Setting.tsx          # Settings pageta
+├── native/                      # Native modules
+│   ├── binding.gyp              # Node.js native addon build config
+│   │   │   └── AIMarkDialog.tsx
+│   │   ├── AIprovider.tsx      # AI provider component
+│   │   ├── Cate.tsx             # Category component
+│   │   ├── Contact.tsx          # Contact information component
+│   │   └── icon_extractor.h     # Icon extractor header
+  - `iconExtractor.ts` - Icon extraction service
+  - `WindowManager.ts` - Window management service
+- **`sever/`** - Server services
+  - `aiSever.ts` - AI service
+  - `documentSever.ts` - Document server
+  - `ocrSever.ts` - OCR service
+  - `ollamaSever.ts` - Ollama AI service integration
+│   │   ├── Guide.tsx            # Guide component
+│   │   ├── InfoCard.tsx         # Information card component
+  - `repositories.ts` - Database repositories
+  - `schema.ts` - Database schema definitions binding
+│   │   │   ├── index.ts
+│   │   │   └── LanguageSwitcher.tsx
+  - `icon.worker.ts` - Icon processing thread
+│   │   ├── Login.tsx            # Login component
+  - `indexer.worker.ts` - Indexing worker thread
+│   │   ├── ReportProtocol.tsx   # Report protocol component
+- **AI Service**: Centralized AI service management (`sever/aiSever.ts`)
+- **Ollama Service**: Local AI model service integration (`sever/ollamaSever.ts`), provides text understanding and generation capabilities
+│   │   ├── SearchPanel.tsx      # Search panel component
+- **OCR Service**: Tesseract-based OCR service (`sever/ocrSever.ts`) for multi-language image text recognition
+- **Document Server**: Document processing service (`sever/documentSever.ts`)
+  - `Search/` - Search component (search.tsx, SearchPanel.tsx)
+│   ├── enum.ts                  # Enum definitions
+│   │   │   └── SettingItem.tsx
+│   │   ├── enum.ts              # Enum utilities
+│   │   └── tools.ts             # Tool functions
+  - `AIprovider.tsx` - AI provider component
+  - `Guide.tsx` - Guide component
+  - `Login.tsx` - Login component
+  - `UpdateNotification.tsx` - Update notification
+│   ├── hooks/                   # Custom React hooks
+  - `home/Home2.tsx` - Home page
+  - `preload/Preload.tsx` - Preload page
+  - `Search.tsx` - Search page
+  - `Setting.tsx` - Settings page   # Root providers component
+│   ├── searchIndex.tsx          # Search index page
+│   ├── settingIndex.tsx         # Settings index page
+  - `globalContext.ts` - Global state context
+│   ├── math.ts                  # Math utilities
+│       └── globalContext.ts     # Global state context
+- **`hooks/`** - Custom React hooks
+  - `useIcon.ts` - Icon hook
+│   │   ├── UpdateNotification.tsx # Update notification component
+│   └── pathUtils.ts             # Path utility functions
+│   │   │   └── UpdateTipsDialog.tsx
+│   │   ├── icon.icns            # macOS icon
+│   │   ├── icon.png             # Application icon
+│   │   └── logo-256.ico         # Windows icon
+   - Existing SCSS module styles remain unchanged, gradually migrating
+│   ├── get_programs.ps1         # PowerShell script for getting programs
+│   │   │   └── Home2.tsx        # Home page component
+│   │   ├── preload/             # Preload page
+│   │   │   └── Preload.tsx      # Preload component
+│   │   ├── Preload.tsx          # Preload page (alternative)
+│   │   ├── Search.tsx           # Search page
+│   │   └── Setting.tsx          # Settings pageta
+├── native/                      # Native modules
+│   ├── binding.gyp              # Node.js native addon build config
+│   │   │   └── AIMarkDialog.tsx
+│   │   ├── AIprovider.tsx      # AI provider component
+│   │   ├── Cate.tsx             # Category component
+│   │   ├── Contact.tsx          # Contact information component
+│   │   └── icon_extractor.h     # Icon extractor header
+  - `iconExtractor.ts` - Icon extraction service
+  - `WindowManager.ts` - Window management service
+- **`sever/`** - Server services
+  - `aiSever.ts` - AI service
+  - `documentSever.ts` - Document server
+  - `ocrSever.ts` - OCR service
+  - `ollamaSever.ts` - Ollama AI service integration
+│   │   ├── Guide.tsx            # Guide component
+│   │   ├── InfoCard.tsx         # Information card component
+  - `repositories.ts` - Database repositories
+  - `schema.ts` - Database schema definitions binding
+│   │   │   ├── index.ts
+│   │   │   └── LanguageSwitcher.tsx
+  - `icon.worker.ts` - Icon processing thread
+│   │   ├── Login.tsx            # Login component
+  - `indexer.worker.ts` - Indexing worker thread
+│   │   ├── ReportProtocol.tsx   # Report protocol component
+│   │   ├── search.tsx           # Search component
+│   │   ├── SearchPanel.tsx      # Search panel component
 
-- **`entitlements.mac.plist`** - macOS 应用权限配置
-
-### OCR 训练数据文件
-
-- **`chi_sim.traineddata`** - 简体中文 OCR 训练数据
-- **`chi_tra.traineddata`** - 繁体中文 OCR 训练数据  
-- **`eng.traineddata`** - 英文 OCR 训练数据
-
-## 🏗️ 技术架构
-
-### 进程通信架构
-
-- **主进程 ↔ 渲染进程**: 通过 `preload.ts` 中的 `electronAPI` 进行安全通信
-- **工作线程**: 使用 Web Workers 处理耗时任务（索引、AI 处理）
-- **API 桥接**: 预加载脚本提供安全的 Node.js API 访问
-
-### 数据存储架构
-
-- **SQLite**: 存储文件元数据、配置信息、用户设置
-- **LanceDB**: 存储文本向量，支持高性能的语义相似性搜索
-- **本地文件系统**: 缓存索引数据和临时文件
-
-### AI 集成架构
-
-- **Ollama**: 本地 AI 模型服务，提供文本理解和生成能力
-- **向量化引擎**: 将文本转换为高维向量进行语义搜索
-- **OCR 引擎**: Tesseract 引擎进行多语言图像文字识别
-- **工作线程**: 异步处理 AI 任务，避免阻塞主界面
-
-### 国际化架构
-
-- **React Context**: 管理全局语言状态
-- **JSON 翻译文件**: 支持 8 种语言的完整翻译
-- **动态语言切换**: 实时切换界面语言，无需重启应用
-- **国旗图标组件**: React 组件形式的国旗图标，支持高效渲染
-
-### 组件功能详解
-
-#### 核心页面组件
-
-- **`home/home.tsx`** - 主页面组件
-  - 集成搜索界面和结果展示
-  - 管理搜索状态和结果数据
-  - 处理用户交互和事件
-
-- **`preload/Preload.tsx`** - 预加载页面
-  - 应用启动时的加载界面
-  - 显示初始化进度
-  - 处理启动错误
-
-#### 核心功能组件
-
-- **`Search/`** - 搜索组件
-  - 搜索输入框和搜索逻辑
-  - 支持实时搜索建议
-  - 处理搜索历史
-
-- **`TableRelust/`** - 结果表格组件
-  - 搜索结果的表格展示
-  - 支持排序、筛选、分页
-  - 文件预览和操作
-
-- **`LanguageSwitcher/`** - 语言切换器
-  - 多语言切换界面
-  - 国旗图标显示
-  - 语言状态管理
-
-- **`AIMarkDialog/`** - AI 标记对话框
-  - AI 文件内容标记功能
-  - 智能标签生成
-  - 标记结果管理
-
-- **`Setting/`** - 设置组件
-  - 应用配置界面
-  - 索引路径管理
-  - AI 服务配置
-
-#### 工具和辅助组件
-
-- **`Dialog/`** - 通用对话框
-  - 可复用的模态对话框
-  - 支持自定义内容和操作
-  - 统一的样式和交互
-
-- **`InfoCard/`** - 信息卡片
-  - 系统信息展示
-  - GPU、内存状态显示
-  - 服务状态监控
-
-- **`Contact/`** - 联系信息
-  - 开发者联系方式
-  - 微信二维码展示
-  - 反馈渠道
-
-### 核心业务逻辑详解
-
-#### 文件索引系统 (`core/indexFiles.ts`)
-
-- **文件扫描**: 递归扫描指定目录
-- **内容提取**: 支持多种文件格式的文本提取
-- **增量索引**: 只处理新增和修改的文件
-- **并发处理**: 使用工作线程提高索引效率
-
-#### 搜索引擎 (`core/search.ts`)
-
-- **关键词搜索**: 传统的文本匹配搜索
-- **语义搜索**: 基于向量相似度的智能搜索
-- **混合搜索**: 结合关键词和语义搜索结果
-- **结果排序**: 基于相关性和时间的智能排序
-
-#### AI 模型管理 (`core/model.ts`)
-
-- **模型加载**: 动态加载和卸载 AI 模型
-- **资源管理**: 监控 GPU 和内存使用
-- **服务健康检查**: 检测 AI 服务状态
-- **错误恢复**: 自动重启失败的服务
-
-#### 向量化服务 (`core/vectorization.ts`)
-
-- **文本预处理**: 清理和标准化文本内容
-- **向量生成**: 将文本转换为高维向量
-- **批量处理**: 高效处理大量文本数据
-- **向量存储**: 将向量数据存储到 LanceDB
-
-## 🔧 开发指南
-
-### 开发环境设置
-
-1. **安装开发工具**
-   ```bash
-   # 全局安装 Electron
-   npm install -g electron
-   
-   # 安装 TypeScript
-   npm install -g typescript
+│   │   │   └── Setting.tsx
+│   ├── enum.ts                  # Enum definitions
+│   │   │   └── SettingItem.tsx
+│   │   ├── enum.ts              # Enum utilities
+│   │   └── tools.ts             # Tool functions
+│   ├── hooks/                   # Custom React hooks
+│   │   └── useIcon.ts           # Icon hook
+│   ├── RootProviders.tsx       # Root providers component
+│   ├── searchIndex.tsx          # Search index page
+│   ├── settingIndex.tsx         # Settings index page
+│   ├── math.ts                  # Math utilities
+│       └── globalContext.ts     # Global state context
+│   │   ├── UpdateNotification.tsx # Update notification component
+│   └── pathUtils.ts             # Path utility functions
+│   │   │   └── UpdateTipsDialog.tsx
    ```
 
-2. **配置 IDE**
-   - 推荐使用 VS Code
-   - 安装 TypeScript、React、Electron 相关插件
+### Release Configuration
 
-3. **环境变量配置**
-   ```bash
-   # 创建 .env 文件
-   cp .env.example .env
-   
-   # 配置必要的环境变量
-   OLLAMA_HOST=http://localhost:11434
-   ```
+- **Windows**: Generate `.exe` installer and portable version
+│   │   │   └── Home2.tsx        # Home page component
+│   │   ├── preload/             # Preload page
+│   │   │   └── Preload.tsx      # Preload component
+│   │   ├── Preload.tsx          # Preload page (alternative)
+│   │   ├── Search.tsx           # Search page
+│   │   └── Setting.tsx          # Settings pagenality:
+- Check for updates: Automatically check on startup
+- Download updates: Download update packages in the background
+- Install updates: Automatically install after user confirmation
 
-### 代码规范
+## 🌍 Internationalization
 
-- 使用 TypeScript 进行类型检查
-- 遵循 ESLint 代码规范
-- 使用 Prettier 进行代码格式化
-- 组件命名使用 PascalCase
-- 文件命名使用 camelCase
+### Supported Languages
 
-### Tailwind CSS 使用指南
+- 🇨🇳 Simplified Chinese (zh-CN)
+- 🇹🇼 Traditional Chinese (zh-TW)
+- 🇺🇸 English (en-US)
+- 🇯🇵 Japanese (ja-JP)
+- 🇰🇷 Korean (ko-KR)
+- 🇫🇷 French (fr-FR)
+- 🇩🇪 German (de-DE)
+- 🇻🇳 Vietnamese (vi-VN)
 
-本项目使用 **Tailwind CSS V4** 作为主要的样式框架，同时保留部分 SCSS 模块用于组件样式。
+### Adding New Languages
 
-#### 配置说明
+1. Add a new language directory in `frontend/src/i18n/locales/` with all translation JSON files
+│   ├── i18n/                    # Internationalization module
+│   │   ├── index.ts             # i18n module exports
+│   │   ├── constants.ts         # i18n constants
+│   │   └── locales/             # Multi-language translation files
+│   │       ├── zh-CN/           # Simplified Chinese
+│   │       │   ├── app.json
+│   │       │   ├── search.json
+│   │       │   └── ...           # Other translation files
+│   │       ├── zh-TW/            # Traditional Chinese
+│   ├── i18n/                    # Internationalization module
+│   │   ├── index.ts             # i18n module exports
+│   │   ├── constants.ts         # i18n constants
+│   │   └── locales/             # Multi-language translation files
+│   │       ├── zh-CN/           # Simplified Chinese
+│   │       │   ├── app.json
+│   │       │   ├── search.json
+│   │       │   └── ...           # Other translation files
+│   │       ├── zh-TW/            # Traditional Chinese
+│   ├── i18n/                    # Internationalization module
+│   │   ├── index.ts             # i18n module exports
+│   │   ├── constants.ts         # i18n constants
+│   │   └── locales/             # Multi-language translation files
+│   │       ├── zh-CN/           # Simplified Chinese
+│   │       │   ├── app.json
+│   │       │   ├── search.json
+│   │       │   └── ...           # Other translation files
+│   │       ├── zh-TW/            # Traditional Chinese
+│   │       ├── en-US/            # English
+│   │       ├── ja-JP/            # Japanese
+│   │       ├── ko-KR/            # Korean
+│   │       ├── fr-FR/            # French
+│   │       ├── de-DE/            # German
+│   │       └── vi-VN/           # Vietnamese
+│   │       ├── en-US/            # English
+│   │       ├── ja-JP/            # Japanese
+│   │       ├── ko-KR/            # Korean
+│   │       ├── fr-FR/            # French
+│   │       ├── de-DE/            # German
+│   │       └── vi-VN/           # Vietnamese
+│   │       ├── en-US/            # English
+│   │       ├── ja-JP/            # Japanese
+│   │       ├── ko-KR/            # Korean
+│   │       ├── fr-FR/            # French
+│   │       ├── de-DE/            # German
+│   │       └── vi-VN/           # Vietnamese
+- 🎨 UI/UX optimization
+- 🌍 Internationalization translations
+- ⚡ Performance optimization
 
-- **配置文件**: `frontend/tailwind.config.ts`
-- **Vite 插件**: 已集成 `@tailwindcss/vite` 插件
-- **CSS 导入**: 在 `frontend/src/App.css` 中使用 `@import "tailwindcss"` 导入
+## 📄 License
 
-#### 自定义主题
+This project is licensed under the Apache-2.0 License - see the [LICENSE](LICENSE) file for details.
 
-Tailwind 配置文件中已定义以下自定义主题：
+## 📞 Contact Us
 
-- **颜色系统**:
-  - `primary`: 主色调 (#1976d2)
-  - `background`: 背景色系 (#FAFDFC, #FFFFFF, #F5F5F5)
-  - `border`: 边框色系 (#F0F2F5)
-  - `text`: 文字颜色（primary, secondary, tertiary, disabled）
+- **Project Homepage**: [GitHub Repository](https://github.com/your-username/ai-search)
+- **Issue Reporting**: [GitHub Issues](https://github.com/your-username/ai-search/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-username/ai-search/discussions)
 
-- **间距**: 扩展了标准间距系统
-- **圆角**: 自定义了 `xl` (16px) 和 `2xl` (20px)
-- **阴影**: 基于项目设计系统的自定义阴影
+## 🙏 Acknowledgments
 
-#### 使用方式
+Thanks to the following open-source projects for their support:
 
-1. **在组件中使用 Tailwind 工具类**:
-   ```tsx
-   <div className="p-4 rounded-xl bg-background border border-border">
-     <h1 className="text-xl font-bold text-text-primary">标题</h1>
-   </div>
-   ```
-
-2. **使用自定义颜色**:
-   ```tsx
-   <button className="bg-primary text-white hover:bg-primary-dark">
-     按钮
-   </button>
-   ```
-
-3. **与 SCSS 模块共存**:
-   项目正在逐步从 SCSS 迁移到 Tailwind CSS，目前两种方式可以共存：
-   - 新组件优先使用 Tailwind CSS
-   - 现有 SCSS 模块样式保持不变，逐步迁移
-
-#### 迁移计划
-
-- ✅ 已安装 Tailwind CSS V4
-- ✅ 已创建配置文件
-- 🔄 逐步将 SCSS 模块样式转换为 Tailwind 工具类
-- 📝 保留必要的 SCSS 用于复杂样式和 MUI 主题定制
-
-### 调试指南
-
-1. **主进程调试**
-   ```bash
-   npm run electron:dev
-   # 在 VS Code 中附加到 Electron 主进程
-   ```
-
-2. **渲染进程调试**
-   - 使用 Chrome DevTools
-   - 在应用中按 F12 打开开发者工具
-
-3. **日志查看**
-   - 主进程日志：`console.log` 输出到终端
-   - 渲染进程日志：在 DevTools Console 中查看
-
-## 📦 构建和部署
-
-### 构建流程
-
-1. **前端构建**
-   ```bash
-   cd frontend
-   npm run build
-   ```
-
-2. **Electron 构建**
-   ```bash
-   npm run build:electron
-   ```
-
-3. **打包应用**
-   ```bash
-   # Windows
-   npm run build:win
-   
-   # macOS
-   npm run build:mac
-   
-   # Linux
-   npm run build:linux
-   ```
-
-### 发布配置
-
-- **Windows**: 生成 `.exe` 安装包和便携版
-- **macOS**: 生成 `.dmg` 安装包和 `.app` 应用包
-- **Linux**: 生成 `.AppImage` 和 `.deb` 包
-
-### 自动更新
-
-应用内置自动更新功能：
-- 检查更新：启动时自动检查
-- 下载更新：后台下载更新包
-- 安装更新：用户确认后自动安装
-
-## 🌍 国际化
-
-### 支持的语言
-
-- 🇨🇳 简体中文 (zh-CN)
-- 🇹🇼 繁体中文 (zh-TW)
-- 🇺🇸 英文 (en-US)
-- 🇯🇵 日文 (ja-JP)
-- 🇰🇷 韩文 (ko-KR)
-- 🇫🇷 法文 (fr-FR)
-- 🇩🇪 德文 (de-DE)
-
-### 添加新语言
-
-1. 在 `frontend/public/locales/` 中添加新的语言文件
-2. 在 `frontend/src/config/languages.ts` 中添加语言配置
-3. 在 `frontend/src/flags/FlagIcons.tsx` 中添加对应的国旗图标
-
-## 打包注意事項
-
-需放在 extraResources的数组中
-
-### windows端
-
-```
-{
-"from": "dist-electron/resources/Ollama",
-"to": "Ollama",
-"filter": [
-    "**/*",
-    "!cuda_v12/**/*",
-    "!**/cuda_v12/**"
-]
-},
-```
-
-### MAC端
-
-```
-{
-    "from": "dist-electron/resources/",
-    "to": "ollama"
-  },
-```
-
-## 🤝 贡献指南
-
-我们欢迎所有形式的贡献！请遵循以下步骤：
-
-1. **Fork 项目**
-2. **创建特性分支** (`git checkout -b feature/AmazingFeature`)
-3. **提交更改** (`git commit -m 'Add some AmazingFeature'`)
-4. **推送到分支** (`git push origin feature/AmazingFeature`)
-5. **创建 Pull Request**
-
-### 贡献类型
-
-- 🐛 Bug 修复
-- ✨ 新功能开发
-- 📝 文档改进
-- 🎨 UI/UX 优化
-- 🌍 国际化翻译
-- ⚡ 性能优化
-
-## 📄 许可证
-
-本项目采用 Apache-2.0 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
-## 📞 联系我们
-
-- **项目主页**: [GitHub Repository](https://github.com/your-username/ai-search)
-- **问题反馈**: [GitHub Issues](https://github.com/your-username/ai-search/issues)
-- **讨论交流**: [GitHub Discussions](https://github.com/your-username/ai-search/discussions)
-
-## 🙏 致谢
-
-感谢以下开源项目的支持：
-
-- [Electron](https://electronjs.org/) - 跨平台桌面应用框架
-- [React](https://reactjs.org/) - 用户界面库
-- [Material-UI](https://mui.com/) - React 组件库
-- [Ollama](https://ollama.ai/) - 本地 AI 模型服务
-- [LanceDB](https://lancedb.com/) - 向量数据库
-- [Tesseract.js](https://tesseract.projectnaptha.com/) - OCR 引擎
+- [Electron](https://electronjs.org/) - Cross-platform desktop application framework
+- [React](https://reactjs.org/) - User interface library
+- [Material-UI](https://mui.com/) - React component library
+- [Ollama](https://ollama.ai/) - Local AI model service
+- [LanceDB](https://lancedb.com/) - Vector database
+- [Tesseract.js](https://tesseract.projectnaptha.com/) - OCR engine
 
 ---
 
 <div align="center">
-  <p>如果这个项目对您有帮助，请给我们一个 ⭐️</p>
+  <p>If this project is helpful to you, please give us a ⭐️</p>
   <p>Made with ❤️ by Osai Team</p>
 </div>

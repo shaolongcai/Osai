@@ -16,9 +16,13 @@
   "check": "確認",
   "checking": "確認中...",
   "checkUpdateStatusLatest": "最新バージョンを使用しています",
+  "not-available-update": "最新バージョン",
   "checkUpdateStatusNewVersion": "新しいバージョンが見つかりました{{version}}",
   "generalSettings": "一般設定",
   "aiSettings": "AI 設定",
+  "aiProvider": "AI プロバイダー",
+  "system": "システム",
+  "contact": "連絡先",
   "update": "更新",
   "about": "について",
   "website": "公式ウェブサイト"
