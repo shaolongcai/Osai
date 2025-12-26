@@ -24,7 +24,12 @@ async function aiInWorker(data: GenerateRequest & { requestId: string }): Promis
         // 设置超时处理
         const timeoutPromise = new Promise<never>((_, reject) => {
             timeoutId = setTimeout(() => {
-                reject(new Error('文档处理超时'));
+                return {
+                    requestId: data.requestId,
+                    success: false,
+                    error: '文档处理超时',
+                    // needRestartOllama: true,
+                };
             }, 4 * 60 * 1000); // 4分钟超时
         });
         // JSON结构
