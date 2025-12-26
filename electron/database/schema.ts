@@ -123,7 +123,7 @@ export const createConfigDb = (db: Database) => {
               config_type TEXT DEFAULT 'string',
               description TEXT,
               created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-              updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+              updated_at DATETIME DEFAULT CURRENT_TIMESTAMP 
             );
             CREATE UNIQUE INDEX IF NOT EXISTS idx_config_key ON user_config (config_key);
           `)

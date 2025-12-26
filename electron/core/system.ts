@@ -15,6 +15,7 @@ import * as fs from 'fs'
 import AdmZip from 'adm-zip';
 import path from 'path';
 import { indexSingleFile } from './indexFiles.js';
+import { aiSeverSingleton } from '../sever/aiSever.js';
 
 
 /**
@@ -156,6 +157,8 @@ export const openDir = async (type: string, filePath?: string) => {
     logger.info(`打开目录: ${type}, ${filePath}`)
     // 异步导入 windowManager
     const { windowManager } = await import('./WindowManager.js');
+    // 判断是否配置 AI 服务
+    const aiInstalled = await aiSeverSingleton.checkAIProvider();
     switch (type) {
         // 打开运行日志
         case 'runLog':
@@ -166,14 +169,14 @@ export const openDir = async (type: string, filePath?: string) => {
         case 'openFileDir':
             shell.showItemInFolder(filePath);
             windowManager.hideAllWindows();     //隐藏所有窗口
-            await indexSingleFile(filePath); //索引该文件
+            await indexSingleFile(filePath, aiInstalled); //索引该文件
             await updateClickCountAndTime(filePath);
             break;
         // 直接打开文件
         case 'openFile':
             shell.openPath(filePath);
             windowManager.hideAllWindows();     //隐藏所有窗口
-            await indexSingleFile(filePath); //索引该文件
+            await indexSingleFile(filePath, aiInstalled); //索引该文件
             await updateClickCountAndTime(filePath);
 
             break;
@@ -320,64 +323,3 @@ const buildMarkdownContent = (data: any) => {
     }
     return content;
 };
-
-
-/**
- * 向企业微信报告错误
- * 联网时报告
- */
-export const reportErrorToWechat = async (error: any) => {
-
-    try {
-        logger.info(`用户是否同意报告,${getConfig('report_agreement')}`);
-        //查看用户是否允许上传系统信息
-        if (getConfig('report_agreement') !== true) {
-            return;
-        }
-
-        const systemInfo = {
-            platform: os.platform(),        // 操作系统平台 (win32, darwin, linux)
-            arch: os.arch(),                // CPU架构 (x64, arm64, ia32)
-            release: os.release(),          // 系统版本号
-            version: os.version(),          // 系统版本详细信息
-            cpus: os.cpus().length,         // CPU核心数
-            totalMemory: Math.round(os.totalmem() / 1024 / 1024 / 1024), // 总内存(GB)
-            freeMemory: Math.round(os.freemem() / 1024 / 1024 / 1024),   // 可用内存(GB)
-        };
-
-        // 2. 获取更详细的系统信息（可选）
-        const detailedInfo = await si.osInfo();
-        const windowsVersion = {
-            distro: detailedInfo.distro,           // Windows 10, Windows 11 等
-            release: detailedInfo.release,         // 版本号
-            codename: detailedInfo.codename,       // 代号
-            platform: detailedInfo.platform,      // 平台
-            arch: detailedInfo.arch                // 架构
-        };
-
-        const enhancedError = {
-            ...error,
-            systemInfo: JSON.stringify(systemInfo),
-            WindowsVersion: JSON.stringify(windowsVersion),
-        };
-
-        const params = {
-            "msgtype": "markdown",
-            "markdown": {
-                "content": buildMarkdownContent(enhancedError)
-            }
-        };
-        const url = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dbb06a64-caa9-4c40-bc30-5d7aa0f5e25d'
-        //代理服务器
-        const sendUrl = 'http://ai-lib.timefamily.cc:10090/common/proxy/post?url=' + encodeURIComponent(url);
-        await fetch(sendUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(params),
-        });
-    } catch (error) {
-        logger.error(`报告错误到企业微信失败: ${error}`);
-    }
-}

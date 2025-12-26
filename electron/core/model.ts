@@ -3,7 +3,6 @@ import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
 import { setModelReady } from './appState.js';
 import ollama from 'ollama'
-import { reportErrorToWechat } from './system.js';
 import { setConfig } from '../database/sqlite.js';
 
 /**
@@ -70,12 +69,6 @@ async function pullOllamaModel(modelName: string): Promise<void> {
                     if (currentTime - lastUpdateTime > 180000) {
                         logger.warn(`模型 ${modelName} 下载进度未更新，可能卡住`);
                         // 报告到企业微信
-                        const errorData = {
-                            类型: '拉取模型卡住',
-                            模型名称: modelName,
-                            进度: `${progress}%`,
-                        };
-                        reportErrorToWechat(errorData)
                         throw new Error(`模型 ${modelName} 下载进度未更新，可能卡住`);
                     }
 
@@ -103,14 +96,6 @@ async function pullOllamaModel(modelName: string): Promise<void> {
             // 计算耗时
             const duration = (endTime - startTime) / 1000; // 转换为秒
             logger.info(`模型 ${modelName} 拉取耗时: ${duration.toFixed(2)} 秒`);
-
-            // 报告到企业微信
-            const errorData = {
-                类型: '拉取模型成功',
-                模型名称: modelName,
-                耗时: `${duration.toFixed(2)} 秒`,
-            };
-            reportErrorToWechat(errorData)
             return
 
         } catch (error) {

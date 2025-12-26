@@ -8,7 +8,7 @@ import { INotification } from '../types/system.js';
 import { sendToRenderer } from '../main.js';
 import AdmZip from 'adm-zip';
 import { setConfig } from '../database/sqlite.js';
-import { detectCudaVersion, extractZip, reportErrorToWechat } from './system.js';
+import { detectCudaVersion, extractZip } from './system.js';
 
 
 interface DownloadTask {
@@ -206,13 +206,6 @@ export class severDownloader {
                     const endTime = Date.now()
                     const downloadTime = (endTime - startTime) / 1000 // 转换为秒
                     logger.info(`CUDA服务下载完成！下载耗时: ${downloadTime.toFixed(2)} 秒`)
-                    // 发送企业微信
-                    const errorData = {
-                        类型: 'CUDA服务下载完成',
-                        信息: `CUDA服务下载完成，耗时: ${downloadTime.toFixed(2)} 秒`,
-                    };
-                    reportErrorToWechat(errorData)
-
                     // 清理临时目录
                     this.cleanupTempDir()
 
@@ -253,13 +246,6 @@ export class severDownloader {
                 tooltip: '你可以重新尝试安装GPU服务，可以重新解压'
             }
             sendToRenderer('system-info', notification)
-            // 报告企业微信
-            const errorData = {
-                类型: 'CUDA服务安装失败',
-                错误位置: error.stack,
-                错误信息: msg,
-            };
-            reportErrorToWechat(errorData)
             return false
         }
     }

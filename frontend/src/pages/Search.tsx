@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Cate, InfoCard, Search, SearchPanel, UpgradeProTips } from "@/components";
+import { Cate, InfoCard, Search, SearchPanel } from "@/components";
 import { Language } from '../types/i18n';
 import { Button, Card, Paper, Stack, Typography } from '@mui/material';
 import { useDebounce, useRequest, useSize } from 'ahooks';
@@ -163,7 +163,7 @@ const SearchBar = () => {
         }
         <Search onSearch={setSearchValue} />
         {
-            debounceSearch.length > 0 && !isShowUpgradeProTips && !isShowAiServerTips &&
+            debounceSearch.length > 0 && !isShowAiServerTips &&
             <SearchPanel
                 data={data}
                 selectedIndex={selectedIndex}
@@ -172,7 +172,7 @@ const SearchBar = () => {
             />
         }
         {
-            isShowAiServerTips && !isShowUpgradeProTips &&
+            isShowAiServerTips &&
             <Card>
                 <Stack spacing={2} alignItems='center'>
                     <Typography variant='titleMedium' className='w-full'>
@@ -190,10 +190,6 @@ const SearchBar = () => {
                     </Stack>
                 </Stack>
             </Card>
-        }
-        {
-            (isShowUpgradeProTips && !isShowAiServerTips) &&
-            <UpgradeProTips onFinish={() => { setIsShowUpgradeProTips(false) }} />
         }
         <InfoCard />
     </Stack>

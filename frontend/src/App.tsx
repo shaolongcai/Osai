@@ -7,7 +7,6 @@ import Home from './pages/home/Home2';
 import { ThemeProvider } from '@mui/material'
 import { theme } from './theme'
 import { Routes, Route, HashRouter } from 'react-router-dom';
-import { OsType } from './types/system';
 import { I18nProvider } from './contexts/I18nContext';
 import { Language } from './types/i18n';
 

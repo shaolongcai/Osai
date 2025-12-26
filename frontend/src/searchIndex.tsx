@@ -14,6 +14,7 @@ const APP = () => {
 
     // 触发变更窗口大小
     useRequest(() => window.electronAPI.resizeWindow('searchWindow', size), {
+        ready: Boolean(size),
         refreshDeps: [size],
     })
 

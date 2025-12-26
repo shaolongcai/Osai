@@ -289,13 +289,13 @@ export async function indexAllFilesWithWorkers(): Promise<FileInfo[]> {
         //     DisplayIcon: string;
         // }> = [];
         let installedProgram = [] as FileInfo[];
-        // 获取已安装程序列表
-        if (process.platform === 'win32') {
-            installedProgram = await getInstalledPrograms();
-        }
-        else {
-            // installedPrograms = getMacProgramsAndImages().programs;
-        }
+        // 获取已安装程序列表 （改为使用快捷方式列表替换）
+        // if (process.platform === 'win32') {
+        //     installedProgram = await getInstalledPrograms();
+        // }
+        // else {
+        //     // installedPrograms = getMacProgramsAndImages().programs;
+        // }
 
         // 插入程序信息到数据库
         // installedPrograms.forEach(program => {

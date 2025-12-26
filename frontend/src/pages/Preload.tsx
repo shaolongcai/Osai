@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "@/contexts/globalContext";
-import { Guide, Login, ReportProtocol, UpdateNotification, UpgradeProTips } from "@/components";
+import { Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
 import { useTranslation } from '@/contexts/I18nContext';
 import { Button, LinearProgress, Paper, Stack, Typography } from "@mui/material";
 import initImg from '@/assets/images/init.png'
@@ -40,19 +40,6 @@ const Preload = () => {
             await checkUpdate() // 检查更新
             await updatePromise // 等待用户操作更新说明
 
-            // 登录
-            // console.log('开始登录')
-            // const loginPromise = waitUserLogin(); // 先绑定登录等待，不让loginResolveRef为null
-            // setLoginOpen(true);
-            // await loginPromise; // 等待用户登录
-
-            // Pro提示
-            console.log('开始Pro提示')
-            const upgradePromise = waitUserUpgrade(); // 先绑定Pro提示等待，不让proResolveRef为null
-            // await checkPro();
-            await upgradePromise;
-
-            // 检查证书数量
 
             // 新手引导
             console.log('开始新手引导')
@@ -61,10 +48,10 @@ const Preload = () => {
             await guidePromise;
 
             // 体验改进协议
-            console.log('开始同意协议')
-            const protocolPromise = waitUserCheckProtocol(); // 先绑定协议等待，不让protocolResolveRef为null
-            await checkAgreeProtocol()   // 检查同意协议
-            await protocolPromise
+            // console.log('开始同意协议')
+            // const protocolPromise = waitUserCheckProtocol(); // 先绑定协议等待，不让protocolResolveRef为null
+            // await checkAgreeProtocol()   // 检查同意协议
+            // await protocolPromise
 
             // 服务启动
             console.log('开始初始化node进程')
@@ -214,27 +201,6 @@ const Preload = () => {
                     }}
                 />
             }
-            {
-                // 同意协议
-                protocolOpen &&
-                <ReportProtocol
-                    onFinish={() => {
-                        setProtocolOpen(false)
-                        protocolResolveRef.current?.(); // 同意协议
-                    }}
-                />
-            }
-            {
-                // 升级Pro
-                upgradeOpen &&
-                <UpgradeProTips
-                    onFinish={() => {
-                        setUpgradeOpen(false)
-                        upgradeResolveRef.current?.(); // 升级成功
-                    }}
-                />
-            }
-
             {
                 // 登录
                 loginOpen &&

@@ -6,7 +6,6 @@ import { getConfig, initializeDatabase, setConfig } from './database/sqlite.js';
 import { initializeFileApi } from './api/file.js';
 import { indexAllFilesWithWorkers } from './core/indexFiles.js';
 import { logger } from './core/logger.js';
-import { checkGPU, reportErrorToWechat } from './core/system.js';
 import { ollamaService } from './sever/ollamaSever.js';
 import { INotification, INotification2 } from './types/system.js';
 import { initializeUpdateApi } from './api/update.js';
@@ -266,13 +265,6 @@ export const init = async () => {
   } catch (error) {
     const msg = error instanceof Error ? error.message : '未知原因'
     logger.error(`初始化失败:${JSON.stringify(msg)}`)
-    // 向企业微信报告
-    const errorData = {
-      类型: '初始化失败',
-      错误位置: error.stack,
-      错误信息: msg,
-    };
-    reportErrorToWechat(errorData)
     return {
       code: 1,
       errMsg: msg + '请重启应用或联系开发者'
@@ -290,7 +282,7 @@ export const startIndexTask = async () => {
     const indexInterval = getConfig('index_interval'); //获取索引周期，默认1个小时，时间戳
     const currentTime = Date.now();
     // 是否超过1小时
-    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) || true) {
+    if (!lastIndexTime || (currentTime - lastIndexTime > indexInterval) ) {
       logger.info(`索引间隔超过1小时，重新索引`);
       // 索引间隔超过1小时，重新索引
       await indexAllFilesWithWorkers();
@@ -334,13 +326,6 @@ export const startIndexTask = async () => {
       tooltip: msg
     }
     sendToRenderer('system-info', notification);
-    // 报告企业微信
-    const errorData = {
-      类型: '索引任务失败',
-      错误位置: error.stack,
-      错误信息: msg,
-    };
-    reportErrorToWechat(errorData)
   }
 }
 
@@ -439,7 +424,7 @@ app.on('before-quit', () => {
 
 
 //----- 触发事件 ---- 
-export const sendToRenderer = (channel: ChannelType, data: any) => {
+export const sendToRenderer = (channel: ChannelType | string, data: any) => {
   // 广播事件到所有窗口
   if (searchWindow && !searchWindow.isDestroyed()) {
     searchWindow.webContents.send(channel, data);

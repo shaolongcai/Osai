@@ -13,6 +13,7 @@ const APP = () => {
 
     // 触发变更窗口大小
     useRequest(() => window.electronAPI.resizeWindow('settingsWindow', size), {
+        ready: Boolean(size),
         refreshDeps: [size],
     })
 

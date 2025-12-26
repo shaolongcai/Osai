@@ -88,7 +88,7 @@ const InfoCard: React.FC<Props> = ({
                     <Stack spacing={1}>
                         {notifications.map(item =>
                             <Stack
-                                key={item.text}
+                                key={item.id}
                                 direction='row'
                                 className="min-w-[128px] "
                                 alignItems='center'

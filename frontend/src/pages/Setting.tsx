@@ -1,15 +1,14 @@
-import { Button, Paper, Stack, Typography, Drawer, Box, Switch, styled, Card } from "@mui/material"
-import { useState, useEffect, useContext, useRef } from "react";
+import { Button, Paper, Stack, Typography, styled, Card } from "@mui/material"
+import { useState, useEffect } from "react";
 import {
     Settings as SettingsIcon,
     Close as CloseIcon
 } from '@mui/icons-material';
-import { useGlobalContext, globalContext } from "@/contexts/globalContext";
+import { useGlobalContext } from "@/contexts/globalContext";
 import { SettingItem, Contact, Dialog, ReportProtocol, AIProvider } from "@/components";
 import { useTranslation } from '@/contexts/I18nContext';
 import { ConfigParams } from '@/types/electron';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { useRequest, useSize } from "ahooks";
 
 
 // 封装按钮样式
@@ -61,7 +60,7 @@ const SettingButton = ({ openSetting, setOpenSetting }: SettingButtonProps) => {
  */
 const Setting = () => {
 
-    const [openSetting, setOpenSetting] = useState(false);
+    const [openSetting, setOpenSetting] = useState(true);
     const [openIndexImage, setOpenIndexImage] = useState(Boolean(Number(localStorage.getItem('openIndexImage') || 0)))
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false) //CPU下开启索引的弹窗
     const [openReportProtocol, setOpenReportProtocol] = useState(false) //用户体验改进计划弹窗
@@ -250,25 +249,6 @@ const Setting = () => {
                         Setting
                     </Typography>
                     <Stack spacing={2} sx={{ marginTop: '16px' }}>
-                        {/* 当前几乎 */}
-                        <Stack spacing={1}>
-                            <Typography variant='titleSmall' className='color-rgba(0, 0, 0, 0.85)' >
-                                Current Plan
-                            </Typography>
-                            {/* 账户信息 */}
-                            {/* <SettingItem
-                            title='Account'
-                            type='button'
-                            value='login'
-                            onAction={() => { console.log('执行登录') }}
-                        /> */}
-                            {/* pro信息 */}
-                            <SettingItem
-                                title='Pro'
-                                type='text'
-                                value='Expire after 2025-08-01'
-                            />
-                        </Stack>
                         <Stack spacing={1}>
                             <Typography variant='titleSmall' className='color-rgba(0, 0, 0, 0.85)' >
                                 AI Sever

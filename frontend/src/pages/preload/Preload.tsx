@@ -7,6 +7,10 @@ import { Dialog, ReportProtocol } from "@/components";
 import { useGlobalContext } from "@/contexts/globalContext";
 import { useTranslation } from '@/contexts/I18nContext';
 
+/**
+ * 这个要废弃了
+ * @returns 
+ */
 const Preload = () => {
 
     const [initError, setInitError] = useState<string | null>(null);
@@ -148,14 +152,6 @@ const Preload = () => {
                     {t('app.preload.updateContent')}
                 </Typography>
             </Dialog>
-            {/* 弹窗同意条款 */}
-            <ReportProtocol
-                open={protocolOpen}
-                onClose={() => {
-                    setProtocolOpen(false)
-                    setIsCheckProtocol(true);
-                }}
-            />
             <Stack className="my-[240px] mx-auto max-w-[240px]" spacing={1} alignItems="center">
                 {
                     initError ? (
