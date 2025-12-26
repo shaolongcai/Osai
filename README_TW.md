@@ -1,5 +1,5 @@
 <div align="center">
-# Osai - AI 驅動的智能搜索應用
+<h1> Osai - AI 驅動的智能搜索應用 </h1>
 </div>
 
 <div align="center">
