@@ -5,7 +5,7 @@
 <div align="center">
   <img src="./frontend/public/logo.svg" alt="Osai Logo" width="120" height="120">
   
-  <p>一個基於 AI 技術的本地文件智能搜索應用</p>
+  <p>一款基於 AI 技術的智能本地檔案搜索應用</p>
   
   ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
   ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square)
@@ -13,52 +13,52 @@
   ![Node.js](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen?style=flat-square&logo=node.js)
   ![Electron](https://img.shields.io/badge/electron-38.0.0-blue?style=flat-square&logo=electron)
   
-  <p><strong>多語言支援：</strong>[English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md)</p>
+  <p><strong>多語言支援:</strong> [English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md)</p>
   
-  <p>⭐ 點一下右上角的 Star, Github 主頁就能收到軟體更新通知了哦~</p>
+  <p>⭐ 點擊右上角 Star 在 GitHub 首頁接收軟體更新通知~</p>
   
 </div>
 
-## 📖 專案簡介
+## 📖 專案介紹
 
-Osai 是一個功能強大的桌面應用程式，利用人工智慧技術為使用者提供智能的本地文件搜索體驗。透過結合傳統的文本搜索和現代的向量語義搜索，Osai 能夠理解使用者的搜索意圖，提供更準確、更相關的搜索結果。
+Osai 是一款強大的桌面應用程式,利用人工智慧技術為使用者提供智能的本地檔案搜索體驗。透過結合傳統文字搜索與現代向量語義搜索,Osai 能夠理解使用者的搜索意圖,提供更準確、更相關的搜索結果。
 
-### ✨ 主要特性
+### ✨ 核心特性
 
-- 🔍 **AI 驅動的智能搜索** - 基於語義理解的文件內容搜索
-- 📷 **OCR 圖像文字識別** - 支援從圖片中提取文字內容進行搜索
-- 🌍 **多語言支援** - 支援 8 種語言介面（中文簡體/繁體、英文、日文、韓文、法文、德文、越南文）
-- 📁 **本地文件索引** - 快速建立本地文件索引，支援多種文件格式
-- 🚀 **向量化搜索** - 使用向量資料庫進行語義相似性搜索
+- 🔍 **AI 驅動的智能搜索** - 基於語義理解的檔案內容搜索
+- 📷 **OCR 圖像文字識別** - 從圖片中提取文字內容進行搜索
+- 🌍 **多語言支援** - 支援 8 種語言介面(簡/繁中文、英文、日文、韓文、法文、德文、越南文)
+- 📁 **本地檔案索引** - 快速建立本地檔案索引,支援多種檔案格式
+- 🚀 **向量化搜索** - 使用向量資料庫進行語義相似度搜索
 - ⚡ **即時搜索** - 快速響應的搜索結果展示
-- 🔄 **自動更新** - 內建應用自動更新機制
+- 🔄 **自動更新** - 內建應用程式自動更新機制
 - 🎨 **現代化介面** - 基於 Material-UI 的美觀使用者介面
 
 ## 🛠️ 技術棧
 
 ### 前端技術
-- **React 18** - 現代化的使用者介面框架
+- **React 18** - 現代化使用者介面框架
 - **TypeScript** - 類型安全的 JavaScript 超集
 - **Material-UI (MUI)** - React 元件庫
 - **Tailwind CSS V4** - 實用優先的 CSS 框架
-- **Vite** - 快速的前端構建工具
-- **React Context** - 狀態管理和國際化
+- **Vite** - 快速的前端建置工具
+- **React Context** - 狀態管理與國際化
 
 ### 後端技術
-- **Electron** - 跨平台桌面應用框架
-- **Node.js** - JavaScript 執行時環境
+- **Electron** - 跨平台桌面應用程式框架
+- **Node.js** - JavaScript 執行環境
 - **SQLite** - 輕量級關聯式資料庫
 - **LanceDB** - 高效能向量資料庫
 - **Tesseract.js** - OCR 文字識別引擎
 
 ### AI 整合
 - **Ollama** - 本地 AI 模型服務
-- **向量化引擎** - 文本向量化和語義搜索
-- **多語言 OCR** - 支援中英文等多語言文字識別
+- **向量化引擎** - 文字向量化與語義搜索
+- **多語言 OCR** - 支援中文、英文等多語言文字識別
 
 ## 🚀 快速開始
 
-### 環境要求
+### 環境需求
 
 - **Node.js** >= 16.0.0
 - **npm** >= 8.0.0 或 **pnpm** >= 7.0.0
@@ -84,7 +84,7 @@ Osai 是一個功能強大的桌面應用程式，利用人工智慧技術為使
    cd ..
    ```
 
-3. **開發環境執行**
+3. **執行開發環境**
    ```bash
    # Windows
    ./run-dev.bat
@@ -92,11 +92,11 @@ Osai 是一個功能強大的桌面應用程式，利用人工智慧技術為使
    # Linux/macOS
    ./run-dev.sh
    
-   # 或者使用 npm 命令
+   # 或使用 npm 指令
    npm run electron:dev
    ```
 
-4. **構建應用**
+4. **建置應用程式**
    ```bash
    # Windows
    ./run-build.bat
@@ -104,7 +104,7 @@ Osai 是一個功能強大的桌面應用程式，利用人工智慧技術為使
    # Linux/macOS
    ./run-build.sh
    
-   # 或者使用 npm 命令
+   # 或使用 npm 指令
    npm run build:win    # Windows
    npm run build:mac    # macOS
    npm run build:linux  # Linux
@@ -112,22 +112,22 @@ Osai 是一個功能強大的桌面應用程式，利用人工智慧技術為使
 
 ## 📁 專案結構
 
-### 專案總覽
+### 專案概覽
 
 ```
 ai-search/
-├── electron/                    # Electron 主程式碼
+├── electron/                    # Electron 主進程程式碼
 ├── frontend/                    # React 前端應用
 ├── dist-electron/               # 編譯後的 Electron 程式碼
-├── updatePack/                  # 更新包相關
-├── build/                       # 構建配置
+├── updatePack/                  # 更新套件相關
+├── build/                       # 建置配置
 ├── package.json                 # 主專案配置
-├── vite.main.config.js          # Vite 主進程構建配置
-├── vite.preload.config.js       # Vite 預載入腳本構建配置
-├── vite.renderer.config.js      # Vite 渲染進程構建配置
-├── run-build.bat/.sh            # 構建腳本
+├── vite.main.config.js          # Vite 主進程建置配置
+├── vite.preload.config.js       # Vite 預載入腳本建置配置
+├── vite.renderer.config.js      # Vite 渲染進程建置配置
+├── run-build.bat/.sh            # 建置腳本
 ├── run-dev.bat/.sh              # 開發環境啟動腳本
-├── create-mac-icons.sh          # macOS 圖示生成腳本
+├── create-mac-icons.sh          # macOS 圖示產生腳本
 ├── dev-app-update.yml           # 開發環境自動更新配置
 ├── chi_sim.traineddata          # 簡體中文 OCR 訓練資料
 ├── chi_tra.traineddata          # 繁體中文 OCR 訓練資料
@@ -141,7 +141,7 @@ ai-search/
 ```
 electron/
 ├── main.ts                      # Electron 主進程入口
-├── preload.ts                   # 預載入腳本，API 橋接
+├── preload.ts                   # 預載入腳本,API 橋接
 ├── tsconfig.json                # TypeScript 配置
 ├── api/                         # API 介面層
 │   ├── file.ts                  # 檔案操作 API
@@ -164,7 +164,7 @@ electron/
 ├── sever/                       # 伺服器服務
 │   ├── aiSever.ts               # AI 服務
 │   ├── documentSever.ts         # 文件伺服器
-│   ├── ocrSever.ts             # OCR 服務
+│   ├── ocrSever.ts              # OCR 服務
 │   └── ollamaSever.ts           # Ollama AI 服務整合
 ├── database/                    # 資料庫操作
 │   ├── repositories.ts          # 資料庫倉庫
@@ -172,9 +172,9 @@ electron/
 │   └── sqlite.ts                # SQLite 關聯式資料庫
 ├── workers/                     # 工作執行緒
 │   ├── ai.worker.ts             # AI 處理工作執行緒
-│   ├── icon.worker.ts          # 圖示處理工作執行緒
+│   ├── icon.worker.ts           # 圖示處理工作執行緒
 │   ├── imageProcessor.worker.ts # 圖像處理工作執行緒
-│   └── indexer.worker.ts       # 索引工作執行緒
+│   └── indexer.worker.ts        # 索引工作執行緒
 ├── types/                       # 類型定義
 │   ├── ai.d.ts                  # AI 相關類型
 │   ├── api.d.ts                 # API 介面類型
@@ -210,33 +210,33 @@ electron/
     └── prompt.ts                # AI 提示詞模板
 ```
 
-### React 前端详细结构 (`frontend/`)
+### React 前端詳細結構 (`frontend/`)
 
 ```
 frontend/
-├── package.json                 # 前端项目依赖和脚本配置
-├── vite.config.ts               # Vite 构建配置
-├── tailwind.config.ts           # Tailwind CSS V4 配置文件
+├── package.json                 # 前端專案依賴和腳本配置
+├── vite.config.ts               # Vite 建置配置
+├── tailwind.config.ts           # Tailwind CSS V4 配置檔案
 ├── tsconfig.json                # TypeScript 配置
-├── eslint.config.js             # ESLint 代码规范配置
-├── index.html                   # HTML 入口文件
-├── public/                      # 公共资源
-│   ├── logo.svg                 # 应用图标
-│   └── vite.svg                 # Vite 图标
-├── src/                         # 源代码
-│   ├── main.tsx                 # React 应用入口
-│   ├── App.tsx                  # 主应用组件
-│   ├── App.css                  # 应用样式
-│   ├── index.css                # 全局样式
-│   ├── theme.ts                 # Material-UI 主题配置
-│   ├── global.d.ts              # 全局类型定义
-│   ├── vite-env.d.ts            # Vite 环境类型定义
+├── eslint.config.js             # ESLint 程式碼規範配置
+├── index.html                   # HTML 入口檔案
+├── public/                      # 公共資源
+│   ├── logo.svg                 # 應用圖示
+│   └── vite.svg                 # Vite 圖示
+├── src/                         # 原始碼
+│   ├── main.tsx                 # React 應用入口
+│   ├── App.tsx                  # 主應用元件
+│   ├── App.css                  # 應用樣式
+│   ├── index.css                # 全域樣式
+│   ├── theme.ts                 # Material-UI 主題配置
+│   ├── global.d.ts              # 全域類型定義
+│   ├── vite-env.d.ts            # Vite 環境類型定義
 │   ├── pages/                   # 頁面元件
 │   │   ├── home/                # 主頁面
 │   │   │   └── Home2.tsx        # 主頁面元件
 │   │   ├── preload/             # 預載入頁面
 │   │   │   └── Preload.tsx      # 預載入元件
-│   │   ├── Preload.tsx          # 預載入頁面（備用）
+│   │   ├── Preload.tsx          # 預載入頁面(備用)
 │   │   ├── Search.tsx           # 搜索頁面
 │   │   └── Setting.tsx          # 設定頁面
 │   ├── components/              # 元件庫
@@ -267,35 +267,35 @@ frontend/
 │   │   │   └── UpdateTipsDialog.tsx
 │   │   └── index.ts             # 元件統一匯出
 │   ├── contexts/                # 上下文管理
-│   │   └── I18nContext.tsx      # 国际化上下文
-│   ├── i18n/                    # 国际化模块
-│   │   ├── index.ts             # i18n 模块导出
-│   │   ├── constants.ts         # i18n 常量
-│   │   └── locales/             # 多语言翻译文件
-│   │       ├── zh-CN/           # 简体中文
+│   │   └── I18nContext.tsx      # 國際化上下文
+│   ├── i18n/                    # 國際化模組
+│   │   ├── index.ts             # i18n 模組匯出
+│   │   ├── constants.ts         # i18n 常數
+│   │   └── locales/             # 多語言翻譯檔案
+│   │       ├── zh-CN/           # 簡體中文
 │   │       │   ├── app.json
 │   │       │   ├── search.json
-│   │       │   └── ...           # 其他翻译文件
-│   │       ├── zh-TW/            # 繁体中文
+│   │       │   └── ...           # 其他翻譯檔案
+│   │       ├── zh-TW/            # 繁體中文
 │   │       ├── en-US/            # 英文
 │   │       ├── ja-JP/            # 日文
-│   │       ├── ko-KR/            # 韩文
+│   │       ├── ko-KR/            # 韓文
 │   │       ├── fr-FR/            # 法文
 │   │       ├── de-DE/            # 德文
 │   │       └── vi-VN/            # 越南文
-│   ├── config/                  # 配置文件
-│   │   └── languages.ts         # 语言配置
-│   ├── types/                   # 类型定义
-│   │   ├── i18n.ts              # 国际化类型
-│   │   ├── electron.ts          # Electron API 类型
-│   │   └── system.ts            # 系统相关类型
-│   ├── assets/                  # 静态资源
-│   │   ├── images/              # 图片资源
-│   │   │   ├── weChat.png       # 微信二维码
-│   │   │   └── flags/           # 国旗 SVG 文件
-│   │   └── icons/               # 图标文件
-│   ├── flags/                   # 国旗组件
-│   │   └── FlagIcons.tsx        # React 国旗图标组件
+│   ├── config/                  # 配置檔案
+│   │   └── languages.ts         # 語言配置
+│   ├── types/                   # 類型定義
+│   │   ├── i18n.ts              # 國際化類型
+│   │   ├── electron.ts          # Electron API 類型
+│   │   └── system.ts            # 系統相關類型
+│   ├── assets/                  # 靜態資源
+│   │   ├── images/              # 圖片資源
+│   │   │   ├── weChat.png       # 微信 QR 碼
+│   │   │   └── flags/           # 國旗 SVG 檔案
+│   │   └── icons/               # 圖示檔案
+│   ├── flags/                   # 國旗元件
+│   │   └── FlagIcons.tsx        # React 國旗圖示元件
 │   ├── utils/                   # 工具函數
 │   │   ├── enum.ts              # 列舉工具
 │   │   └── tools.ts             # 工具函數
@@ -304,20 +304,20 @@ frontend/
 │   ├── RootProviders.tsx        # 根提供者元件
 │   ├── searchIndex.tsx          # 搜索索引頁面
 │   ├── settingIndex.tsx         # 設定索引頁面
-│   └── context/                 # 舊版上下文（相容）
+│   └── context/                 # 舊版上下文(相容性)
 │       └── globalContext.ts     # 全域狀態上下文
-└── dist/                        # 构建输出
-    ├── assets/                  # 编译后的资源
-    ├── index.html               # 编译后的 HTML
-    └── locales/                 # 编译后的语言文件
+└── dist/                        # 建置輸出
+    ├── assets/                  # 編譯後的資源
+    ├── index.html               # 編譯後的 HTML
+    └── locales/                 # 編譯後的語言檔案
 ```
 
-### 核心目录详解
+### 核心目錄詳解
 
 #### Electron 主進程 (`electron/`)
 
-- **`main.ts`** - Electron 主進程入口，負責建立視窗、初始化服務
-- **`preload.ts`** - 預載入腳本，提供安全的 API 橋接
+- **`main.ts`** - Electron 主進程入口,負責建立視窗、初始化服務
+- **`preload.ts`** - 預載入腳本,提供安全的 API 橋接
 - **`api/`** - API 介面層
   - `file.ts` - 檔案操作 API
   - `system.ts` - 系統相關 API
@@ -347,7 +347,7 @@ frontend/
 #### React 前端 (`frontend/src/`)
 
 - **`components/`** - React 元件庫
-  - `Search/` - 搜索元件（search.tsx, SearchPanel.tsx）
+  - `Search/` - 搜索元件(search.tsx, SearchPanel.tsx)
   - `TableRelust/` - 結果表格元件
   - `LanguageSwitcher/` - 語言切換器
   - `Setting/` - 設定元件
@@ -369,262 +369,286 @@ frontend/
 - **`hooks/`** - 自訂 React Hooks
   - `useIcon.ts` - 圖示 Hook
 
-### 更新和部署相关 (`updatePack/`)
+### 更新和部署相關 (`updatePack/`)
 
 ```
 updatePack/
 ├── latest.yml                   # Windows 更新配置
 ├── latest-x64-mac.yml           # macOS x64 更新配置
 ├── latest-arm64-mac.yml         # macOS ARM64 更新配置
-├── quick-generate.py            # 更新包生成脚本
-└── quick-generate-mac.py        # macOS 更新包生成脚本
+├── quick-generate.py            # 更新套件產生腳本
+└── quick-generate-mac.py        # macOS 更新套件產生腳本
 ```
 
-### 构建配置 (`build/`)
+### 建置配置 (`build/`)
 
-- **`entitlements.mac.plist`** - macOS 应用权限配置
+- **`entitlements.mac.plist`** - macOS 應用權限配置
 
-### OCR 训练数据文件
+### OCR 訓練資料檔案
 
-- **`chi_sim.traineddata`** - 简体中文 OCR 训练数据
-- **`chi_tra.traineddata`** - 繁体中文 OCR 训练数据  
-- **`eng.traineddata`** - 英文 OCR 训练数据
+- **`chi_sim.traineddata`** - 簡體中文 OCR 訓練資料
+- **`chi_tra.traineddata`** - 繁體中文 OCR 訓練資料  
+- **`eng.traineddata`** - 英文 OCR 訓練資料
 
-## 🏗️ 技术架构
+## 🏗️ 技術架構
 
-### 进程通信架构
+### 進程通訊架構
 
-- **主进程 ↔ 渲染进程**: 通过 `preload.ts` 中的 `electronAPI` 进行安全通信
-- **工作线程**: 使用 Web Workers 处理耗时任务（索引、AI 处理）
-- **API 桥接**: 预加载脚本提供安全的 Node.js API 访问
+- **主進程 ↔ 渲染進程**: 透過 `preload.ts` 中的 `electronAPI` 進行安全通訊
+- **工作執行緒**: 使用 Web Workers 處理耗時任務(索引、AI 處理)
+- **API 橋接**: 預載入腳本提供安全的 Node.js API 存取
 
-### 数据存储架构
+### 資料儲存架構
 
-- **SQLite**: 存储文件元数据、配置信息、用户设置
-- **LanceDB**: 存储文本向量，支持高性能的语义相似性搜索
-- **本地文件系统**: 缓存索引数据和临时文件
+- **SQLite**: 儲存檔案中繼資料、配置資訊、使用者設定
+- **LanceDB**: 儲存文字向量,支援高效能的語義相似性搜索
+- **本地檔案系統**: 快取索引資料和暫存檔案
 
-### AI 集成架构
+### AI 整合架構
 
-- **Ollama**: 本地 AI 模型服务，提供文本理解和生成能力
-- **向量化引擎**: 将文本转换为高维向量进行语义搜索
-- **OCR 引擎**: Tesseract 引擎进行多语言图像文字识别
-- **工作线程**: 异步处理 AI 任务，避免阻塞主界面
+- **AI 服務**: 集中式 AI 服務管理 (`sever/aiSever.ts`)
+- **Ollama 服務**: 本地 AI 模型服務整合 (`sever/ollamaSever.ts`),提供文字理解和生成能力
+- **向量化引擎**: 將文字轉換為高維向量進行語義搜索
+- **OCR 服務**: 基於 Tesseract 的 OCR 服務 (`sever/ocrSever.ts`),支援多語言圖像文字識別
+- **文件伺服器**: 文件處理服務 (`sever/documentSever.ts`)
+- **工作執行緒**: 非同步處理 AI 任務,避免阻塞主介面
 
-### 国际化架构
+### 國際化架構
 
-- **React Context**: 管理全局語言狀態
+- **React Context**: 管理全域語言狀態
 - **i18n 模組**: 集中式國際化模組 (`frontend/src/i18n/`)
-- **JSON 翻譯文件**: 支持 8 種語言的完整翻譯，按命名空間組織在 `frontend/src/i18n/locales/` 目錄下
-- **動態語言切換**: 實時切換界面語言，無需重啟應用
-- **國旗圖標組件**: React 組件形式的國旗圖標，支持高效渲染
+- **JSON 翻譯檔案**: 支援 8 種語言的完整翻譯,按命名空間組織在 `frontend/src/i18n/locales/` 目錄下
+- **動態語言切換**: 即時切換介面語言,無需重啟應用
+- **國旗圖示元件**: React 元件形式的國旗圖示,支援高效渲染
 
-### 组件功能详解
+### 元件功能詳解
 
-#### 核心页面组件
+#### 核心頁面元件
 
-- **`home/home.tsx`** - 主页面组件
-  - 集成搜索界面和结果展示
-  - 管理搜索状态和结果数据
-  - 处理用户交互和事件
+- **`home/Home2.tsx`** - 主頁面元件
+  - 整合搜索介面和結果展示
+  - 管理搜索狀態和結果資料
+  - 處理使用者互動和事件
 
-- **`preload/Preload.tsx`** - 预加载页面
-  - 应用启动时的加载界面
-  - 显示初始化进度
-  - 处理启动错误
+- **`preload/Preload.tsx`** - 預載入頁面
+  - 應用啟動時的載入介面
+  - 顯示初始化進度
+  - 處理啟動錯誤
 
-#### 核心功能组件
+- **`Search.tsx`** - 搜索頁面
+  - 專用搜索介面
+  - 搜索功能和結果展示
 
-- **`Search/`** - 搜索组件
-  - 搜索输入框和搜索逻辑
-  - 支持实时搜索建议
-  - 处理搜索历史
+- **`Setting.tsx`** - 設定頁面
+  - 應用配置介面
+  - 使用者偏好管理
 
-- **`TableRelust/`** - 结果表格组件
-  - 搜索结果的表格展示
-  - 支持排序、筛选、分页
-  - 文件预览和操作
+#### 核心功能元件
 
-- **`LanguageSwitcher/`** - 语言切换器
-  - 多语言切换界面
-  - 国旗图标显示
-  - 语言状态管理
+- **`Search/`** - 搜索元件
+  - `search.tsx` - 搜索輸入框和搜索邏輯
+  - `SearchPanel.tsx` - 搜索面板元件
+  - 支援即時搜索建議
+  - 處理搜索歷史
 
-- **`AIMarkDialog/`** - AI 标记对话框
-  - AI 文件内容标记功能
-  - 智能标签生成
-  - 标记结果管理
+- **`TableRelust/`** - 結果表格元件
+  - 搜索結果的表格展示
+  - 支援排序、篩選、分頁
+  - 檔案預覽和操作
 
-- **`Setting/`** - 设置组件
-  - 应用配置界面
-  - 索引路径管理
-  - AI 服务配置
+- **`LanguageSwitcher/`** - 語言切換器
+  - 多語言切換介面
+  - 國旗圖示顯示
+  - 語言狀態管理
 
-#### 工具和辅助组件
+- **`AIMarkDialog/`** - AI 標記對話框
+  - AI 檔案內容標記功能
+  - 智能標籤生成
+  - 標記結果管理
 
-- **`Dialog/`** - 通用对话框
-  - 可复用的模态对话框
-  - 支持自定义内容和操作
-  - 统一的样式和交互
+- **`Setting/`** - 設定元件
+  - 應用配置介面
+  - 索引路徑管理
+  - AI 服務配置
+  - 系統偏好設定
 
-- **`InfoCard/`** - 信息卡片
-  - 系统信息展示
-  - GPU、内存状态显示
-  - 服务状态监控
+- **`Guide.tsx`** - 指南元件
+  - 使用者指南和教學
+  - 功能介紹
 
-- **`Contact/`** - 联系信息
-  - 开发者联系方式
-  - 微信二维码展示
-  - 反馈渠道
+- **`Login.tsx`** - 登入元件
+  - 使用者認證介面
 
-### 核心业务逻辑详解
+- **`UpdateNotification.tsx`** - 更新通知
+  - 更新通知顯示
+  - 更新狀態管理
 
-#### 文件索引系统 (`core/indexFiles.ts`)
+#### 工具和輔助元件
 
-- **文件扫描**: 递归扫描指定目录
-- **内容提取**: 支持多种文件格式的文本提取
-- **增量索引**: 只处理新增和修改的文件
-- **并发处理**: 使用工作线程提高索引效率
+- **`Dialog/`** - 通用對話框
+  - 可重複使用的模態對話框
+  - 支援自訂內容和操作
+  - 統一的樣式和互動
+
+- **`InfoCard/`** - 資訊卡片
+  - 系統資訊展示
+  - GPU、記憶體狀態顯示
+  - 服務狀態監控
+
+- **`Contact/`** - 聯絡資訊
+  - 開發者聯絡方式
+  - 微信 QR 碼展示
+  - 回饋管道
+
+### 核心業務邏輯詳解
+
+#### 檔案索引系統 (`core/indexFiles.ts`)
+
+- **檔案掃描**: 遞迴掃描指定目錄
+- **內容提取**: 支援多種檔案格式的文字提取
+- **增量索引**: 只處理新增和修改的檔案
+- **並發處理**: 使用工作執行緒提高索引效率
 
 #### 搜索引擎 (`core/search.ts`)
 
-- **关键词搜索**: 传统的文本匹配搜索
-- **语义搜索**: 基于向量相似度的智能搜索
-- **混合搜索**: 结合关键词和语义搜索结果
-- **结果排序**: 基于相关性和时间的智能排序
+- **關鍵字搜索**: 傳統文字配對搜索
+- **語義搜索**: 基於向量相似度的智能搜索
+- **混合搜索**: 結合關鍵字和語義搜索結果
+- **結果排序**: 根據相關性和時間進行智能排序
 
-#### AI 模型管理 (`core/model.ts`)
+#### AI 服務管理 (`sever/aiSever.ts`)
 
-- **模型加载**: 动态加载和卸载 AI 模型
-- **资源管理**: 监控 GPU 和内存使用
-- **服务健康检查**: 检测 AI 服务状态
-- **错误恢复**: 自动重启失败的服务
+- **服務管理**: 集中式 AI 服務管理
+- **模型載入**: 動態載入和卸載 AI 模型
+- **資源管理**: 監控 GPU 和記憶體使用
+- **健康檢查**: 偵測 AI 服務狀態
+- **錯誤恢復**: 自動重啟失敗的服務
 
-#### 向量化服务 (`core/vectorization.ts`)
+#### 向量化服務 (`core/vectorization.ts`)
 
-- **文本预处理**: 清理和标准化文本内容
-- **向量生成**: 将文本转换为高维向量
-- **批量处理**: 高效处理大量文本数据
-- **向量存储**: 将向量数据存储到 LanceDB
+- **文字預處理**: 清理和規範化文字內容
+- **向量生成**: 將文字轉換為高維向量
+- **批次處理**: 高效處理大量文字資料
+- **向量儲存**: 將向量資料儲存到 LanceDB
 
-## 🔧 开发指南
+## 🔧 開發指南
 
-### 开发环境设置
+### 開發環境設定
 
-1. **安装开发工具**
+1. **安裝開發工具**
    ```bash
-   # 全局安装 Electron
+   # 全域安裝 Electron
    npm install -g electron
    
-   # 安装 TypeScript
+   # 安裝 TypeScript
    npm install -g typescript
    ```
 
 2. **配置 IDE**
-   - 推荐使用 VS Code
-   - 安装 TypeScript、React、Electron 相关插件
+   - 建議使用 VS Code
+   - 安裝 TypeScript、React、Electron 相關外掛
 
-3. **环境变量配置**
+3. **環境變數配置**
    ```bash
-   # 创建 .env 文件
+   # 建立 .env 檔案
    cp .env.example .env
    
-   # 配置必要的环境变量
+   # 配置必要的環境變數
    OLLAMA_HOST=http://localhost:11434
    ```
 
-### 代码规范
+### 程式碼標準
 
-- 使用 TypeScript 进行类型检查
-- 遵循 ESLint 代码规范
-- 使用 Prettier 进行代码格式化
-- 组件命名使用 PascalCase
-- 文件命名使用 camelCase
+- 使用 TypeScript 進行類型檢查
+- 遵循 ESLint 程式碼標準
+- 使用 Prettier 進行程式碼格式化
+- 元件命名使用 PascalCase
+- 檔案命名使用 camelCase
 
 ### Tailwind CSS 使用指南
 
-本项目使用 **Tailwind CSS V4** 作为主要的样式框架，同时保留部分 SCSS 模块用于组件样式。
+本專案使用 **Tailwind CSS V4** 作為主要樣式框架,同時保留部分 SCSS 模組用於元件樣式。
 
-#### 配置说明
+#### 配置
 
-- **配置文件**: `frontend/tailwind.config.ts`
-- **Vite 插件**: 已集成 `@tailwindcss/vite` 插件
-- **CSS 导入**: 在 `frontend/src/App.css` 中使用 `@import "tailwindcss"` 导入
+- **配置檔案**: `frontend/tailwind.config.ts`
+- **Vite 外掛**: 整合 `@tailwindcss/vite` 外掛
+- **CSS 匯入**: 在 `frontend/src/App.css` 中使用 `@import "tailwindcss"`
 
-#### 自定义主题
+#### 自訂主題
 
-Tailwind 配置文件中已定义以下自定义主题：
+Tailwind 配置檔案定義了以下自訂主題:
 
-- **颜色系统**:
-  - `primary`: 主色调 (#1976d2)
-  - `background`: 背景色系 (#FAFDFC, #FFFFFF, #F5F5F5)
-  - `border`: 边框色系 (#F0F2F5)
-  - `text`: 文字颜色（primary, secondary, tertiary, disabled）
+- **色彩系統**:
+  - `primary`: 主色調 (#1976d2)
+  - `background`: 背景色系統 (#FAFDFC, #FFFFFF, #F5F5F5)
+  - `border`: 邊框色系統 (#F0F2F5)
+  - `text`: 文字顏色(primary, secondary, tertiary, disabled)
 
-- **间距**: 扩展了标准间距系统
-- **圆角**: 自定义了 `xl` (16px) 和 `2xl` (20px)
-- **阴影**: 基于项目设计系统的自定义阴影
+- **間距**: 擴充標準間距系統
+- **邊框圓角**: 自訂 `xl` (16px) 和 `2xl` (20px)
+- **陰影**: 基於專案設計系統的自訂陰影
 
 #### 使用方式
 
-1. **在组件中使用 Tailwind 工具类**:
+1. **在元件中使用 Tailwind 實用類別**:
    ```tsx
    <div className="p-4 rounded-xl bg-background border border-border">
-     <h1 className="text-xl font-bold text-text-primary">标题</h1>
+     <h1 className="text-xl font-bold text-text-primary">標題</h1>
    </div>
    ```
 
-2. **使用自定义颜色**:
+2. **使用自訂顏色**:
    ```tsx
    <button className="bg-primary text-white hover:bg-primary-dark">
-     按钮
+     按鈕
    </button>
    ```
 
-3. **与 SCSS 模块共存**:
-   项目正在逐步从 SCSS 迁移到 Tailwind CSS，目前两种方式可以共存：
-   - 新组件优先使用 Tailwind CSS
-   - 现有 SCSS 模块样式保持不变，逐步迁移
+3. **與 SCSS 模組共存**:
+   專案正在逐步從 SCSS 遷移到 Tailwind CSS。目前兩種方式可以共存:
+   - 新元件優先使用 Tailwind CSS
+   - 現有 SCSS 模組樣式保持不變,逐步遷移
 
-#### 迁移计划
+#### 遷移計劃
 
-- ✅ 已安装 Tailwind CSS V4
-- ✅ 已创建配置文件
-- 🔄 逐步将 SCSS 模块样式转换为 Tailwind 工具类
-- 📝 保留必要的 SCSS 用于复杂样式和 MUI 主题定制
+- ✅ Tailwind CSS V4 已安裝
+- ✅ 配置檔案已建立
+- 🔄 逐步將 SCSS 模組樣式轉換為 Tailwind 實用類別
+- 📝 保留必要的 SCSS 用於複雜樣式和 MUI 主題自訂
 
-### 调试指南
+### 除錯指南
 
-1. **主进程调试**
+1. **主進程除錯**
    ```bash
    npm run electron:dev
-   # 在 VS Code 中附加到 Electron 主进程
+   # 在 VS Code 中附加到 Electron 主進程
    ```
 
-2. **渲染进程调试**
+2. **渲染進程除錯**
    - 使用 Chrome DevTools
-   - 在应用中按 F12 打开开发者工具
+   - 在應用中按 F12 開啟開發者工具
 
-3. **日志查看**
-   - 主进程日志：`console.log` 输出到终端
-   - 渲染进程日志：在 DevTools Console 中查看
+3. **日誌查看**
+   - 主進程日誌: `console.log` 輸出到終端
+   - 渲染進程日誌: 在 DevTools Console 中查看
 
-## 📦 构建和部署
+## 📦 建置和部署
 
-### 构建流程
+### 建置流程
 
-1. **前端构建**
+1. **前端建置**
    ```bash
    cd frontend
    npm run build
    ```
 
-2. **Electron 构建**
+2. **Electron 建置**
    ```bash
    npm run build:electron
    ```
 
-3. **打包应用**
+3. **封裝應用程式**
    ```bash
    # Windows
    npm run build:win
@@ -636,22 +660,22 @@ Tailwind 配置文件中已定义以下自定义主题：
    npm run build:linux
    ```
 
-### 发布配置
+### 發布配置
 
-- **Windows**: 生成 `.exe` 安装包和便携版
-- **macOS**: 生成 `.dmg` 安装包和 `.app` 应用包
-- **Linux**: 生成 `.AppImage` 和 `.deb` 包
+- **Windows**: 產生 `.exe` 安裝程式和可攜版本
+- **macOS**: 產生 `.dmg` 安裝程式和 `.app` 應用程式套件
+- **Linux**: 產生 `.AppImage` 和 `.deb` 套件
 
-### 自动更新
+### 自動更新
 
-应用内置自动更新功能：
-- 检查更新：启动时自动检查
-- 下载更新：后台下载更新包
-- 安装更新：用户确认后自动安装
+應用程式內建自動更新功能:
+- 檢查更新: 啟動時自動檢查
+- 下載更新: 背景下載更新套件
+- 安裝更新: 使用者確認後自動安裝
 
-## 🌍 国际化
+## 🌍 國際化
 
-### 支援的語言
+### 支援語言
 
 - 🇨🇳 簡體中文 (zh-CN)
 - 🇹🇼 繁體中文 (zh-TW)
@@ -662,17 +686,17 @@ Tailwind 配置文件中已定义以下自定义主题：
 - 🇩🇪 德文 (de-DE)
 - 🇻🇳 越南文 (vi-VN)
 
-### 添加新语言
+### 新增語言
 
-1. 在 `frontend/src/i18n/locales/` 中添加新的语言目录，包含所有翻译 JSON 文件
-2. 在 `frontend/src/config/languages.ts` 中添加语言配置
-3. 在 `frontend/src/flags/FlagIcons.tsx` 中添加对应的国旗图标
+1. 在 `frontend/src/i18n/locales/` 中新增語言目錄,包含所有翻譯 JSON 檔案
+2. 在 `frontend/src/config/languages.ts` 中新增語言配置
+3. 在 `frontend/src/flags/FlagIcons.tsx` 中新增對應的國旗圖示
 
-## 打包注意事項
+## 封裝注意事項
 
-需放在 extraResources的数组中
+必須放在 extraResources 陣列中
 
-### windows端
+### Windows
 
 ```
 {
@@ -686,7 +710,7 @@ Tailwind 配置文件中已定义以下自定义主题：
 },
 ```
 
-### MAC端
+### macOS
 
 ```
 {
@@ -695,49 +719,49 @@ Tailwind 配置文件中已定义以下自定义主题：
   },
 ```
 
-## 🤝 贡献指南
+## 🤝 貢獻
 
-我们欢迎所有形式的贡献！请遵循以下步骤：
+我們歡迎所有形式的貢獻!請遵循以下步驟:
 
-1. **Fork 项目**
-2. **创建特性分支** (`git checkout -b feature/AmazingFeature`)
-3. **提交更改** (`git commit -m 'Add some AmazingFeature'`)
+1. **Fork 專案**
+2. **建立功能分支** (`git checkout -b feature/AmazingFeature`)
+3. **提交變更** (`git commit -m 'Add some AmazingFeature'`)
 4. **推送到分支** (`git push origin feature/AmazingFeature`)
-5. **创建 Pull Request**
+5. **建立 Pull Request**
 
-### 贡献类型
+### 貢獻類型
 
-- 🐛 Bug 修复
-- ✨ 新功能开发
-- 📝 文档改进
-- 🎨 UI/UX 优化
-- 🌍 国际化翻译
-- ⚡ 性能优化
+- 🐛 錯誤修復
+- ✨ 新功能開發
+- 📝 文件改進
+- 🎨 UI/UX 優化
+- 🌍 國際化翻譯
+- ⚡ 效能優化
 
-## 📄 许可证
+## 📄 授權
 
-本项目采用 Apache-2.0 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+本專案採用 Apache-2.0 授權 - 詳見 [LICENSE](LICENSE) 檔案
 
-## 📞 联系我们
+## 📞 聯絡我們
 
-- **项目主页**: [GitHub Repository](https://github.com/your-username/ai-search)
-- **问题反馈**: [GitHub Issues](https://github.com/your-username/ai-search/issues)
-- **讨论交流**: [GitHub Discussions](https://github.com/your-username/ai-search/discussions)
+- **專案首頁**: [GitHub Repository](https://github.com/your-username/ai-search)
+- **問題回報**: [GitHub Issues](https://github.com/your-username/ai-search/issues)
+- **討論區**: [GitHub Discussions](https://github.com/your-username/ai-search/discussions)
 
-## 🙏 致谢
+## 🙏 致謝
 
-感谢以下开源项目的支持：
+感謝以下開源專案的支援:
 
-- [Electron](https://electronjs.org/) - 跨平台桌面应用框架
-- [React](https://reactjs.org/) - 用户界面库
-- [Material-UI](https://mui.com/) - React 组件库
-- [Ollama](https://ollama.ai/) - 本地 AI 模型服务
-- [LanceDB](https://lancedb.com/) - 向量数据库
+- [Electron](https://electronjs.org/) - 跨平台桌面應用程式框架
+- [React](https://reactjs.org/) - 使用者介面函式庫
+- [Material-UI](https://mui.com/) - React 元件庫
+- [Ollama](https://ollama.ai/) - 本地 AI 模型服務
+- [LanceDB](https://lancedb.com/) - 向量資料庫
 - [Tesseract.js](https://tesseract.projectnaptha.com/) - OCR 引擎
 
 ---
 
 <div align="center">
-  <p>如果这个项目对您有帮助，请给我们一个 ⭐️</p>
+  <p>如果這個專案對您有幫助,請給我們一個 ⭐️</p>
   <p>Made with ❤️ by Osai Team</p>
 </div>
