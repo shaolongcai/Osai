@@ -1,8 +1,6 @@
 <div align="center">
 # Osai - AI-Powered Intelligent Search Application
-</div>
 
-<div align="center">
   <img src="./frontend/public/logo.svg" alt="Osai Logo" width="120" height="120">
   
   <p>An intelligent local file search application based on AI technology</p>
@@ -13,7 +11,7 @@
   ![Node.js](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen?style=flat-square&logo=node.js)
   ![Electron](https://img.shields.io/badge/electron-38.0.0-blue?style=flat-square&logo=electron)
 
-  <p><strong>Multi-language Support:</strong> English | 简体中文 | 繁體中文</p>
+  <p><strong>Multi-language Support:</strong> [English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md)</p>
   
   <p>⭐ Click the Star in the upper right corner to receive software update notifications on the GitHub homepage~</p>
   

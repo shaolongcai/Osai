@@ -1,8 +1,6 @@
 <div align="center">
 # Osai - AI 驱动的智能搜索应用
-</div>
 
-<div align="center">
   <img src="./frontend/public/logo.svg" alt="Osai Logo" width="120" height="120">
   
   <p>一个基于 AI 技术的本地文件智能搜索应用</p>
@@ -12,6 +10,10 @@
   ![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat-square)
   ![Node.js](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen?style=flat-square&logo=node.js)
   ![Electron](https://img.shields.io/badge/electron-38.0.0-blue?style=flat-square&logo=electron)
+  
+  <p><strong>多语言支持：</strong>[English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md)</p>
+  
+  <p>⭐ 点一下右上角的 Star, Github 主页就能收到软件更新通知了哦~</p>
   
 </div>
 
