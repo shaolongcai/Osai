@@ -1,6 +1,8 @@
 <div align="center">
 # Osai - AI 驱动的智能搜索应用
+</div>
 
+<div align="center">
   <img src="./frontend/public/logo.svg" alt="Osai Logo" width="120" height="120">
   
   <p>一个基于 AI 技术的本地文件智能搜索应用</p>

@@ -1,6 +1,8 @@
 <div align="center">
 # Osai - AI-Powered Intelligent Search Application
+</div>
 
+<div align="center">
   <img src="./frontend/public/logo.svg" alt="Osai Logo" width="120" height="120">
   
   <p>An intelligent local file search application based on AI technology</p>
