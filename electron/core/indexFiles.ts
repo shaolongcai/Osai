@@ -637,7 +637,7 @@ export const indexRecently = async (): Promise<void> => {
             logger.warn(`文件不存在: ${file}`);
             continue;
         }
-        await indexSingleFile(file, aiInstalled);
+        indexSingleFile(file, aiInstalled); //这里不要加await，否则队列里只会有一个任务
     }
     // 任務結束後釋放 OCR Worker
     // await ocrSeverSingleton.terminateOCRWorker();
@@ -662,6 +662,7 @@ export const indexSingleFile = async (filePath: string, aiInstalled: boolean): P
         // 类型为文档，且未安装模型，读取全文
         await documentSeverSingleton.enqueue(normalizedPath);
     } else if (fileType !== FileType.Other && aiInstalled) {
+        logger.info(`处理文档索引，文件路径: ${normalizedPath}`);
         // 使用ai服务，标记文件
         await aiSeverSingleton.enqueue(normalizedPath, fileType);
     } else {

@@ -36,35 +36,6 @@ class OllamaService {
                 //启动前，清理所有进程
                 await this.killAllOllamaProcesses();
 
-                //区分win与mac启动
-                const platform = process.platform;
-                let spawnArgs: string[];
-                let spawnCommand: string;
-
-                if (platform === 'win32') {
-                    const elevatePath = path.join(pathConfig.get('resources'), 'elevate.exe');
-                    spawnCommand = elevatePath;
-                    spawnArgs = [this.ollamaPath, 'serve'];
-                } else {
-                    // macOS 和 Linux 直接启动
-                    spawnCommand = this.ollamaPath;
-                    spawnArgs = ['serve'];
-                }
-
-                this.process = spawn(spawnCommand, spawnArgs, {
-                    stdio: 'pipe',
-                    env: {
-                        ...process.env,
-                        OLLAMA_HOST: '127.0.0.1:11434',
-                        // 降低资源占用
-                        OLLAMA_MAX_LOADED_MODELS: '1',
-                        OLLAMA_NUM_PARALLEL: '1',
-                        // 启用调试日志
-                        OLLAMA_DEBUG: '1',
-                        OLLAMA_LOG_LEVEL: 'debug'
-                    }
-                });
-
                 const processErrorPromise = new Promise((_, reject) => {
                     this.process.on('error', (error) => {
                         const msg = error instanceof Error ? error.message : 'Ollama启动失败';
@@ -194,7 +165,7 @@ class OllamaService {
                 return;
             }
 
-            logger.info(`处理队列中的第一个请求: ${firstRequestId}`);
+            logger.info(`处理队列中的请求: ${firstRequestId}`);
             this.isProcessingQueue = true; // 标记为正在处理队列中的请求
 
             // 发送任务到Worker

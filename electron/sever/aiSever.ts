@@ -34,6 +34,7 @@ class AiSever {
      */
     public enqueue(path: string, fileType: FileType): Promise<string> {
         return new Promise((resolve, reject) => {
+            console.log(`入队处理，文件路径: ${path}`)
             // 去重：同一文件只入队一次
             if (this.queue.some(item => item.filePath === path)) {
                 resolve(''); // 已在队列中，直接返回空字符串或可改为等待现有任务结果
@@ -47,6 +48,7 @@ class AiSever {
 
     // 检查是否拥有AI服务
     public async checkAIProvider() {
+        // 获取AI配置
         const aiProviderString = getConfig('ai_provider') as string
         const aiProvider = JSON.parse(aiProviderString) as { type: string, host: string, modelId: string }
         // 测试连通性
@@ -70,6 +72,7 @@ class AiSever {
     // 处理队列
     private async processQueue() {
         if (this.processing) return;
+        console.log(`处理队列，当前队列长度: ${this.queue.length}`)
         this.processing = true;
 
         try {
@@ -80,6 +83,7 @@ class AiSever {
                     const task = this.queue.shift()!;
                     const { filePath, fileType, resolve, reject } = task;
 
+                    console.log('处理task',filePath)
                     // 检查task，是否在数据库已被处理
                     const isProcessed = checkTask(filePath, 'ai')
                     if (isProcessed) {
