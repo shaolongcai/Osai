@@ -21,6 +21,6 @@
   },
   "keywords": ["electron", "native", "icon", "extractor"],
   "author": "Your Name",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "gypfile": true
 }

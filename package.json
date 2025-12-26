@@ -37,7 +37,7 @@
   "version": "0.4.1",
   "description": "a search app by ai",
   "main": "dist-electron/main.js",
-  "license": "none",
+  "license": "Apache-2.0",
   "private": true,
   "dependencies": {
     "@langchain/community": "^1.0.0",

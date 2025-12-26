@@ -7,7 +7,7 @@
   
   ![Version](https://img.shields.io/badge/version-0.3.1-blue.svg)
   ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
-  ![License](https://img.shields.io/badge/license-MIT-green.svg)
+  ![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)
 </div>
 
 ## 📖 项目简介
@@ -637,7 +637,7 @@ Tailwind 配置文件中已定义以下自定义主题：
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+本项目采用 Apache-2.0 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
 ## 📞 联系我们
 
