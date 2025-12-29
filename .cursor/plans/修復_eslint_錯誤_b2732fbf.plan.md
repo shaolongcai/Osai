@@ -100,4 +100,3 @@ todos:
 
 - `frontend/src/contexts/useI18n.ts` (分離 I18n hooks)
 - `frontend/src/flags/flagUtils.ts` (分離 Flag 工具函數)
-- `frontend/src/pages/SearchApp.tsx` (從 searchIndex.tsx 移出)

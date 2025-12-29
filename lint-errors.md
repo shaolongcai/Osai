@@ -4,8 +4,8 @@
 
 ## 總覽
 
-- **總錯誤數**：109（已修復：43）
-- **總警告數**：13
+- **總錯誤數**：109（已修復：60）
+- **總警告數**：13（已修復：13 ✅）
 - **可自動修復**：1 個錯誤（已修復）
 - **any 類型錯誤**：38 個（已全部修復 ✅）
 
@@ -31,8 +31,8 @@
 - ✅ 第 15 行：`t` 被賦值但從未使用（已修復）
 
 #### components/InfoCard.tsx
-- 第 1 行：`Fade` 已定義但從未使用
-- 第 27 行：`context` 被賦值但從未使用
+- ✅ 第 1 行：`Fade` 已定義但從未使用（已修復 - 移除未使用的匯入）
+- ✅ 第 27 行：`context` 被賦值但從未使用（已修復 - 移除未使用的變數）
 
 #### components/ReportProtocol.tsx
 - 第 1 行：`Checkbox` 已定義但從未使用
@@ -164,21 +164,21 @@
 ### 3. 空介面 (@typescript-eslint/no-empty-object-type)
 
 #### components/InfoCard.tsx
-- 第 17 行：空的介面宣告允許任何非 nullish 值
+- ✅ 第 17 行：空的介面宣告允許任何非 nullish 值（已修復 - 移除空介面）
 
 ---
 
 ### 4. 空模式匹配 (no-empty-pattern)
 
 #### components/InfoCard.tsx
-- 第 20 行：意外的空物件模式
+- ✅ 第 20 行：意外的空物件模式（已修復 - 移除空解構參數）
 
 ---
 
 ### 5. Case 區塊中的詞彙宣告 (no-case-declarations)
 
 #### components/TableRelust/TableRelust.tsx
-- 第 93 行：在 case 區塊中意外的詞彙宣告
+- ✅ 第 93 行：在 case 區塊中意外的詞彙宣告（已修復 - 使用大括號包裹 case 區塊）
 
 ---
 
@@ -192,68 +192,68 @@
 ### 7. 空區塊 (no-empty)
 
 #### contexts/I18nContext.tsx
-- 第 81 行：空區塊語句
+- ✅ 第 81 行：空區塊語句（已修復 - 添加註解說明）
 
 ---
 
 ### 8. 未使用的表達式 (@typescript-eslint/no-unused-expressions)
 
 #### pages/Setting.tsx
-- 第 198 行：預期賦值或函數呼叫，但看到表達式
-- 第 366 行：預期賦值或函數呼叫，但看到表達式
+- ✅ 第 198 行：預期賦值或函數呼叫，但看到表達式（已修復 - 改為 if-else 語句）
+- ✅ 第 366 行：預期賦值或函數呼叫，但看到表達式（已修復 - 改為分號分隔的語句）
 
 ---
 
 ### 9. React Fast Refresh 問題 (react-refresh/only-export-components)
 
 #### contexts/I18nContext.tsx
-- 第 243 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數
-- 第 252 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數
+- ✅ 第 243 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數（已修復 - 分離到 useI18n.ts）
+- ✅ 第 252 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數（已修復 - 分離到 useI18n.ts）
 
 #### flags/FlagIcons.tsx
-- 第 6161 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數
-- 第 6168 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數
-- 第 6173 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數
-- 第 6177 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數
+- ✅ 第 6161 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數（已修復 - 分離到 flagUtils.ts）
+- ✅ 第 6168 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數（已修復 - 分離到 flagUtils.ts）
+- ✅ 第 6173 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數（已修復 - 分離到 flagUtils.ts）
+- ✅ 第 6177 行：Fast refresh 僅在檔案只匯出元件時有效，請使用新檔案來共享常數或函數（已修復 - 分離到 flagUtils.ts）
 
 #### searchIndex.tsx
-- 第 10 行：Fast refresh 僅在檔案有匯出時有效，請將元件移到單獨的檔案
+- ✅ 第 10 行：Fast refresh 僅在檔案有匯出時有效，請將元件移到單獨的檔案（已修復 - 重構為使用 SearchApp 元件）
 
 #### settingIndex.tsx
-- 第 9 行：Fast refresh 僅在檔案有匯出時有效，請將元件移到單獨的檔案
+- ✅ 第 9 行：Fast refresh 僅在檔案有匯出時有效，請將元件移到單獨的檔案（已修復 - 重構為使用 SettingApp 元件）
 
 ---
 
 ### 10. React Hooks 依賴問題 (react-hooks/exhaustive-deps)
 
 #### components/TableRelust/TableRelust.tsx
-- 第 336 行（警告）：`useMemo` 缺少依賴項：`context.isReadyAI`
+- ✅ 第 336 行（警告）：`useMemo` 缺少依賴項：`context.isReadyAI`（已修復 - 添加依賴項）
 
 #### components/UpdateNotification.tsx
-- 第 25 行（警告）：`useCallback` 缺少依賴項：`onFinish`
+- ✅ 第 25 行（警告）：`useCallback` 缺少依賴項：`onFinish`（已修復 - 添加依賴項）
 
 #### contexts/I18nContext.tsx
-- 第 225 行（警告）：`useEffect` 缺少依賴項：`defaultLanguage` 和 `loadTranslation`
+- ✅ 第 225 行（警告）：`useEffect` 缺少依賴項：`defaultLanguage` 和 `loadTranslation`（已修復 - 使用 useRef 避免循環依賴，移除 loadTranslation 依賴）
 
 #### hooks/useIcon.ts
-- 第 51 行（警告）：`useEffect` 缺少依賴項：`ext`
+- ✅ 第 51 行（警告）：`useEffect` 缺少依賴項：`ext`（已修復 - 添加依賴項）
 
 #### pages/Preload.tsx
-- 第 67 行（警告）：`useEffect` 缺少依賴項：`checkGuide`, `checkUpdate`, `initServer`, `waitUserCheckUpdate`, `waitUserGuide`
-- 第 143 行（警告）：`useCallback` 缺少依賴項：`navigate`
+- ✅ 第 67 行（警告）：`useEffect` 缺少依賴項：`checkGuide`, `checkUpdate`, `initServer`, `waitUserCheckUpdate`, `waitUserGuide`（已修復 - 調整函數定義順序並添加依賴項）
+- ✅ 第 143 行（警告）：`useCallback` 缺少依賴項：`navigate`（已修復 - 添加依賴項）
 
 #### pages/Setting.tsx
-- 第 103 行（警告）：`useEffect` 缺少依賴項：`manualCheckUpdate`
-- 第 142 行（警告）：`useEffect` 有不必要的依賴項：`open`
+- ✅ 第 103 行（警告）：`useEffect` 缺少依賴項：`manualCheckUpdate`（已修復 - 調整函數定義順序，移除依賴避免重複觸發）
+- ✅ 第 142 行（警告）：`useEffect` 有不必要的依賴項：`open`（已修復 - 移除不必要的依賴項）
 
 #### pages/home/Home2.tsx
-- 第 79 行（警告）：`useEffect` 缺少依賴項：`context`
-- 第 103 行（警告）：`useEffect` 缺少依賴項：`searchFiles`
+- ✅ 第 79 行（警告）：`useEffect` 缺少依賴項：`context`（已修復 - 添加依賴項）
+- ✅ 第 103 行（警告）：`useEffect` 缺少依賴項：`searchFiles`（已修復 - 添加依賴項）
 
 #### pages/preload/Preload.tsx
-- 第 63 行（警告）：`useEffect` 缺少依賴項：`showAgreeProtocol`
-- 第 73 行（警告）：`useEffect` 缺少依賴項：`initServer`
-- 第 95 行（警告）：`useCallback` 缺少依賴項：`context`
+- ✅ 第 63 行（警告）：`useEffect` 缺少依賴項：`showAgreeProtocol`（已修復 - 添加依賴項）
+- ✅ 第 73 行（警告）：`useEffect` 缺少依賴項：`initServer`（已修復 - 添加依賴項）
+- ✅ 第 95 行（警告）：`useCallback` 缺少依賴項：`context`（已修復 - 添加依賴項）
 
 ---
 
@@ -304,12 +304,13 @@
 |---------|------|------|
 | 未使用的變數 | 48 | 待修復 |
 | 使用 any 類型 | 38 | ✅ 已全部修復 |
-| React Fast Refresh | 7 | 待修復 |
-| React Hooks 依賴 | 13 (警告) | 待修復 |
-| 空介面/模式 | 2 | 待修復 |
-| Case 區塊宣告 | 1 | 待修復 |
+| React Fast Refresh | 7 | ✅ 已全部修復 |
+| React Hooks 依賴 | 13 (警告) | ✅ 已全部修復 |
+| 空介面/模式 | 2 | ✅ 已全部修復 |
+| Case 區塊宣告 | 1 | ✅ 已全部修復 |
 | 冗餘 Boolean 呼叫 | 1 | ✅ 已修復 |
-| 其他 | 3 | 待修復 |
+| 空區塊 | 1 | ✅ 已修復 |
+| 未使用的表達式 | 2 | ✅ 已全部修復 |
 
 ### 按檔案統計
 
