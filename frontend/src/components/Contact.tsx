@@ -1,18 +1,17 @@
 import React from 'react'
-import { Link, Paper, Stack, Typography } from "@mui/material"
-import { useTranslation } from '@/contexts/I18nContext'
+import { Paper, Stack } from "@mui/material"
 import DiscordIcon from '@/assets/icons/discord.svg'
 import EmailIcon from '@/assets/icons/email.svg'
+import GithubIcon from '@/assets/icons/github.svg'
 import { useNotifications } from '@toolpad/core/useNotifications'
 
 interface Props {
   title?: string;
 }
 
-const Contact: React.FC<Props> = ({ title }) => {
+const Contact: React.FC<Props> = () => {
 
   const notifications = useNotifications();
-  const { t } = useTranslation();
 
   // 复制邮箱
   const copyEmail = () => {
@@ -36,6 +35,13 @@ const Contact: React.FC<Props> = ({ title }) => {
         className='p-4 rounded-[8px]! box-border cursor-pointer'
         variant='outlined' onClick={copyEmail}>
         <img src={EmailIcon} className='w-10 h-10' />
+      </Paper>
+      <Paper
+        variant='outlined'
+        onClick={() => window.electronAPI.openExternalUrl('https://github.com/shaolongcai/Osai')}
+        className='p-4 rounded-[8px]! box-border cursor-pointer'
+      >
+        <img src={GithubIcon} className='w-10 h-10' />
       </Paper>
     </Stack>
   )
