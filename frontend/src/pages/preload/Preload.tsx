@@ -5,7 +5,7 @@ import initErrorImg from '@/assets/images/init-error.png'
 import { useNavigate } from 'react-router-dom';
 import { Dialog, ReportProtocol } from "@/components";
 import { useGlobalContext } from "@/contexts/globalContext";
-import { useTranslation } from '@/contexts/I18nContext';
+import { useTranslation } from '@/contexts/useI18n';
 
 /**
  * 这个要废弃了
@@ -60,7 +60,7 @@ const Preload = () => {
         if (isCheckUpdate) {
             showAgreeProtocol();
         }
-    }, [isCheckUpdate]);
+    }, [isCheckUpdate, showAgreeProtocol]);
 
     // 初始化准备工作
     useEffect(() => {
@@ -70,7 +70,7 @@ const Preload = () => {
             }
             initServer();
         }
-    }, [isCheckProtocol]);
+    }, [isCheckProtocol, initServer]);
 
     // 初始化服务
     const initServer = useCallback(async () => {
@@ -92,7 +92,7 @@ const Preload = () => {
         else {
             setInitError(res.errMsg);
         }
-    }, [navigate])
+    }, [navigate, context])
 
 
     // 展示同意协议

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "@/contexts/globalContext";
 import { Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
-import { useTranslation } from '@/contexts/I18nContext';
+import { useTranslation } from '@/contexts/useI18n';
 import { Button, LinearProgress, Paper, Stack, Typography } from "@mui/material";
 import initImg from '@/assets/images/init.png'
 import initErrorImg from '@/assets/images/init-error.png'
@@ -31,41 +31,23 @@ const Preload = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    // 初始化
-    useEffect(() => {
-        const init = async () => {
-            // 更新逻辑
-            console.log('开始更新')
-            const updatePromise = waitUserCheckUpdate(); // 先绑定更新等待，不让updateResolveRef为null
-            await checkUpdate() // 检查更新
-            await updatePromise // 等待用户操作更新说明
+    // 等待用户操作更新说明
+    const waitUserCheckUpdate = useCallback((): Promise<void> => {
+        return new Promise<void>((resolve) => {
+            updateResolveRef.current = resolve; // 将resolve存放在ref中，后续直接调用resolve
+        }).then(() => {
+            setUpgradeOpen(true); // 展示升级弹窗
+        });
+    }, []);
 
-
-            // 新手引导
-            console.log('开始新手引导')
-            const guidePromise = waitUserGuide(); // 先绑定新手引导等待，不让guideResolveRef为null
-            await checkGuide();
-            await guidePromise;
-
-            // 体验改进协议
-            // console.log('开始同意协议')
-            // const protocolPromise = waitUserCheckProtocol(); // 先绑定协议等待，不让protocolResolveRef为null
-            // await checkAgreeProtocol()   // 检查同意协议
-            // await protocolPromise
-
-            // 服务启动
-            console.log('开始初始化node进程')
-            setServerOpen(true);
-            await initServer()
-        }
-        init()
-
-        return () => {
-            // 移除监听
-            window.electronAPI.removeAllListeners('update-status');
-        };
-    }, [])
-
+    // 等待用户操作新手引导
+    const waitUserGuide = useCallback(async (): Promise<void> => {
+        return new Promise<void>((resolve) => {
+            guideResolveRef.current = resolve;
+        }).then(() => {
+            setGuideOpen(false);
+        });
+    }, []);
 
     // 检查更新
     const checkUpdate = useCallback(async (): Promise<void> => {
@@ -84,28 +66,6 @@ const Preload = () => {
             }
         });
         await window.electronAPI.checkForUpdates(); // 似乎这里可以不需要再监听更新
-    }, []);
-
-    // 检查用户体验改进协议
-    const checkAgreeProtocol = useCallback(async (): Promise<void> => {
-        try {
-            // 是否设置不再提醒
-            const notRemindAgain = await window.electronAPI.getConfig('not_remind_again')
-            if (notRemindAgain) {
-                protocolResolveRef.current?.(); //已经解决，直接继续
-                return
-            }
-            // 已设置同意不需要再询问
-            const agreeProtocol = await window.electronAPI.getConfig('report_agreement')
-            if (agreeProtocol) {
-                protocolResolveRef.current?.();
-                return
-            }
-            setProtocolOpen(true);
-        } catch (error) {
-            console.error('展示同意协议失败', error);
-            setProtocolOpen(true);
-        }
     }, []);
 
     // 检查是否需要展示新手引导
@@ -140,16 +100,63 @@ const Preload = () => {
             setServerOpen(false);
             setInitError(res.errMsg);
         }
-    }, [])
+    }, [navigate]);
+
+    // 初始化
+    useEffect(() => {
+        const init = async () => {
+            // 更新逻辑
+            console.log('开始更新')
+            const updatePromise = waitUserCheckUpdate(); // 先绑定更新等待，不让updateResolveRef为null
+            await checkUpdate() // 检查更新
+            await updatePromise // 等待用户操作更新说明
 
 
-    // 等待用户操作更新说明
-    const waitUserCheckUpdate = useCallback((): Promise<void> => {
-        return new Promise<void>((resolve) => {
-            updateResolveRef.current = resolve; // 将resolve存放在ref中，后续直接调用resolve
-        }).then(() => {
-            setUpgradeOpen(true); // 展示升级弹窗
-        });
+            // 新手引导
+            console.log('开始新手引导')
+            const guidePromise = waitUserGuide(); // 先绑定新手引导等待，不让guideResolveRef为null
+            await checkGuide();
+            await guidePromise;
+
+            // 体验改进协议
+            // console.log('开始同意协议')
+            // const protocolPromise = waitUserCheckProtocol(); // 先绑定协议等待，不让protocolResolveRef为null
+            // await checkAgreeProtocol()   // 检查同意协议
+            // await protocolPromise
+
+            // 服务启动
+            console.log('开始初始化node进程')
+            setServerOpen(true);
+            await initServer()
+        }
+        init()
+
+        return () => {
+            // 移除监听
+            window.electronAPI.removeAllListeners('update-status');
+        };
+    }, [checkGuide, checkUpdate, initServer, waitUserCheckUpdate, waitUserGuide])
+
+    // 检查用户体验改进协议
+    const checkAgreeProtocol = useCallback(async (): Promise<void> => {
+        try {
+            // 是否设置不再提醒
+            const notRemindAgain = await window.electronAPI.getConfig('not_remind_again')
+            if (notRemindAgain) {
+                protocolResolveRef.current?.(); //已经解决，直接继续
+                return
+            }
+            // 已设置同意不需要再询问
+            const agreeProtocol = await window.electronAPI.getConfig('report_agreement')
+            if (agreeProtocol) {
+                protocolResolveRef.current?.();
+                return
+            }
+            setProtocolOpen(true);
+        } catch (error) {
+            console.error('展示同意协议失败', error);
+            setProtocolOpen(true);
+        }
     }, []);
 
     // 等待用户操作是否升级Pro
@@ -176,15 +183,6 @@ const Preload = () => {
             // todo 使用resolve的布尔参数，来确定用户是完成登录还是稍后登录
             // 关闭登录弹窗
             setLoginOpen(false);
-        });
-    }, []);
-
-    // 等待用户操作新手引导
-    const waitUserGuide = useCallback(async (): Promise<void> => {
-        return new Promise<void>((resolve) => {
-            guideResolveRef.current = resolve;
-        }).then(() => {
-            setGuideOpen(false);
         });
     }, []);
 

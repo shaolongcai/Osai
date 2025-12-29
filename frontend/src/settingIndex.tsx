@@ -1,33 +1,17 @@
 import ReactDOM from 'react-dom/client';
-import Setting from '@/pages/Setting';   // 你的设置组件
+import Setting from '@/pages/Setting';
 import RootProviders from './RootProviders';
 import './index.css'
-import { useRef } from 'react';
-import { useSize, useRequest } from 'ahooks';
-
-
-const APP = () => {
-
-    const rootRef = useRef(null);
-    const size = useSize(rootRef)
-
-    // 触发变更窗口大小
-    useRequest(() => window.electronAPI.resizeWindow('settingsWindow', size), {
-        ready: Boolean(size),
-        refreshDeps: [size],
-    })
-
-    return (
-        <div ref={rootRef}>
-            <RootProviders>
-                <Setting />
-            </RootProviders>
-        </div>
-    )
-}
+import SettingApp from './components/SettingApp';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<APP />);
+root.render(
+    <SettingApp>
+        <RootProviders>
+            <Setting />
+        </RootProviders>
+    </SettingApp>
+);
 
 // 禁止root滚动
 // document.body.style.overflow = 'hidden';

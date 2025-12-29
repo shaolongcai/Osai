@@ -5,7 +5,7 @@ import { ConfigParams } from '@/types/electron';
 import { useContext } from 'react';
 import { globalContext } from '@/contexts/globalContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { useTranslation } from '@/contexts/I18nContext';
+import { useTranslation } from '@/contexts/useI18n';
 
 
 const StyledTitle = styled(Typography)(({ theme }) => ({

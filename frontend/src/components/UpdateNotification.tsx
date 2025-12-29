@@ -1,6 +1,6 @@
 import { Button, Stack, Typography } from "@mui/material";
 import updateImage from '@/assets/images/update.png';
-import { useTranslation } from '@/contexts/I18nContext';
+import { useTranslation } from '@/contexts/useI18n';
 import { useCallback } from "react";
 
 
@@ -22,7 +22,7 @@ const UpdateNotification: React.FC<Props> = ({
         } finally {
             onFinish();
         }
-    }, []);
+    }, [onFinish]);
 
     return <Stack spacing={2} alignItems="center">
         <img src={updateImage} alt="init" className="w-45 h-45" />

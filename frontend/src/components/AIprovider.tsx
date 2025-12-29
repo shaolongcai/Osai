@@ -2,7 +2,7 @@ import { ConfigParams } from "@/types/electron";
 import { Button, Card, MenuItem, Paper, Stack, TextField, Typography } from "@mui/material"
 import { useRequest } from "ahooks";
 import { useState } from "react";
-import { useTranslation } from '@/contexts/I18nContext';
+import { useTranslation } from '@/contexts/useI18n';
 
 
 interface Props {

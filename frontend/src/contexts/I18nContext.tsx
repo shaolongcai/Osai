@@ -1,10 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { Language, TranslationKeys, TranslationKeyPath, I18nContextType, TranslationResources } from '../types/i18n';
 import { SUPPORTED_LANGUAGES } from '../config/languages';
 import { MODULE_FILES, DEFAULT_LANGUAGE, LOCALES_BASE_PATH } from '../i18n/constants';
-
-// 創建翻譯上下文
-const I18nContext = createContext<I18nContextType | undefined>(undefined);
+import { I18nContext } from './I18nContextDef';
 
 // 翻譯上下文提供者屬性
 interface I18nProviderProps {
@@ -21,10 +19,14 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
   const [translations, setTranslations] = useState<Partial<TranslationResources>>({});
   const [loadedLanguages, setLoadedLanguages] = useState<Set<Language>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
+  // 使用 ref 追蹤已載入的語言，避免在 useCallback 依賴中
+  const loadedLanguagesRef = useRef<Set<Language>>(new Set());
+  // 使用 ref 追蹤是否已初始化，避免重複同步
+  const isInitializedRef = useRef<boolean>(false);
 
   // 動態載入翻譯文件
-  const loadTranslation = async (language: Language): Promise<void> => {
-    if (loadedLanguages.has(language)) {
+  const loadTranslation = useCallback(async (language: Language): Promise<void> => {
+    if (loadedLanguagesRef.current.has(language)) {
       return;
     }
 
@@ -78,12 +80,15 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
             };
             deepMerge(combined as Record<string, unknown>, legacy as Record<string, unknown>);
           }
-        } catch { }
+        } catch {
+          // 忽略舊版翻譯檔案載入錯誤
+        }
 
         setTranslations(prev => ({
           ...prev,
           [language]: combined as TranslationKeys,
         }));
+        loadedLanguagesRef.current.add(language);
         setLoadedLanguages(prev => new Set([...prev, language]));
       } else {
         // 兼容舊結構：單檔 JSON
@@ -94,6 +99,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
             ...prev,
             [language]: data
           }));
+          loadedLanguagesRef.current.add(language);
           setLoadedLanguages(prev => new Set([...prev, language]));
         } else {
           console.warn(`無法載入 ${language} 翻譯文件`);
@@ -104,7 +110,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []); // 移除 loadedLanguages 依賴，使用函數式更新
 
   // 獲取翻譯文本 - 支援點分隔的巢狀鍵值和回退機制
   const getTranslation = (key: TranslationKeyPath, language: Language = currentLanguage): string => {
@@ -202,7 +208,9 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
 
       // 同步語言設置到數據庫（確保托盤菜單顯示正確的語言）
       // 注意：必須在前端完全初始化前就同步，確保托盤菜單使用正確的語言
-      if (typeof window !== 'undefined' && window.electronAPI) {
+      // 只在首次初始化時同步，避免重複觸發
+      if (typeof window !== 'undefined' && window.electronAPI && !isInitializedRef.current) {
+        isInitializedRef.current = true;
         try {
           await window.electronAPI.setConfig({
             key: 'app_language',
@@ -222,7 +230,8 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     };
 
     initTranslations();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultLanguage]); // loadTranslation 使用 useCallback，不應作為依賴
 
   const contextValue: I18nContextType = {
     currentLanguage,
@@ -237,25 +246,4 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
       {children}
     </I18nContext.Provider>
   );
-};
-
-// 自定義 Hook 用於使用翻譯上下文
-export const useI18n = (): I18nContextType => {
-  const context = useContext(I18nContext);
-  if (context === undefined) {
-    throw new Error('useI18n must be used within an I18nProvider');
-  }
-  return context;
-};
-
-// 翻譯 Hook - 類似於原始項目的 useTranslation
-export const useTranslation = () => {
-  const { t, currentLanguage, setLanguage, isLoading } = useI18n();
-
-  return {
-    t,
-    currentLanguage,
-    setLanguage,
-    isLoading
-  };
 };

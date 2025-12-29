@@ -2,7 +2,7 @@ import { Button, Paper, Stack, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
 import { useIcon } from '@/hooks/useIcon';
 import searchNull from '@/assets/images/search-null.png'
-import { useTranslation } from "@/contexts/I18nContext";
+import { useTranslation } from "@/contexts/useI18n";
 import { useRequest } from "ahooks";
 
 interface SearchResultItemProps {

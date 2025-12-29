@@ -15,8 +15,10 @@
  * ```
  */
 
-// 導出 I18n Context 和 Hooks
-export { I18nProvider, useI18n, useTranslation } from '../contexts/I18nContext';
+// 導出 I18n Provider
+export { I18nProvider } from '../contexts/I18nContext';
+// 導出 I18n Hooks
+export { useI18n, useTranslation } from '../contexts/useI18n';
 
 // 導出常量
 export {

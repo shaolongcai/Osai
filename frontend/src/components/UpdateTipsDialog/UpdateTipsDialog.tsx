@@ -1,7 +1,7 @@
 import { Stack, Typography } from "@mui/material"
 import Dialog from "../Dialog/Dialog"
 import image from '@/assets/images/updateImage.png'
-import { useTranslation } from "../../contexts/I18nContext";
+import { useTranslation } from "@/contexts/useI18n";
 
 
 

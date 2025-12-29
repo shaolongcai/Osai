@@ -1,7 +1,7 @@
 // React 核心庫導入
 import React from 'react';
 // 導入國際化翻譯 Hook
-import { useTranslation } from '../../contexts/I18nContext';
+import { useTranslation } from '@/contexts/useI18n';
 // 導入語言類型定義和配置
 import { Language, TranslationKeyPath } from '../../types/i18n';
 import { LANGUAGE_CONFIGS, getLanguageConfig } from '../../config/languages';

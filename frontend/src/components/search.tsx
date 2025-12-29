@@ -1,6 +1,6 @@
 import { Paper, Stack, TextField } from "@mui/material"
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from '@/contexts/I18nContext';
+import { useTranslation } from '@/contexts/useI18n';
 
 interface Props {
     onSearch: (keyword: string) => void;

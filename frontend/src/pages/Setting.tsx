@@ -1,12 +1,12 @@
 import { Button, Paper, Stack, Typography, styled, Card } from "@mui/material"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
     Settings as SettingsIcon,
     Close as CloseIcon
 } from '@mui/icons-material';
 import { useGlobalContext } from "@/contexts/globalContext";
 import { SettingItem, Contact, Dialog, ReportProtocol, AIProvider } from "@/components";
-import { useTranslation } from '@/contexts/I18nContext';
+import { useTranslation } from '@/contexts/useI18n';
 import { ConfigParams } from '@/types/electron';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -82,6 +82,12 @@ const Setting = () => {
     const { t, isLoading } = useTranslation()
 
     // 拉取用户配置
+    const manualCheckUpdate = useCallback(async () => {
+        setIsCheckingUpdate(true)
+        setUpdateStatusText(t('app.settings.checking'))
+        await window.electronAPI.checkForUpdates()
+    }, [t]) // t 函數應該是穩定的，但如果還是有問題，可以考慮移除依賴
+
     useEffect(() => {
         if (isLoading) return
         // 改为直接获取
@@ -100,7 +106,8 @@ const Setting = () => {
         })
         // 手动检查一次
         manualCheckUpdate()
-    }, [isLoading])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoading]) // manualCheckUpdate 應該只在 isLoading 改變時執行一次
 
     // 監聽更新狀態並在抽屜開啟時自動檢查（在非 Electron 環境下跳過）
     useEffect(() => {
@@ -139,14 +146,7 @@ const Setting = () => {
         return () => {
             window.electronAPI.removeAllListeners('update-status')
         }
-    }, [open, t, isLoading])
-
-
-    const manualCheckUpdate = async () => {
-        setIsCheckingUpdate(true)
-        setUpdateStatusText(t('app.settings.checking'))
-        await window.electronAPI.checkForUpdates()
-    }
+    }, [t, isLoading])
 
     // 安装GPU服务
     const installGpu = async () => {
@@ -195,7 +195,11 @@ const Setting = () => {
             title={hasGPU ? t('app.settings.gpuService') : '本机没有任何GPU'}
             primaryButtonText={hasGPU ? t('app.common.confirm') : t('app.common.close')}
             onPrimaryButtonClick={() => {
-                hasGPU ? installGpu() : setGpuSeverOpen(false)
+                if (hasGPU) {
+                    installGpu();
+                } else {
+                    setGpuSeverOpen(false);
+                }
             }}
             secondaryButtonText={hasGPU && t('app.common.cancel')}
             open={gpuSeverOpen}
@@ -363,7 +367,10 @@ const Setting = () => {
             }
             {
                 openAIProvider &&
-                <AIProvider onFinish={() => { setOpenAIProvider(false), setOpenSetting(true) }} />
+                <AIProvider onFinish={() => { 
+                    setOpenAIProvider(false);
+                    setOpenSetting(true);
+                }} />
             }
         </Stack>
     </>

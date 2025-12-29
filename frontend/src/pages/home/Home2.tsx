@@ -10,7 +10,7 @@ import {
 import searchNull from '@/assets/images/search-null.png'
 import AIMarkDialog from "@/components/AIMarkDialog/AIMarkDialog";
 import { useGlobalContext } from "@/contexts/globalContext";
-import { useTranslation } from '@/contexts/I18nContext';
+import { useTranslation } from '@/contexts/useI18n';
 import packageJson from '../../../../package.json';
 
 // 版本號常量，方便統一管理
@@ -76,7 +76,7 @@ const Home = () => {
       window.electronAPI.removeAllListeners('ai-server-installed');
       window.electronAPI.removeAllListeners('navigate-to-settings');
     };
-  }, []);
+  }, [context]);
 
   // 初始化node进程,(设置完监听后，再开始初始化)
   useEffect(() => {
@@ -100,7 +100,7 @@ const Home = () => {
       setSortedData([]);
       setSortConfig({ key: null, direction: null });
     }
-  }, [keyword])
+  }, [keyword, searchFiles])
 
   // 处理数据排序
   // 通用数据排序逻辑

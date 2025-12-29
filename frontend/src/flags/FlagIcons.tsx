@@ -6157,21 +6157,3 @@ const flagsData: [string, string, React.FC<FlagIconProps>][] = [
     ['Zimbabwe', 'zw', ZimbabweFlag],
 ];
 
-// 使用 map 函數生成最終的 allFlags 數組
-export const allFlags: FlagComponent[] = flagsData.map(([name, code, component]) => ({
-    name,
-    code,
-    component,
-}));
-
-// 按國家名稱查找國旗組件的輔助函數
-export const getFlagByName = (name: string): FlagComponent | undefined => {
-    return allFlags.find(flag => flag.name.toLowerCase() === name.toLowerCase());
-};
-
-// 按國家代碼查找國旗組件的輔助函數
-export const getFlagByCode = (code: string): FlagComponent | undefined => {
-    return allFlags.find(flag => flag.code.toLowerCase() === code.toLowerCase());
-};
-
-export default allFlags;

@@ -15,7 +15,7 @@ import {
 } from "@mui/icons-material";
 import AIMarkDialog from "../AIMarkDialog/AIMarkDialog";
 import { useGlobalContext } from "@/contexts/globalContext";
-import { useTranslation } from '@/contexts/I18nContext'
+import { useTranslation } from '@/contexts/useI18n'
 
 
 interface Props {
@@ -89,7 +89,7 @@ const TableRelust: React.FC<Props> = ({
                     setAIMarkDialogOpen(true);
                 }
                 break;
-            case 'aiMark':
+            case 'aiMark': {
                 const isReadyAI = context.isReadyAI;
                 if (isReadyAI) {
                     window.electronAPI.aiMark(item.path);
@@ -99,6 +99,7 @@ const TableRelust: React.FC<Props> = ({
                     setAIMarkDialogOpen(true);
                 }
                 break;
+            }
             default:
                 break;
         }
@@ -333,7 +334,7 @@ const TableRelust: React.FC<Props> = ({
                 }}
             />
         )),
-    }), []); // 依赖为空数组，确保只在组件挂载时创建一次
+    }), [context.isReadyAI]); // 添加 context.isReadyAI 依賴
 
     return <Box className="mt-4 h-[80vh]">
         <AIMarkDialog

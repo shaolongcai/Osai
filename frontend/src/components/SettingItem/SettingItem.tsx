@@ -1,5 +1,5 @@
 import { Paper, Stack, Typography, Button, Switch } from "@mui/material"
-import { useTranslation } from '@/contexts/I18nContext';
+import { useTranslation } from '@/contexts/useI18n';
 
 
 type ActionType = 'button' | 'switch' | 'custom' | 'text'

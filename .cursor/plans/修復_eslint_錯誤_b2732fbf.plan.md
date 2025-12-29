@@ -4,22 +4,22 @@ overview: 修復 lint-errors.md 中第 164-256 行列出的所有 ESLint 錯誤�
 todos:
   - id: fix-info-card
     content: 修復 InfoCard.tsx 的空介面和空模式匹配問題
-    status: pending
+    status: completed
   - id: fix-table-result
     content: 修復 TableRelust.tsx 的 case 區塊詞彙宣告問題
-    status: pending
+    status: completed
   - id: fix-i18n-context
     content: 修復 I18nContext.tsx 的空區塊問題，並分離 hooks 到新檔案
-    status: pending
+    status: completed
   - id: fix-setting-expressions
     content: 修復 Setting.tsx 的未使用表達式問題
-    status: pending
+    status: completed
   - id: fix-fast-refresh
     content: 重構 Fast Refresh 問題：分離 FlagIcons 工具函數、重構 searchIndex 和 settingIndex
-    status: pending
+    status: completed
   - id: fix-hooks-deps
     content: 修復所有 React Hooks 依賴問題
-    status: pending
+    status: completed
     dependencies:
       - fix-info-card
       - fix-table-result
