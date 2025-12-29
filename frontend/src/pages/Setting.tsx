@@ -105,22 +105,22 @@ const Setting = () => {
     // 監聽更新狀態並在抽屜開啟時自動檢查（在非 Electron 環境下跳過）
     useEffect(() => {
         if (isLoading) return
-        if (!(window as any).electronAPI) {
+        if (!window.electronAPI) {
             // 非 Electron 預覽環境：直接顯示最新版本提示
             setIsCheckingUpdate(false)
             setIsUpdateAvailable(false)
             setLatestVersion(null)
-            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as any))
+            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest'))
             return
         }
         // 僅訂閱事件，不在此自動觸發檢查
-        window.electronAPI.onUpdateStatus((data: any) => {
+        window.electronAPI.onUpdateStatus((data) => {
             console.log('update-status', data)
             setIsCheckingUpdate(false)
             if (data && data.isUpdateAvailable) {
                 setIsUpdateAvailable(true)
                 setLatestVersion(String(data.version || ''))
-                setUpdateStatusText(t('app.settings.checkUpdateStatusNewVersion' as any, { version: data.version || '' }))
+                setUpdateStatusText(t('app.settings.checkUpdateStatusNewVersion', { version: data.version || '' }))
             } else {
                 setIsUpdateAvailable(false)
                 setLatestVersion(null)
@@ -131,7 +131,7 @@ const Setting = () => {
                         msg = t('app.settings.not-available-update')
                         break
                     default:
-                        msg = t('app.settings.checkUpdateStatusLatest') // 兜底用“已是最新版”
+                        msg = t('app.settings.checkUpdateStatusLatest') // 兜底用"已是最新版"
                 }
                 setUpdateStatusText(msg)
             }
@@ -144,7 +144,7 @@ const Setting = () => {
 
     const manualCheckUpdate = async () => {
         setIsCheckingUpdate(true)
-        setUpdateStatusText(t('app.settings.checking' as any))
+        setUpdateStatusText(t('app.settings.checking'))
         await window.electronAPI.checkForUpdates()
     }
 
@@ -313,14 +313,14 @@ const Setting = () => {
                                 action={
                                     <Stack direction='row' alignItems='center' spacing={2}>
                                         <Typography variant="body2" color={'text.secondary'}>
-                                            {updateStatusText || t('app.settings.checkUpdateStatusLatest' as any)}
+                                            {updateStatusText || t('app.settings.checkUpdateStatusLatest')}
                                         </Typography>
                                         <StyledButton
                                             disabled={isCheckingUpdate}
                                             variant='text'
                                             onClick={manualCheckUpdate}
                                         >
-                                            {t('app.settings.check' as any)}
+                                            {t('app.settings.check')}
                                         </StyledButton>
                                     </Stack>
                                 }

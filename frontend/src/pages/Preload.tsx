@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 // 是否为 Electron 环境
-const isElectron = typeof window !== 'undefined' && (window as any).electronAPI;
+const isElectron = typeof window !== 'undefined' && window.electronAPI;
 const Preload = () => {
 
     const [initError, setInitError] = useState<string | null>(null);
@@ -252,7 +252,7 @@ const Preload = () => {
                     <Button variant='contained' onClick={() => window.location.reload()}>
                         {t('app.preload.retry')}
                     </Button>
-                    <Button variant='outlined' onClick={() => isElectron ? (window as any).electronAPI.openDir('runLog') : undefined}>
+                    <Button variant='outlined' onClick={() => isElectron ? window.electronAPI.openDir('runLog') : undefined}>
                         {t('app.preload.openLog')}
                     </Button>
                 </Stack>

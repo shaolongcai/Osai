@@ -75,25 +75,25 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             window.electronAPI.removeAllListeners('update-status')
             return
         }
-        if (!(window as any).electronAPI) {
+        if (!window.electronAPI) {
             // 非 Electron 預覽環境：直接顯示最新版本提示
             setIsCheckingUpdate(false)
             setIsUpdateAvailable(false)
             setLatestVersion(null)
-            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as any))
+            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest'))
             return
         }
         // 僅訂閱事件，不在此自動觸發檢查
-        window.electronAPI.onUpdateStatus((data: any) => {
+        window.electronAPI.onUpdateStatus((data) => {
             setIsCheckingUpdate(false)
             if (data && data.isUpdateAvailable) {
                 setIsUpdateAvailable(true)
                 setLatestVersion(String(data.version || ''))
-                setUpdateStatusText(t('app.settings.checkUpdateStatusNewVersion' as any, { version: data.version || '' }))
+                setUpdateStatusText(t('app.settings.checkUpdateStatusNewVersion', { version: data.version || '' }))
             } else {
                 setIsUpdateAvailable(false)
                 setLatestVersion(null)
-                const msg = data?.message || t('app.settings.checkUpdateStatusLatest' as any)
+                const msg = data?.message || t('app.settings.checkUpdateStatusLatest')
                 setUpdateStatusText(msg)
             }
         })
@@ -103,14 +103,14 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     }, [open, t])
 
     const manualCheckUpdate = async () => {
-        if (!(window as any).electronAPI) {
+        if (!window.electronAPI) {
             // 非 Electron 環境：模擬檢查完成
             setIsCheckingUpdate(false)
-            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as any))
+            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest'))
             return
         }
         setIsCheckingUpdate(true)
-        setUpdateStatusText(t('app.settings.checking' as any))
+        setUpdateStatusText(t('app.settings.checking'))
         await window.electronAPI.checkForUpdates()
     }
 
@@ -341,10 +341,10 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                         {/* 檢查更新 */}
                         <Paper className="p-4 rounded-xl border border-border" elevation={0} variant='outlined' >
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className="text-sm font-semibold text-text-secondary" >{t('app.settings.checkUpdate' as any)}</Typography>
+                                <Typography variant="body1" className="text-sm font-semibold text-text-secondary" >{t('app.settings.checkUpdate')}</Typography>
                                 <Stack direction='row' alignItems='center' spacing={2}>
                                     <Typography variant="body2" color={'text.secondary'}>
-                                        {updateStatusText || t('app.settings.checkUpdateStatusLatest' as any)}
+                                        {updateStatusText || t('app.settings.checkUpdateStatusLatest')}
                                     </Typography>
                                     <Button
                                         sx={{
@@ -356,7 +356,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                         variant='text'
                                         onClick={manualCheckUpdate}
                                     >
-                                        {t('app.settings.check' as any)}
+                                        {t('app.settings.check')}
                                     </Button>
                                 </Stack>
                             </Stack>

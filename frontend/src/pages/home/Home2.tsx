@@ -106,9 +106,9 @@ const Home = () => {
   // 通用数据排序逻辑
   useEffect(() => {
     if (sortConfig.key && sortConfig.direction && data.length > 0) {
-      const sorted = [...data].sort((a, b) => {
-        let aValue: any;
-        let bValue: any;
+        const sorted = [...data].sort((a, b) => {
+        let aValue: string | number | Date;
+        let bValue: string | number | Date;
 
         // 根据不同字段进行不同的排序处理
         switch (sortConfig.key) {

@@ -99,13 +99,13 @@ export interface I18nContextType {
   currentLanguage: Language;
   translations: Partial<TranslationResources>;
   setLanguage: (language: Language) => Promise<void>;
-  t: (key: string, params?: Record<string, any>) => string;
+  t: (key: string, params?: Record<string, string | number | boolean>) => string;
   isLoading: boolean;
 }
 
 // useTranslation 返回值類型
 export interface UseTranslationReturn {
-  t: (key: TranslationKeyPath, params?: Record<string, any>) => string;
+  t: (key: TranslationKeyPath, params?: Record<string, string | number | boolean>) => string;
   currentLanguage: Language;
   setLanguage: (language: Language) => Promise<void>;
   isLoading: boolean;

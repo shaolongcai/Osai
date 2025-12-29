@@ -50,33 +50,33 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
 
       if (hasAnyModule) {
         // 組裝為 TranslationKeys 結構
-        const combined: any = { app: {} };
+        const combined: Partial<TranslationKeys> = { app: {} as TranslationKeys['app'] };
         MODULE_FILES.forEach((m, idx) => {
           const content = moduleResponses[idx];
           if (!content) return;
           if (m === 'app') {
-            combined.app = { ...combined.app, ...content };
+            combined.app = { ...combined.app, ...content } as TranslationKeys['app'];
           } else {
-            combined.app[m] = content;
+            (combined.app as Record<string, unknown>)[m] = content;
           }
         });
         // 若有缺失模塊，嘗試載入舊的單檔 JSON 並做補全
         try {
           const legacyResp = await fetch(`${LOCALES_BASE_PATH}/${language}.json`);
           if (legacyResp.ok) {
-            const legacy: any = await legacyResp.json();
-            const deepMerge = (target: any, source: any) => {
+            const legacy: Partial<TranslationKeys> = await legacyResp.json();
+            const deepMerge = (target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
               Object.keys(source).forEach((key) => {
                 if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
                   if (!target[key]) target[key] = {};
-                  deepMerge(target[key], source[key]);
+                  deepMerge(target[key] as Record<string, unknown>, source[key] as Record<string, unknown>);
                 } else {
                   if (target[key] === undefined) target[key] = source[key];
                 }
               });
               return target;
             };
-            deepMerge(combined, legacy);
+            deepMerge(combined as Record<string, unknown>, legacy as Record<string, unknown>);
           }
         } catch { }
 
@@ -110,7 +110,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
   const getTranslation = (key: TranslationKeyPath, language: Language = currentLanguage): string => {
     const keys = key.split('.');
     // 首先嘗試在當前語言中查找
-    let value: any = translations[language];
+    let value: unknown = translations[language];
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
@@ -174,7 +174,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
   };
 
   // t 函數 - 翻譯函數，支持參數替換
-  const t = (key: TranslationKeyPath, params?: Record<string, any>): string => {
+  const t = (key: TranslationKeyPath, params?: Record<string, string | number | boolean>): string => {
     let translation = getTranslation(key, currentLanguage);
     // 如果有參數，替換佔位符
     if (params) {

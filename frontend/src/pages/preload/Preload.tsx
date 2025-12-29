@@ -27,11 +27,11 @@ const Preload = () => {
     const { t } = useTranslation();
 
     // 新增：是否为 Electron 环境
-    const isElectron = typeof window !== 'undefined' && (window as any).electronAPI;
+    const isElectron = typeof window !== 'undefined' && window.electronAPI;
 
     // 检查是否有更新（兼容非 Electron 环境）
     useEffect(() => {
-        if (!(window as any).electronAPI) {
+        if (!window.electronAPI) {
             // 非 Electron 环境：跳过更新检查，直接进入协议判断
             setIsCheckUpdate(true);
             return;
@@ -163,7 +163,7 @@ const Preload = () => {
                             <Typography variant="body1" color="error" align="center">
                                 {initError}
                             </Typography>
-                            <Button variant='outlined' onClick={() => isElectron ? (window as any).electronAPI.openDir('runLog') : undefined}>
+                            <Button variant='outlined' onClick={() => isElectron ? window.electronAPI.openDir('runLog') : undefined}>
                                 {t('app.preload.openLog')}
                             </Button>
                         </Stack>
