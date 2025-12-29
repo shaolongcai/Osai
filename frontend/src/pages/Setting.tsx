@@ -6,7 +6,7 @@ import {
 } from '@mui/icons-material';
 import { useGlobalContext } from "@/contexts/globalContext";
 import { SettingItem, Contact, Dialog, ReportProtocol, AIProvider } from "@/components";
-import { useTranslation } from '@/contexts/useI18n';
+import { useTranslation } from '@/i18n';
 import { ConfigParams } from '@/types/electron';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 

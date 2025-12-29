@@ -4,7 +4,7 @@ import React from 'react';
 import { useTranslation } from '@/i18n';
 // 導入語言類型定義和配置
 import { Language, TranslationKeyPath } from '../../types/i18n';
-import { LANGUAGE_CONFIGS, getLanguageConfig } from '../../config/languages';
+import { LANGUAGE_CONFIGS, getLanguageConfig } from '@/i18n';
 // 導入 Material-UI 組件
 import { Button, ButtonGroup, Box, Select, MenuItem, FormControl } from '@mui/material';
 // 導入國旗 React 組件

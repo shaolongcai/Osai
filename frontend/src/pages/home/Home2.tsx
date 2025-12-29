@@ -10,7 +10,7 @@ import {
 import searchNull from '@/assets/images/search-null.png'
 import AIMarkDialog from "@/components/AIMarkDialog/AIMarkDialog";
 import { useGlobalContext } from "@/contexts/globalContext";
-import { useTranslation } from '@/contexts/useI18n';
+import { useTranslation } from '@/i18n';
 import packageJson from '../../../../package.json';
 
 // 版本號常量，方便統一管理

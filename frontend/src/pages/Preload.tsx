@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "@/contexts/globalContext";
 import { Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
-import { useTranslation } from '@/contexts/useI18n';
+import { useTranslation } from '@/i18n';
 import { Button, LinearProgress, Paper, Stack, Typography } from "@mui/material";
 import initImg from '@/assets/images/init.png'
 import initErrorImg from '@/assets/images/init-error.png'

@@ -4,7 +4,7 @@ import guide2Img from '@/assets/images/guide2.png'
 import guide3Img from '@/assets/images/guide3.png'
 import guide4Img from '@/assets/images/guide4.png'
 import { useCallback, useState } from "react";
-import { useTranslation } from '@/contexts/useI18n';
+import { useTranslation } from '@/i18n';
 
 
 interface Props {

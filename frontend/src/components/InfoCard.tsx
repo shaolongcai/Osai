@@ -11,7 +11,7 @@ import {
 import { NOTIFICATION_TYPE, NotificationType } from "@/utils/enum";
 import { Notification } from "@/types/electron";
 import { useEffect, useState } from "react";
-import { useTranslation } from '@/contexts/useI18n';
+import { useTranslation } from '@/i18n';
 
 const InfoCard: React.FC = () => {
 

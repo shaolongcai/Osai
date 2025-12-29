@@ -1,8 +1,8 @@
 // 翻譯系統類型定義
 
-// 從統一配置文件導入語言類型
-import type { Language } from '../config/languages';
-export type { Language } from '../config/languages';
+// 從 i18n 模組導入語言類型
+import type { Language } from '../i18n';
+export type { Language } from '../i18n';
 
 // 動態生成語言鍵值的映射類型
 type LanguageKeys = Record<Language, string>;
@@ -273,9 +273,5 @@ export interface UseTranslationReturn {
   isLoading: boolean;
 }
 
-// 語言配置類型
-export interface LanguageConfig {
-  code: Language;
-  name: string;
-  nativeName: string;
-}
+// 語言配置類型已移至 @/i18n
+export type { LanguageConfig } from '../i18n';

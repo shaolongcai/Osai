@@ -1,7 +1,7 @@
 import { Button, Card, Checkbox, FormControlLabel, Paper, Stack, Typography } from "@mui/material"
 import { useState } from "react";
 import { ConfigParams } from "@/types/electron";
-import { useTranslation } from "@/contexts/useI18n";
+import { useTranslation } from "@/i18n";
 
 
 interface Props {

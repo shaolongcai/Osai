@@ -1,6 +1,6 @@
 import { Button, Stack, Typography } from "@mui/material";
 import updateImage from '@/assets/images/update.png';
-import { useTranslation } from '@/contexts/useI18n';
+import { useTranslation } from '@/i18n';
 import { useCallback } from "react";
 
 

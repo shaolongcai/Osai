@@ -5,7 +5,7 @@ import initErrorImg from '@/assets/images/init-error.png'
 import { useNavigate } from 'react-router-dom';
 import { Dialog, ReportProtocol } from "@/components";
 import { useGlobalContext } from "@/contexts/globalContext";
-import { useTranslation } from '@/contexts/useI18n';
+import { useTranslation } from '@/i18n';
 
 /**
  * 这个要废弃了

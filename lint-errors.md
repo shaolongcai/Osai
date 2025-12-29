@@ -27,12 +27,12 @@
 | `src/components/TableRelust/TableRelust.tsx` | 1:63 | `@typescript-eslint/no-unused-vars` | 'Tooltip' is defined but never used |
 | `src/components/TableRelust/TableRelust.tsx` | 2:17 | `@typescript-eslint/no-unused-vars` | 'useEffect' is defined but never used |
 | `src/flags/FlagIcons.tsx` | 5920:7 | `@typescript-eslint/no-unused-vars` | 'flagsData' is assigned a value but never used |
-| `src/i18n/index.tsx` | 249:14 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
-| `src/i18n/index.tsx` | 261:14 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
-| `src/i18n/index.tsx` | 275:3 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
-| `src/i18n/index.tsx` | 276:3 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
-| `src/i18n/index.tsx` | 277:3 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
-| `src/i18n/index.tsx` | 278:3 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
+| `src/i18n/index.tsx` | 63:14 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
+| `src/i18n/index.tsx` | 74:14 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
+| `src/i18n/index.tsx` | 81:14 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
+| `src/i18n/index.tsx` | 90:14 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
+| `src/i18n/index.tsx` | 321:14 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
+| `src/i18n/index.tsx` | 333:14 | `react-refresh/only-export-components` | Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components |
 | `src/pages/Preload.tsx` | 3:24 | `@typescript-eslint/no-unused-vars` | 'ReportProtocol' is defined but never used |
 | `src/pages/Preload.tsx` | 5:34 | `@typescript-eslint/no-unused-vars` | 'Paper' is defined but never used |
 | `src/pages/Preload.tsx` | 16:12 | `@typescript-eslint/no-unused-vars` | 'protocolOpen' is assigned a value but never used |
@@ -86,6 +86,14 @@
 ## 建議修復方式
 
 1. **未使用的變數**: 移除未使用的導入、變數宣告或函數參數
-2. **react-refresh 錯誤**: 將 `src/i18n/index.tsx` 中的非元件導出移到單獨的檔案中
+2. **react-refresh 錯誤**: 
+   - `src/i18n/index.tsx` 中的非元件導出（常數、函數、Hooks）可以考慮移到單獨的檔案中
+   - 或者在該檔案中添加 ESLint 規則忽略註解（如果專案結構需要保持現狀）
+   - 受影響的導出項目：
+     - 第 63 行: `LANGUAGE_CONFIGS` (常數)
+     - 第 74 行: `SUPPORTED_LANGUAGES` (常數)
+     - 第 81 行: `getLanguageConfig` (函數)
+     - 第 90 行: `isLanguageSupported` (函數)
+     - 第 321 行: `useI18n` (Hook)
+     - 第 333 行: `useTranslation` (Hook)
 3. **未使用的狀態變數**: 檢查是否需要移除或實際使用這些狀態
-

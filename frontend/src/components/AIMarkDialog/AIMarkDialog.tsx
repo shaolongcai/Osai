@@ -3,7 +3,7 @@ import aiMarkImage from "@/assets/images/ai-mark.png"
 import { useState } from "react"
 import { Checkbox, FormControlLabel, Stack, Typography } from "@mui/material"
 import { useGlobalContext } from "@/contexts/globalContext"
-import { useTranslation } from "@/contexts/useI18n"
+import { useTranslation } from "@/i18n"
 
 interface Props {
     onClose: () => void
