@@ -1,8 +1,0 @@
-{
-  "placeholder": "ファイル名や画像の要約を検索",
-  "button": "検索",
-  "results": "{{count}}件の結果が見つかりました",
-  "noResults": "結果なし",
-  "noKeyword": "キーワードを入力してください",
-  "start": "キーワードを入力してAI検索を開始"
-}

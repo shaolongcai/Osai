@@ -1,9 +1,0 @@
-{
-  "loading": "正在准备必要的组件，请稍后",
-  "updateTitle": "更新版本",
-  "updateContent": "发现最新版本，是否进行更新",
-  "updatePrimary": "更新",
-  "updateSecondary": "稍后",
-  "initFailed": "初始化失败",
-  "openLog": "打开日志"
-}

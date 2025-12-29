@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ThemeProvider } from '@mui/material'
 import { theme } from './theme'
-import { I18nProvider } from './contexts/I18nContext';
+import { I18nProvider } from '@/i18n';
 import { NotificationsProvider } from '@toolpad/core/useNotifications';
 import { globalContext } from '@/contexts/globalContext';
 import { GpuInfo } from "./types/electron";

@@ -1,7 +1,0 @@
-{
-  "title": "Help lmprove Osai",
-  "primaryButtonText": "I Know",
-  "secondaryButtonText": "Later",
-  "content": "To keep improving, we anonymously send crash and performance stats—no personal data ever.\n\n These include:\n\n📌 Program exceptions: such as crashes, error codes. etc.\n📌 Performance data: such as download speed, operation response time, and featureusage frequency(anonymous).\n\nYou can disable this protocol at any time in Settings.",
-  "notRemindLabel": "Do not show again"
-}

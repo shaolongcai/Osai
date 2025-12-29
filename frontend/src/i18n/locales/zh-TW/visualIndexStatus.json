@@ -1,5 +1,0 @@
-{
-  "paused": "視覺索引服務已暫停",
-  "running": "OCR 服務已啟動，剩餘 {{count}}",
-  "finished": "OCR 索引已全部完成"
-}

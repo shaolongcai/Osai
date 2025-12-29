@@ -1,0 +1,162 @@
+{
+  "app": {
+    "title": "Osai - Recherche IA",
+    "search": {
+      "button": "Rechercher",
+      "indexFile": "Indexation terminée. Nombre de fichiers indexés : {{count}}",
+      "indexLoading": "Indexation en cours, vous pouvez rechercher à tout moment",
+      "noKeyword": "Veuillez saisir un mot-clé",
+      "noResults": "Aucun résultat",
+      "ocrSever": "Service OCR démarré, {{count}} tâches restantes",
+      "ocrSeverTips": "Service OCR : Reconnaît le texte dans les images pour rendre le contenu des images recherchable. Vous pouvez le désactiver dans les [Paramètres]",
+      "ocrSuccess": "Tâche OCR terminée",
+      "placeholder": "Rechercher des noms de fichiers ou des résumés d'images",
+      "results": "{{count}} résultats trouvés",
+      "start": "Saisissez un mot-clé pour commencer la recherche IA"
+    },
+    "settings": {
+      "about": "À propos",
+      "aiProvider": "Fournisseur IA",
+      "aiSettings": "Paramètres IA",
+      "autoLaunch": "Démarrer au démarrage",
+      "autoLaunchHidden": "Démarrer en arrière-plan",
+      "check": "Vérifier",
+      "checkUpdate": "Vérifier les mises à jour",
+      "checkUpdateStatusLatest": "Vous avez la dernière version",
+      "checkUpdateStatusNewVersion": "Nouvelle version disponible : {{version}}",
+      "checking": "Vérification...",
+      "community": "Donnez-nous votre avis dans la communauté !",
+      "contact": "Contact",
+      "feedback": "Retour",
+      "generalSettings": "Paramètres généraux",
+      "gpuService": "Service d'accélération GPU",
+      "install": "Installer",
+      "language": "Langue",
+      "logFolder": "Journaux d'exécution",
+      "not-available-update": "Dernière version",
+      "open": "Ouvrir",
+      "reInstall": "Réinstaller",
+      "system": "Système",
+      "title": "Paramètres",
+      "update": "Mise à jour",
+      "userExperience": "Programme d'amélioration de l'expérience utilisateur",
+      "visualIndex": "Activer l'indexation d'images",
+      "website": "Site Web Officiel"
+    },
+    "common": {
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "confirm": "Confirmer",
+      "off": "Désactivé",
+      "on": "Activé",
+      "save": "Enregistrer",
+      "settings": "Paramètres"
+    },
+    "language": {
+      "de-DE": "Deutsch",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ja-JP": "日本語",
+      "ko-KR": "한국어",
+      "title": "Sélectionner la langue",
+      "vi-VN": "Tiếng Việt",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文"
+    },
+    "indexing": {
+      "indexed": "{{count}} fichiers indexés",
+      "pending": "Indexation en cours"
+    },
+    "visualIndexStatus": {
+      "finished": "Indexation OCR entièrement terminée",
+      "paused": "Service d'indexation visuelle suspendu",
+      "running": "Service OCR démarré, {{count}} restants"
+    },
+    "aiSever": {
+      "configured": "Service IA prêt",
+      "loading": "Indexation IA en cours, {{count}} tâches restantes",
+      "notConfigured": "Service IA non configuré",
+      "pending": "Indexation IA en cours, vous pouvez rechercher à tout moment",
+      "success": "Indexation IA terminée",
+      "tooltip": "Indexation IA en cours, l'utilisation du CPU ou du GPU augmentera"
+    },
+    "aiMark": {
+      "buttons": {
+        "finish": "Terminer",
+        "install": "Installer",
+        "later": "Plus tard",
+        "next": "Suivant"
+      },
+      "requireTitle": "AI Mark nécessitera les composants suivants",
+      "step1": {
+        "ask": "📖 Poser des questions : Vous pouvez poser des questions sur ce document (mise à jour ultérieure).",
+        "desc": "Vous pouvez laisser l'IA marquer ce document pour vous. L'IA comprendra et analysera ce document. Grâce à la compréhension de l'IA, vous pouvez trouver ce document plus facilement :",
+        "entry": "Lancer AI Mark depuis le menu contextuel",
+        "summaryImage": "🖼️ Résumé d'image : Comprend réellement le contenu de l'image, pas seulement l'OCR.",
+        "understand": "🧠 IA comprend le document : Grâce à la compréhension de l'IA, vous pouvez trouver ce document plus rapidement et plus facilement."
+      },
+      "step2": {
+        "cuda": "Service CUDA (optionnel : pour l'accélération GPU, uniquement si votre ordinateur possède un GPU)",
+        "model": "Modèle IA",
+        "tips": "📌 Le téléchargement prend environ 5 à 10 minutes (selon le réseau), vous pouvez toujours utiliser d'autres fonctions de l'application pendant le téléchargement.\n📌 Une connexion réseau est requise pendant le téléchargement."
+      },
+      "step3": {
+        "done": "Vous pouvez essayer de faire un clic droit sur le fichier, sélectionner AI Mark, maintenant l'IA se souviendra de votre fichier ! (Le service CUDA nécessite un redémarrage pour être effectif)"
+      },
+      "successTitle": "Félicitations ! La fonction AI Mark est activée",
+      "title": "Ou peut-être avez-vous besoin d'AI Mark"
+    },
+    "aiMarkStatus": {
+      "analyzing": "Analyse en cours",
+      "completed": "AI Mark terminé",
+      "recording": "Enregistrement en cours"
+    },
+    "contact": {
+      "addWechat": "Ajouter WeChat",
+      "joinDiscord": "Rejoindre Discord",
+      "title": "Il devrait y avoir des résultats, mais il n'y en a pas ? Merci de nous le dire pour améliorer."
+    },
+    "preload": {
+      "initFailed": "Échec de l'initialisation",
+      "loading": "Préparation des composants nécessaires, veuillez patienter",
+      "openLog": "Ouvrir le journal",
+      "updateContent": "Une nouvelle version est disponible. Souhaitez-vous mettre à jour ?",
+      "updatePrimary": "Mettre à jour",
+      "updateSecondary": "Plus tard",
+      "updateTitle": "Mettre à jour la version"
+    },
+    "reportProtocol": {
+      "content": "Pour mieux améliorer votre expérience et découvrir et corriger continuellement les problèmes, cette fonctionnalité téléchargera automatiquement des informations anonymes. Ces informations incluent uniquement :\n\n📌 Anomalies du programme : comme les plantages, codes d'erreur, etc.\n📌 Données de performance : comme la vitesse de téléchargement, temps de réponse des opérations, fréquence d'utilisation des fonctionnalités (anonyme), etc.\n\nCe processus ne collectera ni ne téléchargera jamais vos informations personnelles, contenu de fichiers, historique de chat, mots de passe ou historique de navigation.\n\nVous pouvez désactiver ce protocole à tout moment dans les [Paramètres]",
+      "notRemindLabel": "Ne plus afficher",
+      "primaryButtonText": "Accepter",
+      "secondaryButtonText": "Plus tard",
+      "title": "Programme d'amélioration de l'expérience utilisateur"
+    },
+    "table": {
+      "columns": {
+        "fileType": "Type de fichier",
+        "modifiedAt": "Heure de modification",
+        "name": "Nom du fichier",
+        "path": "Chemin"
+      },
+      "menu": {
+        "aiMark": "🔥 AI Mark",
+        "openFile": "Ouvrir le fichier",
+        "openFolder": "Ouvrir le dossier"
+      }
+    },
+    "tray": {
+      "quit": "Quitter",
+      "restart": "Redémarrer",
+      "settings": "Paramètres",
+      "showMainWindow": "Afficher la fenêtre principale",
+      "showSearchBar": "Afficher la barre de recherche (Alt + Space)",
+      "tooltip": "Osai - Assistant de recherche IA"
+    },
+    "updateTips": {
+      "content": "📌 Nouvelle fonctionnalité AI Mark : vous pouvez laisser  l'IA se souvenir de n'importe quel fichier, afin de pouvoir le  retrouver plus rapidement ou poser des questions à son sujet.\n📌 Fonctionnalité OCR : pour économiser les ressources informatiques, l'indexation visuelle est maintenant fournie par le service OCR :  seul le texte des images sera extrait, sans plus utiliser de modèle IA pour résumer les images. Si nécessaire, vous pouvez utiliser AI Mark sur les images.\n📌 Ajout du menu contextuel : vous pouvez faire  un clic droit sur les résultats de recherche pour utiliser la fonctionnalité AI Mark.",
+      "primaryButtonText": "Compris",
+      "title": "Introduction de la mise à jour de version"
+    }
+  }
+}

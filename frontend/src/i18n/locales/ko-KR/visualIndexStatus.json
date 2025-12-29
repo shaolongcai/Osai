@@ -1,5 +1,0 @@
-{
-  "paused": "시각적 인덱싱 서비스 일시정지됨",
-  "running": "OCR 서비스 시작됨, {{count}}개 남음",
-  "finished": "OCR 인덱싱 완전히 완료됨"
-}

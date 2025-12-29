@@ -1,8 +1,8 @@
 {
   "recommendations": [
-    "lokalise.i18n-ally",
     "stylelint.vscode-stylelint",
-    "bradlc.vscode-tailwindcss"
+    "bradlc.vscode-tailwindcss",
+    "lokalise.i18n-ally"
   ]
 }
 

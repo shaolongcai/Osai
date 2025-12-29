@@ -1,5 +1,0 @@
-{
-  "title": "Einführung in das Versions-Update",
-  "primaryButtonText": "Verstanden",
-  "content": "📌 Neue AI Mark-Funktion: Sie können die KI dazu bringen, sich an jede Datei zu erinnern, damit Sie die Datei später schneller finden oder Fragen dazu stellen können.\n📌 OCR-Funktion: Um Computerressourcen zu sparen, wird die visuelle Indexierung jetzt vom OCR-Dienst bereitgestellt: Es wird nur Text aus Bildern extrahiert, ohne KI-Modelle zur Bildzusammenfassung zu verwenden. Bei Bedarf können Sie AI Mark für Bilder verwenden.\n📌 Kontextmenü hinzugefügt: Sie können mit der rechten Maustaste auf Suchergebnisse klicken, um die AI Mark-Funktion zu verwenden."
-}

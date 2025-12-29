@@ -1,9 +1,0 @@
-{
-    "notConfigured": "AI 서비스가 구성되지 않았습니다",
-    "configured": "AI 서비스가 준비되었습니다",
-    "success": "AI 인덱싱이 완료되었습니다",
-    "pending": "AI 인덱싱 중, 언제든지 검색할 수 있습니다",
-    "loading": "AI 인덱싱 중, 남은 작업 {{count}}개",
-    "tooltip": "AI 인덱싱 중, CPU 또는 GPU 사용률이 증가합니다"
-}
-

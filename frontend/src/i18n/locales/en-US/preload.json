@@ -1,9 +1,0 @@
-{
-  "loading": "Service is starting...",
-  "updateTitle": "Update Version",
-  "updateContent": "A new version is available. Do you want to update?",
-  "updatePrimary": "Update",
-  "updateSecondary": "Later",
-  "initFailed": "Service startup failed",
-  "openLog": "Open Log"
-}

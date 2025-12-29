@@ -1,8 +1,0 @@
-{
-    "notConfigured": "AI service not configured",
-    "configured": "AI service is Ready",
-    "success": "AI Indexing completed",
-    "pending": "AI Indexing, you can search at any time",
-    "loading": "AI Indexing, remaining {{count}} tasks",
-    "tooltip": "AI Indexing, CPU or GPU usage will increase"
-}

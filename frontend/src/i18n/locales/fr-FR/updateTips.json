@@ -1,5 +1,0 @@
-{
-  "title": "Introduction de la mise à jour de version",
-  "primaryButtonText": "Compris",
-  "content": "📌 Nouvelle fonctionnalité AI Mark : vous pouvez laisser  l'IA se souvenir de n'importe quel fichier, afin de pouvoir le  retrouver plus rapidement ou poser des questions à son sujet.\n📌 Fonctionnalité OCR : pour économiser les ressources informatiques, l'indexation visuelle est maintenant fournie par le service OCR :  seul le texte des images sera extrait, sans plus utiliser de modèle IA pour résumer les images. Si nécessaire, vous pouvez utiliser AI Mark sur les images.\n📌 Ajout du menu contextuel : vous pouvez faire  un clic droit sur les résultats de recherche pour utiliser la fonctionnalité AI Mark."
-}

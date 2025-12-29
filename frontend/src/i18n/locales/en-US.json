@@ -1,0 +1,162 @@
+{
+  "app": {
+    "title": "Osai - AI Search",
+    "search": {
+      "button": "AI Search",
+      "indexFile": "Indexing complete. indexed conunt: {{count}}",
+      "indexLoading": "Indexing, you can search at any time",
+      "noKeyword": "Please enter search keywords",
+      "noResults": "No related results found",
+      "ocrSever": "OCR service is running, remaining {{count}} tasks",
+      "ocrSeverTips": "OCR Service: Recognizes text in images to make image content searchable. You can disable it in [Settings]",
+      "ocrSuccess": "OCR task completed",
+      "placeholder": "Search file name or image summary",
+      "results": "Found {{count}} results",
+      "start": "Enter keywords to start AI search"
+    },
+    "settings": {
+      "about": "About",
+      "aiProvider": "AI Provider",
+      "aiSettings": "AI Settings",
+      "autoLaunch": "Launch at Startup",
+      "autoLaunchHidden": "Launch Hidden",
+      "check": "Check",
+      "checkUpdate": "Check for Updates",
+      "checkUpdateStatusLatest": "You are using the latest version",
+      "checkUpdateStatusNewVersion": "New version found: {{version}}",
+      "checking": "Checking...",
+      "community": "Give us your feedback in the community!",
+      "contact": "Contact",
+      "feedback": "Feedback",
+      "generalSettings": "General Settings",
+      "gpuService": "GPU Acceleration Service",
+      "install": "Install",
+      "language": "Language",
+      "logFolder": "Log",
+      "not-available-update": "Latest version",
+      "open": "Open",
+      "reInstall": "Reinstall",
+      "system": "System",
+      "title": "Settings",
+      "update": "Update",
+      "userExperience": "User Experience Improvement Plan",
+      "visualIndex": "Enable Image Indexing",
+      "website": "Official Website"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "close": "Close",
+      "confirm": "Confirm",
+      "off": "Off",
+      "on": "On",
+      "save": "Save",
+      "settings": "Settings"
+    },
+    "language": {
+      "de-DE": "Deutsch",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ja-JP": "日本語",
+      "ko-KR": "한국어",
+      "title": "Select Language",
+      "vi-VN": "Tiếng Việt",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文"
+    },
+    "indexing": {
+      "indexed": "Indexed {{count}} files",
+      "pending": "Indexing"
+    },
+    "visualIndexStatus": {
+      "finished": "OCR indexing completed",
+      "paused": "Visual indexing is paused",
+      "running": "OCR service started, remaining {{count}}"
+    },
+    "aiSever": {
+      "configured": "AI service is Ready",
+      "loading": "AI Indexing, remaining {{count}} tasks",
+      "notConfigured": "AI service not configured",
+      "pending": "AI Indexing, you can search at any time",
+      "success": "AI Indexing completed",
+      "tooltip": "AI Indexing, CPU or GPU usage will increase"
+    },
+    "aiMark": {
+      "buttons": {
+        "finish": "Finish",
+        "install": "Install",
+        "later": "Later",
+        "next": "Next"
+      },
+      "requireTitle": "AI Mark requires the following components",
+      "step1": {
+        "ask": "📖 Ask questions: You can ask questions about the document (coming soon).",
+        "desc": "You can let AI mark this file. AI understands and analyzes the document. With AI's understanding, you can find this file more easily:",
+        "entry": "Open AI Mark from right-click menu",
+        "summaryImage": "🖼️ Image summary: Truly understand image content, not just OCR.",
+        "understand": "🧠 Understand: With AI understanding, you can locate this file faster and more easily."
+      },
+      "step2": {
+        "cuda": "CUDA Service (optional: GPU acceleration, available if your PC has GPU)",
+        "model": "AI Model",
+        "tips": "📌 Download takes about 5–10 minutes (depending on your network). You can still use other features during download.\n📌 Internet connection required during download"
+      },
+      "step3": {
+        "done": "Try right-clicking the file and choose AI Mark. AI will now remember your file! (CUDA service takes effect after restart)"
+      },
+      "successTitle": "Congratulations! AI Mark is now enabled",
+      "title": "Or you need AI Mark"
+    },
+    "aiMarkStatus": {
+      "analyzing": "Analyzing",
+      "completed": "AI Mark completed",
+      "recording": "Recording"
+    },
+    "contact": {
+      "addWechat": "Add WeChat",
+      "joinDiscord": "Join Discord",
+      "title": "Expected results but got none? Tell us to improve."
+    },
+    "preload": {
+      "initFailed": "Service startup failed",
+      "loading": "Service is starting...",
+      "openLog": "Open Log",
+      "updateContent": "A new version is available. Do you want to update?",
+      "updatePrimary": "Update",
+      "updateSecondary": "Later",
+      "updateTitle": "Update Version"
+    },
+    "reportProtocol": {
+      "content": "To keep improving, we anonymously send crash and performance stats—no personal data ever.\n\n These include:\n\n📌 Program exceptions: such as crashes, error codes. etc.\n📌 Performance data: such as download speed, operation response time, and featureusage frequency(anonymous).\n\nYou can disable this protocol at any time in Settings.",
+      "notRemindLabel": "Do not show again",
+      "primaryButtonText": "I Know",
+      "secondaryButtonText": "Later",
+      "title": "Help lmprove Osai"
+    },
+    "table": {
+      "columns": {
+        "fileType": "File Type",
+        "modifiedAt": "Modified Time",
+        "name": "File Name",
+        "path": "Path"
+      },
+      "menu": {
+        "aiMark": "🔥 AI Mark",
+        "openFile": "Open File",
+        "openFolder": "Open Folder"
+      }
+    },
+    "tray": {
+      "quit": "Quit",
+      "restart": "Restart",
+      "settings": "Settings",
+      "showMainWindow": "Show Main Window",
+      "showSearchBar": "Search Bar (Alt + Space)",
+      "tooltip": "Osai - AI Search Assistant"
+    },
+    "updateTips": {
+      "content": "📌 New hotkey: You can now press Alt+Space to summon the hotkey and find files more easily; press ESC or the hotkey again to hide.\n📌 New system tray: Closing the app now minimizes it to the system tray in the bottom-right corner. You can find the osai icon there and right-click to exit. While minimized to tray, you can still summon the hotkey anytime.\n📌 Expanded search categories: You can now search for folders and applications in the search bar summoned by the hotkey.",
+      "primaryButtonText": "Got it",
+      "title": "Version Update Introduction"
+    }
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "app": {
+    "title": "Osai - Tìm kiếm AI",
+    "search": {
+      "button": "Tìm kiếm",
+      "indexFile": "Lập chỉ mục hoàn tất. Số lượng tệp đã lập chỉ mục: {{count}}",
+      "indexLoading": "Đang lập chỉ mục, bạn có thể tìm kiếm bất cứ lúc nào",
+      "noKeyword": "Vui lòng nhập từ khóa",
+      "noResults": "Không có kết quả",
+      "ocrSever": "Dịch vụ OCR đã khởi động, còn lại {{count}} tác vụ",
+      "ocrSeverTips": "Dịch vụ OCR: Nhận dạng văn bản trong hình ảnh để làm cho nội dung hình ảnh có thể tìm kiếm được. Bạn có thể tắt trong [Cài đặt]",
+      "ocrSuccess": "Tác vụ OCR hoàn tất",
+      "placeholder": "Tìm kiếm tên tệp hoặc tóm tắt hình ảnh",
+      "results": "Tìm thấy {{count}} kết quả",
+      "start": "Nhập từ khóa để bắt đầu tìm kiếm AI"
+    },
+    "settings": {
+      "about": "Giới thiệu",
+      "aiProvider": "Nhà cung cấp AI",
+      "aiSettings": "Cài đặt AI",
+      "autoLaunch": "Tự động khởi động khi khởi động",
+      "autoLaunchHidden": "Khởi động nền",
+      "check": "Kiểm tra",
+      "checkUpdate": "Kiểm tra cập nhật",
+      "checkUpdateStatusLatest": "Bạn đang dùng phiên bản mới nhất",
+      "checkUpdateStatusNewVersion": "Đã tìm thấy phiên bản mới:{{version}}",
+      "checking": "Đang kiểm tra...",
+      "community": "Trong cộng đồng, hãy cho chúng tôi phản hồi!",
+      "contact": "Liên hệ",
+      "feedback": "Phản hồi",
+      "generalSettings": "Cài đặt chung",
+      "gpuService": "Dịch vụ tăng tốc GPU",
+      "install": "Cài đặt",
+      "language": "Ngôn ngữ",
+      "logFolder": "Nhật ký thực thi",
+      "not-available-update": "Phiên bản mới nhất",
+      "open": "Mở",
+      "reInstall": "Cài đặt lại",
+      "system": "Hệ thống",
+      "title": "Cài đặt",
+      "update": "Cập nhật",
+      "userExperience": "Chương trình cải thiện trải nghiệm người dùng",
+      "visualIndex": "Kích hoạt lập chỉ mục hình ảnh",
+      "website": "Trang Web Chính Thức"
+    },
+    "common": {
+      "cancel": "Hủy",
+      "close": "Đóng",
+      "confirm": "Xác nhận",
+      "off": "Tắt",
+      "on": "Bật",
+      "save": "Lưu",
+      "settings": "Cài đặt"
+    },
+    "language": {
+      "de-DE": "Deutsch",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ja-JP": "日本語",
+      "ko-KR": "한국어",
+      "title": "Chọn ngôn ngữ",
+      "vi-VN": "Tiếng Việt",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文"
+    },
+    "indexing": {
+      "indexed": "Đã lập chỉ mục {{count}} tệp",
+      "pending": "Đang lập chỉ mục"
+    },
+    "visualIndexStatus": {
+      "finished": "Chỉ mục OCR đã hoàn thành",
+      "paused": "Dịch vụ chỉ mục hình ảnh đã tạm dừng",
+      "running": "Dịch vụ OCR đã khởi động, còn lại {{count}}"
+    },
+    "aiSever": {
+      "configured": "Dịch vụ AI đã sẵn sàng",
+      "loading": "Đang lập chỉ mục AI, còn lại {{count}} tác vụ",
+      "notConfigured": "Dịch vụ AI chưa được cấu hình",
+      "pending": "Đang lập chỉ mục AI, bạn có thể tìm kiếm bất cứ lúc nào",
+      "success": "Lập chỉ mục AI đã hoàn tất",
+      "tooltip": "Đang lập chỉ mục AI, việc sử dụng CPU hoặc GPU sẽ tăng"
+    },
+    "aiMark": {
+      "buttons": {
+        "finish": "Hoàn thành",
+        "install": "Cài đặt",
+        "later": "Để sau",
+        "next": "Tiếp theo"
+      },
+      "requireTitle": "AI Mark cần các thành phần sau",
+      "step1": {
+        "ask": "📖 Đặt câu hỏi: Bạn có thể đặt câu hỏi về tệp này (cập nhật sau).",
+        "desc": "Bạn có thể để AI đánh dấu tệp này, AI sẽ hiểu và phân tích tệp này. Sau đó, bạn có thể tìm tệp này dễ dàng hơn thông qua sự hiểu biết của AI:",
+        "entry": "Khởi động AI Mark qua menu ngữ cảnh",
+        "summaryImage": "🖼️ Tóm tắt hình ảnh: Hiểu thực sự nội dung hình ảnh, không chỉ OCR.",
+        "understand": "🧠 Trình hiểu tệp AI: Thông qua sự hiểu biết của AI, bạn có thể tìm tệp này nhanh hơn và dễ dàng hơn."
+      },
+      "step2": {
+        "cuda": "Dịch vụ CUDA (tùy chọn: để tăng tốc GPU, chỉ khi máy tính của bạn có GPU)",
+        "model": "Mô hình AI",
+        "tips": "📌 Việc tải xuống mất khoảng 5~10 phút (tùy thuộc vào mạng), trong khi tải xuống, bạn vẫn có thể tiếp tục sử dụng các tính năng khác của ứng dụng.\n📌 Cần kết nối internet để tải xuống"
+      },
+      "step3": {
+        "done": "Bạn có thể thử nhấp chuột phải vào một tệp và chọn AI Mark, bây giờ AI sẽ ghi nhớ các tệp của bạn! (Dịch vụ CUDA cần khởi động lại để kích hoạt)"
+      },
+      "successTitle": "Chúc mừng! Tính năng AI Mark hiện đã hoạt động",
+      "title": "Hoặc bạn cần AI Mark"
+    },
+    "aiMarkStatus": {
+      "analyzing": "Đang phân tích",
+      "completed": "AI Mark hoàn tất",
+      "recording": "Đang ghi lại"
+    },
+    "contact": {
+      "addWechat": "Thêm WeChat",
+      "joinDiscord": "Tham gia Discord",
+      "title": "Đáng lẽ phải có kết quả, nhưng lại không? Vui lòng cho chúng tôi biết để cải thiện."
+    },
+    "preload": {
+      "initFailed": "Khởi tạo thất bại",
+      "loading": "Đang chuẩn bị các thành phần cần thiết, vui lòng đợi",
+      "openLog": "Mở nhật ký",
+      "updateContent": "Đã phát hiện phiên bản mới. Bạn có muốn cập nhật không?",
+      "updatePrimary": "Cập nhật",
+      "updateSecondary": "Để sau",
+      "updateTitle": "Cập nhật phiên bản"
+    },
+    "reportProtocol": {
+      "content": "Để cải thiện trải nghiệm của bạn tốt hơn và liên tục khám phá và khắc phục các vấn đề, tính năng này sẽ tự động tải lên thông tin ẩn danh. Những thông tin này chỉ bao gồm:\n\n📌 Bất thường chương trình: như sự cố, mã lỗi, v.v.\n📌 Dữ liệu hiệu suất: như tốc độ tải xuống, thời gian phản hồi của các thao tác, tần suất sử dụng tính năng (ẩn danh), v.v.\n\nQuá trình này không bao giờ thu thập hoặc tải lên thông tin nhận dạng cá nhân, nội dung tệp, lịch sử trò chuyện, mật khẩu hoặc lịch sử trình duyệt của bạn.\n\nBạn có thể tắt giao thức này bất cứ lúc nào trong [Cài đặt]",
+      "notRemindLabel": "Không hiển thị lại",
+      "primaryButtonText": "Đồng ý",
+      "secondaryButtonText": "Để sau",
+      "title": "Chương trình cải thiện trải nghiệm người dùng"
+    },
+    "table": {
+      "columns": {
+        "fileType": "Loại tệp",
+        "modifiedAt": "Thời gian sửa đổi",
+        "name": "Tên tệp",
+        "path": "Đường dẫn"
+      },
+      "menu": {
+        "aiMark": "🔥 AI Mark",
+        "openFile": "Mở tệp",
+        "openFolder": "Mở thư mục"
+      }
+    },
+    "tray": {
+      "quit": "Thoát",
+      "restart": "Khởi động lại",
+      "settings": "Cài đặt",
+      "showMainWindow": "Hiển thị cửa sổ chính",
+      "showSearchBar": "Hiển thị thanh tìm kiếm (Alt + Space)",
+      "tooltip": "Osai - Trợ lý tìm kiếm AI"
+    },
+    "updateTips": {
+      "content": "📌 Tính năng AI Mark mới: Bạn có thể để AI ghi nhớ bất kỳ tệp nào để tìm lại nhanh hơn hoặc đặt câu hỏi sau này.\n📌 OCR: Để tiết kiệm tài nguyên máy tính, lập chỉ mục hình ảnh sẽ sử dụng OCR: chỉ trích xuất văn bản, không dùng mô hình AI tóm tắt hình ảnh. Nếu cần, hãy dùng AI Mark cho hình ảnh.\n📌 Menu chuột phải: Bạn có thể nhấp chuột phải trên kết quả tìm kiếm để sử dụng AI Mark.",
+      "primaryButtonText": "Đã hiểu",
+      "title": "Giới thiệu cập nhật phiên bản"
+    }
+  }
+}

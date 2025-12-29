@@ -108,24 +108,52 @@ function getAppLanguage(): string {
   return 'en-US';
 }
 
-// 加載托盤翻譯文件
+/**
+ * @description 加載托盤翻譯文件
+ * @param language 語言代碼
+ * @returns 托盤翻譯對象
+ */
 function loadTrayTranslations(language: string): any {
   try {
+    // 從新的扁平結構讀取翻譯文件
     const localesPath = isDev
-      ? path.join(__dirname, '../frontend/src/i18n/locales', language, 'tray.json')
-      : path.join(__dirname, '../frontend/dist/locales', language, 'tray.json');
+      ? path.join(__dirname, '../frontend/src/i18n/locales', `${language}.json`)
+      : path.join(__dirname, '../frontend/dist/locales', `${language}.json`);
+
+    if (!existsSync(localesPath)) {
+      throw new Error(`翻譯文件不存在: ${localesPath}`);
+    }
 
     const translationData = readFileSync(localesPath, 'utf-8');
-    return JSON.parse(translationData);
+    const translations = JSON.parse(translationData);
+    
+    // 從合併後的 JSON 中提取 tray 模塊
+    if (translations.tray) {
+      return translations.tray;
+    }
+    
+    throw new Error(`翻譯文件中缺少 tray 模塊`);
   } catch (error) {
     logger.error(`加載翻譯文件失敗 (${language}): ${error instanceof Error ? error.message : error}`);
     // 降級到中文簡體
     try {
       const fallbackPath = isDev
-        ? path.join(__dirname, '../frontend/src/i18n/locales/zh-CN/tray.json')
-        : path.join(__dirname, '../frontend/dist/locales/zh-CN/tray.json');
+        ? path.join(__dirname, '../frontend/src/i18n/locales/zh-CN.json')
+        : path.join(__dirname, '../frontend/dist/locales/zh-CN.json');
+      
+      if (!existsSync(fallbackPath)) {
+        throw new Error(`降級翻譯文件不存在: ${fallbackPath}`);
+      }
+
       const translationData = readFileSync(fallbackPath, 'utf-8');
-      return JSON.parse(translationData);
+      const translations = JSON.parse(translationData);
+      
+      // 從合併後的 JSON 中提取 tray 模塊
+      if (translations.tray) {
+        return translations.tray;
+      }
+      
+      throw new Error(`降級翻譯文件中缺少 tray 模塊`);
     } catch (fallbackError) {
       logger.error(`加載降級翻譯文件也失敗: ${fallbackError instanceof Error ? fallbackError.message : fallbackError}`);
       // 返回硬編碼的默認值
@@ -134,7 +162,8 @@ function loadTrayTranslations(language: string): any {
         settings: 'Settings',
         restart: 'Restart',
         quit: 'Quit',
-        tooltip: 'Osai - AI Search Assistant'
+        tooltip: 'Osai - AI Search Assistant',
+        showMainWindow: 'Show Main Window'
       };
     }
   }

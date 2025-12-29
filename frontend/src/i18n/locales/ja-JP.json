@@ -1,0 +1,162 @@
+{
+  "app": {
+    "title": "Osai - AI検索",
+    "search": {
+      "button": "検索",
+      "indexFile": "インデックス作成が完了しました。インデックス数：{{count}}",
+      "indexLoading": "インデックス作成中、いつでも検索できます",
+      "noKeyword": "キーワードを入力してください",
+      "noResults": "結果なし",
+      "ocrSever": "OCRサービスが開始されました、残り{{count}}タスク",
+      "ocrSeverTips": "OCRサービス：画像内のテキストを認識し、画像コンテンツを検索可能にします。【設定】で無効にできます",
+      "ocrSuccess": "OCRタスクが完了しました",
+      "placeholder": "ファイル名や画像の要約を検索",
+      "results": "{{count}}件の結果が見つかりました",
+      "start": "キーワードを入力してAI検索を開始"
+    },
+    "settings": {
+      "about": "について",
+      "aiProvider": "AI プロバイダー",
+      "aiSettings": "AI 設定",
+      "autoLaunch": "起動時に自動起動",
+      "autoLaunchHidden": "バックグラウンド起動",
+      "check": "確認",
+      "checkUpdate": "更新を確認",
+      "checkUpdateStatusLatest": "最新バージョンを使用しています",
+      "checkUpdateStatusNewVersion": "新しいバージョンが見つかりました{{version}}",
+      "checking": "確認中...",
+      "community": "コミュニティでフィードバックをお寄せください！",
+      "contact": "連絡先",
+      "feedback": "フィードバック",
+      "generalSettings": "一般設定",
+      "gpuService": "GPU加速サービス",
+      "install": "インストール",
+      "language": "言語",
+      "logFolder": "実行ログ",
+      "not-available-update": "最新バージョン",
+      "open": "開く",
+      "reInstall": "再インストール",
+      "system": "システム",
+      "title": "設定",
+      "update": "更新",
+      "userExperience": "ユーザーエクスペリエンス改善プログラム",
+      "visualIndex": "画像インデックスを有効にする",
+      "website": "公式ウェブサイト"
+    },
+    "common": {
+      "cancel": "キャンセル",
+      "close": "閉じる",
+      "confirm": "確認",
+      "off": "オフ",
+      "on": "オン",
+      "save": "保存",
+      "settings": "設定"
+    },
+    "language": {
+      "de-DE": "Deutsch",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ja-JP": "日本語",
+      "ko-KR": "한국어",
+      "title": "言語を選択",
+      "vi-VN": "Tiếng Việt",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文"
+    },
+    "indexing": {
+      "indexed": "{{count}}個のファイルをインデックス済み",
+      "pending": "インデックス中"
+    },
+    "visualIndexStatus": {
+      "finished": "OCRインデックスが完全に完了しました",
+      "paused": "ビジュアルインデックスサービスが一時停止されました",
+      "running": "OCRサービスが開始されました、残り{{count}}個"
+    },
+    "aiSever": {
+      "configured": "AI サービスは準備完了です",
+      "loading": "AI インデックス作成中、残り {{count}} タスク",
+      "notConfigured": "AI サービスが設定されていません",
+      "pending": "AI インデックス作成中、いつでも検索できます",
+      "success": "AI インデックス作成が完了しました",
+      "tooltip": "AI インデックス作成中、CPU または GPU の使用率が増加します"
+    },
+    "aiMark": {
+      "buttons": {
+        "finish": "完了",
+        "install": "インストール",
+        "later": "後で",
+        "next": "次へ"
+      },
+      "requireTitle": "AI Markには以下のコンポーネントが必要です",
+      "step1": {
+        "ask": "📖 質問する：このファイルについて質問できます（後日更新）。",
+        "desc": "AIにこのファイルをマークさせることができ、AIがこのファイルを理解・分析します。その後、AIの理解により、このファイルをより簡単に見つけることができます：",
+        "entry": "右クリックメニューでAI Markを起動",
+        "summaryImage": "🖼️ 画像要約：OCRだけでなく、画像の内容を本当に理解します。",
+        "understand": "🧠 AIファイル理解：AIの理解により、このファイルをより速く、より簡単に見つけることができます。"
+      },
+      "step2": {
+        "cuda": "CUDAサービス（オプション：GPU加速用、GPUを搭載したコンピューターでのみ選択可能）",
+        "model": "AIモデル",
+        "tips": "📌 ダウンロードには約5〜10分かかります（ネットワークによる）。ダウンロード中でもアプリケーションの他の機能を引き続き使用できます。\n📌 ダウンロード時にはインターネット接続が必要です"
+      },
+      "step3": {
+        "done": "ファイルを右クリックしてAI Markをクリックしてみてください。これでAIがあなたのファイルを記憶します！（CUDAサービスは再起動後に有効になります）"
+      },
+      "successTitle": "おめでとうございます！AI Mark機能が有効になりました",
+      "title": "またはAI Markが必要です"
+    },
+    "aiMarkStatus": {
+      "analyzing": "解析中",
+      "completed": "AI Mark 完了",
+      "recording": "記録中"
+    },
+    "contact": {
+      "addWechat": "WeChatを追加",
+      "joinDiscord": "Discordに参加",
+      "title": "結果があるはずなのにありませんか？継続的な改善のためにお知らせください。"
+    },
+    "preload": {
+      "initFailed": "初期化に失敗しました",
+      "loading": "必要なコンポーネントを準備しています、しばらくお待ちください",
+      "openLog": "ログを開く",
+      "updateContent": "新しいバージョンが見つかりました。更新しますか？",
+      "updatePrimary": "更新",
+      "updateSecondary": "後で",
+      "updateTitle": "バージョン更新"
+    },
+    "reportProtocol": {
+      "content": "より良い体験の改善と継続的な問題の発見・修正のため、この機能は匿名情報を自動的にアップロードします。これらの情報には以下のみが含まれます：\n\n📌 プログラムの異常：クラッシュ、エラーコードなど\n📌 パフォーマンスデータ：ダウンロード速度、操作応答時間、機能使用頻度（匿名）など\n\nこのプロセスでは、個人識別情報、ファイル内容、チャット履歴、パスワード、ブラウジング履歴などの機密データを収集またはアップロードすることはありません。\n\nいつでも【設定】でこのプロトコルを無効にできます",
+      "notRemindLabel": "今後表示しない",
+      "primaryButtonText": "同意する",
+      "secondaryButtonText": "後で",
+      "title": "ユーザーエクスペリエンス改善プログラム"
+    },
+    "table": {
+      "columns": {
+        "fileType": "ファイルタイプ",
+        "modifiedAt": "更新時刻",
+        "name": "ファイル名",
+        "path": "パス"
+      },
+      "menu": {
+        "aiMark": "🔥 AI Mark",
+        "openFile": "ファイルを開く",
+        "openFolder": "フォルダを開く"
+      }
+    },
+    "tray": {
+      "quit": "終了",
+      "restart": "再起動",
+      "settings": "設定",
+      "showMainWindow": "メインウィンドウを表示",
+      "showSearchBar": "検索バーを表示 (Alt + Space)",
+      "tooltip": "Osai - AI検索アシスタント"
+    },
+    "updateTips": {
+      "content": "📌 新規ショートカット：Alt＋スペースキーでショートカットを呼び出し、ファイルをより簡単に検索できます。ESCまたは同じショートカットキーをもう一度押すと非表示になります。\n📌 トレイ機能の追加：アプリを閉じても完全に終了せず、右下のトレイに格納されます。右下のosaiアイコンを右クリックしてメニューから「終了」を選択してください。トレイに格納されている間は、いつでもショートカットを呼び出せます。\n📌 検索カテゴリの追加：ショートカットで呼び出した検索バーから、フォルダやアプリケーションも検索できるようになりました。",
+      "primaryButtonText": "了解しました",
+      "title": "バージョン更新の紹介"
+    }
+  }
+}

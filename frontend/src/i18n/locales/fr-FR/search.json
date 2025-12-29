@@ -1,8 +1,0 @@
-{
-  "placeholder": "Rechercher des noms de fichiers ou des résumés d'images",
-  "button": "Rechercher",
-  "results": "{{count}} résultats trouvés",
-  "noResults": "Aucun résultat",
-  "noKeyword": "Veuillez saisir un mot-clé",
-  "start": "Saisissez un mot-clé pour commencer la recherche IA"
-}

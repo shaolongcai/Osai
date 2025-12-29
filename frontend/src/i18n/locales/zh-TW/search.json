@@ -1,8 +1,0 @@
-{
-  "placeholder": "搜尋檔名或圖片摘要",
-  "button": "搜尋",
-  "results": "共找到 {{count}} 筆結果",
-  "noResults": "沒有相關結果",
-  "noKeyword": "請輸入關鍵字",
-  "start": "輸入關鍵字，開始 AI 搜尋"
-}

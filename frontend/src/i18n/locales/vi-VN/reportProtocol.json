@@ -1,7 +1,0 @@
-{
-  "title": "Chương trình cải thiện trải nghiệm người dùng",
-  "primaryButtonText": "Đồng ý",
-  "secondaryButtonText": "Để sau",
-  "content": "Để cải thiện trải nghiệm của bạn tốt hơn và liên tục khám phá và khắc phục các vấn đề, tính năng này sẽ tự động tải lên thông tin ẩn danh. Những thông tin này chỉ bao gồm:\n\n📌 Bất thường chương trình: như sự cố, mã lỗi, v.v.\n📌 Dữ liệu hiệu suất: như tốc độ tải xuống, thời gian phản hồi của các thao tác, tần suất sử dụng tính năng (ẩn danh), v.v.\n\nQuá trình này không bao giờ thu thập hoặc tải lên thông tin nhận dạng cá nhân, nội dung tệp, lịch sử trò chuyện, mật khẩu hoặc lịch sử trình duyệt của bạn.\n\nBạn có thể tắt giao thức này bất cứ lúc nào trong [Cài đặt]",
-  "notRemindLabel": "Không hiển thị lại"
-}

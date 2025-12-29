@@ -1,0 +1,162 @@
+{
+  "app": {
+    "title": "Osai - AI 검색",
+    "search": {
+      "button": "검색",
+      "indexFile": "인덱싱 완료. 인덱싱된 파일 수: {{count}}",
+      "indexLoading": "인덱싱 중, 언제든지 검색할 수 있습니다",
+      "noKeyword": "키워드를 입력해주세요",
+      "noResults": "결과 없음",
+      "ocrSever": "OCR 서비스가 시작되었습니다, 남은 작업 {{count}}개",
+      "ocrSeverTips": "OCR 서비스: 이미지의 텍스트를 인식하여 이미지 내용을 검색 가능하게 합니다. [설정]에서 비활성화할 수 있습니다",
+      "ocrSuccess": "OCR 작업 완료",
+      "placeholder": "파일 이름이나 이미지 요약 검색",
+      "results": "{{count}}개의 결과를 찾았습니다",
+      "start": "키워드를 입력하여 AI 검색을 시작하세요"
+    },
+    "settings": {
+      "about": "정보",
+      "aiProvider": "AI 제공업체",
+      "aiSettings": "AI 설정",
+      "autoLaunch": "시작 시 자동 실행",
+      "autoLaunchHidden": "백그라운드 실행",
+      "check": "확인",
+      "checkUpdate": "업데이트 확인",
+      "checkUpdateStatusLatest": "현재 최신 버전입니다",
+      "checkUpdateStatusNewVersion": "새 버전 발견: {{version}}",
+      "checking": "확인 중...",
+      "community": "커뮤니티에서 피드백을 주세요!",
+      "contact": "연락처",
+      "feedback": "피드백",
+      "generalSettings": "일반 설정",
+      "gpuService": "GPU 가속 서비스",
+      "install": "설치",
+      "language": "언어",
+      "logFolder": "실행 로그",
+      "not-available-update": "최신 버전",
+      "open": "열기",
+      "reInstall": "재설치",
+      "system": "시스템",
+      "title": "설정",
+      "update": "업데이트",
+      "userExperience": "사용자 경험 개선 프로그램",
+      "visualIndex": "이미지 인덱싱 활성화",
+      "website": "공식 웹사이트"
+    },
+    "common": {
+      "cancel": "취소",
+      "close": "닫기",
+      "confirm": "확인",
+      "off": "끄기",
+      "on": "켜기",
+      "save": "저장",
+      "settings": "설정"
+    },
+    "language": {
+      "de-DE": "Deutsch",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ja-JP": "日本語",
+      "ko-KR": "한국어",
+      "title": "언어 선택",
+      "vi-VN": "Tiếng Việt",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文"
+    },
+    "indexing": {
+      "indexed": "{{count}}개 파일 인덱싱됨",
+      "pending": "인덱싱 중"
+    },
+    "visualIndexStatus": {
+      "finished": "OCR 인덱싱 완전히 완료됨",
+      "paused": "시각적 인덱싱 서비스 일시정지됨",
+      "running": "OCR 서비스 시작됨, {{count}}개 남음"
+    },
+    "aiSever": {
+      "configured": "AI 서비스가 준비되었습니다",
+      "loading": "AI 인덱싱 중, 남은 작업 {{count}}개",
+      "notConfigured": "AI 서비스가 구성되지 않았습니다",
+      "pending": "AI 인덱싱 중, 언제든지 검색할 수 있습니다",
+      "success": "AI 인덱싱이 완료되었습니다",
+      "tooltip": "AI 인덱싱 중, CPU 또는 GPU 사용률이 증가합니다"
+    },
+    "aiMark": {
+      "buttons": {
+        "finish": "완료",
+        "install": "설치",
+        "later": "나중에",
+        "next": "다음"
+      },
+      "requireTitle": "AI Mark에는 다음 구성 요소가 필요합니다",
+      "step1": {
+        "ask": "📖 질문하기: 이 파일에 대한 질문을 할 수 있습니다(나중에 업데이트).",
+        "desc": "AI가 이 파일을 마크하도록 할 수 있으며, AI가 이 파일을 이해하고 분석합니다. 나중에 AI의 이해를 통해 이 파일을 더 쉽게 찾을 수 있습니다:",
+        "entry": "우클릭 메뉴로 AI Mark 시작",
+        "summaryImage": "🖼️ 이미지 요약: OCR뿐만 아니라 이미지 내용을 진정으로 이해합니다.",
+        "understand": "🧠 AI 파일 이해: AI의 이해를 통해 이 파일을 더 빠르고 쉽게 찾을 수 있습니다."
+      },
+      "step2": {
+        "cuda": "CUDA 서비스(선택사항: GPU 가속용, GPU가 있는 컴퓨터에서만 선택 가능)",
+        "model": "AI 모델",
+        "tips": "📌 다운로드는 약 5~10분 소요됩니다(네트워크에 따라 다름). 다운로드 중에도 애플리케이션의 다른 기능을 계속 사용할 수 있습니다.\n📌 다운로드 시 인터넷 연결이 필요합니다"
+      },
+      "step3": {
+        "done": "파일에서 우클릭하여 AI Mark를 클릭해 보세요. 이제 AI가 파일을 기억합니다! (CUDA 서비스는 재시작 후 적용됩니다)"
+      },
+      "successTitle": "축하합니다! AI Mark 기능이 활성화되었습니다",
+      "title": "또는 AI Mark가 필요합니다"
+    },
+    "aiMarkStatus": {
+      "analyzing": "분석 중",
+      "completed": "AI Mark 완료",
+      "recording": "기록 중"
+    },
+    "contact": {
+      "addWechat": "WeChat 추가",
+      "joinDiscord": "Discord 참여",
+      "title": "결과가 있어야 하는데 없나요? 개선을 위해 알려주세요."
+    },
+    "preload": {
+      "initFailed": "초기화 실패",
+      "loading": "필요한 구성 요소를 준비 중입니다. 잠시만 기다려 주세요",
+      "openLog": "로그 열기",
+      "updateContent": "새 버전을 발견했습니다. 업데이트하시겠습니까?",
+      "updatePrimary": "업데이트",
+      "updateSecondary": "나중에",
+      "updateTitle": "버전 업데이트"
+    },
+    "reportProtocol": {
+      "content": "더 나은 경험 개선과 지속적인 문제 발견 및 수정을 위해, 이 기능은 익명 정보를 자동으로 업로드합니다. 이러한 정보에는 다음만 포함됩니다:\n\n📌 프로그램 이상: 충돌, 오류 코드 등\n📌 성능 데이터: 다운로드 속도, 작업 응답 시간, 기능 사용 빈도(익명) 등\n\n이 과정에서는 개인 신원 정보, 파일 내용, 채팅 기록, 비밀번호 또는 브라우징 기록 등 민감한 데이터를 수집하거나 업로드하지 않습니다.\n\n언제든지 [설정]에서 이 프로토콜을 비활성화할 수 있습니다",
+      "notRemindLabel": "다시 표시하지 않음",
+      "primaryButtonText": "동의",
+      "secondaryButtonText": "나중에",
+      "title": "사용자 경험 개선 프로그램"
+    },
+    "table": {
+      "columns": {
+        "fileType": "파일 유형",
+        "modifiedAt": "수정 시간",
+        "name": "파일 이름",
+        "path": "경로"
+      },
+      "menu": {
+        "aiMark": "🔥 AI Mark",
+        "openFile": "파일 열기",
+        "openFolder": "폴더 열기"
+      }
+    },
+    "tray": {
+      "quit": "종료",
+      "restart": "다시 시작",
+      "settings": "설정",
+      "showMainWindow": "메인 창 표시",
+      "showSearchBar": "검색 창 표시 (Alt + Space)",
+      "tooltip": "Osai - AI 검색 도우미"
+    },
+    "updateTips": {
+      "content": "📌 새로운 AI Mark 기능: AI가 모든 파일을 기억하도록 하여 나중에파일을 더 빠르게 찾거나 질문할 수 있습니다.\n📌 OCR 기능: 컴퓨터 리소스를절약하기 위해 이제 시각적 인덱싱은 OCR 서비스에서 제공됩니다: 이미지의 텍스트만추출하고 더 이상 AI 모델을 사용하여 이미지를 요약하지 않습니다. 필요한 경우이미지에 AI Mark를 사용할 수 있습니다.\n📌 우클릭 메뉴 추가: 검색 결과에서마우스 우클릭으로 AI Mark 기능을 사용할 수 있습니다.",
+      "primaryButtonText": "알겠습니다",
+      "title": "버전 업데이트 소개"
+    }
+  }
+}

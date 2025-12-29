@@ -1,0 +1,162 @@
+{
+  "app": {
+    "title": "Osai - KI-Suche",
+    "search": {
+      "button": "Suchen",
+      "indexFile": "Indexierung abgeschlossen. Anzahl indexierter Dateien: {{count}}",
+      "indexLoading": "Indexierung läuft, Sie können jederzeit suchen",
+      "noKeyword": "Bitte geben Sie ein Stichwort ein",
+      "noResults": "Keine Ergebnisse",
+      "ocrSever": "OCR-Dienst gestartet, {{count}} Aufgaben verbleibend",
+      "ocrSeverTips": "OCR-Dienst: Erkennt Text in Bildern, um Bildinhalte durchsuchbar zu machen. Sie können dies in den [Einstellungen] deaktivieren",
+      "ocrSuccess": "OCR-Aufgabe abgeschlossen",
+      "placeholder": "Dateinamen oder Bildzusammenfassungen suchen",
+      "results": "{{count}} Ergebnisse gefunden",
+      "start": "Geben Sie ein Stichwort ein, um die KI-Suche zu starten"
+    },
+    "settings": {
+      "about": "Über",
+      "aiProvider": "KI-Anbieter",
+      "aiSettings": "KI-Einstellungen",
+      "autoLaunch": "Beim Starten automatisch starten",
+      "autoLaunchHidden": "Im Hintergrund starten",
+      "check": "Prüfen",
+      "checkUpdate": "Nach Updates suchen",
+      "checkUpdateStatusLatest": "Sie verwenden die neueste Version",
+      "checkUpdateStatusNewVersion": "Neue Version gefunden: {{version}}",
+      "checking": "Wird geprüft...",
+      "community": "In der Community, geben Sie uns Ihr Feedback!",
+      "contact": "Kontakt",
+      "feedback": "Feedback",
+      "generalSettings": "Allgemeine Einstellungen",
+      "gpuService": "GPU-Beschleunigungsdienst",
+      "install": "Installieren",
+      "language": "Sprache",
+      "logFolder": "Ausführungsprotokolle",
+      "not-available-update": "Neueste Version",
+      "open": "Öffnen",
+      "reInstall": "Neu installieren",
+      "system": "System",
+      "title": "Einstellungen",
+      "update": "Aktualisierung",
+      "userExperience": "Programm zur Verbesserung der Benutzererfahrung",
+      "visualIndex": "Bildindexierung aktivieren",
+      "website": "Offizielle Website"
+    },
+    "common": {
+      "cancel": "Abbrechen",
+      "close": "Schließen",
+      "confirm": "Bestätigen",
+      "off": "Aus",
+      "on": "Ein",
+      "save": "Speichern",
+      "settings": "Einstellungen"
+    },
+    "language": {
+      "de-DE": "Deutsch",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ja-JP": "日本語",
+      "ko-KR": "한국어",
+      "title": "Sprache auswählen",
+      "vi-VN": "Tiếng Việt",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁體中文"
+    },
+    "indexing": {
+      "indexed": "{{count}} Dateien indexiert",
+      "pending": "Indexierung läuft"
+    },
+    "visualIndexStatus": {
+      "finished": "OCR-Indexierung vollständig abgeschlossen",
+      "paused": "Visueller Indexierungsdienst pausiert",
+      "running": "OCR-Dienst gestartet, {{count}} verbleibend"
+    },
+    "aiSever": {
+      "configured": "AI-Dienst ist bereit",
+      "loading": "AI-Indizierung läuft, {{count}} Aufgaben verbleibend",
+      "notConfigured": "AI-Dienst nicht konfiguriert",
+      "pending": "AI-Indizierung läuft, Sie können jederzeit suchen",
+      "success": "AI-Indizierung abgeschlossen",
+      "tooltip": "AI-Indizierung läuft, CPU- oder GPU-Auslastung wird steigen"
+    },
+    "aiMark": {
+      "buttons": {
+        "finish": "Fertig",
+        "install": "Installieren",
+        "later": "Später",
+        "next": "Weiter"
+      },
+      "requireTitle": "AI Mark benötigt die folgenden Komponenten",
+      "step1": {
+        "ask": "📖 Fragen stellen: Sie können Fragen zu dieser Datei stellen (späteres Update).",
+        "desc": "Sie können die KI diese Datei markieren lassen, die KI wird diese Datei verstehen und analysieren. Anschließend können Sie durch das Verständnis der KI diese Datei leichter finden:",
+        "entry": "AI Mark über Kontextmenü starten",
+        "summaryImage": "🖼️ Bildzusammenfassung: Wirkliches Verstehen des Bildinhalts, nicht nur OCR.",
+        "understand": "🧠 KI-Dateiversteher: Durch das Verständnis der KI können Sie diese Datei schneller und einfacher finden."
+      },
+      "step2": {
+        "cuda": "CUDA-Dienst (optional: für GPU-Beschleunigung, nur wenn Ihr Computer über eine GPU verfügt)",
+        "model": "KI-Modell",
+        "tips": "📌 Der Download dauert etwa 5~10 Minuten (je nach Netzwerk), während des Downloads können Sie weiterhin andere Funktionen der Anwendung nutzen.\n📌 Internetverbindung erforderlich für Download"
+      },
+      "step3": {
+        "done": "Sie können versuchen, mit der rechten Maustaste auf eine Datei zu klicken und AI Mark zu wählen, jetzt wird sich die KI an Ihre Dateien erinnern! (CUDA-Dienst erfordert Neustart zur Aktivierung)"
+      },
+      "successTitle": "Herzlichen Glückwunsch! Die AI Mark-Funktion ist jetzt aktiv",
+      "title": "Oder Sie benötigen AI Mark"
+    },
+    "aiMarkStatus": {
+      "analyzing": "Analysiere",
+      "completed": "AI Mark abgeschlossen",
+      "recording": "Aufzeichnung"
+    },
+    "contact": {
+      "addWechat": "WeChat hinzufügen",
+      "joinDiscord": "Discord beitreten",
+      "title": "Es sollte Ergebnisse geben, aber es gibt keine? Bitte informieren Sie uns für kontinuierliche Verbesserungen."
+    },
+    "preload": {
+      "initFailed": "Initialisierung fehlgeschlagen",
+      "loading": "Notwendige Komponenten werden vorbereitet, bitte warten",
+      "openLog": "Protokoll öffnen",
+      "updateContent": "Neue Version gefunden, möchten Sie aktualisieren?",
+      "updatePrimary": "Aktualisieren",
+      "updateSecondary": "Später",
+      "updateTitle": "Versions-Update"
+    },
+    "reportProtocol": {
+      "content": "Zur besseren Verbesserung Ihrer Erfahrung und kontinuierlichen Entdeckung und Behebung von Problemen wird diese Funktion automatisch anonyme Informationen hochladen. Diese Informationen enthalten nur:\n\n📌 Programm-Anomalien: wie Abstürze, Fehlercodes usw.\n📌 Leistungsdaten: wie Download-Geschwindigkeit, Reaktionszeit von Operationen, Häufigkeit der Funktionsnutzung (anonym) usw.\n\nDieser Prozess sammelt oder lädt niemals Ihre persönlichen Identifikationsinformationen, Dateiinhalte, Chat-Verlauf, Passwörter oder Browser-Verlauf hoch.\n\nSie können dieses Protokoll jederzeit in den [Einstellungen] deaktivieren",
+      "notRemindLabel": "Nicht mehr anzeigen",
+      "primaryButtonText": "Zustimmen",
+      "secondaryButtonText": "Später",
+      "title": "Programm zur Verbesserung der Benutzererfahrung"
+    },
+    "table": {
+      "columns": {
+        "fileType": "Dateityp",
+        "modifiedAt": "Änderungszeit",
+        "name": "Dateiname",
+        "path": "Pfad"
+      },
+      "menu": {
+        "aiMark": "🔥 AI Mark",
+        "openFile": "Datei öffnen",
+        "openFolder": "Ordner öffnen"
+      }
+    },
+    "tray": {
+      "quit": "Beenden",
+      "restart": "Neu starten",
+      "settings": "Einstellungen",
+      "showMainWindow": "Hauptfenster anzeigen",
+      "showSearchBar": "Suchleiste anzeigen (Alt + Space)",
+      "tooltip": "Osai - KI-Suchassistent"
+    },
+    "updateTips": {
+      "content": "📌 Neue AI Mark-Funktion: Sie können die KI dazu bringen, sich an jede Datei zu erinnern, damit Sie die Datei später schneller finden oder Fragen dazu stellen können.\n📌 OCR-Funktion: Um Computerressourcen zu sparen, wird die visuelle Indexierung jetzt vom OCR-Dienst bereitgestellt: Es wird nur Text aus Bildern extrahiert, ohne KI-Modelle zur Bildzusammenfassung zu verwenden. Bei Bedarf können Sie AI Mark für Bilder verwenden.\n📌 Kontextmenü hinzugefügt: Sie können mit der rechten Maustaste auf Suchergebnisse klicken, um die AI Mark-Funktion zu verwenden.",
+      "primaryButtonText": "Verstanden",
+      "title": "Einführung in das Versions-Update"
+    }
+  }
+}

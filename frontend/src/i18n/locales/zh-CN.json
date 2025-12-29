@@ -1,0 +1,162 @@
+{
+  "app": {
+    "title": "Osai - AI 搜索",
+    "search": {
+      "button": "AI搜索",
+      "indexFile": "索引完成。索引数量：{{count}}",
+      "indexLoading": "索引中，您可以随时搜索",
+      "noKeyword": "请输入关键词",
+      "noResults": "没有结果",
+      "ocrSever": "OCR服务已启动，剩余 {{count}} 个任务",
+      "ocrSeverTips": "OCR 服务：识别图片中的文字，便于搜索图片内容。可前往【设置】关闭",
+      "ocrSuccess": "OCR 任務完成",
+      "placeholder": "搜索文件名称或者图片摘要",
+      "results": "共搜索到 {{count}} 条结果",
+      "start": "输入关键词，开始AI搜索"
+    },
+    "settings": {
+      "about": "关于",
+      "aiProvider": "AI 提供商",
+      "aiSettings": "AI 设置",
+      "autoLaunch": "开机自启动",
+      "autoLaunchHidden": "静默启动",
+      "check": "检查",
+      "checkUpdate": "检查更新",
+      "checkUpdateStatusLatest": "目前已是最新版本",
+      "checkUpdateStatusNewVersion": "发现新版本：{{version}}",
+      "checking": "检查中...",
+      "community": "在社区中，给予我们反馈吧！",
+      "contact": "联系",
+      "feedback": "反馈",
+      "generalSettings": "一般设置",
+      "gpuService": "GPU加速服务",
+      "install": "安装",
+      "language": "语言",
+      "logFolder": "运行日志",
+      "not-available-update": "已是最新版本",
+      "open": "打开",
+      "reInstall": "重新安装",
+      "system": "系统",
+      "title": "设置",
+      "update": "更新",
+      "userExperience": "用户体验改进计划",
+      "visualIndex": "开启图片索引",
+      "website": "官方网站"
+    },
+    "common": {
+      "cancel": "取消",
+      "close": "关闭",
+      "confirm": "确认",
+      "off": "关闭",
+      "on": "开启",
+      "save": "保存",
+      "settings": "设置"
+    },
+    "language": {
+      "de-DE": "Deutsch",
+      "en-US": "English",
+      "fr-FR": "Français",
+      "ja-JP": "日本語",
+      "ko-KR": "한국어",
+      "title": "选择语言",
+      "vi-VN": "Tiếng Việt",
+      "zh-CN": "简体中文",
+      "zh-TW": "繁体中文"
+    },
+    "indexing": {
+      "indexed": "已索引 {{count}} 个文件",
+      "pending": "正在索引"
+    },
+    "visualIndexStatus": {
+      "finished": "OCR 索引已全部完成",
+      "paused": "视觉索引服务已暂停",
+      "running": "OCR 服务已启动 剩余 {{count}}"
+    },
+    "aiSever": {
+      "configured": "AI 服务已就绪",
+      "loading": "AI 索引中，剩余 {{count}} 个任务",
+      "notConfigured": "AI 服务未配置",
+      "pending": "AI 索引中，您可以随时搜索",
+      "success": "AI 索引完成",
+      "tooltip": "AI 索引中，CPU 或 GPU 使用率会增加"
+    },
+    "aiMark": {
+      "buttons": {
+        "finish": "完成",
+        "install": "安装",
+        "later": "稍后",
+        "next": "下一步"
+      },
+      "requireTitle": "AI Mark 将需要以下组件",
+      "step1": {
+        "ask": "📖 询问问题：你可以询问关于这份文件的问题（稍后更新）。",
+        "desc": "你可以让 AI 帮你 mark 这份文件，AI 会理解与分析这份文件。后续通过 AI 的理解，你可以更容易找到这份文件：",
+        "entry": "右键菜单启动AI Mark",
+        "summaryImage": "🖼️ 摘要图片：真正理解图片的内容，而不仅仅只有 OCR。",
+        "understand": "🧠 AI理解文件：通过 AI 的理解，你可以更快也更容易地找到这份文件。"
+      },
+      "step2": {
+        "cuda": "CUDA 服务（可选：用于 GPU 加速，仅当你的电脑拥有 GPU 时可选）",
+        "model": "AI 模型",
+        "tips": "📌 下载大概耗时 5~10 分钟（取决于网络），下载时你仍可使用应用的其他功能。\n📌 下载时需要联网"
+      },
+      "step3": {
+        "done": "你可以试试对着文件右键，点击 AI Mark，现在 AI 会记忆你的文件！(CUDA 服务，需要重启后生效)"
+      },
+      "successTitle": "恭喜你！ AI Mark 功能已生效",
+      "title": "或者你需要AI Mark"
+    },
+    "aiMarkStatus": {
+      "analyzing": "正在分析",
+      "completed": "AI Mark 已完成",
+      "recording": "正在记录"
+    },
+    "contact": {
+      "addWechat": "添加微信",
+      "joinDiscord": "加入 Discord",
+      "title": "应该有结果，但却没有？请告知我们持续改进。"
+    },
+    "preload": {
+      "initFailed": "初始化失败",
+      "loading": "正在准备必要的组件，请稍后",
+      "openLog": "打开日志",
+      "updateContent": "发现最新版本，是否进行更新",
+      "updatePrimary": "更新",
+      "updateSecondary": "稍后",
+      "updateTitle": "更新版本"
+    },
+    "reportProtocol": {
+      "content": "为更好改进你的体验，持续发现并修复问题，本功能将自动上传匿名信息。这些信息仅包含：\n\n📌 程序异常：如闪退、错误代码等。\n📌 性能数据：如下载速度、操作响应时间、功能使用频率（匿名）等。\n\n此过程绝不会收集或上传您的任何个人身份信息、文件内容、聊天记录、密码或浏览历史等敏感数据。\n\n你可以随时在【设置】中关闭该协议",
+      "notRemindLabel": "不再显示",
+      "primaryButtonText": "同意",
+      "secondaryButtonText": "稍后",
+      "title": "用户体验改进计划"
+    },
+    "table": {
+      "columns": {
+        "fileType": "文件类型",
+        "modifiedAt": "修改时间",
+        "name": "文件名称",
+        "path": "路径"
+      },
+      "menu": {
+        "aiMark": "🔥 AI Mark",
+        "openFile": "打开文件",
+        "openFolder": "打开文件夹"
+      }
+    },
+    "tray": {
+      "quit": "退出",
+      "restart": "重新启动",
+      "settings": "设置",
+      "showMainWindow": "顯示主視窗",
+      "showSearchBar": "搜索框 (Alt + Space)",
+      "tooltip": "Osai - AI 搜索助手"
+    },
+    "updateTips": {
+      "content": "📌 新增快捷键：你现在可以按Alt+空格键，唤起快捷键，更容易地寻找文件；按ESC或者再按一次快捷键隐藏。\n📌 新增托盘：现在关闭，不会完全关闭应用，而是收小到右下角的托盘中，你可以在右下角找到osai图标，右键菜单点击退出。缩小到托盘的时候，你可以随时唤起快捷键。\n📌 增加搜索的类别：现在你可以在快捷键唤起的搜索栏中，搜索到文件夹和应用程序",
+      "primaryButtonText": "知道了",
+      "title": "版本更新介绍"
+    }
+  }
+}

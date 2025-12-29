@@ -1,8 +1,0 @@
-{
-  "placeholder": "파일 이름이나 이미지 요약 검색",
-  "button": "검색",
-  "results": "{{count}}개의 결과를 찾았습니다",
-  "noResults": "결과 없음",
-  "noKeyword": "키워드를 입력해주세요",
-  "start": "키워드를 입력하여 AI 검색을 시작하세요"
-}

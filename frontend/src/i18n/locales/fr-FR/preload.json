@@ -1,9 +1,0 @@
-{
-  "loading": "Préparation des composants nécessaires, veuillez patienter",
-  "updateTitle": "Mettre à jour la version",
-  "updateContent": "Une nouvelle version est disponible. Souhaitez-vous mettre à jour ?",
-  "updatePrimary": "Mettre à jour",
-  "updateSecondary": "Plus tard",
-  "initFailed": "Échec de l'initialisation",
-  "openLog": "Ouvrir le journal"
-}
