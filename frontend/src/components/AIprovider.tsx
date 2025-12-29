@@ -61,7 +61,7 @@ const AIProvider: React.FC<Props> = ({
                 </Typography>
                 <Stack spacing={2} className="w-full" alignItems="center">
                     <Typography variant='titleSmall' color='text.secondary' className="w-full" >
-                        Ollama
+                        {t('app.settings.aiProviderFields.providerName')}
                     </Typography>
                     <TextField
                         required

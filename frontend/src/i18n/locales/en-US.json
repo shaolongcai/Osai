@@ -46,7 +46,8 @@
       "aiProviderFields": {
         "apiHost": "API Host",
         "apiHostPlaceholder": "Please input API address",
-        "modelID": "Model ID"
+        "modelID": "Model ID",
+        "providerName": "Ollama"
       },
       "aiProviderErrors": {
         "apiHostRequired": "Please input API Host",

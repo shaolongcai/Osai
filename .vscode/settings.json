@@ -34,7 +34,7 @@
   "i18n-ally.keystyle": "nested",
   "i18n-ally.pathMatcher": "{locale}.json",
   "i18n-ally.enabledFrameworks": [
-    "general"
+    "react"
   ],
   "i18n-ally.sourceLanguage": "zh-CN",
   "i18n-ally.displayLanguage": "zh-TW",
@@ -44,8 +44,8 @@
   "i18n-ally.sortKeys": true,
   "i18n-ally.keepFulfilled": true,
   "i18n-ally.editor.preferEditor": true,
-  "i18n-ally.annotations.inPlace": true,
-  "i18n-ally.annotations.maxLength": 30,
+  "i18n-ally.annotations": true,
+  "i18n-ally.annotationMaxLength": 40,
   "i18n-ally.usage.scanningIgnore": [
     "**/node_modules/**",
     "**/dist/**",

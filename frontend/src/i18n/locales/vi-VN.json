@@ -46,7 +46,8 @@
       "aiProviderFields": {
         "apiHost": "API Máy chủ",
         "apiHostPlaceholder": "Vui lòng nhập địa chỉ API",
-        "modelID": "ID Mô hình"
+        "modelID": "ID Mô hình",
+        "providerName": "Ollama"
       },
       "aiProviderErrors": {
         "apiHostRequired": "Vui lòng nhập API Máy chủ",

@@ -46,7 +46,8 @@
       "aiProviderFields": {
         "apiHost": "API 主機",
         "apiHostPlaceholder": "請輸入 API 位址",
-        "modelID": "模型 ID"
+        "modelID": "模型 ID",
+        "providerName": "Ollama"
       },
       "aiProviderErrors": {
         "apiHostRequired": "請輸入 API 主機",
