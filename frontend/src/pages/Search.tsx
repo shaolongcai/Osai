@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Cate, InfoCard, Search, SearchPanel } from "@/components";
-import { Language } from '../types/i18n';
-import { Button, Card, Paper, Stack, Typography } from '@mui/material';
-import { useDebounce, useRequest, useSize } from 'ahooks';
+import { Button, Card, Stack, Typography } from '@mui/material';
+import { useDebounce, useRequest } from 'ahooks';
 import AISeverImage from '@/assets/images/AI-sever.png'
 import { FileCate } from '@/utils/enum';
 
@@ -25,12 +24,9 @@ const AISeverTipsText = <Typography variant='bodyLarge' color='text.primary' cla
 const SearchBar = () => {
 
     const [data, setData] = useState<shortSearchDataItem[]>([]); //搜索的结果
-    const [total, setTotal] = useState<number>(0); // 搜索结果总数
     const [selectedIndex, setSelectedIndex] = useState<number>(0); // 当前选中的项目索引
-    const [currentLanguage, setCurrentLanguage] = useState<Language>('zh-CN'); // 當前語言
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
     const [selectedCategory, setSelectedCategory] = useState<FileCate>(FileCate.ALL); // 当前选中的分类
-    const [isShowUpgradeProTips, setIsShowUpgradeProTips] = useState<boolean>(false); // 是否显示升级为pro的tips
     const [isShowAiServerTips, setIsShowAiServerTips] = useState<boolean>(false); // 是否显示AI服务提示
 
     const debounceSearch = useDebounce(searchValue, { wait: 200 });

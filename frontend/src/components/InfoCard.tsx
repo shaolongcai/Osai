@@ -1,4 +1,4 @@
-import { Card, CardContent, Stack, Tooltip, Typography, CircularProgress, Collapse, Fade } from "@mui/material";
+import { Card, CardContent, Stack, Tooltip, Typography, CircularProgress, Collapse } from "@mui/material";
 import {
     Error as WaringIcon,
     AccessTimeFilled as PendingIcon,
@@ -11,20 +11,16 @@ import {
 import { NOTIFICATION_TYPE, NotificationType } from "@/utils/enum";
 import { Notification } from "@/types/electron";
 import { useEffect, useState } from "react";
-import { useGlobalContext } from "@/contexts/globalContext";
 import { useTranslation } from '@/contexts/I18nContext';
 
-interface Props {
+// 使用 Record<string, never> 表示空對象類型
+type Props = Record<string, never>;
 
-}
-const InfoCard: React.FC<Props> = ({
-
-}) => {
+const InfoCard: React.FC<Props> = () => {
 
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [notifications, setNotifications] = useState<Notification[]>([]);
 
-    const context = useGlobalContext();
     const { t } = useTranslation();
 
     // 接收后台的消息推送

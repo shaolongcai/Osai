@@ -1,5 +1,5 @@
-import { Box, Chip, ClickAwayListener, Menu, MenuItem, Paper, Tooltip } from "@mui/material"
-import React, { useEffect, useMemo, useState } from "react";
+import { Box, ClickAwayListener, Menu, MenuItem, Paper } from "@mui/material"
+import React, { useMemo, useState } from "react";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -89,7 +89,7 @@ const TableRelust: React.FC<Props> = ({
                     setAIMarkDialogOpen(true);
                 }
                 break;
-            case 'aiMark':
+            case 'aiMark': {
                 const isReadyAI = context.isReadyAI;
                 if (isReadyAI) {
                     window.electronAPI.aiMark(item.path);
@@ -99,6 +99,7 @@ const TableRelust: React.FC<Props> = ({
                     setAIMarkDialogOpen(true);
                 }
                 break;
+            }
             default:
                 break;
         }
@@ -333,7 +334,7 @@ const TableRelust: React.FC<Props> = ({
                 }}
             />
         )),
-    }), []); // 依赖为空数组，确保只在组件挂载时创建一次
+    }), [context.isReadyAI]); // 依赖 context.isReadyAI，確保當 AI 準備狀態變化時重新創建
 
     return <Box className="mt-4 h-[80vh]">
         <AIMarkDialog

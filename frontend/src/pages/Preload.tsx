@@ -1,33 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useGlobalContext } from "@/contexts/globalContext";
-import { Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
+import { Guide, Login, UpdateNotification } from "@/components";
 import { useTranslation } from '@/contexts/I18nContext';
-import { Button, LinearProgress, Paper, Stack, Typography } from "@mui/material";
+import { Button, LinearProgress, Stack, Typography } from "@mui/material";
 import initImg from '@/assets/images/init.png'
 import initErrorImg from '@/assets/images/init-error.png'
 import { useNavigate } from 'react-router-dom';
+import { UpdateStatus } from '@/types/electron';
 
 
 // 是否为 Electron 环境
-const isElectron = typeof window !== 'undefined' && (window as any).electronAPI;
+const isElectron = typeof window !== 'undefined' && window.electronAPI;
 const Preload = () => {
 
     const [initError, setInitError] = useState<string | null>(null);
-    const [protocolOpen, setProtocolOpen] = useState<boolean>(false);
     const [updateOpen, setUpdateOpen] = useState<boolean>(false); // 是否展示更新弹窗
     const [loginOpen, setLoginOpen] = useState<boolean>(false); // 是否展示登录弹窗
     const [guideOpen, setGuideOpen] = useState<boolean>(false); // 是否展示新手引导弹窗
     const [serverOpen, setServerOpen] = useState<boolean>(false); // 是否展示服务启动弹窗
-    const [upgradeOpen, setUpgradeOpen] = useState<boolean>(false); // 是否展示升级弹窗
 
     const effectRan = useRef(false); // 执行守卫
     const updateResolveRef = useRef<(() => void) | null>(null);
-    const protocolResolveRef = useRef<(() => void) | null>(null);
+    // const protocolResolveRef = useRef<(() => void) | null>(null); // 目前未使用，保留以備將來擴展
     const loginResolveRef = useRef<(() => void) | null>(null); // 登录成功回调
     const guideResolveRef = useRef<(() => void) | null>(null); // 新手引导成功回调
-    const upgradeResolveRef = useRef<(() => void) | null>(null); // 升级成功回调
-
-    const context = useGlobalContext();
+    // const upgradeResolveRef = useRef<(() => void) | null>(null); // 目前未使用，保留以備將來擴展
     const { t } = useTranslation();
     const navigate = useNavigate();
 
@@ -64,17 +60,12 @@ const Preload = () => {
             // 移除监听
             window.electronAPI.removeAllListeners('update-status');
         };
-    }, [])
+    }, [checkGuide, checkUpdate, initServer, waitUserCheckUpdate, waitUserGuide])
 
 
     // 检查更新
     const checkUpdate = useCallback(async (): Promise<void> => {
-        // if (!(window as any).electronAPI) {
-        //     // 非 Electron 环境：跳过更新检查，直接进入协议判断
-        //     setIsCheckUpdate(true);
-        //     return;
-        // }
-        window.electronAPI.onUpdateStatus(async (data) => {
+        window.electronAPI.onUpdateStatus(async (data: UpdateStatus) => {
             console.log('更新信息', data)
             if (data.isUpdateAvailable) {
                 setUpdateOpen(true);
@@ -86,27 +77,27 @@ const Preload = () => {
         await window.electronAPI.checkForUpdates(); // 似乎这里可以不需要再监听更新
     }, []);
 
-    // 检查用户体验改进协议
-    const checkAgreeProtocol = useCallback(async (): Promise<void> => {
-        try {
-            // 是否设置不再提醒
-            const notRemindAgain = await window.electronAPI.getConfig('not_remind_again')
-            if (notRemindAgain) {
-                protocolResolveRef.current?.(); //已经解决，直接继续
-                return
-            }
-            // 已设置同意不需要再询问
-            const agreeProtocol = await window.electronAPI.getConfig('report_agreement')
-            if (agreeProtocol) {
-                protocolResolveRef.current?.();
-                return
-            }
-            setProtocolOpen(true);
-        } catch (error) {
-            console.error('展示同意协议失败', error);
-            setProtocolOpen(true);
-        }
-    }, []);
+    // 检查用户体验改进协议（目前未使用，保留以備將來擴展）
+    // const checkAgreeProtocol = useCallback(async (): Promise<void> => {
+    //     try {
+    //         // 是否设置不再提醒
+    //         const notRemindAgain = await window.electronAPI.getConfig('not_remind_again')
+    //         if (notRemindAgain) {
+    //             protocolResolveRef.current?.(); //已经解决，直接继续
+    //             return
+    //         }
+    //         // 已设置同意不需要再询问
+    //         const agreeProtocol = await window.electronAPI.getConfig('report_agreement')
+    //         if (agreeProtocol) {
+    //             protocolResolveRef.current?.();
+    //             return
+    //         }
+    //         setProtocolOpen(true);
+    //     } catch (error) {
+    //         console.error('展示同意协议失败', error);
+    //         setProtocolOpen(true);
+    //     }
+    // }, []);
 
     // 检查是否需要展示新手引导
     const checkGuide = useCallback(async (): Promise<void> => {
@@ -140,44 +131,42 @@ const Preload = () => {
             setServerOpen(false);
             setInitError(res.errMsg);
         }
-    }, [])
+    }, [navigate])
 
 
     // 等待用户操作更新说明
     const waitUserCheckUpdate = useCallback((): Promise<void> => {
         return new Promise<void>((resolve) => {
             updateResolveRef.current = resolve; // 将resolve存放在ref中，后续直接调用resolve
-        }).then(() => {
-            setUpgradeOpen(true); // 展示升级弹窗
         });
     }, []);
 
-    // 等待用户操作是否升级Pro
-    const waitUserUpgrade = useCallback((): Promise<void> => {
-        return new Promise<void>((resolve) => {
-            upgradeResolveRef.current = resolve;
-        });
-    }, []);
+    // 等待用户操作是否升级Pro（目前未使用，保留以備將來擴展）
+    // const waitUserUpgrade = useCallback((): Promise<void> => {
+    //     return new Promise<void>((resolve) => {
+    //         upgradeResolveRef.current = resolve;
+    //     });
+    // }, []);
 
-    // 等待用户操作同意协议的 Promise；作用：在确认前暂停流程
-    const waitUserCheckProtocol = useCallback((): Promise<void> => {
-        return new Promise<void>((resolve) => {
-            protocolResolveRef.current = resolve;
-        }).then(() => {
-            setProtocolOpen(false);
-        });
-    }, []);
+    // 等待用户操作同意协议的 Promise；作用：在确认前暂停流程（目前未使用，保留以備將來擴展）
+    // const waitUserCheckProtocol = useCallback((): Promise<void> => {
+    //     return new Promise<void>((resolve) => {
+    //         protocolResolveRef.current = resolve;
+    //     }).then(() => {
+    //         setProtocolOpen(false);
+    //     });
+    // }, []);
 
-    // 等待用户操作登录
-    const waitUserLogin = useCallback(async (): Promise<void> => {
-        return new Promise<void>((resolve) => {
-            loginResolveRef.current = resolve;
-        }).then(() => {
-            // todo 使用resolve的布尔参数，来确定用户是完成登录还是稍后登录
-            // 关闭登录弹窗
-            setLoginOpen(false);
-        });
-    }, []);
+    // 等待用户操作登录（目前未使用，保留以備將來擴展）
+    // const waitUserLogin = useCallback(async (): Promise<void> => {
+    //     return new Promise<void>((resolve) => {
+    //         loginResolveRef.current = resolve;
+    //     }).then(() => {
+    //         // todo 使用resolve的布尔参数，来确定用户是完成登录还是稍后登录
+    //         // 关闭登录弹窗
+    //         setLoginOpen(false);
+    //     });
+    // }, []);
 
     // 等待用户操作新手引导
     const waitUserGuide = useCallback(async (): Promise<void> => {
@@ -252,7 +241,7 @@ const Preload = () => {
                     <Button variant='contained' onClick={() => window.location.reload()}>
                         {t('app.preload.retry')}
                     </Button>
-                    <Button variant='outlined' onClick={() => isElectron ? (window as any).electronAPI.openDir('runLog') : undefined}>
+                    <Button variant='outlined' onClick={() => isElectron ? window.electronAPI.openDir('runLog') : undefined}>
                         {t('app.preload.openLog')}
                     </Button>
                 </Stack>

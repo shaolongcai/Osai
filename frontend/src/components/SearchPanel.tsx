@@ -24,7 +24,6 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     name,
     icon,
     ext,
-    isAiMark = false,
     snippet,
     isSelected = false,
     onClick,
@@ -219,7 +218,7 @@ const SearchPanel: React.FC<Props> = ({
                         {t('app.search.noResults')}
                     </Typography>
                     {
-                        !Boolean(aiConfig) &&
+                        !aiConfig &&
                         <>
                             <Typography variant='bodyMedium' color='textSecondary'>
                                 你可以使用AI增强服务，让AI记住你的文件。

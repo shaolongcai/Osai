@@ -3,7 +3,7 @@ import React from 'react';
 // 導入國際化翻譯 Hook
 import { useTranslation } from '../../contexts/I18nContext';
 // 導入語言類型定義和配置
-import { Language } from '../../types/i18n';
+import { Language, TranslationKeyPath } from '../../types/i18n';
 import { LANGUAGE_CONFIGS, getLanguageConfig } from '../../config/languages';
 // 導入 Material-UI 組件
 import { Button, ButtonGroup, Box, Select, MenuItem, FormControl } from '@mui/material';
@@ -84,7 +84,8 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
    */
   const getLanguageText = (languageCode: Language): string => {
     // 使用翻譯函數獲取語言的本地化名稱
-    return t(`app.language.${languageCode}` as any);
+    const translationKey: TranslationKeyPath = `app.language.${languageCode}` as TranslationKeyPath;
+    return t(translationKey);
   };
 
   /**
@@ -131,7 +132,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         key={lang}                                    // 使用語言代碼作為 key
         size={size}                                   // 按鈕大小
         variant={getButtonVariant(lang)}              // 按鈕變體樣式
-        color={getButtonColor(lang) as any}           // 按鈕顏色主題
+        color={getButtonColor(lang) as 'primary' | 'inherit'}           // 按鈕顏色主題
         onClick={() => handleLanguageChange(lang)}    // 點擊事件處理
         disabled={isLoading}                          // 載入時禁用按鈕
       >

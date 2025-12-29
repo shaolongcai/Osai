@@ -48,7 +48,7 @@ export const useIcon = (iconPath?: string, ext?: string) => {
         };
 
         loadIcon();
-    }, [iconPath]);
+    }, [iconPath, ext]);
 
     return { iconSrc, loading, error };
 };

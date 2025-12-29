@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import ReactDOM from 'react-dom/client';
 import Setting from '@/pages/Setting';   // 你的设置组件
 import RootProviders from './RootProviders';

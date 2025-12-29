@@ -1,57 +1,53 @@
-import { Button, Paper, Stack, Typography, styled, Card } from "@mui/material"
-import { useState, useEffect } from "react";
-import {
-    Settings as SettingsIcon,
-    Close as CloseIcon
-} from '@mui/icons-material';
-import { useGlobalContext } from "@/contexts/globalContext";
-import { SettingItem, Contact, Dialog, ReportProtocol, AIProvider } from "@/components";
+import { Button, Paper, Stack, Typography, styled } from "@mui/material"
+import { useState, useEffect, useCallback } from "react";
+import { SettingItem, Dialog, ReportProtocol, AIProvider } from "@/components";
 import { useTranslation } from '@/contexts/I18nContext';
-import { ConfigParams } from '@/types/electron';
+import { ConfigParams, UpdateStatus } from '@/types/electron';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { TranslationKeyPath } from '@/types/i18n';
 
 
 // 封装按钮样式
-const StyledButton = styled(Button)(({ theme }) => ({
+const StyledButton = styled(Button)(() => ({
     '&:focus': { outline: 'none', border: 'none', boxShadow: 'none' },
     '&:active': { outline: 'none', border: 'none', boxShadow: 'none' },
     '&:hover': { border: 'none' }
 }));
 
 
-interface SettingButtonProps {
-    openSetting: boolean;
-    setOpenSetting: (value: boolean) => void;
-}
-/**
- * 设置按钮
- */
-const SettingButton = ({ openSetting, setOpenSetting }: SettingButtonProps) => {
-    return <Card
-        variant="elevation"
-        onClick={() => {
-            setOpenSetting(!openSetting);
-        }}
-        className="rounded-full! flex items-center justify-center cursor-pointer h-10 w-10
-        border border-solid border-[rgba(0,0,0,0.12)]
-        "
-    >
-        {
-            openSetting ?
-                <CloseIcon
-                    fontSize='small'
-                    sx={{
-                        color: 'rgba(0, 0, 0, 0.85)',
-                    }} />
-                :
-                <SettingsIcon
-                    fontSize='small'
-                    sx={{
-                        color: 'rgba(0, 0, 0, 0.85)',
-                    }} />
-        }
-    </Card>
-}
+// interface SettingButtonProps {
+//     openSetting: boolean;
+//     setOpenSetting: (value: boolean) => void;
+// }
+// /**
+//  * 设置按钮（目前未使用，保留以備將來擴展）
+//  */
+// const SettingButton = ({ openSetting, setOpenSetting }: SettingButtonProps) => {
+//     return <Card
+//         variant="elevation"
+//         onClick={() => {
+//             setOpenSetting(!openSetting);
+//         }}
+//         className="rounded-full! flex items-center justify-center cursor-pointer h-10 w-10
+//         border border-solid border-[rgba(0,0,0,0.12)]
+//         "
+//     >
+//         {
+//             openSetting ?
+//                 <CloseIcon
+//                     fontSize='small'
+//                     sx={{
+//                         color: 'rgba(0, 0, 0, 0.85)',
+//                     }} />
+//                 :
+//                 <SettingsIcon
+//                     fontSize='small'
+//                     sx={{
+//                         color: 'rgba(0, 0, 0, 0.85)',
+//                     }} />
+//         }
+//     </Card>
+// }
 
 
 
@@ -61,24 +57,19 @@ const SettingButton = ({ openSetting, setOpenSetting }: SettingButtonProps) => {
 const Setting = () => {
 
     const [openSetting, setOpenSetting] = useState(true);
-    const [openIndexImage, setOpenIndexImage] = useState(Boolean(Number(localStorage.getItem('openIndexImage') || 0)))
-    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false) //CPU下开启索引的弹窗
     const [openReportProtocol, setOpenReportProtocol] = useState(false) //用户体验改进计划弹窗
     const [hasGPU, setHasGPU] = useState(false)
     const [gpuSeverOpen, setGpuSeverOpen] = useState(false) //GPU服务弹窗
-    const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务（目前僅在註釋代碼中使用，保留以備將來擴展）
     const [openAIProvider, setOpenAIProvider] = useState(false) //AI服务弹窗
     const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
     const [aiProvider, setAiProvider] = useState<{ host: string, model: string }>() //是否已设置AI服务
     // 更新檢查相關狀態
-    const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
     const [isCheckingUpdate, setIsCheckingUpdate] = useState(false)
-    const [latestVersion, setLatestVersion] = useState<string | null>(null)
     const [updateStatusText, setUpdateStatusText] = useState('')
     const [autoLaunch, setAutoLaunch] = useState(false) //是否開機自啟動
     const [autoLaunchHidden, setAutoLaunchHidden] = useState(false) //是否靜默啟動
-
-    const context = useGlobalContext();
     const { t, isLoading } = useTranslation()
 
     // 拉取用户配置
@@ -100,38 +91,32 @@ const Setting = () => {
         })
         // 手动检查一次
         manualCheckUpdate()
-    }, [isLoading])
+    }, [isLoading, manualCheckUpdate])
 
     // 監聽更新狀態並在抽屜開啟時自動檢查（在非 Electron 環境下跳過）
     useEffect(() => {
         if (isLoading) return
-        if (!(window as any).electronAPI) {
+        if (!window.electronAPI) {
             // 非 Electron 預覽環境：直接顯示最新版本提示
             setIsCheckingUpdate(false)
-            setIsUpdateAvailable(false)
-            setLatestVersion(null)
-            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as any))
+            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as TranslationKeyPath))
             return
         }
         // 僅訂閱事件，不在此自動觸發檢查
-        window.electronAPI.onUpdateStatus((data: any) => {
+        window.electronAPI.onUpdateStatus((data: UpdateStatus) => {
             console.log('update-status', data)
             setIsCheckingUpdate(false)
             if (data && data.isUpdateAvailable) {
-                setIsUpdateAvailable(true)
-                setLatestVersion(String(data.version || ''))
-                setUpdateStatusText(t('app.settings.checkUpdateStatusNewVersion' as any, { version: data.version || '' }))
+                setUpdateStatusText(t('app.settings.checkUpdateStatusNewVersion' as TranslationKeyPath, { version: data.version || '' }))
             } else {
-                setIsUpdateAvailable(false)
-                setLatestVersion(null)
                 // 根据 data.type 映射到对应的多语言 key，确保有默认值兜底
                 let msg: string
-                switch (data.type) {
+                switch (data.message) {
                     case 'not-available-update':
-                        msg = t('app.settings.not-available-update')
+                        msg = t('app.settings.checkUpdateStatusLatest' as TranslationKeyPath)
                         break
                     default:
-                        msg = t('app.settings.checkUpdateStatusLatest') // 兜底用“已是最新版”
+                        msg = data.message || t('app.settings.checkUpdateStatusLatest' as TranslationKeyPath) // 兜底用"已是最新版"
                 }
                 setUpdateStatusText(msg)
             }
@@ -139,14 +124,14 @@ const Setting = () => {
         return () => {
             window.electronAPI.removeAllListeners('update-status')
         }
-    }, [open, t, isLoading])
+    }, [t, isLoading])
 
 
-    const manualCheckUpdate = async () => {
+    const manualCheckUpdate = useCallback(async () => {
         setIsCheckingUpdate(true)
-        setUpdateStatusText(t('app.settings.checking' as any))
+        setUpdateStatusText(t('app.settings.checking' as TranslationKeyPath))
         await window.electronAPI.checkForUpdates()
-    }
+    }, [t])
 
     // 安装GPU服务
     const installGpu = async () => {
@@ -178,15 +163,15 @@ const Setting = () => {
         await window.electronAPI.setAutoLaunch(checked, autoLaunchHidden)
     }
 
-    // 切換靜默啟動開關
-    const toggleAutoLaunchHidden = async (checked: boolean) => {
-        setAutoLaunchHidden(checked)
-        await window.electronAPI.setAutoLaunchHidden(checked)
-        // 如果自啟動已開啟，需要更新自啟動設置以包含靜默啟動選項
-        if (autoLaunch) {
-            await window.electronAPI.setAutoLaunch(true, checked)
-        }
-    }
+    // 切換靜默啟動開關（目前未使用，保留以備將來擴展）
+    // const toggleAutoLaunchHidden = async (checked: boolean) => {
+    //     setAutoLaunchHidden(checked)
+    //     await window.electronAPI.setAutoLaunchHidden(checked)
+    //     // 如果自啟動已開啟，需要更新自啟動設置以包含靜默啟動選項
+    //     if (autoLaunch) {
+    //         await window.electronAPI.setAutoLaunch(true, checked)
+    //     }
+    // }
 
 
     return <>
@@ -195,9 +180,13 @@ const Setting = () => {
             title={hasGPU ? t('app.settings.gpuService') : '本机没有任何GPU'}
             primaryButtonText={hasGPU ? t('app.common.confirm') : t('app.common.close')}
             onPrimaryButtonClick={() => {
-                hasGPU ? installGpu() : setGpuSeverOpen(false)
+                if (hasGPU) {
+                    installGpu();
+                } else {
+                    setGpuSeverOpen(false);
+                }
             }}
-            secondaryButtonText={hasGPU && t('app.common.cancel')}
+            secondaryButtonText={hasGPU ? t('app.common.cancel') : undefined}
             open={gpuSeverOpen}
             onClose={() => { setGpuSeverOpen(false) }}
             maxWidth='xs'
@@ -313,14 +302,14 @@ const Setting = () => {
                                 action={
                                     <Stack direction='row' alignItems='center' spacing={2}>
                                         <Typography variant="body2" color={'text.secondary'}>
-                                            {updateStatusText || t('app.settings.checkUpdateStatusLatest' as any)}
+                                            {updateStatusText || t('app.settings.checkUpdateStatusLatest' as TranslationKeyPath)}
                                         </Typography>
                                         <StyledButton
                                             disabled={isCheckingUpdate}
                                             variant='text'
                                             onClick={manualCheckUpdate}
                                         >
-                                            {t('app.settings.check' as any)}
+                                            {t('app.settings.check' as TranslationKeyPath)}
                                         </StyledButton>
                                     </Stack>
                                 }
@@ -363,7 +352,7 @@ const Setting = () => {
             }
             {
                 openAIProvider &&
-                <AIProvider onFinish={() => { setOpenAIProvider(false), setOpenSetting(true) }} />
+                <AIProvider onFinish={() => { setOpenAIProvider(false); setOpenSetting(true); }} />
             }
         </Stack>
     </>

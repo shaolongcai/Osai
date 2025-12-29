@@ -1,11 +1,18 @@
-import { Dialog, Box, Typography, Paper, Stack, Button, IconButton, styled } from '@mui/material';
+import { Dialog, Box, Typography, Paper, Stack, Button, styled } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Contact, Dialog as CustomDialog, ReportProtocol, SettingItem } from '@/components';
+import { Dialog as CustomDialog, ReportProtocol, SettingItem } from '@/components';
 import { ConfigParams } from '@/types/electron';
 import { useContext } from 'react';
 import { globalContext } from '@/contexts/globalContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useTranslation } from '@/contexts/I18nContext';
+import { TranslationKeyPath } from '@/types/i18n';
+
+interface UpdateStatusData {
+    isUpdateAvailable?: boolean;
+    version?: string;
+    message?: string;
+}
 
 
 const StyledTitle = styled(Typography)(({ theme }) => ({
@@ -20,12 +27,8 @@ interface SettingProps {
     onClose: () => void;
 }
 
-// 設置類別類型
-type SettingCategory = 'general' | 'ai' | 'update' | 'about';
-
 const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
 
-    const [selectedCategory, setSelectedCategory] = useState<SettingCategory>('general')
     const [openIndexImage, setOpenIndexImage] = useState(Boolean(Number(localStorage.getItem('openIndexImage') || 0)))
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false) //CPU下开启索引的弹窗
     const [openReportProtocol, setOpenReportProtocol] = useState(false) //用户体验改进计划弹窗
@@ -34,13 +37,10 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
     const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
     // 更新檢查相關狀態
-    const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
     const [isCheckingUpdate, setIsCheckingUpdate] = useState(false)
-    const [latestVersion, setLatestVersion] = useState<string | null>(null)
     const [updateStatusText, setUpdateStatusText] = useState('')
     const [autoLaunch, setAutoLaunch] = useState(false) //是否開機自啟動
     const [autoLaunchHidden, setAutoLaunchHidden] = useState(false) //是否靜默啟動
-    const [updateStatus, setUpdateStatus] = useState<{ isLatest: boolean | null; message?: string; version?: string }>({ isLatest: null }) //更新狀態
 
     const context = useContext(globalContext)
     const { t } = useTranslation();
@@ -51,7 +51,6 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     useEffect(() => {
         if (open) {
             // 重置更新狀態，允許用戶重新檢查
-            setUpdateStatus({ isLatest: null });
             setIsCheckingUpdate(false);
 
             window.electronAPI.getConfig().then((res: UserConfig) => {
@@ -75,25 +74,19 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
             window.electronAPI.removeAllListeners('update-status')
             return
         }
-        if (!(window as any).electronAPI) {
+        if (!window.electronAPI) {
             // 非 Electron 預覽環境：直接顯示最新版本提示
             setIsCheckingUpdate(false)
-            setIsUpdateAvailable(false)
-            setLatestVersion(null)
-            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as any))
+            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as TranslationKeyPath))
             return
         }
         // 僅訂閱事件，不在此自動觸發檢查
-        window.electronAPI.onUpdateStatus((data: any) => {
+        window.electronAPI.onUpdateStatus((data: UpdateStatusData) => {
             setIsCheckingUpdate(false)
             if (data && data.isUpdateAvailable) {
-                setIsUpdateAvailable(true)
-                setLatestVersion(String(data.version || ''))
-                setUpdateStatusText(t('app.settings.checkUpdateStatusNewVersion' as any, { version: data.version || '' }))
+                setUpdateStatusText(t('app.settings.checkUpdateStatusNewVersion' as TranslationKeyPath, { version: data.version || '' }))
             } else {
-                setIsUpdateAvailable(false)
-                setLatestVersion(null)
-                const msg = data?.message || t('app.settings.checkUpdateStatusLatest' as any)
+                const msg = data?.message || t('app.settings.checkUpdateStatusLatest' as TranslationKeyPath)
                 setUpdateStatusText(msg)
             }
         })
@@ -103,14 +96,14 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     }, [open, t])
 
     const manualCheckUpdate = async () => {
-        if (!(window as any).electronAPI) {
+        if (!window.electronAPI) {
             // 非 Electron 環境：模擬檢查完成
             setIsCheckingUpdate(false)
-            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as any))
+            setUpdateStatusText(t('app.settings.checkUpdateStatusLatest' as TranslationKeyPath))
             return
         }
         setIsCheckingUpdate(true)
-        setUpdateStatusText(t('app.settings.checking' as any))
+        setUpdateStatusText(t('app.settings.checking' as TranslationKeyPath))
         await window.electronAPI.checkForUpdates()
     }
 
@@ -341,10 +334,10 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                         {/* 檢查更新 */}
                         <Paper className="p-4 rounded-xl border border-border" elevation={0} variant='outlined' >
                             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Typography variant="body1" className="text-sm font-semibold text-text-secondary" >{t('app.settings.checkUpdate' as any)}</Typography>
+                                <Typography variant="body1" className="text-sm font-semibold text-text-secondary" >{t('app.settings.checkUpdate' as TranslationKeyPath)}</Typography>
                                 <Stack direction='row' alignItems='center' spacing={2}>
                                     <Typography variant="body2" color={'text.secondary'}>
-                                        {updateStatusText || t('app.settings.checkUpdateStatusLatest' as any)}
+                                        {updateStatusText || t('app.settings.checkUpdateStatusLatest' as TranslationKeyPath)}
                                     </Typography>
                                     <Button
                                         sx={{
@@ -356,7 +349,7 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
                                         variant='text'
                                         onClick={manualCheckUpdate}
                                     >
-                                        {t('app.settings.check' as any)}
+                                        {t('app.settings.check' as TranslationKeyPath)}
                                     </Button>
                                 </Stack>
                             </Stack>

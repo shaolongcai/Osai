@@ -23,7 +23,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   // 動態載入翻譯文件
-  const loadTranslation = async (language: Language): Promise<void> => {
+  const loadTranslation = useCallback(async (language: Language): Promise<void> => {
     if (loadedLanguages.has(language)) {
       return;
     }
@@ -50,35 +50,37 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
 
       if (hasAnyModule) {
         // 組裝為 TranslationKeys 結構
-        const combined: any = { app: {} };
+        const combined: Partial<TranslationKeys> = { app: {} as TranslationKeys['app'] };
         MODULE_FILES.forEach((m, idx) => {
           const content = moduleResponses[idx];
           if (!content) return;
           if (m === 'app') {
-            combined.app = { ...combined.app, ...content };
+            combined.app = { ...combined.app, ...content } as TranslationKeys['app'];
           } else {
-            combined.app[m] = content;
+            (combined.app as Record<string, unknown>)[m] = content;
           }
         });
         // 若有缺失模塊，嘗試載入舊的單檔 JSON 並做補全
         try {
           const legacyResp = await fetch(`${LOCALES_BASE_PATH}/${language}.json`);
           if (legacyResp.ok) {
-            const legacy: any = await legacyResp.json();
-            const deepMerge = (target: any, source: any) => {
+            const legacy = await legacyResp.json() as Partial<TranslationKeys>;
+            const deepMerge = (target: Record<string, unknown>, source: Record<string, unknown>) => {
               Object.keys(source).forEach((key) => {
                 if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
                   if (!target[key]) target[key] = {};
-                  deepMerge(target[key], source[key]);
+                  deepMerge(target[key] as Record<string, unknown>, source[key] as Record<string, unknown>);
                 } else {
                   if (target[key] === undefined) target[key] = source[key];
                 }
               });
               return target;
             };
-            deepMerge(combined, legacy);
+            deepMerge(combined as Record<string, unknown>, legacy as Record<string, unknown>);
           }
-        } catch { }
+        } catch {
+          // 忽略載入舊格式文件的錯誤
+        }
 
         setTranslations(prev => ({
           ...prev,
@@ -104,13 +106,13 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [loadedLanguages]);
 
   // 獲取翻譯文本 - 支援點分隔的巢狀鍵值和回退機制
   const getTranslation = (key: TranslationKeyPath, language: Language = currentLanguage): string => {
     const keys = key.split('.');
     // 首先嘗試在當前語言中查找
-    let value: any = translations[language];
+    let value: unknown = translations[language];
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
@@ -174,7 +176,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
   };
 
   // t 函數 - 翻譯函數，支持參數替換
-  const t = (key: TranslationKeyPath, params?: Record<string, any>): string => {
+  const t = (key: TranslationKeyPath, params?: Record<string, string | number>): string => {
     let translation = getTranslation(key, currentLanguage);
     // 如果有參數，替換佔位符
     if (params) {
@@ -222,7 +224,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     };
 
     initTranslations();
-  }, []);
+  }, [defaultLanguage, loadTranslation]);
 
   const contextValue: I18nContextType = {
     currentLanguage,
@@ -240,6 +242,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
 };
 
 // 自定義 Hook 用於使用翻譯上下文
+// eslint-disable-next-line react-refresh/only-export-components
 export const useI18n = (): I18nContextType => {
   const context = useContext(I18nContext);
   if (context === undefined) {
@@ -249,6 +252,7 @@ export const useI18n = (): I18nContextType => {
 };
 
 // 翻譯 Hook - 類似於原始項目的 useTranslation
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTranslation = () => {
   const { t, currentLanguage, setLanguage, isLoading } = useI18n();
 

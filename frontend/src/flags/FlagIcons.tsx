@@ -6158,6 +6158,7 @@ const flagsData: [string, string, React.FC<FlagIconProps>][] = [
 ];
 
 // 使用 map 函數生成最終的 allFlags 數組
+// eslint-disable-next-line react-refresh/only-export-components
 export const allFlags: FlagComponent[] = flagsData.map(([name, code, component]) => ({
     name,
     code,
@@ -6165,13 +6166,16 @@ export const allFlags: FlagComponent[] = flagsData.map(([name, code, component])
 }));
 
 // 按國家名稱查找國旗組件的輔助函數
+// eslint-disable-next-line react-refresh/only-export-components
 export const getFlagByName = (name: string): FlagComponent | undefined => {
     return allFlags.find(flag => flag.name.toLowerCase() === name.toLowerCase());
 };
 
 // 按國家代碼查找國旗組件的輔助函數
+// eslint-disable-next-line react-refresh/only-export-components
 export const getFlagByCode = (code: string): FlagComponent | undefined => {
     return allFlags.find(flag => flag.code.toLowerCase() === code.toLowerCase());
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export default allFlags;
