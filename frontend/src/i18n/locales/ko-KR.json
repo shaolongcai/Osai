@@ -36,14 +36,25 @@
       "not-available-update": "최신 버전",
       "open": "열기",
       "reInstall": "재설치",
+      "set": "설정",
       "system": "시스템",
       "title": "설정",
       "update": "업데이트",
       "userExperience": "사용자 경험 개선 프로그램",
       "visualIndex": "이미지 인덱싱 활성화",
-      "website": "공식 웹사이트"
+      "website": "공식 웹사이트",
+      "aiProviderFields": {
+        "apiHost": "API 호스트",
+        "apiHostPlaceholder": "API 주소를 입력하세요",
+        "modelID": "모델 ID"
+      },
+      "aiProviderErrors": {
+        "apiHostRequired": "API 호스트를 입력하세요",
+        "modelIDRequired": "모델 ID를 선택하세요"
+      }
     },
     "common": {
+      "apply": "적용",
       "cancel": "취소",
       "close": "닫기",
       "confirm": "확인",
@@ -78,7 +89,13 @@
       "notConfigured": "AI 서비스가 구성되지 않았습니다",
       "pending": "AI 인덱싱 중, 언제든지 검색할 수 있습니다",
       "success": "AI 인덱싱이 완료되었습니다",
-      "tooltip": "AI 인덱싱 중, CPU 또는 GPU 사용률이 증가합니다"
+      "tooltip": "AI 인덱싱 중, CPU 또는 GPU 사용률이 증가합니다",
+      "title": "AI 향상 서비스",
+      "description": "AI 향상 서비스를 활성화할 수 있습니다. Osai는 강력한 AI 모델로 파일을 기억합니다.\n\n🧠 문서 이해: AI의 이해를 통해 이 문서를 더 빠르고 쉽게 찾을 수 있습니다.\n\n🔍 AI가 파일에 자동 태그 지정—검색 및 찾기, 분류 건너뛰기\n\n🖼️ 이미지 이해: OCR에만 의존하지 않고 이미지의 내용을 진정으로 이해합니다.",
+      "goToSet": "설정으로 이동",
+      "getMore": "자세히 보기",
+      "later": "나중에",
+      "emptyResultTip": "AI 향상 서비스를 사용하여 AI가 파일을 기억하도록 할 수 있습니다."
     },
     "aiMark": {
       "buttons": {
@@ -157,6 +174,12 @@
       "content": "📌 새로운 AI Mark 기능: AI가 모든 파일을 기억하도록 하여 나중에파일을 더 빠르게 찾거나 질문할 수 있습니다.\n📌 OCR 기능: 컴퓨터 리소스를절약하기 위해 이제 시각적 인덱싱은 OCR 서비스에서 제공됩니다: 이미지의 텍스트만추출하고 더 이상 AI 모델을 사용하여 이미지를 요약하지 않습니다. 필요한 경우이미지에 AI Mark를 사용할 수 있습니다.\n📌 우클릭 메뉴 추가: 검색 결과에서마우스 우클릭으로 AI Mark 기능을 사용할 수 있습니다.",
       "primaryButtonText": "알겠습니다",
       "title": "버전 업데이트 소개"
+    },
+    "guide": {
+      "step1": "Osai는 열어본 파일을 기억합니다",
+      "step2": "제목을 잊어도 내용으로 검색할 수 있습니다.",
+      "step3": "AI를 설치하여 Osai의 강력한 지능을 해제하세요.",
+      "step4": "모든 콘텐츠는 로컬에 저장되며 100% 비공개로 보호됩니다."
     }
   }
 }

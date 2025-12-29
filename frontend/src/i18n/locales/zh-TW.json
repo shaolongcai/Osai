@@ -36,14 +36,25 @@
       "not-available-update": "已是最新版本",
       "open": "開啟",
       "reInstall": "重新安裝",
+      "set": "設定",
       "system": "系統",
       "title": "設定",
       "update": "更新",
       "userExperience": "使用者體驗改進計畫",
       "visualIndex": "開啟圖片索引",
-      "website": "官方網站"
+      "website": "官方網站",
+      "aiProviderFields": {
+        "apiHost": "API 主機",
+        "apiHostPlaceholder": "請輸入 API 位址",
+        "modelID": "模型 ID"
+      },
+      "aiProviderErrors": {
+        "apiHostRequired": "請輸入 API 主機",
+        "modelIDRequired": "請選擇模型 ID"
+      }
     },
     "common": {
+      "apply": "套用",
       "cancel": "取消",
       "close": "關閉",
       "confirm": "確認",
@@ -78,7 +89,13 @@
       "notConfigured": "AI 服務未配置",
       "pending": "AI 索引中，您可以隨時搜索",
       "success": "AI 索引完成",
-      "tooltip": "AI 索引中，CPU 或 GPU 使用率會增加"
+      "tooltip": "AI 索引中，CPU 或 GPU 使用率會增加",
+      "title": "AI 增強服務",
+      "description": "你可以啟用 AI 增強服務。Osai 將通過強大的 AI 模型記住你的文件。\n\n🧠 文件理解：通過 AI 的理解，你可以更快也更容易地找到這份文件。\n\n🔍 AI 自動標記文件——搜索和查找，跳過分類\n\n🖼️ 理解圖片：真正理解圖片的內容，而不僅僅只有 OCR。",
+      "goToSet": "前往設置",
+      "getMore": "了解更多",
+      "later": "稍後",
+      "emptyResultTip": "你可以使用AI增強服務，讓AI記住你的文件。"
     },
     "aiMark": {
       "buttons": {
@@ -157,6 +174,12 @@
       "content": "📌 新增快捷鍵：你現在可以按Alt+空格鍵，唤起快捷鍵，更容易地尋找檔案；按ESC或者再按一次快捷鍵隱藏。\n📌 新增托盤：現在關閉，不會完全關閉應用，而是收小到右下角的托盤中，你可以在右下角找到osai圖標，右鍵選單點擊退出。收小到托盤的時候，你可以随时唤起快捷鍵。\n📌 增加搜索的類別：現在你可以在快捷鍵唤起的搜索欄中，搜索到資料夾和應用程式",
       "primaryButtonText": "知道了",
       "title": "版本更新介紹"
+    },
+    "guide": {
+      "step1": "Osai 會記住你已打開的檔案",
+      "step2": "即使忘記檔案名稱，也能透過內容搜尋",
+      "step3": "安裝 AI 以解鎖 Osai 的強大智慧",
+      "step4": "所有內容都保存在本地，100% 私密保護"
     }
   }
 }

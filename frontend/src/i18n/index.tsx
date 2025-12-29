@@ -219,7 +219,11 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
 
     initTranslations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultLanguage]); // loadTranslation 使用 useCallback，不應作為依賴
+  }, []); // 只在首次掛載時初始化
+
+  // 注意：不需要響應 defaultLanguage prop 變化
+  // 因為語言切換由 setLanguage 函數處理，不會導致循環更新
+  // 當其他窗口變更語言時，RootProviders 會通過 key 強制重新掛載此組件
 
   const contextValue: I18nContextType = useMemo(() => ({
     currentLanguage,

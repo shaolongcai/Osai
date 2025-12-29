@@ -1,36 +1,19 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Cate, InfoCard, Search, SearchPanel } from "@/components";
-import { Language } from '../types/i18n';
-import { Button, Card, Paper, Stack, Typography } from '@mui/material';
-import { useDebounce, useRequest, useSize } from 'ahooks';
+import { Button, Card, Stack, Typography } from '@mui/material';
+import { useDebounce, useRequest } from 'ahooks';
 import AISeverImage from '@/assets/images/AI-sever.png'
 import { FileCate } from '@/utils/enum';
-
-
-/**
- * 提示设置AI的文案
- */
-const AISeverTipsText = <Typography variant='bodyLarge' color='text.primary' className='whitespace-pre-line leading-relaxed! '>
-    {`You can enable AI-enhanced services. Osai will remember your files by a powerful AI model.
-
-    🧠 Document Understanding: With AI's understanding, you can find this document faster and easier.
-
-    🔍 AI auto-tags files—search & find, skip categorizing
-
-    🖼️ understand Image: Truly understanding the content of an image, not just relying on OCR.
-                `}
-</Typography>
+import { useTranslation } from '@/i18n';
 
 
 const SearchBar = () => {
+    const { t } = useTranslation();
 
     const [data, setData] = useState<shortSearchDataItem[]>([]); //搜索的结果
-    const [total, setTotal] = useState<number>(0); // 搜索结果总数
     const [selectedIndex, setSelectedIndex] = useState<number>(0); // 当前选中的项目索引
-    const [currentLanguage, setCurrentLanguage] = useState<Language>('zh-CN'); // 當前語言
     const [searchValue, setSearchValue] = useState(''); //搜索的关键词
     const [selectedCategory, setSelectedCategory] = useState<FileCate>(FileCate.ALL); // 当前选中的分类
-    const [isShowUpgradeProTips, setIsShowUpgradeProTips] = useState<boolean>(false); // 是否显示升级为pro的tips
     const [isShowAiServerTips, setIsShowAiServerTips] = useState<boolean>(false); // 是否显示AI服务提示
 
     const debounceSearch = useDebounce(searchValue, { wait: 200 });
@@ -92,28 +75,8 @@ const SearchBar = () => {
         }
     }, [data.length]);
 
-    // 初始化語言設置和監聽語言更改
-    useEffect(() => {
-        // 從 localStorage 讀取保存的語言設置
-        const savedLanguage = localStorage.getItem('app-language') as Language;
-        if (savedLanguage) {
-            setCurrentLanguage(savedLanguage);
-        }
-
-        // 監聽語言更改事件
-        if (typeof window !== 'undefined' && window.electronAPI) {
-            window.electronAPI.onLanguageChanged((language: string) => {
-                console.log('搜索框收到語言更改通知:', language);
-                setCurrentLanguage(language as Language);
-                // 同步到 localStorage
-                localStorage.setItem('app-language', language);
-            });
-
-            return () => {
-                window.electronAPI.removeAllListeners('language-changed');
-            };
-        }
-    }, []);
+    // 語言更改由 RootProviders 和 I18nProvider 統一管理
+    // 不需要在這裡單獨監聯，因為語言變化會通過 React Context 自動傳遞
 
     // 开始索引
     useRequest(window.electronAPI.startIndex)
@@ -123,7 +86,6 @@ const SearchBar = () => {
         const res = await window.electronAPI.shortSearch(keyword, category);
         console.log('快捷搜索结果', res);
         setData(res.data);
-        setTotal(res.total);
         setSelectedIndex(0); // 重置选中状态到搜索框
     }
 
@@ -135,23 +97,23 @@ const SearchBar = () => {
 
     // 处理引导AI服务提示
     const handelShowAiServerTips = useCallback(() => {
-        const hasShowed = localStorage.getItem('hasShowedAiServerTips');
-        if (hasShowed) return;
-        // 标记为已提示, 避免重复提示
-        localStorage.setItem('hasShowedAiServerTips', 'true');
+        // 不檢查 localStorage，允許用戶多次查看
         setIsShowAiServerTips(true);
     }, []);
 
     // 处理设置AI服务提供商
     const handleSetAiProvider = useCallback(() => {
-        // 是否有pro
-        const isPro = false;
-        if (isPro) {
-            // 跳转到设置提供商页面
-        } else {
-            setIsShowUpgradeProTips(true);
-            setIsShowAiServerTips(false)
-        }
+        // 跳转到设置页面
+        setIsShowAiServerTips(false);
+        // TODO: 導航到設置頁面的 AI 提供商設置
+        // 可以通過 window.electronAPI 發送消息或使用路由
+    }, []);
+
+    // 处理关闭AI服务提示（点击 Later）
+    const handleCloseAiServerTips = useCallback(() => {
+        setIsShowAiServerTips(false);
+        // 只在用戶點擊 Later 時才標記為已顯示，避免重複提示
+        localStorage.setItem('hasShowedAiServerTips', 'true');
     }, []);
 
 
@@ -176,16 +138,18 @@ const SearchBar = () => {
             <Card>
                 <Stack spacing={2} alignItems='center'>
                     <Typography variant='titleMedium' className='w-full'>
-                        AI enhanced services
+                        {t('app.aiSever.title')}
                     </Typography>
-                    <img src={AISeverImage} className='w-45 h-45' />
-                    {AISeverTipsText}
+                    <img src={AISeverImage} className='w-45 h-45' alt="AI Service" />
+                    <Typography variant='bodyLarge' color='text.primary' className='whitespace-pre-line leading-relaxed! '>
+                        {t('app.aiSever.description')}
+                    </Typography>
                     <Stack spacing={1} alignItems='center'>
                         <Button variant='contained' onClick={handleSetAiProvider} fullWidth={false} className='w-fit'>
-                            GO TO SET
+                            {t('app.aiSever.goToSet')}
                         </Button>
-                        <Button variant='outlined' onClick={() => { setIsShowAiServerTips(false); }} fullWidth={false} className='w-fit'>
-                            Later
+                        <Button variant='outlined' onClick={handleCloseAiServerTips} fullWidth={false} className='w-fit'>
+                            {t('app.aiSever.later')}
                         </Button>
                     </Stack>
                 </Stack>

@@ -36,14 +36,25 @@
       "not-available-update": "Neueste Version",
       "open": "Öffnen",
       "reInstall": "Neu installieren",
+      "set": "Festlegen",
       "system": "System",
       "title": "Einstellungen",
       "update": "Aktualisierung",
       "userExperience": "Programm zur Verbesserung der Benutzererfahrung",
       "visualIndex": "Bildindexierung aktivieren",
-      "website": "Offizielle Website"
+      "website": "Offizielle Website",
+      "aiProviderFields": {
+        "apiHost": "API-Host",
+        "apiHostPlaceholder": "Bitte API-Adresse eingeben",
+        "modelID": "Modell-ID"
+      },
+      "aiProviderErrors": {
+        "apiHostRequired": "Bitte API-Host eingeben",
+        "modelIDRequired": "Bitte Modell-ID auswählen"
+      }
     },
     "common": {
+      "apply": "Anwenden",
       "cancel": "Abbrechen",
       "close": "Schließen",
       "confirm": "Bestätigen",
@@ -78,7 +89,13 @@
       "notConfigured": "AI-Dienst nicht konfiguriert",
       "pending": "AI-Indizierung läuft, Sie können jederzeit suchen",
       "success": "AI-Indizierung abgeschlossen",
-      "tooltip": "AI-Indizierung läuft, CPU- oder GPU-Auslastung wird steigen"
+      "tooltip": "AI-Indizierung läuft, CPU- oder GPU-Auslastung wird steigen",
+      "title": "KI-verbesserte Dienste",
+      "description": "Sie können KI-verbesserte Dienste aktivieren. Osai wird sich Ihre Dateien mit einem leistungsstarken KI-Modell merken.\n\n🧠 Dokumentverständnis: Mit dem Verständnis der KI können Sie dieses Dokument schneller und einfacher finden.\n\n🔍 KI markiert Dateien automatisch—suchen und finden, Kategorisierung überspringen\n\n🖼️ Bilder verstehen: Wirklich den Inhalt eines Bildes verstehen, nicht nur auf OCR angewiesen sein.",
+      "goToSet": "ZU DEN EINSTELLUNGEN",
+      "getMore": "Mehr erfahren",
+      "later": "Später",
+      "emptyResultTip": "Sie können KI-Verbesserungsdienste verwenden, damit die KI sich Ihre Dateien merkt."
     },
     "aiMark": {
       "buttons": {
@@ -157,6 +174,12 @@
       "content": "📌 Neue AI Mark-Funktion: Sie können die KI dazu bringen, sich an jede Datei zu erinnern, damit Sie die Datei später schneller finden oder Fragen dazu stellen können.\n📌 OCR-Funktion: Um Computerressourcen zu sparen, wird die visuelle Indexierung jetzt vom OCR-Dienst bereitgestellt: Es wird nur Text aus Bildern extrahiert, ohne KI-Modelle zur Bildzusammenfassung zu verwenden. Bei Bedarf können Sie AI Mark für Bilder verwenden.\n📌 Kontextmenü hinzugefügt: Sie können mit der rechten Maustaste auf Suchergebnisse klicken, um die AI Mark-Funktion zu verwenden.",
       "primaryButtonText": "Verstanden",
       "title": "Einführung in das Versions-Update"
+    },
+    "guide": {
+      "step1": "Osai wird sich an die von Ihnen geöffneten Dateien erinnern",
+      "step2": "Suchen Sie nach Inhalt, auch wenn Sie den Titel vergessen haben.",
+      "step3": "Installieren Sie KI, um mächtige Intelligenz für Osai freizuschalten.",
+      "step4": "Alle Inhalte bleiben lokal und zu 100% privat geschützt."
     }
   }
 }

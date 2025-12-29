@@ -36,14 +36,25 @@
       "not-available-update": "Dernière version",
       "open": "Ouvrir",
       "reInstall": "Réinstaller",
+      "set": "Définir",
       "system": "Système",
       "title": "Paramètres",
       "update": "Mise à jour",
       "userExperience": "Programme d'amélioration de l'expérience utilisateur",
       "visualIndex": "Activer l'indexation d'images",
-      "website": "Site Web Officiel"
+      "website": "Site Web Officiel",
+      "aiProviderFields": {
+        "apiHost": "Hôte API",
+        "apiHostPlaceholder": "Veuillez saisir l'adresse API",
+        "modelID": "ID du modèle"
+      },
+      "aiProviderErrors": {
+        "apiHostRequired": "Veuillez saisir l'hôte API",
+        "modelIDRequired": "Veuillez sélectionner l'ID du modèle"
+      }
     },
     "common": {
+      "apply": "Appliquer",
       "cancel": "Annuler",
       "close": "Fermer",
       "confirm": "Confirmer",
@@ -78,7 +89,13 @@
       "notConfigured": "Service IA non configuré",
       "pending": "Indexation IA en cours, vous pouvez rechercher à tout moment",
       "success": "Indexation IA terminée",
-      "tooltip": "Indexation IA en cours, l'utilisation du CPU ou du GPU augmentera"
+      "tooltip": "Indexation IA en cours, l'utilisation du CPU ou du GPU augmentera",
+      "title": "Services améliorés par IA",
+      "description": "Vous pouvez activer les services améliorés par IA. Osai mémorisera vos fichiers grâce à un modèle IA puissant.\n\n🧠 Compréhension de documents : Grâce à la compréhension de l'IA, vous pouvez trouver ce document plus rapidement et plus facilement.\n\n🔍 L'IA marque automatiquement les fichiers—recherchez et trouvez, sans catégorisation\n\n🖼️ Comprendre les images : Comprendre vraiment le contenu d'une image, pas seulement s'appuyer sur l'OCR.",
+      "goToSet": "ALLER AUX PARAMÈTRES",
+      "getMore": "En savoir plus",
+      "later": "Plus tard",
+      "emptyResultTip": "Vous pouvez utiliser les services d'amélioration IA pour laisser l'IA mémoriser vos fichiers."
     },
     "aiMark": {
       "buttons": {
@@ -157,6 +174,12 @@
       "content": "📌 Nouvelle fonctionnalité AI Mark : vous pouvez laisser  l'IA se souvenir de n'importe quel fichier, afin de pouvoir le  retrouver plus rapidement ou poser des questions à son sujet.\n📌 Fonctionnalité OCR : pour économiser les ressources informatiques, l'indexation visuelle est maintenant fournie par le service OCR :  seul le texte des images sera extrait, sans plus utiliser de modèle IA pour résumer les images. Si nécessaire, vous pouvez utiliser AI Mark sur les images.\n📌 Ajout du menu contextuel : vous pouvez faire  un clic droit sur les résultats de recherche pour utiliser la fonctionnalité AI Mark.",
       "primaryButtonText": "Compris",
       "title": "Introduction de la mise à jour de version"
+    },
+    "guide": {
+      "step1": "Osai se souviendra des fichiers que vous avez ouverts",
+      "step2": "Recherchez par contenu même si vous oubliez le titre.",
+      "step3": "Installez l'IA pour débloquer une intelligence puissante pour Osai.",
+      "step4": "Tout le contenu reste local et 100% privé."
     }
   }
 }

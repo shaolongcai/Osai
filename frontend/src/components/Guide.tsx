@@ -4,6 +4,7 @@ import guide2Img from '@/assets/images/guide2.png'
 import guide3Img from '@/assets/images/guide3.png'
 import guide4Img from '@/assets/images/guide4.png'
 import { useCallback, useState } from "react";
+import { useTranslation } from '@/contexts/useI18n';
 
 
 interface Props {
@@ -15,26 +16,25 @@ interface Props {
 const Guide: React.FC<Props> = ({
     onFinish,
 }) => {
-
+    const { t } = useTranslation();
     const [activeStep, setActiveStep] = useState(0);
 
     // 步骤对应的文案与图片
     const steps = [
         {
-            title: 'Osai will remember the files you have opened',
+            title: t('app.guide.step1'),
             image: guide1Img,
         },
         {
-            title: 'Search by content even if you forget the title.',
+            title: t('app.guide.step2'),
             image: guide2Img,
         },
         {
-            title: 'Install AI to unlock powerful intelligence for Osai.',
+            title: t('app.guide.step3'),
             image: guide3Img,
         },
         {
-            title: 'All content stays local and 100% private lock.',
-            // title: 'All content, whether data or AI, is completed locally, with 100% private lock.',
+            title: t('app.guide.step4'),
             image: guide4Img,
         },
     ];
@@ -83,7 +83,7 @@ const Guide: React.FC<Props> = ({
                             color="primary"
                             onClick={handleFinish}
                         >
-                            Finish
+                            {t('app.aiMark.buttons.finish')}
                         </Button>
                         :
                         <Button
@@ -91,7 +91,7 @@ const Guide: React.FC<Props> = ({
                             color="primary"
                             onClick={() => setActiveStep(activeStep + 1)}
                         >
-                            Next
+                            {t('app.aiMark.buttons.next')}
                         </Button>
                 }
             </Stack>

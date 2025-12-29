@@ -222,11 +222,11 @@ const SearchPanel: React.FC<Props> = ({
                         !aiConfig &&
                         <>
                             <Typography variant='bodyMedium' color='textSecondary'>
-                                你可以使用AI增强服务，让AI记住你的文件。
+                                {t('app.aiSever.emptyResultTip')}
                             </Typography>
                             <Stack spacing={1}>
                                 <Button variant='contained' onClick={showAiServerTips}>
-                                    Get More
+                                    {t('app.aiSever.getMore')}
                                 </Button>
                             </Stack>
                         </>

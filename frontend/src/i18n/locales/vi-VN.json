@@ -36,14 +36,25 @@
       "not-available-update": "Phiên bản mới nhất",
       "open": "Mở",
       "reInstall": "Cài đặt lại",
+      "set": "Thiết lập",
       "system": "Hệ thống",
       "title": "Cài đặt",
       "update": "Cập nhật",
       "userExperience": "Chương trình cải thiện trải nghiệm người dùng",
       "visualIndex": "Kích hoạt lập chỉ mục hình ảnh",
-      "website": "Trang Web Chính Thức"
+      "website": "Trang Web Chính Thức",
+      "aiProviderFields": {
+        "apiHost": "API Máy chủ",
+        "apiHostPlaceholder": "Vui lòng nhập địa chỉ API",
+        "modelID": "ID Mô hình"
+      },
+      "aiProviderErrors": {
+        "apiHostRequired": "Vui lòng nhập API Máy chủ",
+        "modelIDRequired": "Vui lòng chọn ID Mô hình"
+      }
     },
     "common": {
+      "apply": "Áp dụng",
       "cancel": "Hủy",
       "close": "Đóng",
       "confirm": "Xác nhận",
@@ -78,7 +89,13 @@
       "notConfigured": "Dịch vụ AI chưa được cấu hình",
       "pending": "Đang lập chỉ mục AI, bạn có thể tìm kiếm bất cứ lúc nào",
       "success": "Lập chỉ mục AI đã hoàn tất",
-      "tooltip": "Đang lập chỉ mục AI, việc sử dụng CPU hoặc GPU sẽ tăng"
+      "tooltip": "Đang lập chỉ mục AI, việc sử dụng CPU hoặc GPU sẽ tăng",
+      "title": "Dịch vụ nâng cao AI",
+      "description": "Bạn có thể bật dịch vụ nâng cao AI. Osai sẽ ghi nhớ các tệp của bạn bằng một mô hình AI mạnh mẽ.\n\n🧠 Hiểu tài liệu: Với sự hiểu biết của AI, bạn có thể tìm tài liệu này nhanh hơn và dễ dàng hơn.\n\n🔍 AI tự động gắn thẻ tệp—tìm kiếm và tìm, bỏ qua phân loại\n\n🖼️ Hiểu hình ảnh: Thực sự hiểu nội dung của hình ảnh, không chỉ dựa vào OCR.",
+      "goToSet": "ĐẾN CÀI ĐẶT",
+      "getMore": "Tìm hiểu thêm",
+      "later": "Để sau",
+      "emptyResultTip": "Bạn có thể sử dụng dịch vụ nâng cao AI để để AI ghi nhớ các tệp của bạn."
     },
     "aiMark": {
       "buttons": {
@@ -157,6 +174,12 @@
       "content": "📌 Tính năng AI Mark mới: Bạn có thể để AI ghi nhớ bất kỳ tệp nào để tìm lại nhanh hơn hoặc đặt câu hỏi sau này.\n📌 OCR: Để tiết kiệm tài nguyên máy tính, lập chỉ mục hình ảnh sẽ sử dụng OCR: chỉ trích xuất văn bản, không dùng mô hình AI tóm tắt hình ảnh. Nếu cần, hãy dùng AI Mark cho hình ảnh.\n📌 Menu chuột phải: Bạn có thể nhấp chuột phải trên kết quả tìm kiếm để sử dụng AI Mark.",
       "primaryButtonText": "Đã hiểu",
       "title": "Giới thiệu cập nhật phiên bản"
+    },
+    "guide": {
+      "step1": "Osai sẽ ghi nhớ các tệp bạn đã mở",
+      "step2": "Tìm kiếm theo nội dung ngay cả khi bạn quên tiêu đề.",
+      "step3": "Cài đặt AI để mở khóa trí thông minh mạnh mẽ cho Osai.",
+      "step4": "Tất cả nội dung được giữ cục bộ và 100% bảo mật riêng tư."
     }
   }
 }

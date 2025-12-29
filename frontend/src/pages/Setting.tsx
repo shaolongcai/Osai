@@ -260,7 +260,7 @@ const Setting = () => {
                             <SettingItem
                                 title={t('app.settings.aiProvider')}
                                 type='button'
-                                value={aiProvider?.model || 'SET'}
+                                value={aiProvider?.model || t('app.settings.set')}
                                 onAction={() => {
                                     setOpenAIProvider(true)
                                     setOpenSetting(false)

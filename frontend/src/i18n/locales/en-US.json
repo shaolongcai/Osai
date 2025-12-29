@@ -36,14 +36,25 @@
       "not-available-update": "Latest version",
       "open": "Open",
       "reInstall": "Reinstall",
+      "set": "Set",
       "system": "System",
       "title": "Settings",
       "update": "Update",
       "userExperience": "User Experience Improvement Plan",
       "visualIndex": "Enable Image Indexing",
-      "website": "Official Website"
+      "website": "Official Website",
+      "aiProviderFields": {
+        "apiHost": "API Host",
+        "apiHostPlaceholder": "Please input API address",
+        "modelID": "Model ID"
+      },
+      "aiProviderErrors": {
+        "apiHostRequired": "Please input API Host",
+        "modelIDRequired": "Please select Model ID"
+      }
     },
     "common": {
+      "apply": "Apply",
       "cancel": "Cancel",
       "close": "Close",
       "confirm": "Confirm",
@@ -78,7 +89,13 @@
       "notConfigured": "AI service not configured",
       "pending": "AI Indexing, you can search at any time",
       "success": "AI Indexing completed",
-      "tooltip": "AI Indexing, CPU or GPU usage will increase"
+      "tooltip": "AI Indexing, CPU or GPU usage will increase",
+      "title": "AI enhanced services",
+      "description": "You can enable AI-enhanced services. Osai will remember your files by a powerful AI model.\n\n🧠 Document Understanding: With AI's understanding, you can find this document faster and easier.\n\n🔍 AI auto-tags files—search & find, skip categorizing\n\n🖼️ understand Image: Truly understanding the content of an image, not just relying on OCR.",
+      "goToSet": "GO TO SET",
+      "getMore": "Get More",
+      "later": "Later",
+      "emptyResultTip": "You can use AI enhancement services to let AI remember your files."
     },
     "aiMark": {
       "buttons": {
@@ -157,6 +174,12 @@
       "content": "📌 New hotkey: You can now press Alt+Space to summon the hotkey and find files more easily; press ESC or the hotkey again to hide.\n📌 New system tray: Closing the app now minimizes it to the system tray in the bottom-right corner. You can find the osai icon there and right-click to exit. While minimized to tray, you can still summon the hotkey anytime.\n📌 Expanded search categories: You can now search for folders and applications in the search bar summoned by the hotkey.",
       "primaryButtonText": "Got it",
       "title": "Version Update Introduction"
+    },
+    "guide": {
+      "step1": "Osai will remember the files you have opened",
+      "step2": "Search by content even if you forget the title.",
+      "step3": "Install AI to unlock powerful intelligence for Osai.",
+      "step4": "All content stays local and 100% private lock."
     }
   }
 }

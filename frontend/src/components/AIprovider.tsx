@@ -1,5 +1,5 @@
 import { ConfigParams } from "@/types/electron";
-import { Button, Card, MenuItem, Paper, Stack, TextField, Typography } from "@mui/material"
+import { Button, Card, MenuItem, Stack, TextField, Typography } from "@mui/material"
 import { useRequest } from "ahooks";
 import { useState } from "react";
 import { useTranslation } from '@/contexts/useI18n';
@@ -34,8 +34,8 @@ const AIProvider: React.FC<Props> = ({
 
         // 检查
         if (!apiHost || !modelID) {
-            setApiHostError(!apiHost ? 'please input API Host' : '');
-            setModelIDError(!modelID ? 'please input Model ID' : '');
+            setApiHostError(!apiHost ? t('app.settings.aiProviderErrors.apiHostRequired') : '');
+            setModelIDError(!modelID ? t('app.settings.aiProviderErrors.modelIDRequired') : '');
             return;
         }
 
@@ -65,9 +65,9 @@ const AIProvider: React.FC<Props> = ({
                     </Typography>
                     <TextField
                         required
-                        label='API Host'
+                        label={t('app.settings.aiProviderFields.apiHost')}
                         variant='standard'
-                        placeholder='Please input API address'
+                        placeholder={t('app.settings.aiProviderFields.apiHostPlaceholder')}
                         onChange={(e) => setApiHost(e.target.value)}
                         value={apiHost}
                         fullWidth
@@ -77,7 +77,7 @@ const AIProvider: React.FC<Props> = ({
                     <TextField
                         required
                         select
-                        label='Model ID'
+                        label={t('app.settings.aiProviderFields.modelID')}
                         variant='standard'
                         value={modelID}
                         fullWidth
@@ -94,7 +94,7 @@ const AIProvider: React.FC<Props> = ({
                         fullWidth={false}
                         onClick={handleApply}
                     >
-                        Apply
+                        {t('app.common.apply')}
                     </Button>
                     <Button
                         variant='outlined'
@@ -102,7 +102,7 @@ const AIProvider: React.FC<Props> = ({
                         fullWidth={false}
                         onClick={() => { onFinish() }}
                     >
-                        Cancel
+                        {t('app.common.cancel')}
                     </Button>
                 </Stack>
             </Stack>

@@ -127,7 +127,11 @@ function loadTrayTranslations(language: string): any {
     const translationData = readFileSync(localesPath, 'utf-8');
     const translations = JSON.parse(translationData);
     
-    // 從合併後的 JSON 中提取 tray 模塊
+    // 從合併後的 JSON 中提取 tray 模塊（現在在 app.tray 下）
+    if (translations.app && translations.app.tray) {
+      return translations.app.tray;
+    }
+    // 向後兼容：如果 tray 在頂層，也支持
     if (translations.tray) {
       return translations.tray;
     }
@@ -148,7 +152,11 @@ function loadTrayTranslations(language: string): any {
       const translationData = readFileSync(fallbackPath, 'utf-8');
       const translations = JSON.parse(translationData);
       
-      // 從合併後的 JSON 中提取 tray 模塊
+      // 從合併後的 JSON 中提取 tray 模塊（現在在 app.tray 下）
+      if (translations.app && translations.app.tray) {
+        return translations.app.tray;
+      }
+      // 向後兼容：如果 tray 在頂層，也支持
       if (translations.tray) {
         return translations.tray;
       }
@@ -375,14 +383,18 @@ app.whenReady().then(async () => {
   initializeSystemApi()
 
   // 監聽托盤菜單語言更新
-  ipcMain.on('update-tray-language', (_event, language: string) => {
+  ipcMain.on('update-tray-language', (event, language: string) => {
     updateTrayMenu(language);
-    // 廣播語言更改到所有窗口（包括搜索框）
-    if (windowManager.searchWindow && !windowManager.searchWindow.isDestroyed()) {
+    // 廣播語言更改到其他窗口（排除發送消息的窗口，避免循環）
+    const senderWebContents = event.sender;
+    if (windowManager.searchWindow && !windowManager.searchWindow.isDestroyed() && windowManager.searchWindow.webContents !== senderWebContents) {
       windowManager.searchWindow.webContents.send('language-changed', language);
     }
-    if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents !== senderWebContents) {
       mainWindow.webContents.send('language-changed', language);
+    }
+    if (settingsWindow && !settingsWindow.isDestroyed() && settingsWindow.webContents !== senderWebContents) {
+      settingsWindow.webContents.send('language-changed', language);
     }
   });
 
