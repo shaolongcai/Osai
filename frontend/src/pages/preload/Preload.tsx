@@ -3,10 +3,9 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import initImg from '@/assets/images/init.png'
 import initErrorImg from '@/assets/images/init-error.png'
 import { useNavigate } from 'react-router-dom';
-import { Dialog } from "@/components";
+import { Dialog, ReportProtocol } from "@/components";
 import { useGlobalContext } from "@/contexts/globalContext";
 import { useTranslation } from '@/contexts/I18nContext';
-import { UpdateStatus } from '@/types/electron';
 
 /**
  * 这个要废弃了
@@ -15,6 +14,7 @@ import { UpdateStatus } from '@/types/electron';
 const Preload = () => {
 
     const [initError, setInitError] = useState<string | null>(null);
+    const [protocolOpen, setProtocolOpen] = useState(false); // 协议弹窗
     const [updateOpen, setUpdateOpen] = useState(false); // 更新弹窗
 
     // 检查节点
@@ -27,17 +27,17 @@ const Preload = () => {
     const { t } = useTranslation();
 
     // 新增：是否为 Electron 环境
-    const isElectron = typeof window !== 'undefined' && window.electronAPI;
+    const isElectron = typeof window !== 'undefined' && (window as any).electronAPI;
 
     // 检查是否有更新（兼容非 Electron 环境）
     useEffect(() => {
-        if (!window.electronAPI) {
+        if (!(window as any).electronAPI) {
             // 非 Electron 环境：跳过更新检查，直接进入协议判断
             setIsCheckUpdate(true);
             return;
         }
         // 监听更新
-        window.electronAPI.onUpdateStatus((data: UpdateStatus) => {
+        window.electronAPI.onUpdateStatus(async (data) => {
             console.log('更新信息', data)
             if (data.isUpdateAvailable) {
                 setUpdateOpen(true);
@@ -60,7 +60,7 @@ const Preload = () => {
         if (isCheckUpdate) {
             showAgreeProtocol();
         }
-    }, [isCheckUpdate, showAgreeProtocol]);
+    }, [isCheckUpdate]);
 
     // 初始化准备工作
     useEffect(() => {
@@ -70,7 +70,7 @@ const Preload = () => {
             }
             initServer();
         }
-    }, [isCheckProtocol, initServer]);
+    }, [isCheckProtocol]);
 
     // 初始化服务
     const initServer = useCallback(async () => {
@@ -92,7 +92,7 @@ const Preload = () => {
         else {
             setInitError(res.errMsg);
         }
-    }, [navigate, context])
+    }, [navigate])
 
 
     // 展示同意协议
@@ -163,7 +163,7 @@ const Preload = () => {
                             <Typography variant="body1" color="error" align="center">
                                 {initError}
                             </Typography>
-                            <Button variant='outlined' onClick={() => isElectron ? window.electronAPI.openDir('runLog') : undefined}>
+                            <Button variant='outlined' onClick={() => isElectron ? (window as any).electronAPI.openDir('runLog') : undefined}>
                                 {t('app.preload.openLog')}
                             </Button>
                         </Stack>

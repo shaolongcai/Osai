@@ -1,5 +1,6 @@
 import React from 'react'
-import { Paper, Stack } from "@mui/material"
+import { Link, Paper, Stack, Typography } from "@mui/material"
+import { useTranslation } from '@/contexts/I18nContext'
 import DiscordIcon from '@/assets/icons/discord.svg'
 import EmailIcon from '@/assets/icons/email.svg'
 import { useNotifications } from '@toolpad/core/useNotifications'
@@ -8,9 +9,10 @@ interface Props {
   title?: string;
 }
 
-const Contact: React.FC<Props> = () => {
+const Contact: React.FC<Props> = ({ title }) => {
 
   const notifications = useNotifications();
+  const { t } = useTranslation();
 
   // 复制邮箱
   const copyEmail = () => {

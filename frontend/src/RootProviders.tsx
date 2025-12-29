@@ -9,7 +9,7 @@ import { GpuInfo } from "./types/electron";
 
 // Provider 初始化与订阅（示例）
 function RootProviders({ children }) {
-    const [lang] = useState('zh-CN');
+    const [lang, setLang] = useState('zh-CN');
 
     // useEffect(() => {
     //     window.electronAPI.getConfig('app_language').then(setLang);

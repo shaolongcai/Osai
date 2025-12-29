@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import ReactDOM from 'react-dom/client';
 import SearchBar from '@/pages/Search';   // 你的搜索条组件
 import { Routes, Route, HashRouter } from 'react-router-dom';

@@ -5,7 +5,7 @@ import { NotificationType } from "@/utils/enum";
 /**
  * 接口返回的base响应
  */
-export interface BaseResponse<T = unknown> {
+export interface BaseResponse<T = any> {
     code: number,
     errMsg?: string,
     data: T
@@ -47,7 +47,7 @@ export interface GpuInfo {
 // 设置配置需要填写的参数
 export interface ConfigParams {
     key: string, // 配置项的key
-    value: string | number | boolean, // 配置项的值
+    value: any, // 配置项的值
     type?: 'boolean' | 'string' | 'number', // 配置值的类型，默认是string
 }
 
@@ -57,13 +57,6 @@ type OpenDirType = 'runLog' | 'openFileDir' | 'openFile'
 //初始化返回的类型
 type InitData = GpuInfo & {
     isReadyAI: boolean, //是否准备好AI Mark功能
-}
-
-// 更新狀態類型
-export interface UpdateStatus {
-    isUpdateAvailable?: boolean;
-    version?: string;
-    message?: string;
 }
 
 
@@ -125,7 +118,7 @@ interface ElectronAPI {
     onIndexProgress(callback: (data: Progress) => void): void;
     onVisualIndexProgress(callback: (data: Progress) => void): void;
     onSystemInfo(callback: (data: Notification) => void): void;
-    onUpdateStatus(callback: (data: UpdateStatus) => void): void; // 检查更新状态
+    onUpdateStatus(callback: (data: any) => void): void; // 检查更新状态,暂时用any占位
     onAiSeverInstalled(callback: (data: boolean) => void): void; // AI服务是否安装
     onNavigateToSettings(callback: () => void): void; // 從托盤菜單導航到設定頁面
     onLanguageChanged(callback: (language: string) => void): void; // 語言更改監聽

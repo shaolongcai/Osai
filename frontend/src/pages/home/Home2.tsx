@@ -33,6 +33,8 @@ const Home = () => {
   const [openAiMarkDialog, setOpenAiMarkDialog] = useState(false); //是否打开AI mark功能引导弹窗
   const [openUpdateTips, setOpenUpdateTips] = useState(false); //是否打开版本更新提示
 
+  // 检查是否在Electron环境中
+  const isElectron = typeof window !== 'undefined' && window.electronAPI;
   const effectRan = useRef(false); // 执行守卫
   const context = useGlobalContext(); // 全局上下文
 
@@ -59,7 +61,7 @@ const Home = () => {
       setNeedIndexImageCount(data.count as string);
     });
     // 监听AI mark功能是否安装
-    window.electronAPI.onAiSeverInstalled(() => {
+    window.electronAPI.onAiSeverInstalled(async (data) => {
       setOpenAiMarkDialog(true)
       context.setIsReadyAI(true); //告诉全局AI功能已经准备好
     });
@@ -67,14 +69,14 @@ const Home = () => {
     window.electronAPI.onNavigateToSettings(() => {
       setOpenSetting(true);
     });
-      return () => {
+    return () => {
       // 移除监听
       window.electronAPI.removeAllListeners('index-progress');
       window.electronAPI.removeAllListeners('visual-index-progress');
       window.electronAPI.removeAllListeners('ai-server-installed');
       window.electronAPI.removeAllListeners('navigate-to-settings');
     };
-  }, [context]);
+  }, []);
 
   // 初始化node进程,(设置完监听后，再开始初始化)
   useEffect(() => {
@@ -98,15 +100,15 @@ const Home = () => {
       setSortedData([]);
       setSortConfig({ key: null, direction: null });
     }
-  }, [keyword, searchFiles])
+  }, [keyword])
 
   // 处理数据排序
   // 通用数据排序逻辑
   useEffect(() => {
     if (sortConfig.key && sortConfig.direction && data.length > 0) {
       const sorted = [...data].sort((a, b) => {
-        let aValue: string | number | Date;
-        let bValue: string | number | Date;
+        let aValue: any;
+        let bValue: any;
 
         // 根据不同字段进行不同的排序处理
         switch (sortConfig.key) {

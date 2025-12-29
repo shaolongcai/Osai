@@ -1,4 +1,4 @@
-import { Button, Card, Stack, Typography } from "@mui/material"
+import { Button, Card, Checkbox, FormControlLabel, Paper, Stack, Typography } from "@mui/material"
 import { useState } from "react";
 import { ConfigParams } from "@/types/electron";
 import { useTranslation } from "../contexts/I18nContext";
@@ -15,7 +15,7 @@ const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
     onFinish,
 }) => {
 
-    const [isRemind] = useState(false);
+    const [isRemind, setIsRemind] = useState(false);
     const { t } = useTranslation();
 
     // 同意协议
@@ -27,6 +27,12 @@ const ReportProtocol: React.FC<Props & { hideBackdrop?: boolean }> = ({
             type: 'boolean',
         }
         await window.electronAPI.setConfig(params);  // 接口设置同意
+        await setNotRemind();
+        onFinish();
+    }
+
+    // 关闭弹窗
+    const handleClose = async () => {
         await setNotRemind();
         onFinish();
     }
