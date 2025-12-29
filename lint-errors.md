@@ -4,7 +4,7 @@
 
 ## 總覽
 
-- **總錯誤數**：109（已修復：39）
+- **總錯誤數**：109（已修復：43）
 - **總警告數**：13
 - **可自動修復**：1 個錯誤（已修復）
 - **any 類型錯誤**：38 個（已全部修復 ✅）
@@ -25,10 +25,10 @@
 - 第 1 行：`theme` 已定義但從未使用
 
 #### components/Contact.tsx
-- 第 2 行：`Link` 已定義但從未使用
-- 第 2 行：`Typography` 已定義但從未使用
-- 第 12 行：`title` 已定義但從未使用
-- 第 15 行：`t` 被賦值但從未使用
+- ✅ 第 2 行：`Link` 已定義但從未使用（已修復）
+- ✅ 第 2 行：`Typography` 已定義但從未使用（已修復）
+- ✅ 第 12 行：`title` 已定義但從未使用（已修復）
+- ✅ 第 15 行：`t` 被賦值但從未使用（已修復）
 
 #### components/InfoCard.tsx
 - 第 1 行：`Fade` 已定義但從未使用
@@ -313,24 +313,24 @@
 
 ### 按檔案統計
 
-| 檔案 | 錯誤數 | 警告數 |
-|------|-------|--------|
-| pages/Setting.tsx | 19 | 2 |
-| components/Setting/Setting.tsx | 16 | 0 |
-| pages/Preload.tsx | 9 | 2 |
-| contexts/I18nContext.tsx | 8 | 1 |
-| types/electron.d.ts | 3 | 0 |
-| pages/home/Home2.tsx | 5 | 2 |
-| pages/preload/Preload.tsx | 5 | 3 |
-| components/TableRelust/TableRelust.tsx | 4 | 1 |
-| pages/Search.tsx | 6 | 0 |
+| 檔案 | 錯誤數 | 警告數 | 修復狀態 |
+|------|-------|--------| ----- |
+| pages/Setting.tsx | 19 | 2 |  |
+| components/Setting/Setting.tsx | 16 | 0 | |
+| pages/Preload.tsx | 9 | 2 | |
+| contexts/I18nContext.tsx | 8 | 1 | |
+| types/electron.d.ts | 3 | 0 | |
+| pages/home/Home2.tsx | 5 | 2 | |
+| pages/preload/Preload.tsx | 5 | 3 | |
+| components/TableRelust/TableRelust.tsx | 4 | 1 | |
+| pages/Search.tsx | 6 | 0 | |
 | flags/FlagIcons.tsx | 4 | 0 |
-| components/LanguageSwitcher/LanguageSwitcher.tsx | 2 | 0 |
-| components/SearchPanel.tsx | 1 | 0（已修復 1 個錯誤） |
-| components/InfoCard.tsx | 3 | 0 |
-| components/ReportProtocol.tsx | 5 | 0 |
-| components/Contact.tsx | 4 | 0 |
-| 其他檔案 | 各 1-3 個錯誤 | 0-1 個警告 |
+| components/LanguageSwitcher/LanguageSwitcher.tsx | 2 | 0 | |
+| components/SearchPanel.tsx | 1 | 0 | （已修復 1 個錯誤） |
+| components/InfoCard.tsx | 3 | 0 | |
+| components/ReportProtocol.tsx | 5 | 0 | |
+| components/Contact.tsx | 4 | 0 |（已修復 4 個錯誤） |
+| 其他檔案 | 各 1-3 個錯誤 | 0-1 個警告 | |
 
 ---
 
