@@ -10,6 +10,7 @@
     "@electron-forge/plugin-fuses": "^7.9.0",
     "@electron-forge/plugin-vite": "^7.9.0",
     "@electron/fuses": "^1.8.0",
+    "@eslint/js": "^9.33.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.3.1",
     "@vitejs/plugin-react": "^5.0.2",
@@ -18,8 +19,13 @@
     "electron": "^38.7.2",
     "electron-builder": "^26.0.12",
     "electron-rebuild": "^3.2.9",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.1",
     "vite": "^7.1.5",
     "wait-on": "^8.0.4"
   },
@@ -31,7 +37,10 @@
     "make": "electron-forge make",
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "build:win": "electron-builder --win --x64"
+    "build:win": "electron-builder --win --x64",
+    "lint": "eslint frontend",
+    "lint:style": "cd frontend && npm run lint:style",
+    "lint:fix": "eslint frontend --fix"
   },
   "name": "osai",
   "version": "1.0.0",
