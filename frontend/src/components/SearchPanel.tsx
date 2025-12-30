@@ -24,7 +24,6 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     name,
     icon,
     ext,
-    isAiMark = false,
     snippet,
     isSelected = false,
     onClick,

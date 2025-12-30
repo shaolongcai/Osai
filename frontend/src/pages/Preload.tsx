@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useGlobalContext } from "@/contexts/globalContext";
-import { Guide, Login, ReportProtocol, UpdateNotification } from "@/components";
+import { Guide, Login, UpdateNotification } from "@/components";
 import { useTranslation } from '@/i18n';
-import { Button, LinearProgress, Paper, Stack, Typography } from "@mui/material";
+import { Button, LinearProgress, Stack, Typography } from "@mui/material";
 import initImg from '@/assets/images/init.png'
 import initErrorImg from '@/assets/images/init-error.png'
 import { useNavigate } from 'react-router-dom';
@@ -13,21 +12,16 @@ const isElectron = typeof window !== 'undefined' && window.electronAPI;
 const Preload = () => {
 
     const [initError, setInitError] = useState<string | null>(null);
-    const [protocolOpen, setProtocolOpen] = useState<boolean>(false);
     const [updateOpen, setUpdateOpen] = useState<boolean>(false); // 是否展示更新弹窗
     const [loginOpen, setLoginOpen] = useState<boolean>(false); // 是否展示登录弹窗
     const [guideOpen, setGuideOpen] = useState<boolean>(false); // 是否展示新手引导弹窗
     const [serverOpen, setServerOpen] = useState<boolean>(false); // 是否展示服务启动弹窗
-    const [upgradeOpen, setUpgradeOpen] = useState<boolean>(false); // 是否展示升级弹窗
 
     const effectRan = useRef(false); // 执行守卫
     const updateResolveRef = useRef<(() => void) | null>(null);
-    const protocolResolveRef = useRef<(() => void) | null>(null);
     const loginResolveRef = useRef<(() => void) | null>(null); // 登录成功回调
     const guideResolveRef = useRef<(() => void) | null>(null); // 新手引导成功回调
-    const upgradeResolveRef = useRef<(() => void) | null>(null); // 升级成功回调
 
-    const context = useGlobalContext();
     const { t } = useTranslation();
     const navigate = useNavigate();
 
@@ -35,8 +29,6 @@ const Preload = () => {
     const waitUserCheckUpdate = useCallback((): Promise<void> => {
         return new Promise<void>((resolve) => {
             updateResolveRef.current = resolve; // 将resolve存放在ref中，后续直接调用resolve
-        }).then(() => {
-            setUpgradeOpen(true); // 展示升级弹窗
         });
     }, []);
 
@@ -118,12 +110,6 @@ const Preload = () => {
             await checkGuide();
             await guidePromise;
 
-            // 体验改进协议
-            // console.log('开始同意协议')
-            // const protocolPromise = waitUserCheckProtocol(); // 先绑定协议等待，不让protocolResolveRef为null
-            // await checkAgreeProtocol()   // 检查同意协议
-            // await protocolPromise
-
             // 服务启动
             console.log('开始初始化node进程')
             setServerOpen(true);
@@ -136,55 +122,6 @@ const Preload = () => {
             window.electronAPI.removeAllListeners('update-status');
         };
     }, [checkGuide, checkUpdate, initServer, waitUserCheckUpdate, waitUserGuide])
-
-    // 检查用户体验改进协议
-    const checkAgreeProtocol = useCallback(async (): Promise<void> => {
-        try {
-            // 是否设置不再提醒
-            const notRemindAgain = await window.electronAPI.getConfig('not_remind_again')
-            if (notRemindAgain) {
-                protocolResolveRef.current?.(); //已经解决，直接继续
-                return
-            }
-            // 已设置同意不需要再询问
-            const agreeProtocol = await window.electronAPI.getConfig('report_agreement')
-            if (agreeProtocol) {
-                protocolResolveRef.current?.();
-                return
-            }
-            setProtocolOpen(true);
-        } catch (error) {
-            console.error('展示同意协议失败', error);
-            setProtocolOpen(true);
-        }
-    }, []);
-
-    // 等待用户操作是否升级Pro
-    const waitUserUpgrade = useCallback((): Promise<void> => {
-        return new Promise<void>((resolve) => {
-            upgradeResolveRef.current = resolve;
-        });
-    }, []);
-
-    // 等待用户操作同意协议的 Promise；作用：在确认前暂停流程
-    const waitUserCheckProtocol = useCallback((): Promise<void> => {
-        return new Promise<void>((resolve) => {
-            protocolResolveRef.current = resolve;
-        }).then(() => {
-            setProtocolOpen(false);
-        });
-    }, []);
-
-    // 等待用户操作登录
-    const waitUserLogin = useCallback(async (): Promise<void> => {
-        return new Promise<void>((resolve) => {
-            loginResolveRef.current = resolve;
-        }).then(() => {
-            // todo 使用resolve的布尔参数，来确定用户是完成登录还是稍后登录
-            // 关闭登录弹窗
-            setLoginOpen(false);
-        });
-    }, []);
 
 
     return (

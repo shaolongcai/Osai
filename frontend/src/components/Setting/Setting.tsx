@@ -1,6 +1,6 @@
-import { Dialog, Box, Typography, Paper, Stack, Button, IconButton, styled } from '@mui/material';
+import { Dialog, Box, Typography, Paper, Stack, Button, styled } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Contact, Dialog as CustomDialog, ReportProtocol, SettingItem } from '@/components';
+import { Dialog as CustomDialog, ReportProtocol, SettingItem } from '@/components';
 import { ConfigParams } from '@/types/electron';
 import { useContext } from 'react';
 import { globalContext } from '@/contexts/globalContext';
@@ -20,12 +20,8 @@ interface SettingProps {
     onClose: () => void;
 }
 
-// 設置類別類型
-type SettingCategory = 'general' | 'ai' | 'update' | 'about';
-
 const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
 
-    const [selectedCategory, setSelectedCategory] = useState<SettingCategory>('general')
     const [openIndexImage, setOpenIndexImage] = useState(Boolean(Number(localStorage.getItem('openIndexImage') || 0)))
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false) //CPU下开启索引的弹窗
     const [openReportProtocol, setOpenReportProtocol] = useState(false) //用户体验改进计划弹窗
@@ -34,13 +30,10 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     const [isInstallGpu, setIsInstallGpu] = useState(false) //是否已安装GPU服务
     const [reportAgreement, setReportAgreement] = useState(false) //是否已同意用户体验改进计划
     // 更新檢查相關狀態
-    const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
     const [isCheckingUpdate, setIsCheckingUpdate] = useState(false)
-    const [latestVersion, setLatestVersion] = useState<string | null>(null)
     const [updateStatusText, setUpdateStatusText] = useState('')
     const [autoLaunch, setAutoLaunch] = useState(false) //是否開機自啟動
     const [autoLaunchHidden, setAutoLaunchHidden] = useState(false) //是否靜默啟動
-    const [updateStatus, setUpdateStatus] = useState<{ isLatest: boolean | null; message?: string; version?: string }>({ isLatest: null }) //更新狀態
 
     const context = useContext(globalContext)
     const { t } = useTranslation();
@@ -51,7 +44,6 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
     useEffect(() => {
         if (open) {
             // 重置更新狀態，允許用戶重新檢查
-            setUpdateStatus({ isLatest: null });
             setIsCheckingUpdate(false);
 
             window.electronAPI.getConfig().then((res: UserConfig) => {
@@ -87,12 +79,8 @@ const Setting: React.FC<SettingProps> = ({ open, onClose }) => {
         window.electronAPI.onUpdateStatus((data) => {
             setIsCheckingUpdate(false)
             if (data && data.isUpdateAvailable) {
-                setIsUpdateAvailable(true)
-                setLatestVersion(String(data.version || ''))
                 setUpdateStatusText(t('app.settings.checkUpdateStatusNewVersion', { version: data.version || '' }))
             } else {
-                setIsUpdateAvailable(false)
-                setLatestVersion(null)
                 const msg = data?.message || t('app.settings.checkUpdateStatusLatest')
                 setUpdateStatusText(msg)
             }

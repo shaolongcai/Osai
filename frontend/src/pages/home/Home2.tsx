@@ -33,8 +33,6 @@ const Home = () => {
   const [openAiMarkDialog, setOpenAiMarkDialog] = useState(false); //是否打开AI mark功能引导弹窗
   const [openUpdateTips, setOpenUpdateTips] = useState(false); //是否打开版本更新提示
 
-  // 检查是否在Electron环境中
-  const isElectron = typeof window !== 'undefined' && window.electronAPI;
   const effectRan = useRef(false); // 执行守卫
   const context = useGlobalContext(); // 全局上下文
 
@@ -61,7 +59,7 @@ const Home = () => {
       setNeedIndexImageCount(data.count as string);
     });
     // 监听AI mark功能是否安装
-    window.electronAPI.onAiSeverInstalled(async (data) => {
+    window.electronAPI.onAiSeverInstalled(async () => {
       setOpenAiMarkDialog(true)
       context.setIsReadyAI(true); //告诉全局AI功能已经准备好
     });
@@ -154,7 +152,6 @@ const Home = () => {
 
   const searchFiles = useCallback(async (keyword: string) => {
     const res = await window.electronAPI.searchFiles(keyword);
-    // console.log('结果', res);
     setData(res.data);
   }, []);
 

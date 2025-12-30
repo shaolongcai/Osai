@@ -15,6 +15,8 @@
  * ```
  */
 
+/* eslint-disable react-refresh/only-export-components */
+
 import React, { useState, useEffect, ReactNode, useCallback, useRef, useMemo, useContext, createContext } from 'react';
 import { TranslationKeys, TranslationKeyPath, I18nContextType, TranslationResources } from '../types/i18n';
 

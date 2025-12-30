@@ -3,7 +3,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import initImg from '@/assets/images/init.png'
 import initErrorImg from '@/assets/images/init-error.png'
 import { useNavigate } from 'react-router-dom';
-import { Dialog, ReportProtocol } from "@/components";
+import { Dialog } from "@/components";
 import { useGlobalContext } from "@/contexts/globalContext";
 import { useTranslation } from '@/i18n';
 
@@ -14,7 +14,6 @@ import { useTranslation } from '@/i18n';
 const Preload = () => {
 
     const [initError, setInitError] = useState<string | null>(null);
-    const [protocolOpen, setProtocolOpen] = useState(false); // 协议弹窗
     const [updateOpen, setUpdateOpen] = useState(false); // 更新弹窗
 
     // 检查节点
