@@ -25,6 +25,36 @@ const SearchBar = () => {
 
     // 处理键盘导航
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
+        const categories = Object.values(FileCate);
+        const currentCategoryIndex = categories.indexOf(selectedCategory);
+
+        // 处理左右键切换分类（仅在搜索框有内容时）
+        if (debounceSearch.length > 0) {
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                // 切换到上一个分类
+                if (currentCategoryIndex > 0) {
+                    setSelectedCategory(categories[currentCategoryIndex - 1]);
+                } else {
+                    // 如果已经在第一个，循环到最后一个
+                    setSelectedCategory(categories[categories.length - 1]);
+                }
+                return;
+            }
+            if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                // 切换到下一个分类
+                if (currentCategoryIndex < categories.length - 1) {
+                    setSelectedCategory(categories[currentCategoryIndex + 1]);
+                } else {
+                    // 如果已经在最后一个，循环到第一个
+                    setSelectedCategory(categories[0]);
+                }
+                return;
+            }
+        }
+
+        // 处理上下键切换搜索结果（仅在搜索结果存在时）
         if (data.length === 0) return;
 
         console.log('当前选中索引:', selectedIndex);
@@ -58,7 +88,7 @@ const SearchBar = () => {
                 }
                 break;
         }
-    }, [data, selectedIndex]);
+    }, [data, selectedIndex, selectedCategory, debounceSearch.length]);
 
     // 添加键盘事件监听
     useEffect(() => {
