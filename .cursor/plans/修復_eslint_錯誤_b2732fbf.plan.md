@@ -97,6 +97,3 @@ todos:
 - `frontend/src/settingIndex.tsx`
 
 需要創建的新檔案：
-
-- `frontend/src/contexts/useI18n.ts` (分離 I18n hooks)
-- `frontend/src/flags/flagUtils.ts` (分離 Flag 工具函數)

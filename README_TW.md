@@ -11,9 +11,9 @@
   ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square)
   ![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat-square)
   ![Node.js](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen?style=flat-square&logo=node.js)
-  ![Electron](https://img.shields.io/badge/electron-38.0.0-blue?style=flat-square&logo=electron)
+  ![Electron](https://img.shields.io/badge/electron-38.7.2-blue?style=flat-square&logo=electron)
   
-  <p><strong>多語言支援:</strong> [English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md)</p>
+  **多語言支援:** [English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md)
   
   <p>⭐ 點擊右上角 Star 在 GitHub 首頁接收軟體更新通知~</p>
   
@@ -33,21 +33,24 @@ Osai 是一款強大的桌面應用程式,利用人工智慧技術為使用者�
 - ⚡ **即時搜索** - 快速響應的搜索結果展示
 - 🔄 **自動更新** - 內建應用程式自動更新機制
 - 🎨 **現代化介面** - 基於 Material-UI 的美觀使用者介面
+- ⌨️ **鍵盤快捷鍵** - 高效的鍵盤導航，快速存取檔案
 
 ## 🛠️ 技術棧
 
 ### 前端技術
-- **React 18** - 現代化使用者介面框架
-- **TypeScript** - 類型安全的 JavaScript 超集
-- **Material-UI (MUI)** - React 元件庫
-- **Tailwind CSS V4** - 實用優先的 CSS 框架
-- **Vite** - 快速的前端建置工具
+- **React 19.1** - 現代化使用者介面框架
+- **TypeScript 5.8** - 類型安全的 JavaScript 超集
+- **Material-UI (MUI) 7.3** - React 元件庫
+- **Tailwind CSS V4.1** - 實用優先的 CSS 框架
+- **Vite 7.1** - 快速的前端建置工具
+- **React Router DOM 7.9** - 客戶端路由
 - **React Context** - 狀態管理與國際化
 
 ### 後端技術
-- **Electron** - 跨平台桌面應用程式框架
+- **Electron 38.7** - 跨平台桌面應用程式框架
 - **Node.js** - JavaScript 執行環境
-- **SQLite** - 輕量級關聯式資料庫
+- **TypeScript 5.9** - 類型安全的 JavaScript 超集
+- **SQLite (better-sqlite3)** - 輕量級關聯式資料庫
 - **LanceDB** - 高效能向量資料庫
 - **Tesseract.js** - OCR 文字識別引擎
 
@@ -110,12 +113,29 @@ Osai 是一款強大的桌面應用程式,利用人工智慧技術為使用者�
    npm run build:linux  # Linux
    ```
 
+## ⌨️ 鍵盤快捷鍵
+
+Osai 提供便捷的鍵盤快捷鍵，讓您的搜索體驗更加流暢：
+
+### 全域快捷鍵
+- **Alt + Space** - 顯示/隱藏搜索視窗
+- **ESC** - 隱藏搜索視窗
+
+### 搜索導航（當搜索視窗處於活動狀態時）
+- **← (左方向鍵)** - 切換到上一個分類（循環切換）
+- **→ (右方向鍵)** - 切換到下一個分類（循環切換）
+- **↑ (上方向鍵)** - 導航到上一個搜索結果
+- **↓ (下方向鍵)** - 導航到下一個搜索結果
+- **Enter** - 開啟選中的檔案/資料夾
+
+**注意**：左右方向鍵在搜索框有內容時有效。上下方向鍵和 Enter 鍵在顯示搜索結果時有效。
+
 ## 📁 專案結構
 
 ### 專案概覽
 
 ```
-ai-search/
+osai/
 ├── electron/                    # Electron 主進程程式碼
 ├── frontend/                    # React 前端應用
 ├── dist-electron/               # 編譯後的 Electron 程式碼
@@ -272,19 +292,14 @@ frontend/
 │   │   ├── index.ts             # i18n 模組匯出
 │   │   ├── constants.ts         # i18n 常數
 │   │   └── locales/             # 多語言翻譯檔案
-│   │       ├── zh-CN/           # 簡體中文
-│   │       │   ├── app.json
-│   │       │   ├── search.json
-│   │       │   └── ...           # 其他翻譯檔案
-│   │       ├── zh-TW/            # 繁體中文
-│   │       ├── en-US/            # 英文
-│   │       ├── ja-JP/            # 日文
-│   │       ├── ko-KR/            # 韓文
-│   │       ├── fr-FR/            # 法文
-│   │       ├── de-DE/            # 德文
-│   │       └── vi-VN/            # 越南文
-│   ├── config/                  # 配置檔案
-│   │   └── languages.ts         # 語言配置
+│   │       ├── zh-CN.json        # 簡體中文
+│   │       ├── zh-TW.json        # 繁體中文
+│   │       ├── en-US.json        # 英文
+│   │       ├── ja-JP.json        # 日文
+│   │       ├── ko-KR.json        # 韓文
+│   │       ├── fr-FR.json        # 法文
+│   │       ├── de-DE.json        # 德文
+│   │       └── vi-VN.json        # 越南文
 │   ├── types/                   # 類型定義
 │   │   ├── i18n.ts              # 國際化類型
 │   │   ├── electron.ts          # Electron API 類型
@@ -362,10 +377,8 @@ frontend/
   - `Search.tsx` - 搜索頁面
   - `Setting.tsx` - 設定頁面
 - **`contexts/`** - 上下文管理
-  - `I18nContext.tsx` - 國際化上下文
+  - `I18nContext.tsx` - 國際化上下文(透過 i18n 模組)
   - `globalContext.ts` - 全域狀態上下文
-- **`config/`** - 配置檔案
-  - `languages.ts` - 語言配置
 - **`hooks/`** - 自訂 React Hooks
   - `useIcon.ts` - 圖示 Hook
 
@@ -417,7 +430,7 @@ updatePack/
 
 - **React Context**: 管理全域語言狀態
 - **i18n 模組**: 集中式國際化模組 (`frontend/src/i18n/`)
-- **JSON 翻譯檔案**: 支援 8 種語言的完整翻譯,按命名空間組織在 `frontend/src/i18n/locales/` 目錄下
+- **JSON 翻譯檔案**: 支援 8 種語言的完整翻譯,位於 `frontend/src/i18n/locales/` 目錄下
 - **動態語言切換**: 即時切換介面語言,無需重啟應用
 - **國旗圖示元件**: React 元件形式的國旗圖示,支援高效渲染
 
@@ -688,8 +701,8 @@ Tailwind 配置檔案定義了以下自訂主題:
 
 ### 新增語言
 
-1. 在 `frontend/src/i18n/locales/` 中新增語言目錄,包含所有翻譯 JSON 檔案
-2. 在 `frontend/src/config/languages.ts` 中新增語言配置
+1. 在 `frontend/src/i18n/locales/` 中新增語言 JSON 檔案(例如 `xx-XX.json`)
+2. 在 `frontend/src/i18n/index.tsx` 中新增語言配置(在 `SUPPORTED_LANGUAGES` 陣列中)
 3. 在 `frontend/src/flags/FlagIcons.tsx` 中新增對應的國旗圖示
 
 ## 封裝注意事項
@@ -744,9 +757,9 @@ Tailwind 配置檔案定義了以下自訂主題:
 
 ## 📞 聯絡我們
 
-- **專案首頁**: [GitHub Repository](https://github.com/your-username/ai-search)
-- **問題回報**: [GitHub Issues](https://github.com/your-username/ai-search/issues)
-- **討論區**: [GitHub Discussions](https://github.com/your-username/ai-search/discussions)
+- **專案首頁**: [GitHub Repository](https://github.com/shaolongcai/Osai)
+- **問題回報**: [GitHub Issues](https://github.com/shaolongcai/Osai/issues)
+- **討論區**: [GitHub Discussions](https://github.com/shaolongcai/Osaih/discussions)
 
 ## 🙏 致謝
 

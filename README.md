@@ -11,9 +11,9 @@
   ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square)
   ![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat-square)
   ![Node.js](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen?style=flat-square&logo=node.js)
-  ![Electron](https://img.shields.io/badge/electron-38.0.0-blue?style=flat-square&logo=electron)
+  ![Electron](https://img.shields.io/badge/electron-38.7.2-blue?style=flat-square&logo=electron)
   
-  <p><strong>Multi-language Support:</strong> [English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md)</p>
+  **Multi-language Support:** [English](README.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md)
   
   <p>⭐ Click the Star in the upper right corner to receive software update notifications on the GitHub homepage~</p>
   
@@ -33,21 +33,24 @@ Osai is a powerful desktop application that leverages artificial intelligence te
 - ⚡ **Real-time Search** - Fast and responsive search result display
 - 🔄 **Auto Update** - Built-in application auto-update mechanism
 - 🎨 **Modern Interface** - Beautiful user interface based on Material-UI
+- ⌨️ **Keyboard Shortcuts** - Efficient keyboard navigation for quick file access
 
 ## 🛠️ Tech Stack
 
 ### Frontend Technologies
-- **React 18** - Modern user interface framework
-- **TypeScript** - Type-safe JavaScript superset
-- **Material-UI (MUI)** - React component library
-- **Tailwind CSS V4** - Utility-first CSS framework
-- **Vite** - Fast frontend build tool
+- **React 19.1** - Modern user interface framework
+- **TypeScript 5.8** - Type-safe JavaScript superset
+- **Material-UI (MUI) 7.3** - React component library
+- **Tailwind CSS V4.1** - Utility-first CSS framework
+- **Vite 7.1** - Fast frontend build tool
+- **React Router DOM 7.9** - Client-side routing
 - **React Context** - State management and internationalization
 
 ### Backend Technologies
-- **Electron** - Cross-platform desktop application framework
+- **Electron 38.7** - Cross-platform desktop application framework
 - **Node.js** - JavaScript runtime environment
-- **SQLite** - Lightweight relational database
+- **TypeScript 5.9** - Type-safe JavaScript superset
+- **SQLite (better-sqlite3)** - Lightweight relational database
 - **LanceDB** - High-performance vector database
 - **Tesseract.js** - OCR text recognition engine
 
@@ -110,12 +113,29 @@ Osai is a powerful desktop application that leverages artificial intelligence te
    npm run build:linux  # Linux
    ```
 
+## ⌨️ Keyboard Shortcuts
+
+Osai provides convenient keyboard shortcuts to enhance your search experience:
+
+### Global Shortcuts
+- **Alt + Space** - Show/hide the search window
+- **ESC** - Hide the search window
+
+### Search Navigation (when search window is active)
+- **← (Left Arrow)** - Switch to previous category (cycles through categories)
+- **→ (Right Arrow)** - Switch to next category (cycles through categories)
+- **↑ (Up Arrow)** - Navigate to previous search result
+- **↓ (Down Arrow)** - Navigate to next search result
+- **Enter** - Open the selected file/folder
+
+**Note**: Left/Right arrow keys work when the search box has content. Up/Down arrow keys and Enter work when search results are displayed.
+
 ## 📁 Project Structure
 
 ### Project Overview
 
 ```
-ai-search/
+osai/
 ├── electron/                    # Electron main process code
 ├── frontend/                    # React frontend application
 ├── dist-electron/               # Compiled Electron code
@@ -272,19 +292,14 @@ frontend/
 │   │   ├── index.ts             # i18n module exports
 │   │   ├── constants.ts         # i18n constants
 │   │   └── locales/             # Multi-language translation files
-│   │       ├── zh-CN/           # Simplified Chinese
-│   │       │   ├── app.json
-│   │       │   ├── search.json
-│   │       │   └── ...           # Other translation files
-│   │       ├── zh-TW/            # Traditional Chinese
-│   │       ├── en-US/            # English
-│   │       ├── ja-JP/            # Japanese
-│   │       ├── ko-KR/            # Korean
-│   │       ├── fr-FR/            # French
-│   │       ├── de-DE/            # German
-│   │       └── vi-VN/            # Vietnamese
-│   ├── config/                  # Configuration files
-│   │   └── languages.ts         # Language configuration
+│   │       ├── zh-CN.json        # Simplified Chinese
+│   │       ├── zh-TW.json        # Traditional Chinese
+│   │       ├── en-US.json        # English
+│   │       ├── ja-JP.json        # Japanese
+│   │       ├── ko-KR.json        # Korean
+│   │       ├── fr-FR.json        # French
+│   │       ├── de-DE.json        # German
+│   │       └── vi-VN.json        # Vietnamese
 │   ├── types/                   # Type definitions
 │   │   ├── i18n.ts              # Internationalization types
 │   │   ├── electron.ts          # Electron API types
@@ -362,10 +377,8 @@ frontend/
   - `Search.tsx` - Search page
   - `Setting.tsx` - Settings page
 - **`contexts/`** - Context management
-  - `I18nContext.tsx` - Internationalization context
+  - `I18nContext.tsx` - Internationalization context (via i18n module)
   - `globalContext.ts` - Global state context
-- **`config/`** - Configuration files
-  - `languages.ts` - Language configuration
 - **`hooks/`** - Custom React hooks
   - `useIcon.ts` - Icon hook
 
@@ -417,7 +430,7 @@ updatePack/
 
 - **React Context**: Manages global language state
 - **i18n Module**: Centralized internationalization module (`frontend/src/i18n/`)
-- **JSON Translation Files**: Complete translations for 8 languages, organized by namespace in `frontend/src/i18n/locales/`
+- **JSON Translation Files**: Complete translations for 8 languages in `frontend/src/i18n/locales/`
 - **Dynamic Language Switching**: Real-time interface language switching without restarting the application
 - **Flag Icon Components**: React component-based flag icons for efficient rendering
 
@@ -688,8 +701,8 @@ The application has built-in auto-update functionality:
 
 ### Adding New Languages
 
-1. Add a new language directory in `frontend/src/i18n/locales/` with all translation JSON files
-2. Add language configuration in `frontend/src/config/languages.ts`
+1. Add a new language JSON file (e.g., `xx-XX.json`) in `frontend/src/i18n/locales/`
+2. Add language configuration in `frontend/src/i18n/index.tsx` (in the `SUPPORTED_LANGUAGES` array)
 3. Add corresponding flag icon in `frontend/src/flags/FlagIcons.tsx`
 
 ## Packaging Notes
@@ -744,9 +757,9 @@ This project is licensed under the Apache-2.0 License - see the [LICENSE](LICENS
 
 ## 📞 Contact Us
 
-- **Project Homepage**: [GitHub Repository](https://github.com/your-username/ai-search)
-- **Issue Reporting**: [GitHub Issues](https://github.com/your-username/ai-search/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/ai-search/discussions)
+- **Project Homepage**: [GitHub Repository](https://github.com/shaolongcai/Osai)
+- **Issue Reporting**: [GitHub Issues](https://github.com/shaolongcai/Osai/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/shaolongcai/Osai/discussions)
 
 ## 🙏 Acknowledgments
 
